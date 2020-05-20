@@ -1,0 +1,53 @@
+{
+  "compilerOptions": {
+    "outDir": "dist/",
+    "module": "esnext",
+    "target": "es5",
+    "lib": [
+      "es5",
+      "es6",
+      "es7",
+      "es2017",
+      "dom"
+    ],
+    "sourceMap": true,
+    "allowJs": false,
+    "jsx": "preserve",
+    "moduleResolution": "node",
+    "rootDirs": [
+      "."
+    ],
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "noUnusedLocals": true,
+    "declaration": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "types": [
+      "react",
+      "react-dom",
+      "styled-jsx",
+      "node"
+    ],
+    "skipLibCheck": true,
+    "strict": false,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true
+  },
+  "include": [
+    "/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "scripts",
+    "dist"
+  ]
+}
