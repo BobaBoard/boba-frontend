@@ -1,8 +1,16 @@
-import { Layout, BoardFeed } from "@bobaboard/ui-components";
+import React from "react";
+import {
+  Layout,
+  BoardFeed,
+  Modal,
+  PostEditor,
+  PostingActionButton,
+} from "@bobaboard/ui-components";
 import Head from "next/head";
 
 function HomePage() {
   const [showSidebar, setShowSidebar] = React.useState(false);
+  const [postEditorOpen, setPostEditorOpen] = React.useState(false);
 
   return (
     <div>
@@ -20,6 +28,20 @@ function HomePage() {
           src="//platform.twitter.com/widgets.js"
         ></script>
       </Head>
+      <Modal isOpen={postEditorOpen}>
+        <PostEditor
+          secretIdentity={{
+            name: "Tuxedo Mask",
+            avatar: `https://placekitten.com/200/300`,
+          }}
+          userIdentity={{
+            name: "SexyDaddy69",
+            avatar: `https://placekitten.com/200/300`,
+          }}
+          onSubmit={(text) => console.log(text)}
+          onCancel={() => setPostEditorOpen(false)}
+        />
+      </Modal>
       <Layout
         mainContent={
           <BoardFeed
@@ -84,6 +106,53 @@ function HomePage() {
               avatar: `https://placekitten.com/200/300`,
               description: "Love me some bruised bois (and more).",
               color: "#f96680",
+              boardWideTags: [
+                { name: "gore", color: "#f96680" },
+                { name: "guro", color: "#e22b4b" },
+                { name: "nsfw", color: "#27caba" },
+                { name: "dead dove", color: "#f9e066" },
+              ],
+              canonicalTags: [
+                { name: "request", color: "#27caba" },
+                { name: "blood", color: "#f96680" },
+                { name: "knifeplay", color: "#93b3b0" },
+                { name: "aesthetic", color: "#24d282" },
+                { name: "impalement", color: "#27caba" },
+                { name: "skullfuck", color: "#e22b4b" },
+                { name: "hanging", color: "#f9e066" },
+                { name: "torture", color: "#f96680" },
+                { name: "necrophilia", color: "#93b3b0" },
+                { name: "shota", color: "#e22b4b" },
+                { name: "fanfiction", color: "#27caba" },
+                { name: "rec", color: "#f9e066" },
+                { name: "doujinshi", color: "#f96680" },
+                { name: "untagged", color: "#93b3b0" },
+              ],
+              contentRulesTags: [
+                { name: "shota", allowed: true },
+                { name: "nsfw", allowed: true },
+                { name: "noncon", allowed: true },
+                { name: "IRL", allowed: false },
+                { name: "RP", allowed: false },
+              ],
+              otherRules: (
+                <div>
+                  <ul>
+                    <li>
+                      Shota <strong>must</strong> be tagged.
+                    </li>
+                    <li>
+                      Requests go in the appropriate tag. If the same request
+                      has been made less than a month ago, it will be deleted by
+                      the mods.
+                    </li>
+                    <li>
+                      Mods might add any TWs tag as they see fit. If you need
+                      help, add #untagged and a mod will take care of it.
+                    </li>
+                  </ul>
+                </div>
+              ),
             }}
             accentColor={"#f96680"}
           />
@@ -98,6 +167,12 @@ function HomePage() {
           //   }}
           // />
           <div />
+        }
+        actionButton={
+          <PostingActionButton
+            accentColor={"#f96680"}
+            onNewPost={() => setPostEditorOpen(true)}
+          />
         }
         headerAccent="#f96680"
         title="!gore"
