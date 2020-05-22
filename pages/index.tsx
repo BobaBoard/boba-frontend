@@ -213,9 +213,9 @@ function HomePage() {
         body {
           font-family: "Inter", sans-serif;
           overflow: hidden;
+          background-color: rgb(47, 47, 48);
         }
       `}</style>
-      `
     </div>
   );
 }
