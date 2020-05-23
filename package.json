@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start -p 8080",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "rm -rf build/ && next build && gcloud config set project bobatest-271302 && gcloud app deploy --version live"
+    "deploy": "rm -rf build/ && yarn run build && gcloud config set project bobatest-271302 && gcloud app deploy --version live"
   },
   "author": "",
   "license": "ISC",

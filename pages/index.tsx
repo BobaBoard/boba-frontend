@@ -6,8 +6,6 @@ import {
   PostEditor,
   PostingActionButton,
 } from "@bobaboard/ui-components";
-import Head from "next/head";
-
 function HomePage() {
   const [isPostLoading, setPostLoading] = React.useState(false);
   const [posts, setPosts] = React.useState<any[]>([
@@ -68,21 +66,7 @@ function HomePage() {
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
 
   return (
-    <div>
-      {" "}
-      <Head key="layoutHead">
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap"
-          rel="stylesheet"
-        />
-        <script
-          id="twitter-wjs"
-          type="text/javascript"
-          async
-          defer
-          src="//platform.twitter.com/widgets.js"
-        ></script>
-      </Head>
+    <div className="main">
       <Modal isOpen={postEditorOpen}>
         <PostEditor
           secretIdentity={{
@@ -122,6 +106,7 @@ function HomePage() {
             setPostLoading(true);
           }}
           onCancel={() => setPostEditorOpen(false)}
+          centered
         />
       </Modal>
       <Layout
@@ -209,13 +194,6 @@ function HomePage() {
           setShowSidebar(!showSidebar);
         }}
       />
-      <style jsx global>{`
-        body {
-          font-family: "Inter", sans-serif;
-          overflow: hidden;
-          background-color: rgb(47, 47, 48);
-        }
-      `}</style>
     </div>
   );
 }
