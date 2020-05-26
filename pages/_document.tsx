@@ -1,5 +1,7 @@
 import Document, { Html, Head, Main, NextScript } from "next/document";
 
+import { flush as componentsFlush } from "@bobaboard/ui-components";
+
 const bodyCss = `
 body {
     font-family: "Inter", sans-serif;
@@ -10,13 +12,18 @@ body {
 class MyDocument extends Document {
   static async getInitialProps(ctx: any) {
     const initialProps = await Document.getInitialProps(ctx);
-    return { ...initialProps };
+    const externalStyles = componentsFlush() as any;
+    return { ...initialProps, externalStyles };
   }
 
   render() {
     return (
       <Html>
         <Head>
+          {
+            // @ts-ignore
+            this.props.externalStyles
+          }
           <meta
             name="viewport"
             content="width=device-width, initial-scale=1"
