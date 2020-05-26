@@ -5,6 +5,7 @@ import {
   Modal,
   PostEditor,
   PostingActionButton,
+  SideMenu,
 } from "@bobaboard/ui-components";
 function HomePage() {
   const [isPostLoading, setPostLoading] = React.useState(false);
@@ -15,8 +16,9 @@ function HomePage() {
         '[{"insert":"Nishin Masumi Reading Group (Week 2)"},{"attributes":{"header":1},"insert":"\\n"},{"insert":"\\nAs you know, we\'re going through \\"Host is Down\\" this week! \\n\\n"},{"attributes":{"alt":"Host is Down by Mado Fuchiya (Nishin)"},"insert":{"image":"https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1564868627l/50190748._SX1200_SY630_.jpg"}},{"insert":"\\n\\nThis is the official discussion thread. Feel free to comment, but remember to tag spoilers (or suffer the mods\' wrath).\\n"}]',
       secretIdentity: {
         name: "Good Guy",
-        avatar: `https://placekitten.com/200/300`,
+        avatar: `/oncie.jpg`,
       },
+      totalComments: 1,
       newPost: true,
     },
     {
@@ -25,16 +27,19 @@ function HomePage() {
         '[{"insert":"Help a Thirsty, Thirsty Anon"},{"attributes":{"header":1},"insert":"\\n"},{"insert":"\\nI recently discovered "},{"attributes":{"link":"https://myanimelist.net/manga/115345/MADK"},"insert":"MadK"},{"insert":", and I\'ve fallen in love with the combination of beautiful art and great story. I\'ve been trying to put together a list of recs of the angstiest, goriest series out there. It\'s been surprisingly hard to find the Good Shit.\\n\\nWhat\'s your favorite series and why?\\n"}]',
       secretIdentity: {
         name: "Tuxedo Mask",
-        avatar: `https://placekitten.com/200/300`,
+        avatar: `/tuxedo-mask.jpg`,
       },
       userIdentity: {
         name: "SexyDaddy69",
-        avatar: `https://placekitten.com/200/300`,
+        avatar: `/mamoru.png`,
       },
       options: {
         wide: true,
       },
-      newComments: 5,
+      newComments: 2,
+      totalComments: 2,
+      totalContributions: 1,
+      directContributions: 1,
     },
     {
       createdTime: "yesterday",
@@ -42,10 +47,13 @@ function HomePage() {
         '[{"insert":"Monthly Art Roundup"},{"attributes":{"header":1},"insert":"\\n"},{"insert":"\\nPost your favorites! As usual, remember to embed the actual posts (unless it\'s your own art, then do as you wish). Reposting is a no-no. \\n\\nI\'ll start with one of my favorite artists:\\n"},{"insert":{"tweet":"https://twitter.com/notkrad/status/1222638147886034945"}}]',
       secretIdentity: {
         name: "Bad Guy",
-        avatar: `https://placekitten.com/200/300`,
+        avatar: `/greedler.jpg`,
       },
       newComments: 5,
       newContributions: 2,
+      totalComments: 6,
+      totalContributions: 5,
+      directContributions: 3,
     },
     {
       createdTime: "3 days ago",
@@ -53,13 +61,15 @@ function HomePage() {
         '[{"insert":{"block-image":"https://media.tenor.com/images/97b761adf7bdc9d72fc1fadbbaa3a4a6/tenor.gif"}},{"insert":"(I got inspired to write a quick cannibalism drabble. Wanted to share it and get your opinion while I decide whether to turn it into a longer fic!)\\n"}]',
       secretIdentity: {
         name: "Nice Therapist",
-        avatar: `https://placekitten.com/200/300`,
+        avatar: `/hannibal.png`,
       },
       userIdentity: {
         name: "xXxChesapeakeRipperxXx",
-        avatar: `https://placekitten.com/200/300`,
+        avatar: `/hannibal.png`,
       },
       newContributions: 3,
+      directContributions: 3,
+      totalContributions: 3,
     },
   ]);
   const [showSidebar, setShowSidebar] = React.useState(false);
@@ -71,11 +81,11 @@ function HomePage() {
         <PostEditor
           secretIdentity={{
             name: "Tuxedo Mask",
-            avatar: `https://placekitten.com/200/300`,
+            avatar: `/tuxedo-mask.jpg`,
           }}
           userIdentity={{
             name: "SexyDaddy69",
-            avatar: `https://placekitten.com/200/300`,
+            avatar: `/mamoru.png`,
           }}
           loading={isPostLoading}
           onSubmit={({ text, large }) => {
@@ -87,11 +97,11 @@ function HomePage() {
                   text,
                   secretIdentity: {
                     name: "Tuxedo Mask",
-                    avatar: `https://placekitten.com/200/300`,
+                    avatar: `/tuxedo-mask.jpg`,
                   },
                   userIdentity: {
                     name: "SexyDaddy69",
-                    avatar: `https://placekitten.com/200/300`,
+                    avatar: `mamoru.png`,
                   },
                   options: {
                     wide: large,
@@ -117,7 +127,7 @@ function HomePage() {
             onCloseSidebar={() => setShowSidebar(false)}
             boardInfo={{
               slug: "gore",
-              avatar: `https://placekitten.com/200/300`,
+              avatar: `/gore.png`,
               description: "Love me some bruised bois (and more).",
               color: "#f96680",
               boardWideTags: [
@@ -172,15 +182,14 @@ function HomePage() {
           />
         }
         sideMenuContent={
-          // <SideMenu
-          //   board={{
-          //     slug: "gore",
-          //     avatar: `https://placekitten.com/200/300`,
-          //     description: "Love me some bruised bois (and more).",
-          //     color: "#f96680",
-          //   }}
-          // />
-          <div />
+          <SideMenu
+            board={{
+              slug: "gore",
+              avatar: `/gore.png`,
+              description: "Love me some bruised bois (and more).",
+              color: "#f96680",
+            }}
+          />
         }
         actionButton={
           <PostingActionButton
