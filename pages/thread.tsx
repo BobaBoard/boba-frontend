@@ -8,6 +8,103 @@ import {
   SideMenu,
 } from "@bobaboard/ui-components";
 
+const PINNED_BOARDS = [
+  {
+    slug: "gore",
+    avatar: "/gore.png",
+    description: "Love me some bruised bois (and more).",
+    color: "#f96680",
+  },
+  {
+    slug: "anime",
+    avatar: "/anime.png",
+    description: "We put the weeb in dweeb.",
+    color: "#24d282",
+    updates: 2,
+    backgroundColor: "#131518",
+  },
+  {
+    slug: "crack",
+    avatar: "/crack.png",
+    description: "What's crackalackin",
+    color: "#f9e066",
+    updates: 3,
+    backgroundColor: "#131518",
+  },
+  {
+    slug: "fic-club",
+    avatar: "/book.png",
+    description: "Come enjoy all the fics!",
+    color: "#7724d2",
+    updates: 5,
+    backgroundColor: "#131518",
+  },
+  {
+    slug: "meta",
+    avatar: "/meta.png",
+    description: "In My TiMeS wE CaLlEd It WaNk",
+    color: "#f9e066",
+  },
+  {
+    slug: "villain-thirst",
+    avatar: "/villains.png",
+    description: "Love to love 'em.",
+    color: "#e22b4b",
+  },
+];
+const SEARCH_BOARDS = [
+  {
+    slug: "villain-thirst",
+    avatar: "/villains.png",
+    description: "Love to love 'em.",
+    color: "#e22b4b",
+  },
+  {
+    slug: "art-crit",
+    avatar: "/art-crit.png",
+    description: "Let's learn together!",
+    color: "#27caba",
+  },
+];
+const RECENT_BOARDS = [
+  {
+    slug: "gore",
+    avatar: "/gore.png",
+    description: "Love me some bruised bois (and more).",
+    color: "#f96680",
+  },
+  {
+    slug: "oncie-den",
+    avatar: "/onceler-board.png",
+    description: "Party like it's 2012",
+    color: "#27caba",
+    updates: 10,
+    backgroundColor: "#131518",
+  },
+  {
+    slug: "fic-club",
+    avatar: "/book.png",
+    description: "Come enjoy all the fics!",
+    color: "#7724d2",
+    updates: 5,
+    backgroundColor: "#131518",
+  },
+  {
+    slug: "kink-memes",
+    avatar: "/kink-meme.png",
+    description: "No limits. No shame.",
+    color: "#000000",
+  },
+  {
+    slug: "crack",
+    avatar: "/crack.png",
+    description: "What's crackalackin",
+    color: "#f9e066",
+    updates: 3,
+    backgroundColor: "#131518",
+  },
+];
+
 const makePostsTree = (posts: any[]) => {
   let root = null;
   const parentChildrenMap: { [key: string]: any } = {};
@@ -228,12 +325,9 @@ function HomePage() {
         }
         sideMenuContent={
           <SideMenu
-            board={{
-              slug: "gore",
-              avatar: `https://placekitten.com/200/300`,
-              description: "Love me some bruised bois (and more).",
-              color: "#f96680",
-            }}
+            pinnedBoards={PINNED_BOARDS}
+            searchBoards={SEARCH_BOARDS}
+            recentBoards={RECENT_BOARDS}
           />
         }
         headerAccent="#f96680"
