@@ -7,6 +7,8 @@ import {
   Post,
   SideMenu,
 } from "@bobaboard/ui-components";
+import PostEditorModal from "../components/PostEditorModal";
+import CommentEditorModal from "../components/CommentEditorModal";
 
 const PINNED_BOARDS = [
   {
@@ -135,61 +137,9 @@ const getTotalContributions = (post: any, postsMap: { [key: string]: any }) => {
   return total;
 };
 
-const makePost = (
-  post: any,
-  postsMap: { [key: string]: any },
-  level: number
-) => (
-  <div>
-    <ThreadIndent level={level}>
-      <div className="post">
-        <Post
-          createdTime={post.createdTime}
-          text={post.text}
-          secretIdentity={post.secretIdentity}
-          userIdentity={post.userIdentity}
-          onNewContribution={() => console.log("click!")}
-          onNewComment={() => console.log("click!")}
-          totalComments={post.comments?.length}
-          directContributions={postsMap[post.id]?.length}
-          totalContributions={getTotalContributions(post, postsMap)}
-          newComments={post.newComments}
-          newContributions={post.newContributions}
-        />
-      </div>
-    </ThreadIndent>
-    {post.comments && (
-      <ThreadIndent level={level + 1}>
-        {post.comments.map((comment: any) => (
-          <Comment
-            id="1"
-            secretIdentity={comment.secretIdentity}
-            initialText={comment.content}
-          />
-        ))}
-      </ThreadIndent>
-    )}
-    <style jsx>
-      {`
-        .post {
-          margin-top: 15px;
-        }
-      `}
-    </style>
-  </div>
-);
-
-const buildFromLevel = (
-  root: any,
-  postsMap: { [key: string]: any },
-  level: number
-): JSX.Element[] => {
-  return [
-    makePost(root, postsMap, level),
-    ...(postsMap[root.id]?.flatMap((post: any) =>
-      buildFromLevel(post, postsMap, level + 1)
-    ) || []),
-  ];
+let NEXT_ID = 5;
+const getNextId = () => {
+  return `${NEXT_ID++}`;
 };
 
 const posts = [
@@ -300,23 +250,144 @@ const posts = [
 ];
 const postsTree = makePostsTree(posts);
 
+const ThreadLevel: React.FC<{
+  post: any;
+  postsMap: { [key: string]: any };
+  level: number;
+  onNewComment: (id: string) => void;
+  onNewContribution: (id: string) => void;
+}> = (props) => {
+  return (
+    <>
+      <div>
+        <ThreadIndent level={props.level}>
+          <div className="post">
+            <Post
+              createdTime={props.post.createdTime}
+              text={props.post.text}
+              secretIdentity={props.post.secretIdentity}
+              userIdentity={props.post.userIdentity}
+              onNewContribution={() => props.onNewContribution(props.post.id)}
+              onNewComment={() => props.onNewComment(props.post.id)}
+              totalComments={props.post.comments?.length}
+              directContributions={props.postsMap[props.post.id]?.length}
+              totalContributions={getTotalContributions(
+                props.post,
+                props.postsMap
+              )}
+              newComments={props.post.newComments}
+              newContributions={props.post.newContributions}
+            />
+          </div>
+        </ThreadIndent>
+        {props.post.comments && (
+          <ThreadIndent level={props.level + 1}>
+            {props.post.comments.map((comment: any) => (
+              <Comment
+                id="1"
+                secretIdentity={comment.secretIdentity}
+                initialText={comment.content}
+              />
+            ))}
+          </ThreadIndent>
+        )}
+        {props.postsMap[props.post.id]?.flatMap((post: any) => (
+          <ThreadLevel
+            post={post}
+            postsMap={props.postsMap}
+            level={props.level + 1}
+            onNewComment={props.onNewComment}
+            onNewContribution={props.onNewContribution}
+          />
+        ))}
+        <style jsx>
+          {`
+            .post {
+              margin-top: 15px;
+            }
+          `}
+        </style>
+      </div>
+    </>
+  );
+};
+
 function HomePage() {
   const [showSidebar, setShowSidebar] = React.useState(false);
+  const [postReplyId, setPostReplyId] = React.useState<string | null>(null);
+  const [commentReplyId, setCommentReplyId] = React.useState<string | null>(
+    null
+  );
+  const [[root, postsMap], setPostsTree] = React.useState(postsTree);
 
-  const [root, postsMap] = postsTree;
   if (!root) {
     return <div />;
   }
 
   return (
     <div className="main">
+      <PostEditorModal
+        isOpen={!!postReplyId}
+        secretIdentity={{
+          name: "Tuxedo Mask",
+          avatar: `/tuxedo-mask.jpg`,
+        }}
+        userIdentity={{
+          name: "SexyDaddy69",
+          avatar: `/mamoru.png`,
+        }}
+        onPostSaved={(post: any) => {
+          post.id = getNextId();
+          post.answersTo = postReplyId;
+          setPostsTree(makePostsTree([post, ...posts]));
+          setPostReplyId(null);
+        }}
+        onCloseModal={() => setPostReplyId(null)}
+      />
+      <CommentEditorModal
+        isOpen={!!commentReplyId}
+        secretIdentity={{
+          name: "Tuxedo Mask",
+          avatar: `/tuxedo-mask.jpg`,
+        }}
+        userIdentity={{
+          name: "SexyDaddy69",
+          avatar: `/mamoru.png`,
+        }}
+        onCommentSaved={(comment: any) => {
+          const parentIndex = posts.findIndex(
+            (post) => post.id == commentReplyId
+          );
+          if (parentIndex == -1) {
+            return;
+          }
+          posts[parentIndex].comments = [
+            ...(posts[parentIndex].comments as any),
+            comment,
+          ];
+          posts[parentIndex] = { ...posts[parentIndex] };
+          setPostsTree(makePostsTree([...posts]));
+          setCommentReplyId(null);
+        }}
+        onCloseModal={() => setCommentReplyId(null)}
+      />
       <Layout
         mainContent={
           <FeedWithMenu
             sidebarContent={<div></div>}
             feedContent={
               <div style={{ padding: "20px 0" }}>
-                {buildFromLevel(root, postsMap as any, 0)}
+                <ThreadLevel
+                  post={root}
+                  postsMap={postsMap as any}
+                  level={0}
+                  onNewComment={(answerTo: string) =>
+                    setCommentReplyId(answerTo)
+                  }
+                  onNewContribution={(answerTo: string) =>
+                    setPostReplyId(answerTo)
+                  }
+                />
               </div>
             }
           />
