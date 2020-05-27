@@ -1,12 +1,14 @@
 import React from "react";
 import {
   Layout,
-  BoardFeed,
-  Modal,
-  PostEditor,
+  Post,
+  PostSizes,
+  FeedWithMenu,
+  BoardSidebar,
   PostingActionButton,
   SideMenu,
 } from "@bobaboard/ui-components";
+import PostEditorModal from "../components/PostEditorModal";
 
 const PINNED_BOARDS = [
   {
@@ -105,10 +107,15 @@ const RECENT_BOARDS = [
   },
 ];
 
+let NEXT_ID = 0;
+const getNextId = () => {
+  return NEXT_ID++;
+};
+
 function HomePage() {
-  const [isPostLoading, setPostLoading] = React.useState(false);
   const [posts, setPosts] = React.useState<any[]>([
     {
+      id: getNextId(),
       createdTime: "5 minutes ago",
       text:
         '[{"insert":"Nishin Masumi Reading Group (Week 2)"},{"attributes":{"header":1},"insert":"\\n"},{"insert":"\\nAs you know, we\'re going through \\"Host is Down\\" this week! \\n\\n"},{"attributes":{"alt":"Host is Down by Mado Fuchiya (Nishin)"},"insert":{"image":"https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1564868627l/50190748._SX1200_SY630_.jpg"}},{"insert":"\\n\\nThis is the official discussion thread. Feel free to comment, but remember to tag spoilers (or suffer the mods\' wrath).\\n"}]',
@@ -120,6 +127,7 @@ function HomePage() {
       newPost: true,
     },
     {
+      id: getNextId(),
       createdTime: "10 hours ago",
       text:
         '[{"insert":"Help a Thirsty, Thirsty Anon"},{"attributes":{"header":1},"insert":"\\n"},{"insert":"\\nI recently discovered "},{"attributes":{"link":"https://myanimelist.net/manga/115345/MADK"},"insert":"MadK"},{"insert":", and I\'ve fallen in love with the combination of beautiful art and great story. I\'ve been trying to put together a list of recs of the angstiest, goriest series out there. It\'s been surprisingly hard to find the Good Shit.\\n\\nWhat\'s your favorite series and why?\\n"}]',
@@ -140,6 +148,7 @@ function HomePage() {
       directContributions: 1,
     },
     {
+      id: getNextId(),
       createdTime: "yesterday",
       text:
         '[{"insert":"Monthly Art Roundup"},{"attributes":{"header":1},"insert":"\\n"},{"insert":"\\nPost your favorites! As usual, remember to embed the actual posts (unless it\'s your own art, then do as you wish). Reposting is a no-no. \\n\\nI\'ll start with one of my favorite artists:\\n"},{"insert":{"tweet":"https://twitter.com/notkrad/status/1222638147886034945"}}]',
@@ -154,6 +163,7 @@ function HomePage() {
       directContributions: 3,
     },
     {
+      id: getNextId(),
       createdTime: "3 days ago",
       text:
         '[{"insert":{"block-image":"https://media.tenor.com/images/97b761adf7bdc9d72fc1fadbbaa3a4a6/tenor.gif"}},{"insert":"(I got inspired to write a quick cannibalism drabble. Wanted to share it and get your opinion while I decide whether to turn it into a longer fic!)\\n"}]',
@@ -175,108 +185,111 @@ function HomePage() {
 
   return (
     <div className="main">
-      <Modal isOpen={postEditorOpen}>
-        <PostEditor
-          secretIdentity={{
-            name: "Tuxedo Mask",
-            avatar: `/tuxedo-mask.jpg`,
-          }}
-          userIdentity={{
-            name: "SexyDaddy69",
-            avatar: `/mamoru.png`,
-          }}
-          loading={isPostLoading}
-          onSubmit={({ text, large }) => {
-            console.log(text);
-            setTimeout(() => {
-              setPosts([
-                {
-                  createdTime: "1 minute ago",
-                  text,
-                  secretIdentity: {
-                    name: "Tuxedo Mask",
-                    avatar: `/tuxedo-mask.jpg`,
-                  },
-                  userIdentity: {
-                    name: "SexyDaddy69",
-                    avatar: `mamoru.png`,
-                  },
-                  options: {
-                    wide: large,
-                  },
-                  newPost: true,
-                },
-                ...posts,
-              ]);
-              setPostLoading(false);
-              setPostEditorOpen(false);
-            }, 3000);
-            setPostLoading(true);
-          }}
-          onCancel={() => setPostEditorOpen(false)}
-          centered
-        />
-      </Modal>
+      <PostEditorModal
+        isOpen={postEditorOpen}
+        secretIdentity={{
+          name: "Tuxedo Mask",
+          avatar: `/tuxedo-mask.jpg`,
+        }}
+        userIdentity={{
+          name: "SexyDaddy69",
+          avatar: `/mamoru.png`,
+        }}
+        onPostSaved={(post: any) => {
+          post.id = getNextId();
+          setPosts([post, ...posts]);
+          setPostEditorOpen(false);
+        }}
+        onCloseModal={() => setPostEditorOpen(false)}
+      />
       <Layout
         mainContent={
-          <BoardFeed
-            posts={posts}
-            showSidebar={showSidebar}
-            onCloseSidebar={() => setShowSidebar(false)}
-            boardInfo={{
-              slug: "gore",
-              avatar: `/gore.png`,
-              description: "Love me some bruised bois (and more).",
-              color: "#f96680",
-              boardWideTags: [
-                { name: "gore", color: "#f96680" },
-                { name: "guro", color: "#e22b4b" },
-                { name: "nsfw", color: "#27caba" },
-                { name: "dead dove", color: "#f9e066" },
-              ],
-              canonicalTags: [
-                { name: "request", color: "#27caba" },
-                { name: "blood", color: "#f96680" },
-                { name: "knifeplay", color: "#93b3b0" },
-                { name: "aesthetic", color: "#24d282" },
-                { name: "impalement", color: "#27caba" },
-                { name: "skullfuck", color: "#e22b4b" },
-                { name: "hanging", color: "#f9e066" },
-                { name: "torture", color: "#f96680" },
-                { name: "necrophilia", color: "#93b3b0" },
-                { name: "shota", color: "#e22b4b" },
-                { name: "fanfiction", color: "#27caba" },
-                { name: "rec", color: "#f9e066" },
-                { name: "doujinshi", color: "#f96680" },
-                { name: "untagged", color: "#93b3b0" },
-              ],
-              contentRulesTags: [
-                { name: "shota", allowed: true },
-                { name: "nsfw", allowed: true },
-                { name: "noncon", allowed: true },
-                { name: "IRL", allowed: false },
-                { name: "RP", allowed: false },
-              ],
-              otherRules: (
-                <div>
-                  <ul>
-                    <li>
-                      Shota <strong>must</strong> be tagged.
-                    </li>
-                    <li>
-                      Requests go in the appropriate tag. If the same request
-                      has been made less than a month ago, it will be deleted by
-                      the mods.
-                    </li>
-                    <li>
-                      Mods might add any TWs tag as they see fit. If you need
-                      help, add #untagged and a mod will take care of it.
-                    </li>
-                  </ul>
-                </div>
-              ),
-            }}
-            accentColor={"#f96680"}
+          <FeedWithMenu
+            sidebarContent={
+              <BoardSidebar
+                board={{
+                  slug: "gore",
+                  avatar: `/gore.png`,
+                  description: "Love me some bruised bois (and more).",
+                  color: "#f96680",
+                  boardWideTags: [
+                    { name: "gore", color: "#f96680" },
+                    { name: "guro", color: "#e22b4b" },
+                    { name: "nsfw", color: "#27caba" },
+                    { name: "dead dove", color: "#f9e066" },
+                  ],
+                  canonicalTags: [
+                    { name: "request", color: "#27caba" },
+                    { name: "blood", color: "#f96680" },
+                    { name: "knifeplay", color: "#93b3b0" },
+                    { name: "aesthetic", color: "#24d282" },
+                    { name: "impalement", color: "#27caba" },
+                    { name: "skullfuck", color: "#e22b4b" },
+                    { name: "hanging", color: "#f9e066" },
+                    { name: "torture", color: "#f96680" },
+                    { name: "necrophilia", color: "#93b3b0" },
+                    { name: "shota", color: "#e22b4b" },
+                    { name: "fanfiction", color: "#27caba" },
+                    { name: "rec", color: "#f9e066" },
+                    { name: "doujinshi", color: "#f96680" },
+                    { name: "untagged", color: "#93b3b0" },
+                  ],
+                  contentRulesTags: [
+                    { name: "shota", allowed: true },
+                    { name: "nsfw", allowed: true },
+                    { name: "noncon", allowed: true },
+                    { name: "IRL", allowed: false },
+                    { name: "RP", allowed: false },
+                  ],
+                  otherRules: (
+                    <div>
+                      <ul>
+                        <li>
+                          Shota <strong>must</strong> be tagged.
+                        </li>
+                        <li>
+                          Requests go in the appropriate tag. If the same
+                          request has been made less than a month ago, it will
+                          be deleted by the mods.
+                        </li>
+                        <li>
+                          Mods might add any TWs tag as they see fit. If you
+                          need help, add #untagged and a mod will take care of
+                          it.
+                        </li>
+                      </ul>
+                    </div>
+                  ),
+                }}
+              />
+            }
+            feedContent={
+              <div className="main">
+                {posts.map((post, i) => (
+                  <div className="post">
+                    <Post
+                      key={post.id}
+                      createdTime={post.createdTime}
+                      text={post.text}
+                      secretIdentity={post.secretIdentity}
+                      userIdentity={post.userIdentity}
+                      onNewContribution={() => console.log("click!")}
+                      onNewComment={() => console.log("click!")}
+                      size={
+                        post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR
+                      }
+                      newPost={post.newPost}
+                      newComments={post.newComments}
+                      newContributions={post.newContributions}
+                      totalComments={post.totalComments}
+                      totalContributions={post.totalContributions}
+                      directContributions={post.directContributions}
+                      collapsed={!!post.newComments && !!post.newContributions}
+                    />
+                  </div>
+                ))}
+              </div>
+            }
           />
         }
         sideMenuContent={
@@ -298,6 +311,15 @@ function HomePage() {
           setShowSidebar(!showSidebar);
         }}
       />
+      <style jsx>{`
+        .post {
+          margin: 20px auto;
+          width: 100%;
+        }
+        .post > :global(div) {
+          margin: 0 auto;
+        }
+      `}</style>
     </div>
   );
 }

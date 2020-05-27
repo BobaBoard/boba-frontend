@@ -165,8 +165,6 @@ const makePost = (
             id="1"
             secretIdentity={comment.secretIdentity}
             initialText={comment.content}
-            onCancel={() => console.log("hey")}
-            onSubmit={() => console.log("hey")}
           />
         ))}
       </ThreadIndent>
