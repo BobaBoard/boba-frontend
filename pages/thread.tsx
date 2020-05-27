@@ -130,7 +130,6 @@ const getTotalContributions = (post: any, postsMap: { [key: string]: any }) => {
   let next = postsMap[post.id];
   while (next && next.length > 0) {
     total += next.length;
-    console.log(next);
     next = next.flatMap((child: any) => (child && postsMap[child.id]) || []);
     console.log(next);
   }
@@ -155,7 +154,7 @@ const posts = [
     comments: [
       {
         content: '[{"insert":"Aragorn more like AraDAMN"}]',
-        created: "1 minute ago",
+        createdTime: "1 minute ago",
         secretIdentity: {
           name: "Bad Guy",
           avatar: "https://placekitten.com/600/600",
@@ -180,7 +179,7 @@ const posts = [
     comments: [
       {
         content: '[{"insert":"Skewer me DaDdY"}]',
-        created: "1 minute ago",
+        createdTime: "1 minute ago",
         secretIdentity: {
           name: "Bad Guy",
           avatar: "https://placekitten.com/600/600",
@@ -188,7 +187,7 @@ const posts = [
       },
       {
         content: '[{"insert":"Skewer me DaDdY!"}]',
-        created: "1 minute ago",
+        createdTime: "1 minute ago",
         secretIdentity: {
           name: "Bad Guy",
           avatar: "https://placekitten.com/600/600",
@@ -196,7 +195,7 @@ const posts = [
       },
       {
         content: '[{"insert":"Skewer me DaDdY!!!!"}]',
-        created: "1 minute ago",
+        createdTime: "1 minute ago",
         secretIdentity: {
           name: "Bad Guy",
           avatar: "https://placekitten.com/600/600",
@@ -218,7 +217,7 @@ const posts = [
     comments: [
       {
         content: '[{"insert":"Stop it!!"}]',
-        created: "1 minute ago",
+        createdTime: "1 minute ago",
         secretIdentity: {
           name: "Bad Guy",
           avatar: "https://placekitten.com/600/600",
@@ -226,7 +225,7 @@ const posts = [
       },
       {
         content: '[{"insert":"Hell yeah mah boi"}]',
-        created: "1 minute ago",
+        createdTime: "1 minute ago",
         secretIdentity: {
           name: "Bad Guy",
           avatar: "https://placekitten.com/600/600",
@@ -282,10 +281,12 @@ const ThreadLevel: React.FC<{
         </ThreadIndent>
         {props.post.comments && (
           <ThreadIndent level={props.level + 1}>
-            {props.post.comments.map((comment: any) => (
+            {props.post.comments.map((comment: any, i: number) => (
               <Comment
+                key={`${props.post.id}_${i}`}
                 id="1"
                 secretIdentity={comment.secretIdentity}
+                userIdentity={comment.userIdentity}
                 initialText={comment.content}
               />
             ))}
@@ -293,6 +294,7 @@ const ThreadLevel: React.FC<{
         )}
         {props.postsMap[props.post.id]?.flatMap((post: any) => (
           <ThreadLevel
+            key={post.id}
             post={post}
             postsMap={props.postsMap}
             level={props.level + 1}
