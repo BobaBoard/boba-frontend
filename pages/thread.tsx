@@ -6,6 +6,7 @@ import {
   ThreadIndent,
   Post,
   SideMenu,
+  // @ts-ignore
 } from "@bobaboard/ui-components";
 import PostEditorModal from "../components/PostEditorModal";
 import CommentEditorModal from "../components/CommentEditorModal";
@@ -364,7 +365,7 @@ function HomePage() {
             return;
           }
           posts[parentIndex].comments = [
-            ...(posts[parentIndex].comments as any),
+            ...(posts[parentIndex].comments || []),
             comment,
           ];
           posts[parentIndex] = { ...posts[parentIndex] };

@@ -1,4 +1,5 @@
 import React from "react";
+// @ts-ignore
 import { PostEditor, Modal } from "@bobaboard/ui-components";
 
 const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {

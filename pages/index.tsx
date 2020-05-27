@@ -7,6 +7,7 @@ import {
   BoardSidebar,
   PostingActionButton,
   SideMenu,
+  // @ts-ignore
 } from "@bobaboard/ui-components";
 import PostEditorModal from "../components/PostEditorModal";
 
