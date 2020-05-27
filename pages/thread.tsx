@@ -123,6 +123,7 @@ const makePostsTree = (posts: any[]) => {
     ];
   });
 
+  console.log(root, parentChildrenMap);
   return [root, parentChildrenMap];
 };
 
@@ -132,7 +133,6 @@ const getTotalContributions = (post: any, postsMap: { [key: string]: any }) => {
   while (next && next.length > 0) {
     total += next.length;
     next = next.flatMap((child: any) => (child && postsMap[child.id]) || []);
-    console.log(next);
   }
   return total;
 };
@@ -142,7 +142,7 @@ const getNextId = () => {
   return `${NEXT_ID++}`;
 };
 
-const posts = [
+const INITIAL_POSTS = [
   {
     id: "1",
     createdTime: "5 minutes ago",
@@ -248,7 +248,6 @@ const posts = [
     newPost: true,
   },
 ];
-const postsTree = makePostsTree(posts);
 
 const ThreadLevel: React.FC<{
   post: any;
@@ -260,9 +259,13 @@ const ThreadLevel: React.FC<{
   return (
     <>
       <div>
-        <ThreadIndent level={props.level}>
+        <ThreadIndent
+          level={props.level}
+          key={`${props.level}_${props.post.id}`}
+        >
           <div className="post">
             <Post
+              key={props.post.id}
               createdTime={props.post.createdTime}
               text={props.post.text}
               secretIdentity={props.post.secretIdentity}
@@ -321,7 +324,10 @@ function HomePage() {
   const [commentReplyId, setCommentReplyId] = React.useState<string | null>(
     null
   );
-  const [[root, postsMap], setPostsTree] = React.useState(postsTree);
+  const [posts, setPosts] = React.useState(INITIAL_POSTS);
+  const [[root, postsMap], setPostsTree] = React.useState(
+    makePostsTree(INITIAL_POSTS)
+  );
 
   if (!root) {
     return <div />;
@@ -342,6 +348,7 @@ function HomePage() {
         onPostSaved={(post: any) => {
           post.id = getNextId();
           post.answersTo = postReplyId;
+          setPosts([post, ...posts]);
           setPostsTree(makePostsTree([post, ...posts]));
           setPostReplyId(null);
         }}
@@ -369,6 +376,7 @@ function HomePage() {
             comment,
           ];
           posts[parentIndex] = { ...posts[parentIndex] };
+          setPosts([...posts]);
           setPostsTree(makePostsTree([...posts]));
           setCommentReplyId(null);
         }}
