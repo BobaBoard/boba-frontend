@@ -222,9 +222,13 @@ function HomePage() {
               <BoardSidebar
                 board={{
                   slug: status === "loading" ? "loading..." : data.slug,
-                  avatar: `/gore.png`,
-                  description: "Love me some bruised bois (and more).",
-                  color: "#f96680",
+                  avatar: status === "loading" ? "/" : data.avatarUrl,
+                  description:
+                    status === "loading" ? "loading..." : data.tagline,
+                  color:
+                    status === "loading"
+                      ? "#f96680"
+                      : data.settings.accentColor,
                   boardWideTags: [
                     { name: "gore", color: "#f96680" },
                     { name: "guro", color: "#e22b4b" },
@@ -314,12 +318,18 @@ function HomePage() {
         }
         actionButton={
           <PostingActionButton
-            accentColor={"#f96680"}
+            accentColor={
+              status === "loading"
+                ? "#f96680"
+                : data.settings.accentColor}
             onNewPost={() => setPostEditorOpen(true)}
           />
         }
-        headerAccent="#f96680"
-        title="!gore"
+        headerAccent={
+          status === "loading"
+            ? "#f96680"
+            : data.settings.accentColor}
+        title={`!${status === "loading" ? "loading..." : data.slug}`}
         onTitleClick={() => {
           setShowSidebar(!showSidebar);
         }}
