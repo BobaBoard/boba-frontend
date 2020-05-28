@@ -10,6 +10,9 @@ import {
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import PostEditorModal from "../components/PostEditorModal";
+import axios from "axios";
+import { useQuery } from "react-query";
+import { ReactQueryDevtools } from "react-query-devtools";
 
 const PINNED_BOARDS = [
   {
@@ -113,6 +116,11 @@ const getNextId = () => {
   return NEXT_ID++;
 };
 
+const getBoardData = async () => {
+  const response = await axios.get("http://localhost:4200/boards/gore");
+  return response.data;
+};
+
 function HomePage() {
   const [posts, setPosts] = React.useState<any[]>([
     {
@@ -183,6 +191,10 @@ function HomePage() {
   ]);
   const [showSidebar, setShowSidebar] = React.useState(false);
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
+  const { status, data, isFetching, error } = useQuery(
+    "boardData",
+    getBoardData
+  );
 
   return (
     <div className="main">
@@ -209,7 +221,7 @@ function HomePage() {
             sidebarContent={
               <BoardSidebar
                 board={{
-                  slug: "gore",
+                  slug: status === "loading" ? "loading..." : data.slug,
                   avatar: `/gore.png`,
                   description: "Love me some bruised bois (and more).",
                   color: "#f96680",
@@ -312,6 +324,7 @@ function HomePage() {
           setShowSidebar(!showSidebar);
         }}
       />
+      <ReactQueryDevtools initialIsOpen={false} />}
       <style jsx>{`
         .post {
           margin: 20px auto;
