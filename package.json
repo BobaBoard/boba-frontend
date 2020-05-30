@@ -16,6 +16,7 @@
     "axios": "^0.19.2",
     "next": "^9.3.6",
     "next-transpile-modules": "^3.3.0",
+    "normalize.css": "^8.0.1",
     "react-query": "^1.5.3",
     "react-query-devtools": "^1.1.5"
   },

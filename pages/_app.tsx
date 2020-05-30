@@ -1,4 +1,5 @@
 import "@bobaboard/ui-components/dist/main.css";
+import "normalize.css";
 import axios from "axios";
 axios.defaults.baseURL = "http://localhost:4200/";
 

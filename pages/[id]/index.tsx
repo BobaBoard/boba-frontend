@@ -9,12 +9,12 @@ import {
   SideMenu,
   // @ts-ignore
 } from "@bobaboard/ui-components";
-import PostEditorModal from "../components/PostEditorModal";
-import LoginModal from "../components/LoginModal";
+import PostEditorModal from "../../components/PostEditorModal";
 import axios from "axios";
 import { useQuery } from "react-query";
 // @ts-ignore
 import { ReactQueryDevtools } from "react-query-devtools";
+import { useRouter } from "next/router";
 
 const PINNED_BOARDS = [
   {
@@ -118,8 +118,9 @@ const getNextId = () => {
   return NEXT_ID++;
 };
 
-const getBoardData = async () => {
-  const response = await axios.get("http://localhost:4200/boards/gore");
+const getBoardData = async (key, { slug }) => {
+  console.log(slug);
+  const response = await axios.get(`boards/${slug}`);
   return response.data;
 };
 
@@ -193,9 +194,10 @@ function HomePage() {
   ]);
   const [showSidebar, setShowSidebar] = React.useState(false);
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
-  const [loginOpen, setLoginOpen] = React.useState(false);
+  const router = useRouter();
+  console.log(router);
   const { status, data, isFetching, error } = useQuery(
-    "boardData",
+    ["boardData", { slug: router.query.id?.slice(1) }],
     getBoardData
   );
 
@@ -217,11 +219,6 @@ function HomePage() {
           setPostEditorOpen(false);
         }}
         onCloseModal={() => setPostEditorOpen(false)}
-      />
-      <LoginModal
-        isOpen={loginOpen}
-        onCloseModal={() => setLoginOpen(false)}
-        color={status === "loading" ? "#f96680" : data.settings.accentColor}
       />
       <Layout
         mainContent={
@@ -339,9 +336,8 @@ function HomePage() {
         onTitleClick={() => {
           setShowSidebar(!showSidebar);
         }}
-        onUserBarClick={() => setLoginOpen(true)}
       />
-      <ReactQueryDevtools initialIsOpen={false} />
+      <ReactQueryDevtools initialIsOpen={false} />}
       <style jsx>{`
         .post {
           margin: 20px auto;
