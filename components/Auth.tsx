@@ -23,34 +23,39 @@ const useAuth = () => React.useContext(AuthContext);
 const AuthProvider: React.FC<{}> = (props) => {
   const [isLoggedIn, setLoggedIn] = React.useState(false);
   const [isPending, setPending] = React.useState(true);
+  const [idToken, setIdToken] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
       console.log(user);
-      setPending(false);
-      setLoggedIn(!!user);
+      if (!user) {
+        setPending(false);
+        setLoggedIn(false);
+        setIdToken(null);
+      }
+      user?.getIdToken().then((idToken) => {
+        setLoggedIn(true);
+        setPending(false);
+        setIdToken(idToken);
+      });
     });
   }, []);
 
   const attemptLogin = (
     username: string,
     password: string
-  ): Promise<{ username: string } | false> => {
+  ): Promise<boolean> => {
     setPending(true);
     return firebase
       .auth()
       .signInWithEmailAndPassword(username, password)
-      .then(() => {
-        console.log("fb!");
-        setLoggedIn(true);
-        setPending(false);
-        return { username: "tafa!" };
+      .then((user) => {
+        return !!user;
       })
       .catch((e) => {
-        console.log(e);
         setLoggedIn(false);
         setPending(false);
-        return Promise.reject(e.message);
+        return false;
       });
   };
 
@@ -65,7 +70,13 @@ const AuthProvider: React.FC<{}> = (props) => {
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn, isPending, attemptLogin, attemptLogout }}
+      value={{
+        isLoggedIn,
+        isPending,
+        attemptLogin,
+        attemptLogout,
+        idToken,
+      }}
       {...props}
     />
   );
