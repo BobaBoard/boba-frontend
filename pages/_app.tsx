@@ -6,15 +6,14 @@ import axios from "axios";
 import { AuthProvider, useAuth } from "../components/Auth";
 
 axios.defaults.baseURL = "http://localhost:4200/";
-let axiosAwaitLoginPromise: Promise<string | null>;
-let promisePending = false;
+let promisePending = true;
 let resolveLoginPromise: (idToken: string | null) => void;
+let axiosAwaitLoginPromise: Promise<string | null> = new Promise((resolve) => {
+  resolveLoginPromise = resolve;
+});
 axios.interceptors.request.use((config) => {
   return axiosAwaitLoginPromise.then((idToken) => {
-    config.headers = {
-      "Content-Type": "application/json",
-      Authorization: idToken,
-    };
+    config.headers.authorization = idToken;
     return config;
   });
 });
@@ -27,7 +26,8 @@ const AxiosInterceptor = () => {
         resolveLoginPromise = resolve;
       });
       promisePending = true;
-    } else if (promisePending) {
+    } else if (!isPending && promisePending) {
+      console.log(idToken);
       resolveLoginPromise && resolveLoginPromise(idToken);
     }
   }, [idToken, isPending]);

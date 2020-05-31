@@ -21,22 +21,32 @@ const AuthContext = React.createContext({} as any);
 const useAuth = () => React.useContext(AuthContext);
 
 const AuthProvider: React.FC<{}> = (props) => {
-  const [isLoggedIn, setLoggedIn] = React.useState(false);
-  const [isPending, setPending] = React.useState(true);
-  const [idToken, setIdToken] = React.useState<string | null>(null);
+  const [status, setStatus] = React.useState<{
+    isLoggedIn: boolean;
+    isPending: boolean;
+    idToken: null | string;
+  }>({
+    isLoggedIn: false,
+    isPending: true,
+    idToken: null,
+  });
 
   React.useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
       console.log(user);
       if (!user) {
-        setPending(false);
-        setLoggedIn(false);
-        setIdToken(null);
+        setStatus({
+          isLoggedIn: false,
+          isPending: false,
+          idToken: null,
+        });
       }
       user?.getIdToken().then((idToken) => {
-        setLoggedIn(true);
-        setPending(false);
-        setIdToken(idToken);
+        setStatus({
+          isLoggedIn: true,
+          isPending: false,
+          idToken,
+        });
       });
     });
   }, []);
@@ -45,7 +55,11 @@ const AuthProvider: React.FC<{}> = (props) => {
     username: string,
     password: string
   ): Promise<boolean> => {
-    setPending(true);
+    setStatus({
+      ...status,
+      isPending: false,
+    });
+
     return firebase
       .auth()
       .signInWithEmailAndPassword(username, password)
@@ -53,8 +67,11 @@ const AuthProvider: React.FC<{}> = (props) => {
         return !!user;
       })
       .catch((e) => {
-        setLoggedIn(false);
-        setPending(false);
+        setStatus({
+          isLoggedIn: false,
+          isPending: false,
+          idToken: null,
+        });
         return false;
       });
   };
@@ -71,11 +88,9 @@ const AuthProvider: React.FC<{}> = (props) => {
   return (
     <AuthContext.Provider
       value={{
-        isLoggedIn,
-        isPending,
+        ...status,
         attemptLogin,
         attemptLogout,
-        idToken,
       }}
       {...props}
     />
