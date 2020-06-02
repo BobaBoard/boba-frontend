@@ -195,7 +195,6 @@ function HomePage() {
   const [showSidebar, setShowSidebar] = React.useState(false);
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
   const router = useRouter();
-  console.log(router);
   const { status, data, isFetching, error } = useQuery(
     ["boardData", { slug: router.query.id?.slice(1) }],
     getBoardData
