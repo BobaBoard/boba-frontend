@@ -12,6 +12,8 @@ import {
 import PostEditorModal from "../../components/PostEditorModal";
 import axios from "axios";
 import { useQuery } from "react-query";
+import { toast, Zoom } from "react-toastify";
+
 // @ts-ignore
 import { ReactQueryDevtools } from "react-query-devtools";
 import { useRouter } from "next/router";
@@ -118,8 +120,7 @@ const getNextId = () => {
   return NEXT_ID++;
 };
 
-const getBoardData = async (key, { slug }) => {
-  console.log(slug);
+const getBoardData = async (key: string, { slug }: { slug: string }) => {
   const response = await axios.get(`boards/${slug}`);
   return response.data;
 };
@@ -195,10 +196,23 @@ function HomePage() {
   const [showSidebar, setShowSidebar] = React.useState(false);
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
   const router = useRouter();
-  const { status, data, isFetching, error } = useQuery(
+  const { data, isFetching, error } = useQuery(
     ["boardData", { slug: router.query.id?.slice(1) }],
     getBoardData
   );
+
+  React.useEffect(() => {
+    if (error) {
+      toast.error(error.message, {
+        position: "top-center",
+        transition: Zoom,
+        toastId: error.message,
+        hideProgressBar: true,
+      });
+    }
+  }, [error]);
+
+  console.log(error);
 
   return (
     <div className="main">
@@ -225,14 +239,10 @@ function HomePage() {
             sidebarContent={
               <BoardSidebar
                 board={{
-                  slug: status === "loading" ? "loading..." : data.slug,
-                  avatar: status === "loading" ? "/" : data.avatarUrl,
-                  description:
-                    status === "loading" ? "loading..." : data.tagline,
-                  color:
-                    status === "loading"
-                      ? "#f96680"
-                      : data.settings.accentColor,
+                  slug: isFetching ? "loading..." : data?.slug,
+                  avatar: isFetching ? "/" : data?.avatarUrl,
+                  description: isFetching ? "loading..." : data?.tagline,
+                  color: isFetching ? "#f96680" : data?.settings.accentColor,
                   boardWideTags: [
                     { name: "gore", color: "#f96680" },
                     { name: "guro", color: "#e22b4b" },
@@ -322,16 +332,12 @@ function HomePage() {
         }
         actionButton={
           <PostingActionButton
-            accentColor={
-              status === "loading" ? "#f96680" : data.settings.accentColor
-            }
+            accentColor={isFetching ? "#f96680" : data?.settings.accentColor}
             onNewPost={() => setPostEditorOpen(true)}
           />
         }
-        headerAccent={
-          status === "loading" ? "#f96680" : data.settings.accentColor
-        }
-        title={`!${status === "loading" ? "loading..." : data.slug}`}
+        headerAccent={isFetching ? "#f96680" : data?.settings.accentColor}
+        title={`!${isFetching ? "loading..." : data?.slug}`}
         onTitleClick={() => {
           setShowSidebar(!showSidebar);
         }}
