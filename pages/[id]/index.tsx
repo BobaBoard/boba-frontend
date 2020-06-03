@@ -13,6 +13,8 @@ import PostEditorModal from "../../components/PostEditorModal";
 import axios from "axios";
 import { useQuery } from "react-query";
 import { toast, Zoom } from "react-toastify";
+import { useAuth } from "../../components/Auth";
+import LoginModal from "../../components/LoginModal";
 
 // @ts-ignore
 import { ReactQueryDevtools } from "react-query-devtools";
@@ -203,6 +205,8 @@ function HomePage() {
   const [showSidebar, setShowSidebar] = React.useState(false);
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
   const router = useRouter();
+  const { isLoggedIn } = useAuth();
+  const [loginOpen, setLoginOpen] = React.useState(false);
   const {
     data: boardData,
     isFetching: isFetchingBoardData,
@@ -235,6 +239,13 @@ function HomePage() {
 
   return (
     <div className="main">
+      <LoginModal
+        isOpen={loginOpen}
+        onCloseModal={() => setLoginOpen(false)}
+        color={
+          isFetchingBoardData ? "#f96680" : boardData?.settings?.accentColor
+        }
+      />
       <PostEditorModal
         isOpen={postEditorOpen}
         secretIdentity={{
@@ -365,12 +376,16 @@ function HomePage() {
           />
         }
         actionButton={
-          <PostingActionButton
-            accentColor={
-              isFetchingBoardData ? "#f96680" : boardData?.settings.accentColor
-            }
-            onNewPost={() => setPostEditorOpen(true)}
-          />
+          isLoggedIn && (
+            <PostingActionButton
+              accentColor={
+                isFetchingBoardData
+                  ? "#f96680"
+                  : boardData?.settings.accentColor
+              }
+              onNewPost={() => setPostEditorOpen(true)}
+            />
+          )
         }
         headerAccent={
           isFetchingBoardData ? "#f96680" : boardData?.settings.accentColor
@@ -379,8 +394,9 @@ function HomePage() {
         onTitleClick={() => {
           setShowSidebar(!showSidebar);
         }}
+        onUserBarClick={() => setLoginOpen(true)}
       />
-      <ReactQueryDevtools initialIsOpen={false} />}
+      <ReactQueryDevtools initialIsOpen={false} />
       <style jsx>{`
         .main {
           width: 100%;
