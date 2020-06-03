@@ -6,7 +6,6 @@ import {
   FeedWithMenu,
   BoardSidebar,
   PostingActionButton,
-  SideMenu,
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import PostEditorModal from "../../components/PostEditorModal";
@@ -15,107 +14,11 @@ import { useQuery } from "react-query";
 import { toast, Zoom } from "react-toastify";
 import { useAuth } from "../../components/Auth";
 import LoginModal from "../../components/LoginModal";
+import SideMenu from "../../components/SideMenu";
 
 // @ts-ignore
 import { ReactQueryDevtools } from "react-query-devtools";
 import { useRouter } from "next/router";
-
-const PINNED_BOARDS = [
-  {
-    slug: "gore",
-    avatar: "/gore.png",
-    description: "Love me some bruised bois (and more).",
-    color: "#f96680",
-  },
-  {
-    slug: "anime",
-    avatar: "/anime.png",
-    description: "We put the weeb in dweeb.",
-    color: "#24d282",
-    updates: 2,
-    backgroundColor: "#131518",
-  },
-  {
-    slug: "crack",
-    avatar: "/crack.png",
-    description: "What's crackalackin",
-    color: "#f9e066",
-    updates: 3,
-    backgroundColor: "#131518",
-  },
-  {
-    slug: "fic-club",
-    avatar: "/book.png",
-    description: "Come enjoy all the fics!",
-    color: "#7724d2",
-    updates: 5,
-    backgroundColor: "#131518",
-  },
-  {
-    slug: "meta",
-    avatar: "/meta.png",
-    description: "In My TiMeS wE CaLlEd It WaNk",
-    color: "#f9e066",
-  },
-  {
-    slug: "villain-thirst",
-    avatar: "/villains.png",
-    description: "Love to love 'em.",
-    color: "#e22b4b",
-  },
-];
-const SEARCH_BOARDS = [
-  {
-    slug: "villain-thirst",
-    avatar: "/villains.png",
-    description: "Love to love 'em.",
-    color: "#e22b4b",
-  },
-  {
-    slug: "art-crit",
-    avatar: "/art-crit.png",
-    description: "Let's learn together!",
-    color: "#27caba",
-  },
-];
-const RECENT_BOARDS = [
-  {
-    slug: "gore",
-    avatar: "/gore.png",
-    description: "Love me some bruised bois (and more).",
-    color: "#f96680",
-  },
-  {
-    slug: "oncie-den",
-    avatar: "/onceler-board.png",
-    description: "Party like it's 2012",
-    color: "#27caba",
-    updates: 10,
-    backgroundColor: "#131518",
-  },
-  {
-    slug: "fic-club",
-    avatar: "/book.png",
-    description: "Come enjoy all the fics!",
-    color: "#7724d2",
-    updates: 5,
-    backgroundColor: "#131518",
-  },
-  {
-    slug: "kink-memes",
-    avatar: "/kink-meme.png",
-    description: "No limits. No shame.",
-    color: "#000000",
-  },
-  {
-    slug: "crack",
-    avatar: "/crack.png",
-    description: "What's crackalackin",
-    color: "#f9e066",
-    updates: 3,
-    backgroundColor: "#131518",
-  },
-];
 
 let NEXT_ID = 0;
 const getNextId = () => {
@@ -262,6 +165,7 @@ function HomePage() {
           setPostEditorOpen(false);
         }}
         onCloseModal={() => setPostEditorOpen(false)}
+        submitUrl={"/threads/gore/create"}
       />
       <Layout
         mainContent={
@@ -374,13 +278,7 @@ function HomePage() {
             }
           />
         }
-        sideMenuContent={
-          <SideMenu
-            pinnedBoards={PINNED_BOARDS}
-            searchBoards={SEARCH_BOARDS}
-            recentBoards={RECENT_BOARDS}
-          />
-        }
+        sideMenuContent={<SideMenu />}
         actionButton={
           isLoggedIn && (
             <PostingActionButton

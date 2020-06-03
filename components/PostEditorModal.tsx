@@ -29,7 +29,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
           setPostLoading(true);
           textPromise.then(({ text, large }) => {
             axios
-              .post(`/posts/3db477e0-57ed-491d-ba11-b3a0110b59b0/contribute`, {
+              .post(props.submitUrl, {
                 content: text,
                 forceAnonymous: false,
               })
@@ -69,6 +69,7 @@ export interface PostEditorModalProps {
   };
   // TODO: add post type
   onPostSaved: (post: any) => void;
+  submitUrl: string;
 }
 
 export default PostEditorModal;
