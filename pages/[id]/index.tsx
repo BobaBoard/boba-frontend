@@ -347,6 +347,12 @@ function HomePage() {
                             name: post.username,
                             avatar: `/tuxedo-mask.jpg`,
                           }}
+                          onOpenComments={() =>
+                            router.push(`/thread/${post.post_id}/`)
+                          }
+                          onOpenContributions={() =>
+                            router.push(`/thread/${post.post_id}/`)
+                          }
                           onNewContribution={() => console.log("click!")}
                           onNewComment={() => console.log("click!")}
                           size={
