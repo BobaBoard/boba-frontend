@@ -124,6 +124,13 @@ const getBoardData = async (key: string, { slug }: { slug: string }) => {
   const response = await axios.get(`boards/${slug}`);
   return response.data;
 };
+const getBoardActivityData = async (
+  key: string,
+  { slug }: { slug: string }
+) => {
+  const response = await axios.get(`boards/${slug}/activity/latest`);
+  return response.data;
+};
 
 function HomePage() {
   const [posts, setPosts] = React.useState<any[]>([
@@ -196,23 +203,35 @@ function HomePage() {
   const [showSidebar, setShowSidebar] = React.useState(false);
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
   const router = useRouter();
-  const { data, isFetching, error } = useQuery(
+  const {
+    data: boardData,
+    isFetching: isFetchingBoardData,
+    error: boardDataError,
+  } = useQuery(
     ["boardData", { slug: router.query.id?.slice(1) }],
     getBoardData
   );
+  const {
+    data: boardActivityData,
+    isFetching: isFetchingBoardActivity,
+    error: boardActivityError,
+  } = useQuery(
+    ["boardActivityData", { slug: router.query.id?.slice(1) }],
+    getBoardActivityData
+  );
 
   React.useEffect(() => {
-    if (error) {
-      toast.error(error.message, {
+    if (boardDataError || boardActivityError) {
+      const errorMessage =
+        boardDataError?.message || boardActivityError?.message;
+      toast.error(errorMessage, {
         position: "top-center",
         transition: Zoom,
-        toastId: error.message,
+        toastId: errorMessage,
         hideProgressBar: true,
       });
     }
-  }, [error]);
-
-  console.log(error);
+  }, [boardDataError, boardActivityError]);
 
   return (
     <div className="main">
@@ -239,10 +258,14 @@ function HomePage() {
             sidebarContent={
               <BoardSidebar
                 board={{
-                  slug: isFetching ? "loading..." : data?.slug,
-                  avatar: isFetching ? "/" : data?.avatarUrl,
-                  description: isFetching ? "loading..." : data?.tagline,
-                  color: isFetching ? "#f96680" : data?.settings.accentColor,
+                  slug: isFetchingBoardData ? "loading..." : boardData?.slug,
+                  avatar: isFetchingBoardData ? "/" : boardData?.avatarUrl,
+                  description: isFetchingBoardData
+                    ? "loading..."
+                    : boardData?.tagline,
+                  color: isFetchingBoardData
+                    ? "#f96680"
+                    : boardData?.settings.accentColor,
                   boardWideTags: [
                     { name: "gore", color: "#f96680" },
                     { name: "guro", color: "#e22b4b" },
@@ -296,29 +319,40 @@ function HomePage() {
             }
             feedContent={
               <div className="main">
-                {posts.map((post, i) => (
-                  <div className="post">
-                    <Post
-                      key={post.id}
-                      createdTime={post.createdTime}
-                      text={post.text}
-                      secretIdentity={post.secretIdentity}
-                      userIdentity={post.userIdentity}
-                      onNewContribution={() => console.log("click!")}
-                      onNewComment={() => console.log("click!")}
-                      size={
-                        post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR
-                      }
-                      newPost={post.newPost}
-                      newComments={post.newComments}
-                      newContributions={post.newContributions}
-                      totalComments={post.totalComments}
-                      totalContributions={post.totalContributions}
-                      directContributions={post.directContributions}
-                      collapsed={!!post.newComments && !!post.newContributions}
-                    />
-                  </div>
-                ))}
+                {isFetchingBoardActivity && <div>Loading</div>}
+                {boardActivityData &&
+                  boardActivityData.map((post: any) => {
+                    return (
+                      <div className="post">
+                        <Post
+                          key={post.post_id}
+                          createdTime={"at some point"}
+                          text={post.content}
+                          secretIdentity={{
+                            name: post.secret_identity,
+                            avatar: `/tuxedo-mask.jpg`,
+                          }}
+                          userIdentity={{
+                            name: post.username,
+                            avatar: `/tuxedo-mask.jpg`,
+                          }}
+                          onNewContribution={() => console.log("click!")}
+                          onNewComment={() => console.log("click!")}
+                          size={
+                            post.options?.wide
+                              ? PostSizes.WIDE
+                              : PostSizes.REGULAR
+                          }
+                          newPost={post.newPost}
+                          newComments={post.newComments}
+                          newContributions={post.newContributions}
+                          totalComments={post.comments_amount}
+                          totalContributions={post.posts_amount}
+                          directContributions={post.threads_amount}
+                        />
+                      </div>
+                    );
+                  })}
               </div>
             }
           />
@@ -332,18 +366,25 @@ function HomePage() {
         }
         actionButton={
           <PostingActionButton
-            accentColor={isFetching ? "#f96680" : data?.settings.accentColor}
+            accentColor={
+              isFetchingBoardData ? "#f96680" : boardData?.settings.accentColor
+            }
             onNewPost={() => setPostEditorOpen(true)}
           />
         }
-        headerAccent={isFetching ? "#f96680" : data?.settings.accentColor}
-        title={`!${isFetching ? "loading..." : data?.slug}`}
+        headerAccent={
+          isFetchingBoardData ? "#f96680" : boardData?.settings.accentColor
+        }
+        title={`!${isFetchingBoardData ? "loading..." : boardData?.slug}`}
         onTitleClick={() => {
           setShowSidebar(!showSidebar);
         }}
       />
       <ReactQueryDevtools initialIsOpen={false} />}
       <style jsx>{`
+        .main {
+          width: 100%;
+        }
         .post {
           margin: 20px auto;
           width: 100%;
