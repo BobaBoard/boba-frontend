@@ -179,10 +179,16 @@ function HomePage() {
                             avatar: post.user_identity?.avatar,
                           }}
                           onOpenComments={() =>
-                            router.push(`/thread/${post.thread_id}/`)
+                            router.push(
+                              `/thread/[id]/`,
+                              `/thread/${post.thread_id}/`
+                            )
                           }
                           onOpenContributions={() =>
-                            router.push(`/thread/${post.thread_id}/`)
+                            router.push(
+                              `/thread/[id]/`,
+                              `/thread/${post.thread_id}/`
+                            )
                           }
                           onNewContribution={() =>
                             router.push(`/thread/${post.thread_id}/contribute`)
