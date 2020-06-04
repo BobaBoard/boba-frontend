@@ -179,16 +179,16 @@ function HomePage() {
                             avatar: post.user_identity?.avatar,
                           }}
                           onOpenComments={() =>
-                            router.push(`/thread/${post.threads_id}/`)
+                            router.push(`/thread/${post.thread_id}/`)
                           }
                           onOpenContributions={() =>
-                            router.push(`/thread/${post.threads_id}/`)
+                            router.push(`/thread/${post.thread_id}/`)
                           }
                           onNewContribution={() =>
-                            router.push(`/thread/${post.threads_id}/contribute`)
+                            router.push(`/thread/${post.thread_id}/contribute`)
                           }
                           onNewComment={() =>
-                            router.push(`/thread/${post.threads_id}/comment`)
+                            router.push(`/thread/${post.thread_id}/comment`)
                           }
                           size={
                             post.options?.wide

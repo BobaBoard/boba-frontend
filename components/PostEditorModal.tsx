@@ -32,7 +32,6 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
                   forceAnonymous: false,
                 })
                 .then((response) => {
-                  console.log(response.data);
                   props.onPostSaved({
                     createdTime: "1 minute ago",
                     text,
