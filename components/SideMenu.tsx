@@ -19,7 +19,6 @@ const SideMenu: React.FC<{}> = (props) => {
     error: boardDataError,
   } = useQuery("pinnedBoards", getBoardData);
 
-  console.log(pinnedBoards);
   if (isFetchingBoardData || boardDataError) {
     return <div />;
   }

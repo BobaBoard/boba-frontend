@@ -38,73 +38,6 @@ const getBoardActivityData = async (
 };
 
 function HomePage() {
-  const [posts, setPosts] = React.useState<any[]>([
-    {
-      id: getNextId(),
-      createdTime: "5 minutes ago",
-      text:
-        '[{"insert":"Nishin Masumi Reading Group (Week 2)"},{"attributes":{"header":1},"insert":"\\n"},{"insert":"\\nAs you know, we\'re going through \\"Host is Down\\" this week! \\n\\n"},{"attributes":{"alt":"Host is Down by Mado Fuchiya (Nishin)"},"insert":{"image":"https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1564868627l/50190748._SX1200_SY630_.jpg"}},{"insert":"\\n\\nThis is the official discussion thread. Feel free to comment, but remember to tag spoilers (or suffer the mods\' wrath).\\n"}]',
-      secretIdentity: {
-        name: "Good Guy",
-        avatar: `/oncie.jpg`,
-      },
-      totalComments: 1,
-      newPost: true,
-    },
-    {
-      id: getNextId(),
-      createdTime: "10 hours ago",
-      text:
-        '[{"insert":"Help a Thirsty, Thirsty Anon"},{"attributes":{"header":1},"insert":"\\n"},{"insert":"\\nI recently discovered "},{"attributes":{"link":"https://myanimelist.net/manga/115345/MADK"},"insert":"MadK"},{"insert":", and I\'ve fallen in love with the combination of beautiful art and great story. I\'ve been trying to put together a list of recs of the angstiest, goriest series out there. It\'s been surprisingly hard to find the Good Shit.\\n\\nWhat\'s your favorite series and why?\\n"}]',
-      secretIdentity: {
-        name: "Tuxedo Mask",
-        avatar: `/tuxedo-mask.jpg`,
-      },
-      userIdentity: {
-        name: "SexyDaddy69",
-        avatar: `/mamoru.png`,
-      },
-      options: {
-        wide: true,
-      },
-      newComments: 2,
-      totalComments: 2,
-      totalContributions: 1,
-      directContributions: 1,
-    },
-    {
-      id: getNextId(),
-      createdTime: "yesterday",
-      text:
-        '[{"insert":"Monthly Art Roundup"},{"attributes":{"header":1},"insert":"\\n"},{"insert":"\\nPost your favorites! As usual, remember to embed the actual posts (unless it\'s your own art, then do as you wish). Reposting is a no-no. \\n\\nI\'ll start with one of my favorite artists:\\n"},{"insert":{"tweet":"https://twitter.com/notkrad/status/1222638147886034945"}}]',
-      secretIdentity: {
-        name: "Bad Guy",
-        avatar: `/greedler.jpg`,
-      },
-      newComments: 5,
-      newContributions: 2,
-      totalComments: 6,
-      totalContributions: 5,
-      directContributions: 3,
-    },
-    {
-      id: getNextId(),
-      createdTime: "3 days ago",
-      text:
-        '[{"insert":{"block-image":"https://media.tenor.com/images/97b761adf7bdc9d72fc1fadbbaa3a4a6/tenor.gif"}},{"insert":"(I got inspired to write a quick cannibalism drabble. Wanted to share it and get your opinion while I decide whether to turn it into a longer fic!)\\n"}]',
-      secretIdentity: {
-        name: "Nice Therapist",
-        avatar: `/hannibal.png`,
-      },
-      userIdentity: {
-        name: "xXxChesapeakeRipperxXx",
-        avatar: `/hannibal.png`,
-      },
-      newContributions: 3,
-      directContributions: 3,
-      totalContributions: 3,
-    },
-  ]);
   const [showSidebar, setShowSidebar] = React.useState(false);
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
   const router = useRouter();
@@ -161,11 +94,10 @@ function HomePage() {
         }}
         onPostSaved={(post: any) => {
           post.id = getNextId();
-          setPosts([post, ...posts]);
           setPostEditorOpen(false);
         }}
         onCloseModal={() => setPostEditorOpen(false)}
-        submitUrl={"/threads/gore/create"}
+        submitUrl={`/threads/${router.query.id?.slice(1)}/create`}
       />
       <Layout
         mainContent={
@@ -244,21 +176,25 @@ function HomePage() {
                           createdTime={"at some point"}
                           text={post.content}
                           secretIdentity={{
-                            name: post.secret_identity,
-                            avatar: `/tuxedo-mask.jpg`,
+                            name: post.secret_identity.name,
+                            avatar: post.secret_identity.avatar,
                           }}
                           userIdentity={{
-                            name: post.username,
-                            avatar: `/tuxedo-mask.jpg`,
+                            name: post.user_identity?.username,
+                            avatar: post.user_identity?.avatar,
                           }}
                           onOpenComments={() =>
-                            router.push(`/thread/${post.post_id}/`)
+                            router.push(`/thread/${post.threads_id}/`)
                           }
                           onOpenContributions={() =>
-                            router.push(`/thread/${post.post_id}/`)
+                            router.push(`/thread/${post.threads_id}/`)
                           }
-                          onNewContribution={() => console.log("click!")}
-                          onNewComment={() => console.log("click!")}
+                          onNewContribution={() =>
+                            router.push(`/thread/${post.threads_id}/contribute`)
+                          }
+                          onNewComment={() =>
+                            router.push(`/thread/${post.threads_id}/comment`)
+                          }
                           size={
                             post.options?.wide
                               ? PostSizes.WIDE
