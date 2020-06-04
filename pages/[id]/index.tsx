@@ -20,11 +20,6 @@ import SideMenu from "../../components/SideMenu";
 import { ReactQueryDevtools } from "react-query-devtools";
 import { useRouter } from "next/router";
 
-let NEXT_ID = 0;
-const getNextId = () => {
-  return NEXT_ID++;
-};
-
 const getBoardData = async (key: string, { slug }: { slug: string }) => {
   const response = await axios.get(`boards/${slug}`);
   return response.data;
@@ -43,6 +38,7 @@ function HomePage() {
   const router = useRouter();
   const { isLoggedIn } = useAuth();
   const [loginOpen, setLoginOpen] = React.useState(false);
+
   const {
     data: boardData,
     isFetching: isFetchingBoardData,
@@ -93,7 +89,6 @@ function HomePage() {
           avatar: `/mamoru.png`,
         }}
         onPostSaved={(post: any) => {
-          post.id = getNextId();
           setPostEditorOpen(false);
         }}
         onCloseModal={() => setPostEditorOpen(false)}
