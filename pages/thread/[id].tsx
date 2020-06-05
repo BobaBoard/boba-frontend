@@ -5,110 +5,20 @@ import {
   Comment,
   ThreadIndent,
   Post,
-  SideMenu,
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import PostEditorModal from "../../components/PostEditorModal";
 import CommentEditorModal from "../../components/CommentEditorModal";
-
-const PINNED_BOARDS = [
-  {
-    slug: "gore",
-    avatar: "/gore.png",
-    description: "Love me some bruised bois (and more).",
-    color: "#f96680",
-  },
-  {
-    slug: "anime",
-    avatar: "/anime.png",
-    description: "We put the weeb in dweeb.",
-    color: "#24d282",
-    updates: 2,
-    backgroundColor: "#131518",
-  },
-  {
-    slug: "crack",
-    avatar: "/crack.png",
-    description: "What's crackalackin",
-    color: "#f9e066",
-    updates: 3,
-    backgroundColor: "#131518",
-  },
-  {
-    slug: "fic-club",
-    avatar: "/book.png",
-    description: "Come enjoy all the fics!",
-    color: "#7724d2",
-    updates: 5,
-    backgroundColor: "#131518",
-  },
-  {
-    slug: "meta",
-    avatar: "/meta.png",
-    description: "In My TiMeS wE CaLlEd It WaNk",
-    color: "#f9e066",
-  },
-  {
-    slug: "villain-thirst",
-    avatar: "/villains.png",
-    description: "Love to love 'em.",
-    color: "#e22b4b",
-  },
-];
-const SEARCH_BOARDS = [
-  {
-    slug: "villain-thirst",
-    avatar: "/villains.png",
-    description: "Love to love 'em.",
-    color: "#e22b4b",
-  },
-  {
-    slug: "art-crit",
-    avatar: "/art-crit.png",
-    description: "Let's learn together!",
-    color: "#27caba",
-  },
-];
-const RECENT_BOARDS = [
-  {
-    slug: "gore",
-    avatar: "/gore.png",
-    description: "Love me some bruised bois (and more).",
-    color: "#f96680",
-  },
-  {
-    slug: "oncie-den",
-    avatar: "/onceler-board.png",
-    description: "Party like it's 2012",
-    color: "#27caba",
-    updates: 10,
-    backgroundColor: "#131518",
-  },
-  {
-    slug: "fic-club",
-    avatar: "/book.png",
-    description: "Come enjoy all the fics!",
-    color: "#7724d2",
-    updates: 5,
-    backgroundColor: "#131518",
-  },
-  {
-    slug: "kink-memes",
-    avatar: "/kink-meme.png",
-    description: "No limits. No shame.",
-    color: "#000000",
-  },
-  {
-    slug: "crack",
-    avatar: "/crack.png",
-    description: "What's crackalackin",
-    color: "#f9e066",
-    updates: 3,
-    backgroundColor: "#131518",
-  },
-];
+import SideMenu from "../../components/SideMenu";
+import { useRouter } from "next/router";
+import axios from "axios";
+import { useQuery } from "react-query";
 
 const makePostsTree = (posts: any[]) => {
+  console.log(posts);
+  if (!posts) {
+    return [undefined, {}];
+  }
   let root = null;
   const parentChildrenMap: { [key: string]: any } = {};
 
@@ -142,113 +52,6 @@ const getNextId = () => {
   return `${NEXT_ID++}`;
 };
 
-const INITIAL_POSTS = [
-  {
-    id: "1",
-    createdTime: "5 minutes ago",
-    text:
-      '[{"insert":"Open RP"},{"attributes":{"header":1},"insert":"\\n"},{"insert":{"block-image":"https://cdn.discordapp.com/attachments/443967088118333442/691486081895628830/unknown.png"}}, {"attributes":{"italic":true},"insert":"You have my sword..."}]',
-    secretIdentity: {
-      name: "Good Guy",
-      avatar: "https://placekitten.com/200/300",
-    },
-    comments: [
-      {
-        content: '[{"insert":"Aragorn more like AraDAMN"}]',
-        createdTime: "1 minute ago",
-        secretIdentity: {
-          name: "Bad Guy",
-          avatar: "https://placekitten.com/600/600",
-        },
-      },
-    ],
-  },
-  {
-    id: "2",
-    answersTo: "1",
-    createdTime: "10 hours ago",
-    text:
-      '[{"insert":{"block-image":"https://si.wsj.net/public/resources/images/BN-GA217_legola_G_20141215080444.jpg"}}, {"attributes":{"italic":true}, "insert":"...and my bow..."}]',
-    secretIdentity: {
-      name: "Tuxedo Mask",
-      avatar: "https://placekitten.com/400/300",
-    },
-    userIdentity: {
-      name: "SexyDaddy69",
-      avatar: "https://placekitten.com/200/200",
-    },
-    comments: [
-      {
-        content: '[{"insert":"Skewer me DaDdY"}]',
-        createdTime: "1 minute ago",
-        secretIdentity: {
-          name: "Bad Guy",
-          avatar: "https://placekitten.com/600/600",
-        },
-      },
-      {
-        content: '[{"insert":"Skewer me DaDdY!"}]',
-        createdTime: "1 minute ago",
-        secretIdentity: {
-          name: "Bad Guy",
-          avatar: "https://placekitten.com/600/600",
-        },
-      },
-      {
-        content: '[{"insert":"Skewer me DaDdY!!!!"}]',
-        createdTime: "1 minute ago",
-        secretIdentity: {
-          name: "Bad Guy",
-          avatar: "https://placekitten.com/600/600",
-        },
-      },
-    ],
-    newComments: 3,
-  },
-  {
-    id: "3",
-    answersTo: "2",
-    createdTime: "yesterday",
-    text:
-      '[{"insert":{"block-image":"https://cdn.discordapp.com/attachments/443967088118333442/691401632940032040/AbJqbbOwrc74AAAAAElFTkSuQmCC.png"}}]',
-    secretIdentity: {
-      name: "Bad Guy",
-      avatar: "https://placekitten.com/600/600",
-    },
-    comments: [
-      {
-        content: '[{"insert":"Stop it!!"}]',
-        createdTime: "1 minute ago",
-        secretIdentity: {
-          name: "Bad Guy",
-          avatar: "https://placekitten.com/600/600",
-        },
-      },
-      {
-        content: '[{"insert":"Hell yeah mah boi"}]',
-        createdTime: "1 minute ago",
-        secretIdentity: {
-          name: "Bad Guy",
-          avatar: "https://placekitten.com/600/600",
-        },
-      },
-    ],
-    newContributions: 1,
-  },
-  {
-    id: "4",
-    answersTo: "3",
-    createdTime: "yesterday",
-    text:
-      '[{"insert":{"block-image":"https://littlelessonslearned.files.wordpress.com/2012/03/the-lorax-pic091.jpg"}}]',
-    secretIdentity: {
-      name: "Bad Guy",
-      avatar: "https://placekitten.com/600/600",
-    },
-    newPost: true,
-  },
-];
-
 const ThreadLevel: React.FC<{
   post: any;
   postsMap: { [key: string]: any };
@@ -258,7 +61,7 @@ const ThreadLevel: React.FC<{
 }> = (props) => {
   return (
     <>
-      <div>
+      <div className="level">
         <ThreadIndent
           level={props.level}
           key={`${props.level}_${props.post.id}`}
@@ -266,10 +69,10 @@ const ThreadLevel: React.FC<{
           <div className="post">
             <Post
               key={props.post.id}
-              createdTime={props.post.createdTime}
-              text={props.post.text}
-              secretIdentity={props.post.secretIdentity}
-              userIdentity={props.post.userIdentity}
+              createdTime={"at some point"}
+              text={props.post.content}
+              secretIdentity={props.post.secret_identity}
+              userIdentity={props.post.user_identity}
               onNewContribution={() => props.onNewContribution(props.post.id)}
               onNewComment={() => props.onNewComment(props.post.id)}
               totalComments={props.post.comments?.length}
@@ -278,8 +81,9 @@ const ThreadLevel: React.FC<{
                 props.post,
                 props.postsMap
               )}
-              newComments={props.post.newComments}
-              newContributions={props.post.newContributions}
+              newComments={props.post.new_comments}
+              newContributions={props.post.new_contributions}
+              centered
             />
           </div>
         </ThreadIndent>
@@ -308,6 +112,9 @@ const ThreadLevel: React.FC<{
         ))}
         <style jsx>
           {`
+            .level {
+              width: 100%;
+            }
             .post {
               margin-top: 15px;
             }
@@ -318,18 +125,33 @@ const ThreadLevel: React.FC<{
   );
 };
 
+const getPostsData = async (
+  key: string,
+  { threadId }: { threadId: string }
+) => {
+  const response = await axios.get(`threads/${threadId}/`);
+  return response.data;
+};
+
 function HomePage() {
   const [showSidebar, setShowSidebar] = React.useState(false);
   const [postReplyId, setPostReplyId] = React.useState<string | null>(null);
   const [commentReplyId, setCommentReplyId] = React.useState<string | null>(
     null
   );
-  const [posts, setPosts] = React.useState(INITIAL_POSTS);
-  const [[root, postsMap], setPostsTree] = React.useState(
-    makePostsTree(INITIAL_POSTS)
-  );
+  const router = useRouter();
+  const {
+    data: postsData,
+    isFetching: isFetchingPosts,
+    error: fetchPostsError,
+  } = useQuery(["postsData", { threadId: router.query.id }], getPostsData);
+  const [[root, postsMap], setPostsTree] = React.useState([undefined, {}]);
 
-  if (!root) {
+  React.useEffect(() => {
+    setPostsTree(makePostsTree(postsData?.posts) as any);
+  });
+
+  if (!root || !root) {
     return <div />;
   }
 
@@ -348,11 +170,10 @@ function HomePage() {
         onPostSaved={(post: any) => {
           post.id = getNextId();
           post.answersTo = postReplyId;
-          setPosts([post, ...posts]);
-          setPostsTree(makePostsTree([post, ...posts]));
           setPostReplyId(null);
         }}
         onCloseModal={() => setPostReplyId(null)}
+        submitUrl={`/threads/${router.query.id}/create`}
       />
       <CommentEditorModal
         isOpen={!!commentReplyId}
@@ -365,19 +186,17 @@ function HomePage() {
           avatar: `/mamoru.png`,
         }}
         onCommentSaved={(comment: any) => {
-          const parentIndex = posts.findIndex(
-            (post) => post.id == commentReplyId
+          const parentIndex = postsData.findIndex(
+            (post: any) => post.id == commentReplyId
           );
           if (parentIndex == -1) {
             return;
           }
-          posts[parentIndex].comments = [
-            ...(posts[parentIndex].comments || []),
+          postsData[parentIndex].comments = [
+            ...(postsData[parentIndex].comments || []),
             comment,
           ];
-          posts[parentIndex] = { ...posts[parentIndex] };
-          setPosts([...posts]);
-          setPostsTree(makePostsTree([...posts]));
+          postsData[parentIndex] = { ...postsData[parentIndex] };
           setCommentReplyId(null);
         }}
         onCloseModal={() => setCommentReplyId(null)}
@@ -387,7 +206,7 @@ function HomePage() {
           <FeedWithMenu
             sidebarContent={<div></div>}
             feedContent={
-              <div style={{ padding: "20px 0" }}>
+              <div style={{ padding: "20px 0", width: "100%" }}>
                 <ThreadLevel
                   post={root}
                   postsMap={postsMap as any}
@@ -403,13 +222,7 @@ function HomePage() {
             }
           />
         }
-        sideMenuContent={
-          <SideMenu
-            pinnedBoards={PINNED_BOARDS}
-            searchBoards={SEARCH_BOARDS}
-            recentBoards={RECENT_BOARDS}
-          />
-        }
+        sideMenuContent={<SideMenu />}
         headerAccent="#f96680"
         title="!gore"
         onTitleClick={() => {
