@@ -17,11 +17,6 @@ import { useRouter } from "next/router";
 // @ts-ignore
 import { ReactQueryDevtools } from "react-query-devtools";
 
-let NEXT_ID = 0;
-const getNextId = () => {
-  return NEXT_ID++;
-};
-
 const getBoardData = async () => {
   const response = await axios.get("http://localhost:4200/boards/gore");
   return response.data;
@@ -31,6 +26,7 @@ function HomePage() {
   const [showSidebar, setShowSidebar] = React.useState(false);
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
   const [loginOpen, setLoginOpen] = React.useState(false);
+  // @ts-ignore
   const { status, data, isFetching, error } = useQuery(
     "boardData",
     getBoardData

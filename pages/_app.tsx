@@ -7,7 +7,10 @@ import axios from "axios";
 import { AuthProvider, useAuth } from "../components/Auth";
 import { ToastContainer } from "react-toastify";
 
-axios.defaults.baseURL = "http://localhost:4200/";
+axios.defaults.baseURL =
+  process.env.NODE_ENV == "production"
+    ? "https://backend-dot-bobaboard.uc.r.appspot.com/"
+    : "http://localhost:4200/";
 let promisePending = true;
 let resolveLoginPromise: (idToken: string | null) => void;
 let axiosAwaitLoginPromise: Promise<string | null> = new Promise((resolve) => {

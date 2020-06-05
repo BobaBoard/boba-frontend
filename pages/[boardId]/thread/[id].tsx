@@ -141,7 +141,9 @@ function HomePage() {
   const router = useRouter();
   const {
     data: postsData,
+    // @ts-ignore
     isFetching: isFetchingPosts,
+    // @ts-ignore
     error: fetchPostsError,
   } = useQuery(["postsData", { threadId: router.query.id }], getPostsData);
   const [[root, postsMap], setPostsTree] = React.useState([undefined, {}]);
