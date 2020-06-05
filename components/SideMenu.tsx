@@ -26,7 +26,7 @@ const SideMenu: React.FC<{}> = (props) => {
     <LibSideMenu
       pinnedBoards={pinnedBoards.map((board: any) => ({
         slug: board.slug,
-        avatar: `${board.avatar_reference_id}`,
+        avatar: `${board.avatarUrl}`,
         description: board.tagline,
         color: board.settings?.accentColor,
         onClick: (slug: string) => router.push(`/!${slug}`),
