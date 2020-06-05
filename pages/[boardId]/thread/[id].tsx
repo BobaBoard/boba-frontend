@@ -7,15 +7,14 @@ import {
   Post,
   // @ts-ignore
 } from "@bobaboard/ui-components";
-import PostEditorModal from "../../components/PostEditorModal";
-import CommentEditorModal from "../../components/CommentEditorModal";
-import SideMenu from "../../components/SideMenu";
+import PostEditorModal from "../../../components/PostEditorModal";
+import CommentEditorModal from "../../../components/CommentEditorModal";
+import SideMenu from "../../../components/SideMenu";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { useQuery } from "react-query";
 
 const makePostsTree = (posts: any[]) => {
-  console.log(posts);
   if (!posts) {
     return [undefined, {}];
   }
@@ -23,17 +22,16 @@ const makePostsTree = (posts: any[]) => {
   const parentChildrenMap: { [key: string]: any } = {};
 
   posts.forEach((post) => {
-    if (!post.answersTo) {
+    if (!post.parent_post_id) {
       root = post;
       return;
     }
-    parentChildrenMap[post.answersTo] = [
+    parentChildrenMap[post.parent_post_id] = [
       post,
-      ...(parentChildrenMap[post.answersTo] || []),
+      ...(parentChildrenMap[post.parent_post_id] || []),
     ];
   });
 
-  console.log(root, parentChildrenMap);
   return [root, parentChildrenMap];
 };
 
@@ -59,6 +57,7 @@ const ThreadLevel: React.FC<{
   onNewComment: (id: string) => void;
   onNewContribution: (id: string) => void;
 }> = (props) => {
+  console.log(Object.keys(props.postsMap).length);
   return (
     <>
       <div className="level">
@@ -83,7 +82,7 @@ const ThreadLevel: React.FC<{
               )}
               newComments={props.post.new_comments}
               newContributions={props.post.new_contributions}
-              centered
+              centered={Object.keys(props.postsMap).length == 0}
             />
           </div>
         </ThreadIndent>
@@ -93,8 +92,8 @@ const ThreadLevel: React.FC<{
               <Comment
                 key={`${props.post.id}_${i}`}
                 id="1"
-                secretIdentity={comment.secretIdentity}
-                userIdentity={comment.userIdentity}
+                secretIdentity={comment.secret_identity}
+                userIdentity={comment.user_identity}
                 initialText={comment.content}
               />
             ))}
@@ -149,7 +148,7 @@ function HomePage() {
 
   React.useEffect(() => {
     setPostsTree(makePostsTree(postsData?.posts) as any);
-  });
+  }, [postsData]);
 
   if (!root || !root) {
     return <div />;
@@ -206,7 +205,12 @@ function HomePage() {
           <FeedWithMenu
             sidebarContent={<div></div>}
             feedContent={
-              <div style={{ padding: "20px 0", width: "100%" }}>
+              <div
+                style={{
+                  padding: "20px 0",
+                  width: Object.keys(postsMap).length == 0 ? "100%" : "auto",
+                }}
+              >
                 <ThreadLevel
                   post={root}
                   postsMap={postsMap as any}

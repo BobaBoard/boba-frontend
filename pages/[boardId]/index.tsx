@@ -44,7 +44,7 @@ function HomePage() {
     isFetching: isFetchingBoardData,
     error: boardDataError,
   } = useQuery(
-    ["boardData", { slug: router.query.id?.slice(1) }],
+    ["boardData", { slug: router.query.boardId?.slice(1) }],
     getBoardData
   );
   const {
@@ -52,7 +52,7 @@ function HomePage() {
     isFetching: isFetchingBoardActivity,
     error: boardActivityError,
   } = useQuery(
-    ["boardActivityData", { slug: router.query.id?.slice(1) }],
+    ["boardActivityData", { slug: router.query.boardId?.slice(1) }],
     getBoardActivityData
   );
 
@@ -92,7 +92,7 @@ function HomePage() {
           setPostEditorOpen(false);
         }}
         onCloseModal={() => setPostEditorOpen(false)}
-        submitUrl={`/threads/${router.query.id?.slice(1)}/create`}
+        submitUrl={`/threads/${router.query.boardId?.slice(1)}/create`}
       />
       <Layout
         mainContent={
@@ -180,21 +180,27 @@ function HomePage() {
                           }}
                           onOpenComments={() =>
                             router.push(
-                              `/thread/[id]/`,
-                              `/thread/${post.thread_id}/`
+                              `/[boardId]/thread/[id]/`,
+                              `/${router.query.boardId}/thread/${post.thread_id}/`
                             )
                           }
                           onOpenContributions={() =>
                             router.push(
-                              `/thread/[id]/`,
-                              `/thread/${post.thread_id}/`
+                              `/[boardId]/thread/[id]/`,
+                              `/${router.query.boardId}/thread/${post.thread_id}/`
                             )
                           }
                           onNewContribution={() =>
-                            router.push(`/thread/${post.thread_id}/contribute`)
+                            router.push(
+                              `/[boardId]/thread/[id]/`,
+                              `/${router.query.boardId}/thread/${post.thread_id}/contribute/`
+                            )
                           }
                           onNewComment={() =>
-                            router.push(`/thread/${post.thread_id}/comment`)
+                            router.push(
+                              `/[boardId]/thread/[id]/`,
+                              `/${router.query.boardId}/thread/${post.thread_id}/comment`
+                            )
                           }
                           size={
                             post.options?.wide
