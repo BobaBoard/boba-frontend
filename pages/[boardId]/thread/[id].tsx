@@ -172,7 +172,7 @@ function HomePage() {
           setPostReplyId(null);
         }}
         onCloseModal={() => setPostReplyId(null)}
-        submitUrl={`/threads/${router.query.id}/create`}
+        submitUrl={`/posts/${postReplyId}/contribute`}
       />
       <CommentEditorModal
         isOpen={!!commentReplyId}

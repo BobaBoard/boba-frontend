@@ -193,13 +193,13 @@ function HomePage() {
                           onNewContribution={() =>
                             router.push(
                               `/[boardId]/thread/[id]/`,
-                              `/${router.query.boardId}/thread/${post.thread_id}/contribute/`
+                              `/${router.query.boardId}/thread/${post.thread_id}/`
                             )
                           }
                           onNewComment={() =>
                             router.push(
                               `/[boardId]/thread/[id]/`,
-                              `/${router.query.boardId}/thread/${post.thread_id}/comment`
+                              `/${router.query.boardId}/thread/${post.thread_id}/`
                             )
                           }
                           size={
