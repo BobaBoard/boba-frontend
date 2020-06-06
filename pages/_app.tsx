@@ -24,18 +24,17 @@ axios.interceptors.request.use((config) => {
 });
 
 const AxiosInterceptor = () => {
-  const { idToken, isPending } = useAuth();
+  const { idToken, isFirebasePending } = useAuth();
   React.useEffect(() => {
-    if (isPending && !promisePending) {
+    if (isFirebasePending && !promisePending) {
       axiosAwaitLoginPromise = new Promise((resolve) => {
         resolveLoginPromise = resolve;
       });
       promisePending = true;
-    } else if (!isPending && promisePending) {
-      console.log(idToken);
+    } else if (!isFirebasePending && promisePending) {
       resolveLoginPromise && resolveLoginPromise(idToken);
     }
-  }, [idToken, isPending]);
+  }, [idToken, isFirebasePending]);
   return null;
 };
 

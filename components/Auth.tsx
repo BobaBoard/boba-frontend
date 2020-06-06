@@ -22,6 +22,7 @@ const AuthContext = React.createContext({} as any);
 const useAuth = () => React.useContext(AuthContext);
 
 const AuthProvider: React.FC<{}> = (props) => {
+  const [isFirebasePending, setFirebasePending] = React.useState(true);
   const [status, setStatus] = React.useState<{
     isLoggedIn: boolean;
     isPending: boolean;
@@ -38,22 +39,30 @@ const AuthProvider: React.FC<{}> = (props) => {
   React.useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
       if (!user) {
+        setFirebasePending(false);
         setStatus({
           isLoggedIn: false,
           isPending: false,
         });
         return;
       }
-      Promise.all([axios.get("users/me/"), user?.getIdToken()]).then(
-        ([userResponse, idToken]) => {
+      user?.getIdToken().then((idToken) => {
+        setStatus({
+          isLoggedIn: true,
+          isPending: true,
+          idToken,
+        });
+        setFirebasePending(false);
+        axios.get("users/me/").then((userResponse) => {
+          console.log(userResponse.data);
           setStatus({
             isLoggedIn: true,
             isPending: false,
             idToken,
             user: userResponse.data,
           });
-        }
-      );
+        });
+      });
     });
   }, []);
 
@@ -63,13 +72,14 @@ const AuthProvider: React.FC<{}> = (props) => {
   ): Promise<boolean> => {
     setStatus({
       ...status,
-      isPending: false,
+      isPending: true,
     });
 
     return firebase
       .auth()
       .signInWithEmailAndPassword(username, password)
       .then((user) => {
+        debugger;
         return !!user;
       })
       .catch((e) => {
@@ -77,6 +87,7 @@ const AuthProvider: React.FC<{}> = (props) => {
           isLoggedIn: false,
           isPending: false,
         });
+        setFirebasePending(false);
         return false;
       });
   };
@@ -94,6 +105,7 @@ const AuthProvider: React.FC<{}> = (props) => {
     <AuthContext.Provider
       value={{
         ...status,
+        isFirebasePending,
         attemptLogin,
         attemptLogout,
       }}

@@ -36,7 +36,7 @@ function HomePage() {
   const [showSidebar, setShowSidebar] = React.useState(false);
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
   const router = useRouter();
-  const { isLoggedIn } = useAuth();
+  const { isPending, isLoggedIn, user } = useAuth();
   const [loginOpen, setLoginOpen] = React.useState(false);
 
   const {
@@ -242,6 +242,8 @@ function HomePage() {
           setShowSidebar(!showSidebar);
         }}
         onUserBarClick={() => setLoginOpen(true)}
+        user={user}
+        loading={isPending}
       />
       <ReactQueryDevtools initialIsOpen={false} />
       <style jsx>{`
