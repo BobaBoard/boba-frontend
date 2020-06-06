@@ -144,7 +144,7 @@ function HomePage() {
     null
   );
   const router = useRouter();
-  const { isPending, isLoggedIn, user } = useAuth();
+  const { isPending, user } = useAuth();
   const [loginOpen, setLoginOpen] = React.useState(false);
   const {
     data: postsData,
@@ -157,6 +157,7 @@ function HomePage() {
   const {
     data: boardData,
     isFetching: isFetchingBoardData,
+    // @ts-ignore
     error: boardDataError,
   } = useQuery(
     ["boardData", { slug: router.query.boardId?.slice(1) }],

@@ -9,6 +9,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
   return (
     <Modal isOpen={props.isOpen}>
       <PostEditor
+        // @ts-ignore
         secretIdentity={props.secretIdentity}
         userIdentity={props.userIdentity}
         loading={isPostLoading}
