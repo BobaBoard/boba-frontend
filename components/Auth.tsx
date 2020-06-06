@@ -92,12 +92,7 @@ const AuthProvider: React.FC<{}> = (props) => {
   };
 
   const attemptLogout = () => {
-    firebase
-      .auth()
-      .signOut()
-      .then(() => {
-        console.log("logged out");
-      });
+    return firebase.auth().signOut();
   };
 
   return (

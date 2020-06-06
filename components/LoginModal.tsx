@@ -85,7 +85,9 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
               </Button>
               <Button
                 onClick={() => {
-                  attemptLogout();
+                  attemptLogout().then(() => {
+                    props.onCloseModal();
+                  });
                 }}
                 theme={ButtonStyle.DARK}
                 color={props.color}
