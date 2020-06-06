@@ -183,12 +183,12 @@ function HomePage() {
       <PostEditorModal
         isOpen={!!postReplyId}
         secretIdentity={{
-          name: "Tuxedo Mask",
+          name: "[TBD]",
           avatar: `/tuxedo-mask.jpg`,
         }}
         userIdentity={{
-          name: "SexyDaddy69",
-          avatar: `/mamoru.png`,
+          name: user?.username,
+          avatar: user?.avatarUrl,
         }}
         onPostSaved={(post: any) => {
           post.id = getNextId();
@@ -201,12 +201,12 @@ function HomePage() {
       <CommentEditorModal
         isOpen={!!commentReplyId}
         secretIdentity={{
-          name: "Tuxedo Mask",
+          name: "[TBD]",
           avatar: `/tuxedo-mask.jpg`,
         }}
         userIdentity={{
-          name: "SexyDaddy69",
-          avatar: `/mamoru.png`,
+          name: user?.username,
+          avatar: user?.avatarUrl,
         }}
         onCommentSaved={(comment: any) => {
           const parentIndex = postsData.findIndex(
