@@ -2,6 +2,7 @@ import React from "react";
 
 import firebase from "firebase/app";
 import "firebase/auth";
+import axios from "axios";
 
 if (!firebase.apps.length) {
   const firebaseConfig = {
@@ -24,30 +25,35 @@ const AuthProvider: React.FC<{}> = (props) => {
   const [status, setStatus] = React.useState<{
     isLoggedIn: boolean;
     isPending: boolean;
-    idToken: null | string;
+    idToken?: string;
+    user?: {
+      username: string;
+      avatarUrl?: string;
+    };
   }>({
     isLoggedIn: false,
     isPending: true,
-    idToken: null,
   });
 
   React.useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
-      console.log(user);
       if (!user) {
         setStatus({
           isLoggedIn: false,
           isPending: false,
-          idToken: null,
         });
+        return;
       }
-      user?.getIdToken().then((idToken) => {
-        setStatus({
-          isLoggedIn: true,
-          isPending: false,
-          idToken,
-        });
-      });
+      Promise.all([axios.get("users/me/"), user?.getIdToken()]).then(
+        ([userResponse, idToken]) => {
+          setStatus({
+            isLoggedIn: true,
+            isPending: false,
+            idToken,
+            user: userResponse.data,
+          });
+        }
+      );
     });
   }, []);
 
@@ -70,7 +76,6 @@ const AuthProvider: React.FC<{}> = (props) => {
         setStatus({
           isLoggedIn: false,
           isPending: false,
-          idToken: null,
         });
         return false;
       });
