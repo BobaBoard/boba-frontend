@@ -1,6 +1,7 @@
 import React from "react";
 // @ts-ignore
 import { CommentEditor, Modal } from "@bobaboard/ui-components";
+import axios from "axios";
 
 const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
   const [isCommentLoading, setCommentLoading] = React.useState(false);
@@ -12,16 +13,21 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
           userIdentity={props.userIdentity}
           loading={isCommentLoading}
           onSubmit={(text: string) => {
-            setTimeout(() => {
-              props.onCommentSaved({
-                createdTime: "1 minute ago",
-                content: text,
-                secretIdentity: props.secretIdentity,
-                userIdentity: props.userIdentity,
-              });
-              setCommentLoading(false);
-            }, 3000);
             setCommentLoading(true);
+            axios
+              .post(props.submitUrl, {
+                content: text,
+                forceAnonymous: false,
+              })
+              .then((response) => {
+                props.onCommentSaved({
+                  createdTime: "at some point",
+                  content: text,
+                  secretIdentity: props.secretIdentity,
+                  userIdentity: props.userIdentity,
+                });
+                setCommentLoading(false);
+              });
           }}
           onCancel={() => props.onCloseModal()}
           centered
@@ -45,6 +51,7 @@ export interface CommentEditorModalProps {
   };
   // TODO: add post type
   onCommentSaved: (comment: any) => void;
+  submitUrl: string;
 }
 
 export default CommentEditorModal;

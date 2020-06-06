@@ -26,7 +26,6 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
           setPostLoading(true);
           textPromise.then(
             ({ text, large }: { text: string; large: boolean }) => {
-              console.log(text, large);
               axios
                 .post(props.submitUrl, {
                   content: text,

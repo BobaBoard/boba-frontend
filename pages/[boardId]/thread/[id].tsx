@@ -224,6 +224,7 @@ function HomePage() {
           setCommentReplyId(null);
         }}
         onCloseModal={() => setCommentReplyId(null)}
+        submitUrl={`/posts/${postReplyId}/comment`}
       />
       <Layout
         mainContent={
