@@ -192,8 +192,6 @@ function HomePage() {
           avatar: user?.avatarUrl,
         }}
         onPostSaved={(post: any) => {
-          post.id = getNextId();
-          post.answersTo = postReplyId;
           setPostReplyId(null);
         }}
         onCloseModal={() => setPostReplyId(null)}
@@ -210,21 +208,10 @@ function HomePage() {
           avatar: user?.avatarUrl,
         }}
         onCommentSaved={(comment: any) => {
-          const parentIndex = postsData.findIndex(
-            (post: any) => post.id == commentReplyId
-          );
-          if (parentIndex == -1) {
-            return;
-          }
-          postsData[parentIndex].comments = [
-            ...(postsData[parentIndex].comments || []),
-            comment,
-          ];
-          postsData[parentIndex] = { ...postsData[parentIndex] };
           setCommentReplyId(null);
         }}
         onCloseModal={() => setCommentReplyId(null)}
-        submitUrl={`/posts/${postReplyId}/comment`}
+        submitUrl={`/posts/${commentReplyId}/comment`}
       />
       <Layout
         mainContent={

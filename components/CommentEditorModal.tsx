@@ -5,6 +5,7 @@ import axios from "axios";
 
 const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
   const [isCommentLoading, setCommentLoading] = React.useState(false);
+
   return (
     <Modal isOpen={props.isOpen}>
       <div className="editor">
