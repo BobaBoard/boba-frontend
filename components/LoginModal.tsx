@@ -5,83 +5,120 @@ import { useAuth } from "./Auth";
 import classnames from "classnames";
 
 const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
-  const { isPending, attemptLogin, attemptLogout } = useAuth();
+  const { isPending, isLoggedIn, attemptLogin, attemptLogout } = useAuth();
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
 
   return (
     <Modal isOpen={props.isOpen}>
-      <div className="login">
-        <div className={classnames("inputs", { pending: isPending })}>
-          <div>
-            <Input
-              id={"username"}
-              value={username}
-              label={"Username"}
-              onTextChange={(text) => setUsername(text)}
-              color={props.color}
-            />
+      <>
+        {!isLoggedIn && (
+          <div className="login">
+            <div className={classnames("inputs", { pending: isPending })}>
+              <div>
+                <Input
+                  id={"username"}
+                  value={username}
+                  label={"Username"}
+                  onTextChange={(text: string) => setUsername(text)}
+                  color={props.color}
+                />
+              </div>
+              <div>
+                <Input
+                  id={"password"}
+                  value={password}
+                  label={"Password"}
+                  onTextChange={(text: string) => setPassword(text)}
+                  password
+                  color={props.color}
+                />
+              </div>
+            </div>
+            <div className="buttons">
+              <div>
+                <Button
+                  onClick={() => {
+                    setUsername("");
+                    setPassword("");
+                    props.onCloseModal();
+                  }}
+                  theme={ButtonStyle.DARK}
+                  color={props.color}
+                >
+                  Cancel
+                </Button>
+              </div>
+              <div>
+                <Button
+                  disabled={!username || !password}
+                  theme={ButtonStyle.DARK}
+                  color={props.color}
+                  onClick={() => {
+                    attemptLogin(username, password).then(() => {
+                      setUsername("");
+                      setPassword("");
+                      props.onCloseModal();
+                    });
+                  }}
+                >
+                  Login
+                </Button>
+              </div>
+            </div>
           </div>
-          <div>
-            <Input
-              id={"password"}
-              value={password}
-              label={"Password"}
-              onTextChange={(text) => setPassword(text)}
-              password
-              color={props.color}
-            />
-          </div>
-        </div>
-        <div className="buttons">
-          <div>
-            <Button
-              onClick={() => {
-                attemptLogout();
-              }}
-              theme={ButtonStyle.DARK}
-              color={props.color}
-            >
-              Logout
-            </Button>
-            <Button
-              onClick={() => {
-                setUsername("");
-                setPassword("");
-                props.onCloseModal();
-              }}
-              theme={ButtonStyle.DARK}
-              color={props.color}
-            >
-              Cancel
-            </Button>
-          </div>
-          <div>
-            <Button
-              disabled={!username || !password}
-              theme={ButtonStyle.DARK}
-              color={props.color}
-              onClick={() => {
-                attemptLogin(username, password).then(() => {
+        )}
+        {isLoggedIn && (
+          <div className="logout">
+            <div>Sorry this pop-up sucks ._.</div>
+            <div>
+              <Button
+                onClick={() => {
                   setUsername("");
                   setPassword("");
                   props.onCloseModal();
-                });
-              }}
-            >
-              Login
-            </Button>
+                }}
+                theme={ButtonStyle.DARK}
+                color={props.color}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  attemptLogout();
+                }}
+                theme={ButtonStyle.DARK}
+                color={props.color}
+              >
+                Logout
+              </Button>
+            </div>
           </div>
-        </div>
-      </div>
+        )}
+      </>
       <style jsx>{`
-        .login {
+        .login,
+        .logout {
           position: relative;
           margin: 20px auto;
           padding: 25px;
           max-width: 500px;
           border-radius: 25px;
           background-color: #131518;
+        }
+        .logout {
+          display: flex;
+          align-items: center;
+          flex-direction: column;
+          color: white;
+        }
+        .logout > div:first-child {
+          margin-bottom: 15px;
+        }
+        .logout > div:not(:first-child) {
+          display: flex;
+          place-content: space-evenly;
+          width: 200px;
         }
         .login.pending {
           background-color: red;

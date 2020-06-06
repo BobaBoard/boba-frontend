@@ -79,7 +79,6 @@ const AuthProvider: React.FC<{}> = (props) => {
       .auth()
       .signInWithEmailAndPassword(username, password)
       .then((user) => {
-        debugger;
         return !!user;
       })
       .catch((e) => {
