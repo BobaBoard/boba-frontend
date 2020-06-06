@@ -57,7 +57,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
 export interface PostEditorModalProps {
   isOpen: boolean;
   onCloseModal: () => void;
-  secretIdentity: {
+  secretIdentity?: {
     avatar: string;
     name: string;
   };

@@ -81,12 +81,12 @@ function HomePage() {
       <PostEditorModal
         isOpen={postEditorOpen}
         secretIdentity={{
-          name: "Tuxedo Mask",
+          name: "[TBD]",
           avatar: `/tuxedo-mask.jpg`,
         }}
         userIdentity={{
-          name: "SexyDaddy69",
-          avatar: `/mamoru.png`,
+          name: user?.username,
+          avatar: user?.avatarUrl,
         }}
         onPostSaved={(post: any) => {
           setPostEditorOpen(false);

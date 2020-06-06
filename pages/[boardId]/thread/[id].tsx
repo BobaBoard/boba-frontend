@@ -13,6 +13,8 @@ import SideMenu from "../../../components/SideMenu";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { useQuery } from "react-query";
+import { useAuth } from "../../../components/Auth";
+import LoginModal from "../../../components/LoginModal";
 
 const makePostsTree = (posts: any[]) => {
   if (!posts) {
@@ -57,7 +59,6 @@ const ThreadLevel: React.FC<{
   onNewComment: (id: string) => void;
   onNewContribution: (id: string) => void;
 }> = (props) => {
-  console.log(Object.keys(props.postsMap).length);
   return (
     <>
       <div className="level">
@@ -131,6 +132,10 @@ const getPostsData = async (
   const response = await axios.get(`threads/${threadId}/`);
   return response.data;
 };
+const getBoardData = async (key: string, { slug }: { slug: string }) => {
+  const response = await axios.get(`boards/${slug}`);
+  return response.data;
+};
 
 function HomePage() {
   const [showSidebar, setShowSidebar] = React.useState(false);
@@ -139,6 +144,8 @@ function HomePage() {
     null
   );
   const router = useRouter();
+  const { isPending, isLoggedIn, user } = useAuth();
+  const [loginOpen, setLoginOpen] = React.useState(false);
   const {
     data: postsData,
     // @ts-ignore
@@ -147,6 +154,14 @@ function HomePage() {
     error: fetchPostsError,
   } = useQuery(["postsData", { threadId: router.query.id }], getPostsData);
   const [[root, postsMap], setPostsTree] = React.useState([undefined, {}]);
+  const {
+    data: boardData,
+    isFetching: isFetchingBoardData,
+    error: boardDataError,
+  } = useQuery(
+    ["boardData", { slug: router.query.boardId?.slice(1) }],
+    getBoardData
+  );
 
   React.useEffect(() => {
     setPostsTree(makePostsTree(postsData?.posts) as any);
@@ -158,6 +173,13 @@ function HomePage() {
 
   return (
     <div className="main">
+      <LoginModal
+        isOpen={loginOpen}
+        onCloseModal={() => setLoginOpen(false)}
+        color={
+          isFetchingBoardData ? "#f96680" : boardData?.settings?.accentColor
+        }
+      />
       <PostEditorModal
         isOpen={!!postReplyId}
         secretIdentity={{
@@ -234,6 +256,9 @@ function HomePage() {
         onTitleClick={() => {
           setShowSidebar(!showSidebar);
         }}
+        onUserBarClick={() => setLoginOpen(true)}
+        user={user}
+        loading={isPending}
       />
     </div>
   );
