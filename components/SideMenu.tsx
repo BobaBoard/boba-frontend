@@ -29,7 +29,7 @@ const SideMenu: React.FC<{}> = (props) => {
         avatar: `${board.avatarUrl}`,
         description: board.tagline,
         color: board.settings?.accentColor,
-        onClick: (slug: string) => router.push(`/!${slug}`),
+        onClick: (slug: string) => router.push(`/[boardId]`, `/!${slug}`),
       }))}
       searchBoards={undefined}
       recentBoards={undefined}
