@@ -29,6 +29,10 @@ const getBoardActivityData = async (
   { slug }: { slug: string }
 ) => {
   const response = await axios.get(`boards/${slug}/activity/latest`);
+  if (response.status == 204) {
+    // No data, let's return empty array
+    return [];
+  }
   return response.data;
 };
 
@@ -68,6 +72,8 @@ function HomePage() {
       });
     }
   }, [boardDataError, boardActivityError]);
+
+  const showEmptyMessage = boardActivityData?.length === 0;
 
   return (
     <div className="main">
@@ -162,6 +168,9 @@ function HomePage() {
             feedContent={
               <div className="main">
                 {isFetchingBoardActivity && <div>Loading</div>}
+                {showEmptyMessage && (
+                  <img className="empty" src={"/nothing.jpg"} />
+                )}
                 {boardActivityData &&
                   boardActivityData.map((post: any) => {
                     return (
@@ -256,6 +265,12 @@ function HomePage() {
         }
         .post > :global(div) {
           margin: 0 auto;
+        }
+        .empty {
+          margin: 0 auto;
+          display: block;
+          margin-top: 30px;
+          filter: grayscale(0.4);
         }
       `}</style>
     </div>
