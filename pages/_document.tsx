@@ -1,5 +1,6 @@
 import Document, { Html, Head, Main, NextScript } from "next/document";
 
+// @ts-ignore
 import { flush as componentsFlush } from "@bobaboard/ui-components";
 
 const bodyCss = `
