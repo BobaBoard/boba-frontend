@@ -211,7 +211,9 @@ function HomePage() {
                           newComments={post.newComments}
                           newContributions={post.newContributions}
                           totalComments={post.comments_amount}
-                          totalContributions={post.posts_amount}
+                          // subtract 1 since posts_amount is the amount of posts total in the thread
+                          // including the head one.
+                          totalContributions={post.posts_amount - 1}
                           directContributions={post.threads_amount}
                         />
                       </div>
