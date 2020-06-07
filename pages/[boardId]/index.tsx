@@ -20,6 +20,8 @@ import SideMenu from "../../components/SideMenu";
 import { ReactQueryDevtools } from "react-query-devtools";
 import { useRouter } from "next/router";
 
+import moment from "moment";
+
 const getBoardData = async (key: string, { slug }: { slug: string }) => {
   const response = await axios.get(`boards/${slug}`);
   return response.data;
@@ -169,7 +171,7 @@ function HomePage() {
                       <div className="post">
                         <Post
                           key={post.post_id}
-                          createdTime={"at some point"}
+                          createdTime={moment.utc(post.created).fromNow()}
                           text={post.content}
                           secretIdentity={{
                             name: post.secret_identity.name,

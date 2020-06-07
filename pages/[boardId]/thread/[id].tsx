@@ -15,6 +15,7 @@ import axios from "axios";
 import { useQuery, queryCache } from "react-query";
 import { useAuth } from "../../../components/Auth";
 import LoginModal from "../../../components/LoginModal";
+import moment from "moment";
 
 const makePostsTree = (posts: any[]) => {
   if (!posts) {
@@ -64,7 +65,7 @@ const ThreadLevel: React.FC<{
           <div className="post">
             <Post
               key={props.post.id}
-              createdTime={"at some point"}
+              createdTime={moment.utc(props.post.created).fromNow()}
               text={props.post.content}
               secretIdentity={props.post.secret_identity}
               userIdentity={props.post.user_identity}
