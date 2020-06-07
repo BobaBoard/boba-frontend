@@ -71,7 +71,7 @@ function HomePage() {
 
   const showEmptyMessage = boardActivityData?.length === 0;
 
-  const slug = router.query.boardId?.slice(1);
+  const slug: string = router.query.boardId?.slice(1) as string;
   return (
     <div className="main">
       <LoginModal

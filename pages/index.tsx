@@ -1,36 +1,22 @@
 import React from "react";
 import {
   Layout,
-  Post,
-  PostSizes,
-  FeedWithMenu,
-  BoardSidebar,
-  PostingActionButton,
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import PostEditorModal from "../components/PostEditorModal";
 import SideMenu from "../components/SideMenu";
 import LoginModal from "../components/LoginModal";
-import axios from "axios";
-import { useQuery } from "react-query";
 import { useRouter } from "next/router";
+import { useAuth } from "../components/Auth";
 // @ts-ignore
 import { ReactQueryDevtools } from "react-query-devtools";
-
-const getBoardData = async () => {
-  const response = await axios.get("http://localhost:4200/boards/gore");
-  return response.data;
-};
 
 function HomePage() {
   const [showSidebar, setShowSidebar] = React.useState(false);
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
   const [loginOpen, setLoginOpen] = React.useState(false);
-  // @ts-ignore
-  const { status, data, isFetching, error } = useQuery(
-    "boardData",
-    getBoardData
-  );
+  const { isPending, user } = useAuth();
+
   const router = useRouter();
 
   return (
@@ -51,11 +37,7 @@ function HomePage() {
         onCloseModal={() => setPostEditorOpen(false)}
         submitUrl={`threads/${router.pathname}/create`}
       />
-      <LoginModal
-        isOpen={loginOpen}
-        onCloseModal={() => setLoginOpen(false)}
-        color={status === "loading" ? "#f96680" : data.settings.accentColor}
-      />
+      <LoginModal isOpen={loginOpen} onCloseModal={() => setLoginOpen(false)} />
       <Layout
         mainContent={
           <div className="main">
@@ -76,14 +58,13 @@ function HomePage() {
           </div>
         }
         sideMenuContent={<SideMenu />}
-        headerAccent={
-          status === "loading" ? "#f96680" : data.settings.accentColor
-        }
         title={`Hello!`}
         onTitleClick={() => {
           setShowSidebar(!showSidebar);
         }}
         onUserBarClick={() => setLoginOpen(true)}
+        user={user}
+        loading={isPending}
       />
       <ReactQueryDevtools initialIsOpen={false} />
     </div>
