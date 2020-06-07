@@ -167,11 +167,19 @@ function HomePage() {
                 )}
                 {boardActivityData &&
                   boardActivityData.map((post: any) => {
+                    const hasReplies =
+                      post.posts_amount > 1 || post.comments_amount > 0;
                     return (
                       <div className="post">
                         <Post
                           key={post.post_id}
-                          createdTime={moment.utc(post.created).fromNow()}
+                          createdTime={`${moment.utc(post.created).fromNow()}${
+                            hasReplies
+                              ? ` [updated: ${moment
+                                  .utc(post.last_activity)
+                                  .fromNow()}]`
+                              : ""
+                          }`}
                           text={post.content}
                           secretIdentity={{
                             name: post.secret_identity.name,
