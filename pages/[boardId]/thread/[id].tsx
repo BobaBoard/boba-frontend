@@ -157,7 +157,8 @@ function HomePage() {
     error: boardDataError,
   } = useQuery(
     ["boardData", { slug: router.query.boardId?.slice(1) }],
-    getBoardData
+    getBoardData,
+    { staleTime: Infinity }
   );
 
   React.useEffect(() => {

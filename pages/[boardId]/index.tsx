@@ -47,7 +47,8 @@ function HomePage() {
 
   const { data: boardData, error: boardDataError } = useQuery(
     ["boardData", { slug: router.query.boardId?.slice(1) }],
-    getBoardData
+    getBoardData,
+    { staleTime: Infinity }
   );
   const {
     data: boardActivityData,
