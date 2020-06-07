@@ -213,12 +213,7 @@ function HomePage() {
           <FeedWithMenu
             sidebarContent={<div></div>}
             feedContent={
-              <div
-                style={{
-                  padding: "20px 0",
-                  width: Object.keys(postsMap).length == 0 ? "100%" : "auto",
-                }}
-              >
+              <div className="feed-content">
                 <ThreadLevel
                   post={root}
                   postsMap={postsMap as any}
@@ -244,6 +239,13 @@ function HomePage() {
         user={user}
         loading={isPending}
       />
+      <style jsx>
+        {`
+          .feed-content {
+            max-width: 100%;
+          }
+        `}
+      </style>
     </div>
   );
 }
