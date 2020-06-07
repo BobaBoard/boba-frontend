@@ -3,40 +3,19 @@ import {
   Layout,
   // @ts-ignore
 } from "@bobaboard/ui-components";
-import PostEditorModal from "../components/PostEditorModal";
 import SideMenu from "../components/SideMenu";
 import LoginModal from "../components/LoginModal";
-import { useRouter } from "next/router";
 import { useAuth } from "../components/Auth";
 // @ts-ignore
 import { ReactQueryDevtools } from "react-query-devtools";
 
 function HomePage() {
   const [showSidebar, setShowSidebar] = React.useState(false);
-  const [postEditorOpen, setPostEditorOpen] = React.useState(false);
   const [loginOpen, setLoginOpen] = React.useState(false);
   const { isPending, user } = useAuth();
 
-  const router = useRouter();
-
   return (
     <div className="main">
-      <PostEditorModal
-        isOpen={postEditorOpen}
-        secretIdentity={{
-          name: "Tuxedo Mask",
-          avatar: `/tuxedo-mask.jpg`,
-        }}
-        userIdentity={{
-          name: "SexyDaddy69",
-          avatar: `/mamoru.png`,
-        }}
-        onPostSaved={(post: any) => {
-          setPostEditorOpen(false);
-        }}
-        onCloseModal={() => setPostEditorOpen(false)}
-        submitUrl={`threads/${router.pathname}/create`}
-      />
       <LoginModal isOpen={loginOpen} onCloseModal={() => setLoginOpen(false)} />
       <Layout
         mainContent={
