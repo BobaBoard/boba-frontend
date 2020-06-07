@@ -175,7 +175,7 @@ function HomePage() {
                             avatar: post.secret_identity.avatar,
                           }}
                           userIdentity={{
-                            name: post.user_identity?.username,
+                            name: post.user_identity?.name,
                             avatar: post.user_identity?.avatar,
                           }}
                           onOpenComments={() =>
