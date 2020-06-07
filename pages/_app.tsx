@@ -11,30 +11,21 @@ axios.defaults.baseURL =
   process.env.NODE_ENV == "production"
     ? "https://backend-dot-bobaboard.uc.r.appspot.com/"
     : "http://localhost:4200/";
-let promisePending = true;
-let resolveLoginPromise: (idToken: string | null) => void;
-let axiosAwaitLoginPromise: Promise<string | null> = new Promise((resolve) => {
-  resolveLoginPromise = resolve;
-});
-axios.interceptors.request.use((config) => {
-  return axiosAwaitLoginPromise.then((idToken) => {
-    config.headers.authorization = idToken;
-    return config;
-  });
-});
 
+// We make the axios interceptor be a component so we can have auth
+// provided within.
 const AxiosInterceptor = () => {
-  const { idToken, isFirebasePending } = useAuth();
+  const { getAuthIdToken } = useAuth();
   React.useEffect(() => {
-    if (isFirebasePending && !promisePending) {
-      axiosAwaitLoginPromise = new Promise((resolve) => {
-        resolveLoginPromise = resolve;
+    axios.interceptors.request.use((config) => {
+      console.log("waiting on token: ", config.url);
+      return getAuthIdToken().then((idToken: string) => {
+        console.log("gotten token for: ", config.url, idToken);
+        config.headers.authorization = idToken;
+        return config;
       });
-      promisePending = true;
-    } else if (!isFirebasePending && promisePending) {
-      resolveLoginPromise && resolveLoginPromise(idToken);
-    }
-  }, [idToken, isFirebasePending]);
+    });
+  }, []);
   return null;
 };
 
