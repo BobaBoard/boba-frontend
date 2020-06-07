@@ -167,6 +167,7 @@ function HomePage() {
     return <div />;
   }
 
+  const slug: string = router.query.boardId?.slice(1) as string;
   return (
     <div className="main">
       <LoginModal
@@ -238,8 +239,8 @@ function HomePage() {
           />
         }
         sideMenuContent={<SideMenu />}
-        headerAccent="#f96680"
-        title="!gore"
+        headerAccent={boardData?.settings.accentColor || "#f96680"}
+        title={`!${slug}`}
         onTitleClick={() => {
           setShowSidebar(!showSidebar);
         }}
