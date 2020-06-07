@@ -11,7 +11,10 @@ const getBoardData = async (key: string) => {
   const response = await axios.get(`boards`);
   return response.data;
 };
-const SideMenu: React.FC<{}> = (props) => {
+
+const SideMenu: React.FC<{
+  onBoardChange?: (slug: string) => void;
+}> = (props) => {
   const router = useRouter();
   const {
     data: pinnedBoards,
@@ -29,7 +32,10 @@ const SideMenu: React.FC<{}> = (props) => {
         avatar: `${board.avatarUrl}`,
         description: board.tagline,
         color: board.settings?.accentColor,
-        onClick: (slug: string) => router.push(`/[boardId]`, `/!${slug}`),
+        onClick: (slug: string) => {
+          router.push(`/[boardId]`, `/!${slug}`);
+          props.onBoardChange?.(slug);
+        },
       }))}
       searchBoards={undefined}
       recentBoards={undefined}
