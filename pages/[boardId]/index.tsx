@@ -75,14 +75,13 @@ function HomePage() {
 
   const showEmptyMessage = boardActivityData?.length === 0;
 
+  const slug = router.query.boardId?.slice(1);
   return (
     <div className="main">
       <LoginModal
         isOpen={loginOpen}
         onCloseModal={() => setLoginOpen(false)}
-        color={
-          isFetchingBoardData ? "#f96680" : boardData?.settings?.accentColor
-        }
+        color={boardData?.settings.accentColor || "#f96680"}
       />
       <PostEditorModal
         isOpen={postEditorOpen}
@@ -98,7 +97,7 @@ function HomePage() {
           setPostEditorOpen(false);
         }}
         onCloseModal={() => setPostEditorOpen(false)}
-        submitUrl={`/threads/${router.query.boardId?.slice(1)}/create`}
+        submitUrl={`/threads/${slug}/create`}
       />
       <Layout
         mainContent={
@@ -106,14 +105,10 @@ function HomePage() {
             sidebarContent={
               <BoardSidebar
                 board={{
-                  slug: isFetchingBoardData ? "loading..." : boardData?.slug,
-                  avatar: isFetchingBoardData ? "/" : boardData?.avatarUrl,
-                  description: isFetchingBoardData
-                    ? "loading..."
-                    : boardData?.tagline,
-                  color: isFetchingBoardData
-                    ? "#f96680"
-                    : boardData?.settings.accentColor,
+                  slug: slug,
+                  avatar: boardData?.avatarUrl || "/",
+                  description: boardData?.tagline || "loading...",
+                  color: boardData?.settings.accentColor || "#f96680",
                   boardWideTags: [
                     { name: "gore", color: "#f96680" },
                     { name: "guro", color: "#e22b4b" },
@@ -234,19 +229,13 @@ function HomePage() {
         actionButton={
           isLoggedIn && (
             <PostingActionButton
-              accentColor={
-                isFetchingBoardData
-                  ? "#f96680"
-                  : boardData?.settings.accentColor
-              }
+              accentColor={boardData?.settings.accentColor || "#f96680"}
               onNewPost={() => setPostEditorOpen(true)}
             />
           )
         }
-        headerAccent={
-          isFetchingBoardData ? "#f96680" : boardData?.settings.accentColor
-        }
-        title={`!${isFetchingBoardData ? "loading..." : boardData?.slug}`}
+        headerAccent={boardData?.settings.accentColor || "#f96680"}
+        title={`!${slug}`}
         onTitleClick={() => {
           setShowSidebar(!showSidebar);
         }}
