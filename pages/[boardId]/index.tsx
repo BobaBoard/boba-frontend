@@ -10,7 +10,7 @@ import {
 } from "@bobaboard/ui-components";
 import PostEditorModal from "../../components/PostEditorModal";
 import axios from "axios";
-import { useQuery } from "react-query";
+import { useQuery, queryCache } from "react-query";
 import { toast, Zoom } from "react-toastify";
 import { useAuth } from "../../components/Auth";
 import LoginModal from "../../components/LoginModal";
@@ -90,6 +90,7 @@ function HomePage() {
           avatar: user?.avatarUrl,
         }}
         onPostSaved={(post: any) => {
+          queryCache.refetchQueries(["boardActivityData", { slug }]);
           setPostEditorOpen(false);
         }}
         onCloseModal={() => setPostEditorOpen(false)}

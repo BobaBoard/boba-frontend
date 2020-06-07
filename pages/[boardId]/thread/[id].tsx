@@ -12,7 +12,7 @@ import CommentEditorModal from "../../../components/CommentEditorModal";
 import SideMenu from "../../../components/SideMenu";
 import { useRouter } from "next/router";
 import axios from "axios";
-import { useQuery } from "react-query";
+import { useQuery, queryCache } from "react-query";
 import { useAuth } from "../../../components/Auth";
 import LoginModal from "../../../components/LoginModal";
 
@@ -187,6 +187,10 @@ function HomePage() {
           avatar: user?.avatarUrl,
         }}
         onPostSaved={(post: any) => {
+          queryCache.refetchQueries([
+            "postsData",
+            { threadId: router.query.id },
+          ]);
           setPostReplyId(null);
         }}
         onCloseModal={() => setPostReplyId(null)}
@@ -203,6 +207,10 @@ function HomePage() {
           avatar: user?.avatarUrl,
         }}
         onCommentSaved={(comment: any) => {
+          queryCache.refetchQueries([
+            "postsData",
+            { threadId: router.query.id },
+          ]);
           setCommentReplyId(null);
         }}
         onCloseModal={() => setCommentReplyId(null)}
