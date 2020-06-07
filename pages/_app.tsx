@@ -18,9 +18,7 @@ const AxiosInterceptor = () => {
   const { getAuthIdToken } = useAuth();
   React.useEffect(() => {
     axios.interceptors.request.use((config) => {
-      console.log("waiting on token: ", config.url);
       return getAuthIdToken().then((idToken: string) => {
-        console.log("gotten token for: ", config.url, idToken);
         config.headers.authorization = idToken;
         return config;
       });
