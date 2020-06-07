@@ -47,11 +47,6 @@ const getTotalContributions = (post: any, postsMap: { [key: string]: any }) => {
   return total;
 };
 
-let NEXT_ID = 5;
-const getNextId = () => {
-  return `${NEXT_ID++}`;
-};
-
 const ThreadLevel: React.FC<{
   post: any;
   postsMap: { [key: string]: any };
