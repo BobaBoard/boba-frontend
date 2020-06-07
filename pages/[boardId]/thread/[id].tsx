@@ -11,7 +11,7 @@ import PostEditorModal from "../../../components/PostEditorModal";
 import CommentEditorModal from "../../../components/CommentEditorModal";
 import SideMenu from "../../../components/SideMenu";
 import { useRouter } from "next/router";
-import axios from "axios";
+import { getThreadData, getBoardData } from "../../../utils/queries";
 import { useQuery, queryCache } from "react-query";
 import { useAuth } from "../../../components/Auth";
 import LoginModal from "../../../components/LoginModal";
@@ -121,18 +121,6 @@ const ThreadLevel: React.FC<{
   );
 };
 
-const getPostsData = async (
-  key: string,
-  { threadId }: { threadId: string }
-) => {
-  const response = await axios.get(`threads/${threadId}/`);
-  return response.data;
-};
-const getBoardData = async (key: string, { slug }: { slug: string }) => {
-  const response = await axios.get(`boards/${slug}`);
-  return response.data;
-};
-
 function HomePage() {
   const [showSidebar, setShowSidebar] = React.useState(false);
   const [postReplyId, setPostReplyId] = React.useState<string | null>(null);
@@ -143,12 +131,12 @@ function HomePage() {
   const { isPending, user } = useAuth();
   const [loginOpen, setLoginOpen] = React.useState(false);
   const {
-    data: postsData,
+    data: threadData,
     // @ts-ignore
     isFetching: isFetchingPosts,
     // @ts-ignore
     error: fetchPostsError,
-  } = useQuery(["postsData", { threadId: router.query.id }], getPostsData);
+  } = useQuery(["threadData", { threadId: router.query.id }], getThreadData);
   const [[root, postsMap], setPostsTree] = React.useState([undefined, {}]);
   const {
     data: boardData,
@@ -162,8 +150,8 @@ function HomePage() {
   );
 
   React.useEffect(() => {
-    setPostsTree(makePostsTree(postsData?.posts) as any);
-  }, [postsData]);
+    setPostsTree(makePostsTree(threadData?.posts) as any);
+  }, [threadData]);
 
   if (!root || !root) {
     return <div />;
@@ -191,7 +179,7 @@ function HomePage() {
         }}
         onPostSaved={(post: any) => {
           queryCache.refetchQueries([
-            "postsData",
+            "threadData",
             { threadId: router.query.id },
           ]);
           setPostReplyId(null);
@@ -211,7 +199,7 @@ function HomePage() {
         }}
         onCommentSaved={(comment: any) => {
           queryCache.refetchQueries([
-            "postsData",
+            "threadData",
             { threadId: router.query.id },
           ]);
           setCommentReplyId(null);

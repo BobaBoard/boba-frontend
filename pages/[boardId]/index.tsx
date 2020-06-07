@@ -9,34 +9,18 @@ import {
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import PostEditorModal from "../../components/PostEditorModal";
-import axios from "axios";
 import { useQuery, queryCache } from "react-query";
 import { toast, Zoom } from "react-toastify";
 import { useAuth } from "../../components/Auth";
 import LoginModal from "../../components/LoginModal";
 import SideMenu from "../../components/SideMenu";
+import { getBoardActivityData, getBoardData } from "../../utils/queries";
 
 // @ts-ignore
 import { ReactQueryDevtools } from "react-query-devtools";
 import { useRouter } from "next/router";
 
 import moment from "moment";
-
-const getBoardData = async (key: string, { slug }: { slug: string }) => {
-  const response = await axios.get(`boards/${slug}`);
-  return response.data;
-};
-const getBoardActivityData = async (
-  key: string,
-  { slug }: { slug: string }
-) => {
-  const response = await axios.get(`boards/${slug}/activity/latest`);
-  if (response.status == 204) {
-    // No data, let's return empty array
-    return [];
-  }
-  return response.data;
-};
 
 function HomePage() {
   const [showSidebar, setShowSidebar] = React.useState(false);

@@ -5,12 +5,7 @@ import {
 } from "@bobaboard/ui-components";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
-import axios from "axios";
-
-const getBoardData = async (key: string) => {
-  const response = await axios.get(`boards`);
-  return response.data;
-};
+import { getAllBoardsData } from "../utils/queries";
 
 const SideMenu: React.FC<{
   onBoardChange?: (slug: string) => void;
@@ -20,7 +15,7 @@ const SideMenu: React.FC<{
     data: pinnedBoards,
     isFetching: isFetchingBoardData,
     error: boardDataError,
-  } = useQuery("pinnedBoards", getBoardData);
+  } = useQuery("pinnedBoards", getAllBoardsData);
 
   if (isFetchingBoardData || boardDataError) {
     return <div />;
