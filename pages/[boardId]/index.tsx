@@ -258,6 +258,7 @@ function HomePage() {
           display: block;
           margin-top: 30px;
           filter: grayscale(0.4);
+          max-width: 100%;
         }
       `}</style>
     </div>
