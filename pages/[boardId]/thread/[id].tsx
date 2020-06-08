@@ -54,7 +54,9 @@ const ThreadLevel: React.FC<{
   level: number;
   onNewComment: (id: string) => void;
   onNewContribution: (id: string) => void;
+  isLoggedIn: boolean;
 }> = (props) => {
+  console.log(props.isLoggedIn);
   return (
     <>
       <div className="level">
@@ -77,7 +79,8 @@ const ThreadLevel: React.FC<{
                 props.post,
                 props.postsMap
               )}
-              newComments={props.post.new_comments}
+              newPost={props.isLoggedIn && props.post.is_new}
+              newComments={props.isLoggedIn && props.post.new_comments}
               newContributions={props.post.new_contributions}
               centered={Object.keys(props.postsMap).length == 0}
             />
@@ -104,6 +107,7 @@ const ThreadLevel: React.FC<{
             level={props.level + 1}
             onNewComment={props.onNewComment}
             onNewContribution={props.onNewContribution}
+            isLoggedIn={props.isLoggedIn}
           />
         ))}
         <style jsx>
@@ -128,7 +132,7 @@ function HomePage() {
     null
   );
   const router = useRouter();
-  const { isPending, user } = useAuth();
+  const { isPending, user, isLoggedIn } = useAuth();
   const [loginOpen, setLoginOpen] = React.useState(false);
   const {
     data: threadData,
@@ -223,6 +227,7 @@ function HomePage() {
                   onNewContribution={(answerTo: string) =>
                     setPostReplyId(answerTo)
                   }
+                  isLoggedIn={isLoggedIn}
                 />
               </div>
             }
