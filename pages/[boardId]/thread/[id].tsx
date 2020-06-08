@@ -47,6 +47,21 @@ const getTotalContributions = (post: any, postsMap: { [key: string]: any }) => {
   }
   return total;
 };
+const getTotalNewContributions = (
+  post: any,
+  postsMap: { [key: string]: any }
+) => {
+  let total = 0;
+  let next = postsMap[post.id];
+  while (next && next.length > 0) {
+    total += next.reduce(
+      (value: number, post: any) => value + (post.is_new ? 1 : 0),
+      0
+    );
+    next = next.flatMap((child: any) => (child && postsMap[child.id]) || []);
+  }
+  return total;
+};
 
 const ThreadLevel: React.FC<{
   post: any;
@@ -56,7 +71,6 @@ const ThreadLevel: React.FC<{
   onNewContribution: (id: string) => void;
   isLoggedIn: boolean;
 }> = (props) => {
-  console.log(props.isLoggedIn);
   return (
     <>
       <div className="level">
@@ -81,7 +95,10 @@ const ThreadLevel: React.FC<{
               )}
               newPost={props.isLoggedIn && props.post.is_new}
               newComments={props.isLoggedIn && props.post.new_comments}
-              newContributions={props.post.new_contributions}
+              newContributions={getTotalNewContributions(
+                props.post,
+                props.postsMap
+              )}
               centered={Object.keys(props.postsMap).length == 0}
             />
           </div>
