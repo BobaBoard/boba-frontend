@@ -176,26 +176,26 @@ function HomePage() {
                           }}
                           onOpenComments={() =>
                             router.push(
-                              `/[boardId]/thread/[id]/`,
-                              `/${router.query.boardId}/thread/${post.thread_id}/`
+                              `/[boardId]/thread/[id]`,
+                              `/${router.query.boardId}/thread/${post.thread_id}`
                             )
                           }
                           onOpenContributions={() =>
                             router.push(
-                              `/[boardId]/thread/[id]/`,
-                              `/${router.query.boardId}/thread/${post.thread_id}/`
+                              `/[boardId]/thread/[id]`,
+                              `/${router.query.boardId}/thread/${post.thread_id}`
                             )
                           }
                           onNewContribution={() =>
                             router.push(
-                              `/[boardId]/thread/[id]/`,
-                              `/${router.query.boardId}/thread/${post.thread_id}/`
+                              `/[boardId]/thread/[id]`,
+                              `/${router.query.boardId}/thread/${post.thread_id}`
                             )
                           }
                           onNewComment={() =>
                             router.push(
-                              `/[boardId]/thread/[id]/`,
-                              `/${router.query.boardId}/thread/${post.thread_id}/`
+                              `/[boardId]/thread/[id]`,
+                              `/${router.query.boardId}/thread/${post.thread_id}`
                             )
                           }
                           size={

@@ -16,6 +16,7 @@ import { useQuery, queryCache } from "react-query";
 import { useAuth } from "../../../components/Auth";
 import LoginModal from "../../../components/LoginModal";
 import moment from "moment";
+import axios from "axios";
 
 const makePostsTree = (posts: any[]) => {
   if (!posts) {
@@ -157,7 +158,10 @@ function HomePage() {
     isFetching: isFetchingPosts,
     // @ts-ignore
     error: fetchPostsError,
-  } = useQuery(["threadData", { threadId: router.query.id }], getThreadData);
+    refetch: refetchTread,
+  } = useQuery(["threadData", { threadId: router.query.id }], getThreadData, {
+    refetchOnWindowFocus: false,
+  });
   const [[root, postsMap], setPostsTree] = React.useState([undefined, {}]);
   const {
     data: boardData,
@@ -169,6 +173,13 @@ function HomePage() {
     getBoardData,
     { staleTime: Infinity }
   );
+
+  React.useEffect(() => {
+    console.log(`thread_id:`, router.query.id);
+    if (!isPending && isLoggedIn) {
+      axios.get(`threads/${router.query.id}/visit`);
+    }
+  }, [isPending, isLoggedIn]);
 
   React.useEffect(() => {
     setPostsTree(makePostsTree(threadData?.posts) as any);
@@ -199,10 +210,7 @@ function HomePage() {
           avatar: user?.avatarUrl,
         }}
         onPostSaved={(post: any) => {
-          queryCache.refetchQueries([
-            "threadData",
-            { threadId: router.query.id },
-          ]);
+          refetchTread();
           setPostReplyId(null);
         }}
         onCloseModal={() => setPostReplyId(null)}
@@ -219,10 +227,7 @@ function HomePage() {
           avatar: user?.avatarUrl,
         }}
         onCommentSaved={(comment: any) => {
-          queryCache.refetchQueries([
-            "threadData",
-            { threadId: router.query.id },
-          ]);
+          refetchTread();
           setCommentReplyId(null);
         }}
         onCloseModal={() => setCommentReplyId(null)}
