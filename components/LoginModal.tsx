@@ -6,7 +6,7 @@ import classnames from "classnames";
 
 const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
   const { isPending, isLoggedIn, attemptLogin, attemptLogout } = useAuth();
-  const [username, setUsername] = React.useState("");
+  const [username, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
 
   return (
@@ -17,10 +17,10 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
             <div className={classnames("inputs", { pending: isPending })}>
               <div>
                 <Input
-                  id={"username"}
+                  id={"email"}
                   value={username}
-                  label={"Username"}
-                  onTextChange={(text: string) => setUsername(text)}
+                  label={"Email"}
+                  onTextChange={(text: string) => setEmail(text)}
                   color={props.color}
                 />
               </div>
@@ -39,7 +39,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
               <div>
                 <Button
                   onClick={() => {
-                    setUsername("");
+                    setEmail("");
                     setPassword("");
                     props.onCloseModal();
                   }}
@@ -56,7 +56,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
                   color={props.color}
                   onClick={() => {
                     attemptLogin(username, password).then(() => {
-                      setUsername("");
+                      setEmail("");
                       setPassword("");
                       props.onCloseModal();
                     });
@@ -74,7 +74,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
             <div>
               <Button
                 onClick={() => {
-                  setUsername("");
+                  setEmail("");
                   setPassword("");
                   props.onCloseModal();
                 }}
