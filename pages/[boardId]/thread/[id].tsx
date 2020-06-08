@@ -215,6 +215,7 @@ function HomePage() {
         }}
         onCloseModal={() => setPostReplyId(null)}
         submitUrl={`/posts/${postReplyId}/contribute`}
+        uploadBaseUrl={`images/${slug}/${router.query.id}/`}
       />
       <CommentEditorModal
         isOpen={!!commentReplyId}

@@ -82,6 +82,7 @@ function HomePage() {
         }}
         onCloseModal={() => setPostEditorOpen(false)}
         submitUrl={`/threads/${slug}/create`}
+        uploadBaseUrl={`images/${slug}/`}
       />
       <Layout
         mainContent={

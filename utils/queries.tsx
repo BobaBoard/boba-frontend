@@ -1,6 +1,9 @@
 import axios from "axios";
 
 export const getBoardData = async (key: string, { slug }: { slug: string }) => {
+  if (!slug) {
+    return;
+  }
   const response = await axios.get(`boards/${slug}`);
   return response.data;
 };
@@ -9,6 +12,9 @@ export const getBoardActivityData = async (
   key: string,
   { slug }: { slug: string }
 ) => {
+  if (!slug) {
+    return;
+  }
   const response = await axios.get(`boards/${slug}/activity/latest`);
   if (response.status == 204) {
     // No data, let's return empty array
@@ -21,6 +27,9 @@ export const getThreadData = async (
   key: string,
   { threadId }: { threadId: string }
 ) => {
+  if (!threadId) {
+    return;
+  }
   const response = await axios.get(`threads/${threadId}/`);
   return response.data;
 };

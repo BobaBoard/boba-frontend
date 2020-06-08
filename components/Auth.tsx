@@ -2,6 +2,7 @@ import React from "react";
 
 import firebase from "firebase/app";
 import "firebase/auth";
+import "firebase/storage";
 import axios from "axios";
 
 if (!firebase.apps.length) {
