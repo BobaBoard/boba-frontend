@@ -12,7 +12,7 @@ import CommentEditorModal from "../../../components/CommentEditorModal";
 import SideMenu from "../../../components/SideMenu";
 import { useRouter } from "next/router";
 import { getThreadData, getBoardData } from "../../../utils/queries";
-import { useQuery, queryCache } from "react-query";
+import { useQuery } from "react-query";
 import { useAuth } from "../../../components/Auth";
 import LoginModal from "../../../components/LoginModal";
 import moment from "moment";
