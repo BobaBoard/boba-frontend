@@ -203,9 +203,10 @@ function HomePage() {
                               ? PostSizes.WIDE
                               : PostSizes.REGULAR
                           }
-                          newPost={post.is_new}
-                          newComments={post.new_comments_amount}
+                          newPost={isLoggedIn && post.is_new}
+                          newComments={isLoggedIn && post.new_comments_amount}
                           newContributions={
+                            isLoggedIn &&
                             post.new_posts_amount - (post.is_new ? 1 : 0)
                           }
                           totalComments={post.comments_amount}
