@@ -203,9 +203,11 @@ function HomePage() {
                               ? PostSizes.WIDE
                               : PostSizes.REGULAR
                           }
-                          newPost={post.newPost}
-                          newComments={post.newComments}
-                          newContributions={post.newContributions}
+                          newPost={post.is_new}
+                          newComments={post.new_comments_amount}
+                          newContributions={
+                            post.new_posts_amount - (post.is_new ? 1 : 0)
+                          }
                           totalComments={post.comments_amount}
                           // subtract 1 since posts_amount is the amount of posts total in the thread
                           // including the head one.
