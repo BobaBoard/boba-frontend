@@ -15,6 +15,7 @@ import { useAuth } from "../../components/Auth";
 import LoginModal from "../../components/LoginModal";
 import SideMenu from "../../components/SideMenu";
 import { getBoardActivityData, getBoardData } from "../../utils/queries";
+import axios from "axios";
 
 // @ts-ignore
 import { ReactQueryDevtools } from "react-query-devtools";
@@ -55,6 +56,13 @@ function HomePage() {
       });
     }
   }, [boardDataError, boardActivityError]);
+
+  React.useEffect(() => {
+    console.log(`board_id:`, router.query.boardId?.slice(1));
+    if (!isPending && isLoggedIn) {
+      axios.get(`boards/${router.query.boardId?.slice(1)}/visit`);
+    }
+  }, [isPending, isLoggedIn, router.query.boardId]);
 
   const showEmptyMessage = boardActivityData?.length === 0;
 

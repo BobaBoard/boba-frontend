@@ -15,6 +15,7 @@ const SideMenu: React.FC<{
     data: pinnedBoards,
     isFetching: isFetchingBoardData,
     error: boardDataError,
+    refetch,
   } = useQuery("pinnedBoards", getAllBoardsData);
 
   if (isFetchingBoardData || boardDataError) {
@@ -27,9 +28,14 @@ const SideMenu: React.FC<{
         avatar: `${board.avatarUrl}`,
         description: board.tagline,
         color: board.settings?.accentColor,
+        updates: board.has_updates ? 1 : undefined,
         onClick: (slug: string) => {
           router.push(`/[boardId]`, `/!${slug}`);
           props.onBoardChange?.(slug);
+          // TODO: do this on board opening
+          setTimeout(() => {
+            refetch({ force: true });
+          }, 2000);
         },
       }))}
       searchBoards={undefined}
