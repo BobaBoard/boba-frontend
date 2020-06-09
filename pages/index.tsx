@@ -15,7 +15,7 @@ function HomePage() {
     <div className="main">
       <Layout
         mainContent={
-          <div className="main">
+          <div className="content">
             <div className="intro">
               <h1>Welcome to BobaBoard!</h1>
               <img src="/under_construction.gif" />
@@ -37,6 +37,7 @@ function HomePage() {
                   <li>Top header needs more compact mobile display.</li>
                   <li>Wonky random refresh when switching boards/threads.</li>
                   <li>There's no pagination until some time tomorrow :P</li>
+                  <li>Board description hidden on mobile landing page.</li>
                 </ul>
               </p>
             </div>
@@ -73,11 +74,11 @@ function HomePage() {
               .intro ul li {
                 padding-bottom: 5px;
               }
-              .main {
-                margin: 20px auto;
-                width: 100%;
+              .content {
                 color: white;
                 text-align: center;
+                margin: 0 auto;
+                padding: 20px;
               }
               .display {
                 max-width: 800px;
