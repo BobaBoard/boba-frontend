@@ -16,7 +16,7 @@ const Layout = (props: LayoutProps) => {
   const router = useRouter();
   const { isPending: isUserPending, user, isLoggedIn } = useAuth();
   const [loginOpen, setLoginOpen] = React.useState(false);
-  const layoutRef = React.useRef();
+  const layoutRef = React.useRef<{ closeSideMenu: () => void }>(null);
 
   const { data: boardData, isFetching: isFetchingBoardData } = useQuery(
     ["boardData", { slug: router.query.boardId?.slice(1) }],
@@ -52,7 +52,7 @@ const Layout = (props: LayoutProps) => {
                 color: board.settings?.accentColor,
                 updates: !!(isLoggedIn && board.has_updates),
                 onClick: (slug: string) => {
-                  router.push(`/[boardId]`, `/!${slug}`);
+                  router.push(`/[boardId]`, `/!${slug.replace(" ", "_")}`);
                   // @ts-ignore
                   layoutRef.current?.closeSideMenu();
                   // TODO: do this on board opening

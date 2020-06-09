@@ -96,7 +96,7 @@ const ThreadLevel: React.FC<{
               newComments={props.isLoggedIn && props.post.new_comments}
               newContributions={
                 props.isLoggedIn &&
-                getTotalNewContributions(props.post, props.postsMap)
+                (getTotalNewContributions(props.post, props.postsMap) as any)
               }
               centered={Object.keys(props.postsMap).length == 0}
               answerable={props.isLoggedIn}
