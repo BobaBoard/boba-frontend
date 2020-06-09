@@ -94,10 +94,10 @@ const ThreadLevel: React.FC<{
               )}
               newPost={props.isLoggedIn && props.post.is_new}
               newComments={props.isLoggedIn && props.post.new_comments}
-              newContributions={getTotalNewContributions(
-                props.post,
-                props.postsMap
-              )}
+              newContributions={
+                props.isLoggedIn &&
+                getTotalNewContributions(props.post, props.postsMap)
+              }
               centered={Object.keys(props.postsMap).length == 0}
             />
           </div>

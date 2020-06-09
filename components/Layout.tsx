@@ -14,7 +14,7 @@ import { ReactQueryDevtools } from "react-query-devtools";
 
 const Layout = (props: LayoutProps) => {
   const router = useRouter();
-  const { isPending: isUserPending, user } = useAuth();
+  const { isPending: isUserPending, user, isLoggedIn } = useAuth();
   const [loginOpen, setLoginOpen] = React.useState(false);
 
   const { data: boardData, isFetching: isFetchingBoardData } = useQuery(
@@ -32,7 +32,7 @@ const Layout = (props: LayoutProps) => {
       />
       <InnerLayout
         mainContent={props.mainContent}
-        sideMenuContent={<SideMenu />}
+        sideMenuContent={<SideMenu isLoggedIn={isLoggedIn} />}
         actionButton={props.actionButton}
         headerAccent={boardData?.settings.accentColor || "#f96680"}
         onUserBarClick={() => setLoginOpen(true)}

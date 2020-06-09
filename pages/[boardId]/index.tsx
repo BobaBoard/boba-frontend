@@ -55,6 +55,7 @@ function BoardPage() {
     if (!isPending && isLoggedIn) {
       axios.get(`boards/${router.query.boardId?.slice(1)}/visit`);
     }
+    console.log(isLoggedIn);
   }, [isPending, isLoggedIn, router.query.boardId]);
 
   const showEmptyMessage = boardActivityData?.length === 0;

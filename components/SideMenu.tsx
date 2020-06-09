@@ -9,6 +9,7 @@ import { getAllBoardsData } from "../utils/queries";
 
 const SideMenu: React.FC<{
   onBoardChange?: (slug: string) => void;
+  isLoggedIn?: boolean;
 }> = (props) => {
   const router = useRouter();
   const {
@@ -28,7 +29,7 @@ const SideMenu: React.FC<{
         avatar: `${board.avatarUrl}`,
         description: board.tagline,
         color: board.settings?.accentColor,
-        updates: board.has_updates ? 1 : undefined,
+        updates: props.isLoggedIn && board.has_updates,
         onClick: (slug: string) => {
           router.push(`/[boardId]`, `/!${slug}`);
           props.onBoardChange?.(slug);
