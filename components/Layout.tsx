@@ -16,6 +16,7 @@ const Layout = (props: LayoutProps) => {
   const router = useRouter();
   const { isPending: isUserPending, user, isLoggedIn } = useAuth();
   const [loginOpen, setLoginOpen] = React.useState(false);
+  const layoutRef = React.useRef();
 
   const { data: boardData, isFetching: isFetchingBoardData } = useQuery(
     ["boardData", { slug: router.query.boardId?.slice(1) }],
@@ -31,8 +32,17 @@ const Layout = (props: LayoutProps) => {
         color={boardData?.settings.accentColor || "#f96680"}
       />
       <InnerLayout
+        ref={layoutRef}
         mainContent={props.mainContent}
-        sideMenuContent={<SideMenu isLoggedIn={isLoggedIn} />}
+        sideMenuContent={
+          <SideMenu
+            isLoggedIn={isLoggedIn}
+            onBoardChange={() => {
+              // @ts-ignore
+              layoutRef.current?.closeSideMenu();
+            }}
+          />
+        }
         actionButton={props.actionButton}
         headerAccent={boardData?.settings.accentColor || "#f96680"}
         onUserBarClick={() => setLoginOpen(true)}
