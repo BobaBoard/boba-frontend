@@ -1,22 +1,9 @@
 import React from "react";
-import {
-  Layout,
-  // @ts-ignore
-} from "@bobaboard/ui-components";
-import SideMenu from "../components/SideMenu";
-import LoginModal from "../components/LoginModal";
-import { useAuth } from "../components/Auth";
-// @ts-ignore
-import { ReactQueryDevtools } from "react-query-devtools";
+import Layout from "../components/Layout";
 
 function HomePage() {
-  const [showSidebar, setShowSidebar] = React.useState(false);
-  const [loginOpen, setLoginOpen] = React.useState(false);
-  const { isPending, user } = useAuth();
-
   return (
     <div className="main">
-      <LoginModal isOpen={loginOpen} onCloseModal={() => setLoginOpen(false)} />
       <Layout
         mainContent={
           <div className="main">
@@ -36,16 +23,9 @@ function HomePage() {
             `}</style>
           </div>
         }
-        sideMenuContent={<SideMenu />}
         title={`Hello!`}
-        onTitleClick={() => {
-          setShowSidebar(!showSidebar);
-        }}
-        onUserBarClick={() => setLoginOpen(true)}
-        user={user}
-        loading={isPending}
+        onTitleClick={() => {}}
       />
-      <ReactQueryDevtools initialIsOpen={false} />
     </div>
   );
 }

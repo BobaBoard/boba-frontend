@@ -1,11 +1,11 @@
 import React from "react";
 import {
+  SideMenu,
   Layout as InnerLayout,
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import LoginModal from "./LoginModal";
-import SideMenu from "./SideMenu";
-import { getBoardData } from "./../utils/queries";
+import { getBoardData, getAllBoardsData } from "./../utils/queries";
 import { useAuth } from "./Auth";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
@@ -23,7 +23,15 @@ const Layout = (props: LayoutProps) => {
     getBoardData,
     { staleTime: Infinity }
   );
+  const { data: pinnedBoards, refetch } = useQuery(
+    "allBoardsData",
+    getAllBoardsData
+  );
 
+  const hasUpdates = (pinnedBoards || []).reduce(
+    (current: boolean, board: any) => current || board.has_updates,
+    false
+  );
   return (
     <div>
       <LoginModal
@@ -36,11 +44,25 @@ const Layout = (props: LayoutProps) => {
         mainContent={props.mainContent}
         sideMenuContent={
           <SideMenu
-            isLoggedIn={isLoggedIn}
-            onBoardChange={() => {
-              // @ts-ignore
-              layoutRef.current?.closeSideMenu();
-            }}
+            pinnedBoards={(pinnedBoards || []).map((board: any) => ({
+              slug: board.slug,
+              avatar: `${board.avatarUrl}`,
+              description: board.tagline,
+              color: board.settings?.accentColor,
+              updates: !!(isLoggedIn && board.has_updates),
+              onClick: (slug: string) => {
+                router.push(`/[boardId]`, `/!${slug}`);
+                // @ts-ignore
+                layoutRef.current?.closeSideMenu();
+                // TODO: do this on board opening
+                setTimeout(() => {
+                  refetch({ force: true });
+                }, 2000);
+              },
+            }))}
+            searchBoards={undefined}
+            recentBoards={undefined}
+            showSearch={false}
           />
         }
         actionButton={props.actionButton}
@@ -51,6 +73,7 @@ const Layout = (props: LayoutProps) => {
         onTitleClick={props.onTitleClick}
         loading={props.loading || isFetchingBoardData || isUserPending}
         onLogoClick={() => router.push("/")}
+        updates={isLoggedIn && hasUpdates}
       />
       <ReactQueryDevtools initialIsOpen={false} />
     </div>

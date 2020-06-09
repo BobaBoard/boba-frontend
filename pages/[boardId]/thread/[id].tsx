@@ -99,6 +99,7 @@ const ThreadLevel: React.FC<{
                 getTotalNewContributions(props.post, props.postsMap)
               }
               centered={Object.keys(props.postsMap).length == 0}
+              answerable={props.isLoggedIn}
             />
           </div>
         </ThreadIndent>
