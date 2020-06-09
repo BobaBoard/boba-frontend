@@ -87,62 +87,20 @@ function BoardPage() {
           <FeedWithMenu
             showSidebar={showSidebar}
             sidebarContent={
-              <BoardSidebar
-                board={{
-                  slug: slug,
-                  avatar: boardData?.avatarUrl || "/",
-                  description: boardData?.tagline || "loading...",
-                  color: boardData?.settings.accentColor || "#f96680",
-                  boardWideTags: [
-                    { name: "gore", color: "#f96680" },
-                    { name: "guro", color: "#e22b4b" },
-                    { name: "nsfw", color: "#27caba" },
-                    { name: "dead dove", color: "#f9e066" },
-                  ],
-                  canonicalTags: [
-                    { name: "request", color: "#27caba" },
-                    { name: "blood", color: "#f96680" },
-                    { name: "knifeplay", color: "#93b3b0" },
-                    { name: "aesthetic", color: "#24d282" },
-                    { name: "impalement", color: "#27caba" },
-                    { name: "skullfuck", color: "#e22b4b" },
-                    { name: "hanging", color: "#f9e066" },
-                    { name: "torture", color: "#f96680" },
-                    { name: "necrophilia", color: "#93b3b0" },
-                    { name: "shota", color: "#e22b4b" },
-                    { name: "fanfiction", color: "#27caba" },
-                    { name: "rec", color: "#f9e066" },
-                    { name: "doujinshi", color: "#f96680" },
-                    { name: "untagged", color: "#93b3b0" },
-                  ],
-                  contentRulesTags: [
-                    { name: "shota", allowed: true },
-                    { name: "nsfw", allowed: true },
-                    { name: "noncon", allowed: true },
-                    { name: "IRL", allowed: false },
-                    { name: "RP", allowed: false },
-                  ],
-                  otherRules: (
-                    <div>
-                      <ul>
-                        <li>
-                          Shota <strong>must</strong> be tagged.
-                        </li>
-                        <li>
-                          Requests go in the appropriate tag. If the same
-                          request has been made less than a month ago, it will
-                          be deleted by the mods.
-                        </li>
-                        <li>
-                          Mods might add any TWs tag as they see fit. If you
-                          need help, add #untagged and a mod will take care of
-                          it.
-                        </li>
-                      </ul>
-                    </div>
-                  ),
-                }}
-              />
+              <>
+                <BoardSidebar
+                  board={{
+                    slug: slug,
+                    avatar: boardData?.avatarUrl || "/",
+                    description: boardData?.tagline || "loading...",
+                    color: boardData?.settings.accentColor || "#f96680",
+                  }}
+                />
+                <img
+                  className="under-construction"
+                  src="/under_construction_icon.png"
+                />
+              </>
             }
             feedContent={
               <div className="main">
@@ -250,6 +208,14 @@ function BoardPage() {
           margin-top: 30px;
           filter: grayscale(0.4);
           max-width: 100%;
+        }
+        .under-construction {
+          width: 50px;
+          margin: 0 auto;
+          display: block;
+          margin-top: -20px;
+          opacity: 0.5;
+          filter: grayscale(0.4);
         }
       `}</style>
     </div>

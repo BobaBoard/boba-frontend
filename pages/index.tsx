@@ -2,16 +2,15 @@ import React from "react";
 import Layout from "../components/Layout";
 import { getAllBoardsData } from "./../utils/queries";
 import { useQuery } from "react-query";
+import { useRouter } from "next/router";
 import {
   BoardsDisplay,
   // @ts-ignore
 } from "@bobaboard/ui-components";
 
 function HomePage() {
-  const { data: allBoards, refetch } = useQuery(
-    "allBoardsData",
-    getAllBoardsData
-  );
+  const { data: allBoards } = useQuery("allBoardsData", getAllBoardsData);
+  const router = useRouter();
   return (
     <div className="main">
       <Layout
@@ -37,6 +36,7 @@ function HomePage() {
                   <li>Notifications for updates are not always accurate.</li>
                   <li>Top header needs more compact mobile display.</li>
                   <li>Wonky random refresh when switching boards/threads.</li>
+                  <li>There's no pagination until some time tomorrow :P</li>
                 </ul>
               </p>
             </div>
@@ -49,7 +49,9 @@ function HomePage() {
                   color: board.settings?.accentColor,
                   updates: board.has_updates,
                 }))}
-                onBoardClick={(slug) => {}}
+                onBoardClick={(slug) => {
+                  router.push(`/[boardId]`, `/!${slug.replace(" ", "_")}`);
+                }}
               />
             </div>
             <style jsx>{`
@@ -65,8 +67,11 @@ function HomePage() {
                 list-style-position: inside;
                 list-style-type: lower-greek;
                 background-color: #1c1c1c;
-                padding: 10px;
+                padding: 15px;
                 border-radius: 25px;
+              }
+              .intro ul li {
+                padding-bottom: 5px;
               }
               .main {
                 margin: 20px auto;

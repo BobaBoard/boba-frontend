@@ -43,27 +43,27 @@ const Layout = (props: LayoutProps) => {
         ref={layoutRef}
         mainContent={props.mainContent}
         sideMenuContent={
-          <SideMenu
-            pinnedBoards={(pinnedBoards || []).map((board: any) => ({
-              slug: board.slug,
-              avatar: `${board.avatarUrl}`,
-              description: board.tagline,
-              color: board.settings?.accentColor,
-              updates: !!(isLoggedIn && board.has_updates),
-              onClick: (slug: string) => {
-                router.push(`/[boardId]`, `/!${slug}`);
-                // @ts-ignore
-                layoutRef.current?.closeSideMenu();
-                // TODO: do this on board opening
-                setTimeout(() => {
-                  refetch({ force: true });
-                }, 2000);
-              },
-            }))}
-            searchBoards={undefined}
-            recentBoards={undefined}
-            showSearch={false}
-          />
+          <>
+            <SideMenu
+              pinnedBoards={(pinnedBoards || []).map((board: any) => ({
+                slug: board.slug.replace("_", " "),
+                avatar: `${board.avatarUrl}`,
+                description: board.tagline,
+                color: board.settings?.accentColor,
+                updates: !!(isLoggedIn && board.has_updates),
+                onClick: (slug: string) => {
+                  router.push(`/[boardId]`, `/!${slug}`);
+                  // @ts-ignore
+                  layoutRef.current?.closeSideMenu();
+                  // TODO: do this on board opening
+                  setTimeout(() => {
+                    refetch({ force: true });
+                  }, 2000);
+                },
+              }))}
+              showSearch={false}
+            />
+          </>
         }
         actionButton={props.actionButton}
         headerAccent={boardData?.settings.accentColor || "#f96680"}
