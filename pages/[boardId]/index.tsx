@@ -155,7 +155,6 @@ function HomePage() {
             }
             feedContent={
               <div className="main">
-                {isFetchingBoardActivity && <div>Loading</div>}
                 {showEmptyMessage && (
                   <img className="empty" src={"/nothing.jpg"} />
                 )}
@@ -247,7 +246,7 @@ function HomePage() {
         }}
         onUserBarClick={() => setLoginOpen(true)}
         user={user}
-        loading={isPending}
+        loading={isFetchingBoardActivity}
       />
       <ReactQueryDevtools initialIsOpen={false} />
       <style jsx>{`

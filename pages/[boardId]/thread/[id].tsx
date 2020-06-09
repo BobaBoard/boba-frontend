@@ -264,7 +264,7 @@ function HomePage() {
         }}
         onUserBarClick={() => setLoginOpen(true)}
         user={user}
-        loading={isPending}
+        loading={isFetchingPosts}
       />
       <style jsx>
         {`
