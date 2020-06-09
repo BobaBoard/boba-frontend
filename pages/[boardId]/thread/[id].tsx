@@ -1,20 +1,18 @@
 import React from "react";
 import {
-  Layout,
   FeedWithMenu,
   Comment,
   ThreadIndent,
   Post,
   // @ts-ignore
 } from "@bobaboard/ui-components";
+import Layout from "../../../components/Layout";
 import PostEditorModal from "../../../components/PostEditorModal";
 import CommentEditorModal from "../../../components/CommentEditorModal";
-import SideMenu from "../../../components/SideMenu";
 import { useRouter } from "next/router";
-import { getThreadData, getBoardData } from "../../../utils/queries";
+import { getThreadData } from "../../../utils/queries";
 import { useQuery } from "react-query";
 import { useAuth } from "../../../components/Auth";
-import LoginModal from "../../../components/LoginModal";
 import moment from "moment";
 import axios from "axios";
 
@@ -143,15 +141,13 @@ const ThreadLevel: React.FC<{
   );
 };
 
-function HomePage() {
-  const [showSidebar, setShowSidebar] = React.useState(false);
+function ThreadPage() {
   const [postReplyId, setPostReplyId] = React.useState<string | null>(null);
   const [commentReplyId, setCommentReplyId] = React.useState<string | null>(
     null
   );
   const router = useRouter();
   const { isPending, user, isLoggedIn } = useAuth();
-  const [loginOpen, setLoginOpen] = React.useState(false);
   const {
     data: threadData,
     // @ts-ignore
@@ -163,19 +159,8 @@ function HomePage() {
     refetchOnWindowFocus: false,
   });
   const [[root, postsMap], setPostsTree] = React.useState([undefined, {}]);
-  const {
-    data: boardData,
-    isFetching: isFetchingBoardData,
-    // @ts-ignore
-    error: boardDataError,
-  } = useQuery(
-    ["boardData", { slug: router.query.boardId?.slice(1) }],
-    getBoardData,
-    { staleTime: Infinity }
-  );
 
   React.useEffect(() => {
-    console.log(`thread_id:`, router.query.id);
     if (!isPending && isLoggedIn) {
       axios.get(`threads/${router.query.id}/visit`);
     }
@@ -185,59 +170,56 @@ function HomePage() {
     setPostsTree(makePostsTree(threadData?.posts) as any);
   }, [threadData]);
 
-  if (!root || !root) {
+  if (!root) {
     return <div />;
   }
 
   const slug: string = router.query.boardId?.slice(1) as string;
   return (
     <div className="main">
-      <LoginModal
-        isOpen={loginOpen}
-        onCloseModal={() => setLoginOpen(false)}
-        color={
-          isFetchingBoardData ? "#f96680" : boardData?.settings?.accentColor
-        }
-      />
-      <PostEditorModal
-        isOpen={!!postReplyId}
-        secretIdentity={{
-          name: "[TBD]",
-          avatar: `/tuxedo-mask.jpg`,
-        }}
-        userIdentity={{
-          name: user?.username,
-          avatar: user?.avatarUrl,
-        }}
-        onPostSaved={(post: any) => {
-          refetchTread();
-          setPostReplyId(null);
-        }}
-        onCloseModal={() => setPostReplyId(null)}
-        submitUrl={`/posts/${postReplyId}/contribute`}
-        uploadBaseUrl={`images/${slug}/${router.query.id}/`}
-      />
-      <CommentEditorModal
-        isOpen={!!commentReplyId}
-        secretIdentity={{
-          name: "[TBD]",
-          avatar: `/tuxedo-mask.jpg`,
-        }}
-        userIdentity={{
-          name: user?.username,
-          avatar: user?.avatarUrl,
-        }}
-        onCommentSaved={(comment: any) => {
-          refetchTread();
-          setCommentReplyId(null);
-        }}
-        onCloseModal={() => setCommentReplyId(null)}
-        submitUrl={`/posts/${commentReplyId}/comment`}
-      />
+      {isLoggedIn && (
+        <>
+          <PostEditorModal
+            isOpen={!!postReplyId}
+            secretIdentity={{
+              name: "[TBD]",
+              avatar: `/tuxedo-mask.jpg`,
+            }}
+            userIdentity={{
+              name: user?.username,
+              avatar: user?.avatarUrl,
+            }}
+            onPostSaved={(post: any) => {
+              refetchTread();
+              setPostReplyId(null);
+            }}
+            onCloseModal={() => setPostReplyId(null)}
+            submitUrl={`/posts/${postReplyId}/contribute`}
+            uploadBaseUrl={`images/${slug}/${router.query.id}/`}
+          />
+          <CommentEditorModal
+            isOpen={!!commentReplyId}
+            secretIdentity={{
+              name: "[TBD]",
+              avatar: `/tuxedo-mask.jpg`,
+            }}
+            userIdentity={{
+              name: user?.username,
+              avatar: user?.avatarUrl,
+            }}
+            onCommentSaved={(comment: any) => {
+              refetchTread();
+              setCommentReplyId(null);
+            }}
+            onCloseModal={() => setCommentReplyId(null)}
+            submitUrl={`/posts/${commentReplyId}/comment`}
+          />
+        </>
+      )}
       <Layout
         mainContent={
           <FeedWithMenu
-            sidebarContent={<div></div>}
+            sidebarContent={<div />}
             feedContent={
               <div className="feed-content">
                 <ThreadLevel
@@ -256,14 +238,10 @@ function HomePage() {
             }
           />
         }
-        sideMenuContent={<SideMenu />}
-        headerAccent={boardData?.settings.accentColor || "#f96680"}
         title={`!${slug}`}
         onTitleClick={() => {
-          setShowSidebar(!showSidebar);
+          router.push(`/[boardId]`, `/!${slug}`);
         }}
-        onUserBarClick={() => setLoginOpen(true)}
-        user={user}
         loading={isFetchingPosts}
       />
       <style jsx>
@@ -278,4 +256,4 @@ function HomePage() {
   );
 }
 
-export default HomePage;
+export default ThreadPage;

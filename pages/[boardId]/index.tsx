@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Layout,
   Post,
   PostSizes,
   FeedWithMenu,
@@ -8,30 +7,27 @@ import {
   PostingActionButton,
   // @ts-ignore
 } from "@bobaboard/ui-components";
+import Layout from "../../components/Layout";
 import PostEditorModal from "../../components/PostEditorModal";
 import { useQuery, queryCache } from "react-query";
 import { toast, Zoom } from "react-toastify";
 import { useAuth } from "../../components/Auth";
-import LoginModal from "../../components/LoginModal";
-import SideMenu from "../../components/SideMenu";
 import { getBoardActivityData, getBoardData } from "../../utils/queries";
 import axios from "axios";
 
-// @ts-ignore
-import { ReactQueryDevtools } from "react-query-devtools";
 import { useRouter } from "next/router";
 
 import moment from "moment";
 
-function HomePage() {
-  const [showSidebar, setShowSidebar] = React.useState(false);
+function BoardPage() {
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
+  const [showSidebar, setShowSidebar] = React.useState(false);
   const router = useRouter();
+  const slug: string = router.query.boardId?.slice(1) as string;
   const { isPending, isLoggedIn, user } = useAuth();
-  const [loginOpen, setLoginOpen] = React.useState(false);
 
   const { data: boardData, error: boardDataError } = useQuery(
-    ["boardData", { slug: router.query.boardId?.slice(1) }],
+    ["boardData", { slug }],
     getBoardData,
     { staleTime: Infinity }
   );
@@ -39,10 +35,7 @@ function HomePage() {
     data: boardActivityData,
     isFetching: isFetchingBoardActivity,
     error: boardActivityError,
-  } = useQuery(
-    ["boardActivityData", { slug: router.query.boardId?.slice(1) }],
-    getBoardActivityData
-  );
+  } = useQuery(["boardActivityData", { slug }], getBoardActivityData);
 
   React.useEffect(() => {
     if (boardDataError || boardActivityError) {
@@ -66,35 +59,32 @@ function HomePage() {
 
   const showEmptyMessage = boardActivityData?.length === 0;
 
-  const slug: string = router.query.boardId?.slice(1) as string;
   return (
     <div className="main">
-      <LoginModal
-        isOpen={loginOpen}
-        onCloseModal={() => setLoginOpen(false)}
-        color={boardData?.settings.accentColor || "#f96680"}
-      />
-      <PostEditorModal
-        isOpen={postEditorOpen}
-        secretIdentity={{
-          name: "[TBD]",
-          avatar: `/tuxedo-mask.jpg`,
-        }}
-        userIdentity={{
-          name: user?.username,
-          avatar: user?.avatarUrl,
-        }}
-        onPostSaved={(post: any) => {
-          queryCache.refetchQueries(["boardActivityData", { slug }]);
-          setPostEditorOpen(false);
-        }}
-        onCloseModal={() => setPostEditorOpen(false)}
-        submitUrl={`/threads/${slug}/create`}
-        uploadBaseUrl={`images/${slug}/`}
-      />
+      {isLoggedIn && (
+        <PostEditorModal
+          isOpen={postEditorOpen}
+          secretIdentity={{
+            name: "[TBD]",
+            avatar: `/tuxedo-mask.jpg`,
+          }}
+          userIdentity={{
+            name: user?.username,
+            avatar: user?.avatarUrl,
+          }}
+          onPostSaved={(post: any) => {
+            queryCache.refetchQueries(["boardActivityData", { slug }]);
+            setPostEditorOpen(false);
+          }}
+          onCloseModal={() => setPostEditorOpen(false)}
+          submitUrl={`/threads/${slug}/create`}
+          uploadBaseUrl={`images/${slug}/`}
+        />
+      )}
       <Layout
         mainContent={
           <FeedWithMenu
+            showSidebar={showSidebar}
             sidebarContent={
               <BoardSidebar
                 board={{
@@ -230,7 +220,6 @@ function HomePage() {
             }
           />
         }
-        sideMenuContent={<SideMenu />}
         actionButton={
           isLoggedIn && (
             <PostingActionButton
@@ -239,16 +228,10 @@ function HomePage() {
             />
           )
         }
-        headerAccent={boardData?.settings.accentColor || "#f96680"}
         title={`!${slug}`}
-        onTitleClick={() => {
-          setShowSidebar(!showSidebar);
-        }}
-        onUserBarClick={() => setLoginOpen(true)}
-        user={user}
+        onTitleClick={() => setShowSidebar(!showSidebar)}
         loading={isFetchingBoardActivity}
       />
-      <ReactQueryDevtools initialIsOpen={false} />
       <style jsx>{`
         .main {
           width: 100%;
@@ -272,4 +255,4 @@ function HomePage() {
   );
 }
 
-export default HomePage;
+export default BoardPage;
