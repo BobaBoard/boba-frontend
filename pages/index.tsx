@@ -21,14 +21,15 @@ function HomePage() {
               <img src="/under_construction.gif" />
               <p>
                 Remember: this is the experimental version of an experimental
-                website. If you experience a problem, then stuff is most likely{" "}
+                website. If you experience a problem, then stuff is likely to be{" "}
                 <em>actually broken</em>.
               </p>
               <p>
-                Feel free to report bugs, thoughts and praise (seriously, gotta
+                Please do report bugs, thoughts and praise (seriously, gotta
                 know what's working) in the{" "}
                 <pre style={{ display: "inline" }}>#v0-report</pre> discord
-                channel or the [appropriate] board.
+                channel or the{" "}
+                <pre style={{ display: "inline" }}>!bobaland</pre> board.
               </p>
               <p>
                 Most pressing issues:{" "}
@@ -37,7 +38,7 @@ function HomePage() {
                   <li>Top header needs more compact mobile display.</li>
                   <li>Wonky random refresh when switching boards/threads.</li>
                   <li>There's no pagination until some time tomorrow :P</li>
-                  <li>Board description hidden on mobile landing page.</li>
+                  <li>Board descriptions on landing page are kinda fucked.</li>
                 </ul>
               </p>
             </div>
@@ -60,6 +61,7 @@ function HomePage() {
                 max-width: 600px;
                 margin: 0 auto;
                 margin-bottom: 25px;
+                line-height: 20px;
               }
               .intro img {
                 height: 100px;
