@@ -37,7 +37,11 @@ function HomePage() {
                   <li>Notifications for updates are not always accurate.</li>
                   <li>Top header needs more compact mobile display.</li>
                   <li>Wonky random refresh when switching boards/threads.</li>
-                  <li>There's no pagination until some time tomorrow :P</li>
+                  <li>
+                    There's no pagination{" "}
+                    <strike>until some time tomorrow :P</strike> I'm a liar, no
+                    pagination until it's clear we'll die without it
+                  </li>
                   <li>Board descriptions on landing page are kinda fucked.</li>
                 </ul>
               </p>
