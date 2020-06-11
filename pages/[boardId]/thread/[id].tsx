@@ -107,8 +107,8 @@ const ThreadLevel: React.FC<{
           <ThreadIndent level={props.level + 1}>
             {props.post.comments.map((comment: any, i: number) => (
               <Comment
-                key={`${props.post.id}_${i}`}
-                id="1"
+                key={props.post.comments.id}
+                id={props.post.comments.id}
                 secretIdentity={comment.secret_identity}
                 userIdentity={comment.user_identity}
                 initialText={comment.content}
