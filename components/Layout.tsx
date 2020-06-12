@@ -71,6 +71,7 @@ const Layout = (props: LayoutProps) => {
         user={user}
         title={props.title}
         onTitleClick={props.onTitleClick}
+        forceHideTitle={props.forceHideTitle}
         loading={props.loading || isFetchingBoardData || isUserPending}
         onLogoClick={() => router.push("/")}
         updates={isLoggedIn && hasUpdates}
@@ -85,6 +86,7 @@ export interface LayoutProps {
   actionButton?: JSX.Element;
   loading?: boolean;
   title: string;
+  forceHideTitle?: boolean;
   onTitleClick?: () => void;
 }
 export default Layout;

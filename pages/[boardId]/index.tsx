@@ -189,6 +189,7 @@ function BoardPage() {
         }
         title={`!${slug}`}
         onTitleClick={() => setShowSidebar(!showSidebar)}
+        forceHideTitle={true}
         loading={isFetchingBoardActivity}
       />
       <style jsx>{`

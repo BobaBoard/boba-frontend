@@ -38,11 +38,14 @@ function HomePage() {
                   <li>Top header needs more compact mobile display.</li>
                   <li>Wonky random refresh when switching boards/threads.</li>
                   <li>
-                    There's no pagination{" "}
-                    <strike>until some time tomorrow :P</strike> I'm a liar, no
-                    pagination until it's clear we'll die without it
+                    There's no pagination <s>until some time tomorrow :P</s> I'm
+                    a liar, no pagination until it's evident we'll soon die
+                    without it
                   </li>
-                  <li>Board descriptions on landing page are kinda fucked.</li>
+                  <li>
+                    Stopping you all from murdering my baby by uploading too big
+                    images/text.
+                  </li>
                 </ul>
               </p>
             </div>
@@ -55,7 +58,7 @@ function HomePage() {
                   color: board.settings?.accentColor,
                   updates: board.has_updates,
                 }))}
-                onBoardClick={(slug) => {
+                onBoardClick={(slug: string) => {
                   router.push(`/[boardId]`, `/!${slug.replace(" ", "_")}`);
                 }}
               />
