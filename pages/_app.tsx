@@ -6,10 +6,15 @@ import axios from "axios";
 import { AuthProvider, useAuth } from "../components/Auth";
 import { ToastContainer, toast } from "@bobaboard/ui-components";
 
+let location;
+if (typeof window !== "undefined") {
+  location = window.location.hostname;
+}
+
 axios.defaults.baseURL =
   process.env.NODE_ENV == "production"
     ? "https://backend-dot-bobaboard.uc.r.appspot.com/"
-    : "http://localhost:4200/";
+    : `http://${location}:4200/`;
 
 // We make the axios interceptor be a component so we can have auth
 // provided within.
@@ -25,7 +30,6 @@ const AxiosInterceptor = () => {
     axios.interceptors.response.use(
       (res) => res,
       (err) => {
-        console.log(err);
         toast.error(err.message, {
           toastId: err.message,
           autoClose: false,
