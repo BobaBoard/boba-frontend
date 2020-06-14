@@ -10,7 +10,6 @@ import {
 import Layout from "../../components/Layout";
 import PostEditorModal from "../../components/PostEditorModal";
 import { useQuery, queryCache } from "react-query";
-import { toast, Zoom } from "react-toastify";
 import { useAuth } from "../../components/Auth";
 import { getBoardActivityData, getBoardData } from "../../utils/queries";
 import axios from "axios";
@@ -26,29 +25,13 @@ function BoardPage() {
   const slug: string = router.query.boardId?.slice(1) as string;
   const { isPending, isLoggedIn, user } = useAuth();
 
-  const { data: boardData, error: boardDataError } = useQuery(
-    ["boardData", { slug }],
-    getBoardData,
-    { staleTime: Infinity }
-  );
+  const { data: boardData } = useQuery(["boardData", { slug }], getBoardData, {
+    staleTime: Infinity,
+  });
   const {
     data: boardActivityData,
     isFetching: isFetchingBoardActivity,
-    error: boardActivityError,
   } = useQuery(["boardActivityData", { slug }], getBoardActivityData);
-
-  React.useEffect(() => {
-    if (boardDataError || boardActivityError) {
-      const errorMessage =
-        boardDataError?.message || boardActivityError?.message;
-      toast.error(errorMessage, {
-        position: "top-center",
-        transition: Zoom,
-        toastId: errorMessage,
-        hideProgressBar: true,
-      });
-    }
-  }, [boardDataError, boardActivityError]);
 
   React.useEffect(() => {
     console.log(`board_id:`, router.query.boardId?.slice(1));

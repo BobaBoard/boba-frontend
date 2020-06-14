@@ -1,11 +1,10 @@
 import "@bobaboard/ui-components/dist/main.css";
 import "normalize.css";
-import "react-toastify/dist/ReactToastify.css";
 
 import React from "react";
 import axios from "axios";
 import { AuthProvider, useAuth } from "../components/Auth";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "@bobaboard/ui-components";
 
 axios.defaults.baseURL =
   process.env.NODE_ENV == "production"
@@ -23,6 +22,18 @@ const AxiosInterceptor = () => {
         return config;
       });
     });
+    axios.interceptors.response.use(
+      (res) => res,
+      (err) => {
+        console.log(err);
+        toast.error(err.message, {
+          toastId: err.message,
+          autoClose: false,
+          hideProgressBar: true,
+          closeOnClick: false,
+        });
+      }
+    );
   }, []);
   return null;
 };

@@ -52,9 +52,7 @@ const AuthProvider: React.FC<{}> = (props) => {
 
   React.useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
-      console.log("changed!");
       if (!user) {
-        console.log("no user!");
         resolveFirebaseUserPromise(null);
         setStatus({
           isLoggedIn: false,
@@ -64,7 +62,14 @@ const AuthProvider: React.FC<{}> = (props) => {
       }
       resolveFirebaseUserPromise(user);
       axios.get("users/me/").then((userResponse) => {
-        console.log(userResponse.data);
+        if (!userResponse) {
+          // Error state
+          setStatus({
+            isLoggedIn: false,
+            isPending: false,
+          });
+          return;
+        }
         setStatus({
           isLoggedIn: true,
           isPending: false,

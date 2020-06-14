@@ -29,8 +29,8 @@ const makePostsTree = (posts: any[]) => {
       return;
     }
     parentChildrenMap[post.parent_post_id] = [
-      post,
       ...(parentChildrenMap[post.parent_post_id] || []),
+      post,
     ];
   });
 

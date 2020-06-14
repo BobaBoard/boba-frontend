@@ -34,7 +34,6 @@ function HomePage() {
               <p>
                 Most pressing issues:{" "}
                 <ul>
-                  <li>Notifications for updates are not always accurate.</li>
                   <li>Top header needs more compact mobile display.</li>
                   <li>Wonky random refresh when switching boards/threads.</li>
                   <li>
@@ -45,6 +44,16 @@ function HomePage() {
                   <li>
                     Stopping you all from murdering my baby by uploading too big
                     images/text.
+                  </li>
+                </ul>
+              </p>
+              <p>
+                New:{" "}
+                <ul>
+                  <li>
+                    NOTIFICATIONS ARE FIXED. But you have to enter a thread to
+                    mark it as visited even if you've seen its only post on your
+                    dash. Sorry about that. I'll fix it, but not today.
                   </li>
                 </ul>
               </p>
