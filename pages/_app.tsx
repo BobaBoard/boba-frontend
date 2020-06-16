@@ -5,7 +5,11 @@ import React from "react";
 import axios from "axios";
 import { AuthProvider, useAuth } from "../components/Auth";
 // @ts-ignore
-import { ToastContainer, toast } from "@bobaboard/ui-components";
+import {
+  ToastContainer,
+  toast,
+  setTumblrEmbedFetcher,
+} from "@bobaboard/ui-components";
 
 let location;
 if (typeof window !== "undefined") {
@@ -42,6 +46,14 @@ const AxiosInterceptor = () => {
   }, []);
   return null;
 };
+
+setTumblrEmbedFetcher((url: string) => {
+  console.log(`""Fetching"" from ${url}`);
+  return axios.get(`posts/embed/tumblr?url=${url}`).then((res) => {
+    console.log(res);
+    return res.data;
+  });
+});
 
 function MyApp({ Component, pageProps }: any) {
   return (
