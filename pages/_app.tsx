@@ -4,11 +4,11 @@ import "normalize.css";
 import React from "react";
 import axios from "axios";
 import { AuthProvider, useAuth } from "../components/Auth";
-// @ts-ignore
 import {
   ToastContainer,
   toast,
   setTumblrEmbedFetcher,
+  // @ts-ignore
 } from "@bobaboard/ui-components";
 
 let location;
