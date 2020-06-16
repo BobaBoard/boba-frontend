@@ -9,7 +9,7 @@ import {
 } from "@bobaboard/ui-components";
 import Layout from "../../components/Layout";
 import PostEditorModal from "../../components/PostEditorModal";
-import { useQuery, queryCache } from "react-query";
+import { useQuery, useInfiniteQuery, queryCache } from "react-query";
 import { useAuth } from "../../components/Auth";
 import { getBoardActivityData, getBoardData } from "../../utils/queries";
 import axios from "axios";
@@ -31,17 +31,24 @@ function BoardPage() {
   const {
     data: boardActivityData,
     isFetching: isFetchingBoardActivity,
-  } = useQuery(["boardActivityData", { slug }], getBoardActivityData);
+    isFetchingMore,
+    fetchMore,
+    canFetchMore,
+  } = useInfiniteQuery(["boardActivityData", { slug }], getBoardActivityData, {
+    getFetchMore: (lastGroup, allGroups) => {
+      console.log(lastGroup);
+      return lastGroup.next_page_cursor;
+    },
+  });
 
   React.useEffect(() => {
     console.log(`board_id:`, router.query.boardId?.slice(1));
     if (!isPending && isLoggedIn) {
       axios.get(`boards/${router.query.boardId?.slice(1)}/visit`);
     }
-    console.log(isLoggedIn);
   }, [isPending, isLoggedIn, router.query.boardId]);
 
-  const showEmptyMessage = boardActivityData?.length === 0;
+  const showEmptyMessage = boardActivityData?.[0]?.activity?.length === 0;
 
   return (
     <div className="main">
@@ -91,73 +98,87 @@ function BoardPage() {
                   <img className="empty" src={"/nothing.jpg"} />
                 )}
                 {boardActivityData &&
-                  boardActivityData.map((post: any) => {
-                    const hasReplies =
-                      post.posts_amount > 1 || post.comments_amount > 0;
-                    return (
-                      <div className="post">
-                        <Post
-                          key={post.post_id}
-                          createdTime={`${moment.utc(post.created).fromNow()}${
-                            hasReplies
-                              ? ` [updated: ${moment
-                                  .utc(post.last_activity)
-                                  .fromNow()}]`
-                              : ""
-                          }`}
-                          text={post.content}
-                          secretIdentity={{
-                            name: post.secret_identity.name,
-                            avatar: post.secret_identity.avatar,
-                          }}
-                          userIdentity={{
-                            name: post.user_identity?.name,
-                            avatar: post.user_identity?.avatar,
-                          }}
-                          onOpenComments={() =>
-                            router.push(
-                              `/[boardId]/thread/[id]`,
-                              `/${router.query.boardId}/thread/${post.thread_id}`
-                            )
-                          }
-                          onOpenContributions={() =>
-                            router.push(
-                              `/[boardId]/thread/[id]`,
-                              `/${router.query.boardId}/thread/${post.thread_id}`
-                            )
-                          }
-                          onNewContribution={() =>
-                            router.push(
-                              `/[boardId]/thread/[id]`,
-                              `/${router.query.boardId}/thread/${post.thread_id}`
-                            )
-                          }
-                          onNewComment={() =>
-                            router.push(
-                              `/[boardId]/thread/[id]`,
-                              `/${router.query.boardId}/thread/${post.thread_id}`
-                            )
-                          }
-                          size={
-                            post.options?.wide
-                              ? PostSizes.WIDE
-                              : PostSizes.REGULAR
-                          }
-                          newPost={isLoggedIn && post.is_new}
-                          newComments={isLoggedIn && post.new_comments_amount}
-                          newContributions={
-                            isLoggedIn &&
-                            post.new_posts_amount - (post.is_new ? 1 : 0)
-                          }
-                          totalComments={post.comments_amount}
-                          // subtract 1 since posts_amount is the amount of posts total in the thread
-                          // including the head one.
-                          totalContributions={post.posts_amount - 1}
-                          directContributions={post.threads_amount}
-                        />
-                      </div>
-                    );
-                  })}
+                  boardActivityData
+                    .reduce((agg, val: any) => agg.concat(val.activity), [])
+                    .map((post: any) => {
+                      const hasReplies =
+                        post.posts_amount > 1 || post.comments_amount > 0;
+                      return (
+                        <div className="post">
+                          <Post
+                            key={post.post_id}
+                            createdTime={`${moment
+                              .utc(post.created)
+                              .fromNow()}${
+                              hasReplies
+                                ? ` [updated: ${moment
+                                    .utc(post.last_activity)
+                                    .fromNow()}]`
+                                : ""
+                            }`}
+                            text={post.content}
+                            secretIdentity={{
+                              name: post.secret_identity.name,
+                              avatar: post.secret_identity.avatar,
+                            }}
+                            userIdentity={{
+                              name: post.user_identity?.name,
+                              avatar: post.user_identity?.avatar,
+                            }}
+                            onOpenComments={() =>
+                              router.push(
+                                `/[boardId]/thread/[id]`,
+                                `/${router.query.boardId}/thread/${post.thread_id}`
+                              )
+                            }
+                            onOpenContributions={() =>
+                              router.push(
+                                `/[boardId]/thread/[id]`,
+                                `/${router.query.boardId}/thread/${post.thread_id}`
+                              )
+                            }
+                            onNewContribution={() =>
+                              router.push(
+                                `/[boardId]/thread/[id]`,
+                                `/${router.query.boardId}/thread/${post.thread_id}`
+                              )
+                            }
+                            onNewComment={() =>
+                              router.push(
+                                `/[boardId]/thread/[id]`,
+                                `/${router.query.boardId}/thread/${post.thread_id}`
+                              )
+                            }
+                            size={
+                              post.options?.wide
+                                ? PostSizes.WIDE
+                                : PostSizes.REGULAR
+                            }
+                            newPost={isLoggedIn && post.is_new}
+                            newComments={isLoggedIn && post.new_comments_amount}
+                            newContributions={
+                              isLoggedIn &&
+                              post.new_posts_amount - (post.is_new ? 1 : 0)
+                            }
+                            totalComments={post.comments_amount}
+                            // subtract 1 since posts_amount is the amount of posts total in the thread
+                            // including the head one.
+                            totalContributions={post.posts_amount - 1}
+                            directContributions={post.threads_amount}
+                          />
+                        </div>
+                      );
+                    })}
+                <button
+                  onClick={() => fetchMore()}
+                  disabled={!canFetchMore || isFetchingMore}
+                >
+                  {isFetchingMore
+                    ? "Loading more..."
+                    : canFetchMore
+                    ? "Load More"
+                    : "Nothing more to load"}
+                </button>
               </div>
             }
           />

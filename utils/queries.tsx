@@ -10,15 +10,20 @@ export const getBoardData = async (key: string, { slug }: { slug: string }) => {
 
 export const getBoardActivityData = async (
   key: string,
-  { slug }: { slug: string }
+  { slug }: { slug: string },
+  cursor?: string
 ) => {
+  console.log(slug);
+  console.log(cursor);
   if (!slug) {
     return;
   }
-  const response = await axios.get(`boards/${slug}/activity/latest`);
+  const response = await axios.get(`boards/${slug}/activity/latest`, {
+    params: { cursor },
+  });
   if (response.status == 204) {
     // No data, let's return empty array
-    return [];
+    return { cursor: null, activity: [] };
   }
   return response.data;
 };
