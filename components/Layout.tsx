@@ -11,18 +11,16 @@ import { useRouter } from "next/router";
 import { useQuery } from "react-query";
 // @ts-ignore
 import { ReactQueryDevtools } from "react-query-devtools";
+import { useBoardTheme } from "./BoardTheme";
 
 const Layout = (props: LayoutProps) => {
   const router = useRouter();
   const { isPending: isUserPending, user, isLoggedIn } = useAuth();
   const [loginOpen, setLoginOpen] = React.useState(false);
   const layoutRef = React.useRef<{ closeSideMenu: () => void }>(null);
+  const slug: string = router.query.boardId?.slice(1) as string;
+  const { [slug]: boardData, fetching } = useBoardTheme();
 
-  const { data: boardData, isFetching: isFetchingBoardData } = useQuery(
-    ["boardData", { slug: router.query.boardId?.slice(1) }],
-    getBoardData,
-    { staleTime: Infinity }
-  );
   const { data: pinnedBoards, refetch } = useQuery(
     "allBoardsData",
     getAllBoardsData
@@ -37,7 +35,7 @@ const Layout = (props: LayoutProps) => {
       <LoginModal
         isOpen={loginOpen}
         onCloseModal={() => setLoginOpen(false)}
-        color={boardData?.settings.accentColor || "#f96680"}
+        color={boardData?.accentColor || "#f96680"}
       />
       <InnerLayout
         ref={layoutRef}
@@ -66,13 +64,13 @@ const Layout = (props: LayoutProps) => {
           </>
         }
         actionButton={props.actionButton}
-        headerAccent={boardData?.settings.accentColor || "#f96680"}
+        headerAccent={boardData?.accentColor || "#f96680"}
         onUserBarClick={() => setLoginOpen(true)}
         user={user}
         title={props.title}
         onTitleClick={props.onTitleClick}
         forceHideTitle={props.forceHideTitle}
-        loading={props.loading || isFetchingBoardData || isUserPending}
+        loading={props.loading || fetching || isUserPending}
         onLogoClick={() => router.push("/")}
         updates={isLoggedIn && hasUpdates}
       />

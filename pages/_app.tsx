@@ -4,6 +4,7 @@ import "normalize.css";
 import React from "react";
 import axios from "axios";
 import { AuthProvider, useAuth } from "../components/Auth";
+import { BoardThemeProvider } from "../components/BoardTheme";
 import {
   ToastContainer,
   toast,
@@ -58,9 +59,11 @@ setTumblrEmbedFetcher((url: string) => {
 function MyApp({ Component, pageProps }: any) {
   return (
     <AuthProvider>
-      <AxiosInterceptor />
-      <ToastContainer />
-      <Component {...pageProps} />
+      <BoardThemeProvider>
+        <AxiosInterceptor />
+        <ToastContainer />
+        <Component {...pageProps} />
+      </BoardThemeProvider>
     </AuthProvider>
   );
 }

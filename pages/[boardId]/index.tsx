@@ -9,9 +9,10 @@ import {
 } from "@bobaboard/ui-components";
 import Layout from "../../components/Layout";
 import PostEditorModal from "../../components/PostEditorModal";
-import { useQuery, useInfiniteQuery, queryCache } from "react-query";
+import { useInfiniteQuery, queryCache } from "react-query";
 import { useAuth } from "../../components/Auth";
-import { getBoardActivityData, getBoardData } from "../../utils/queries";
+import { useBoardTheme } from "../../components/BoardTheme";
+import { getBoardActivityData } from "../../utils/queries";
 import axios from "axios";
 
 import { useRouter } from "next/router";
@@ -24,10 +25,8 @@ function BoardPage() {
   const router = useRouter();
   const slug: string = router.query.boardId?.slice(1) as string;
   const { isPending, isLoggedIn, user } = useAuth();
+  const { [slug]: boardData } = useBoardTheme();
 
-  const { data: boardData } = useQuery(["boardData", { slug }], getBoardData, {
-    staleTime: Infinity,
-  });
   const {
     data: boardActivityData,
     isFetching: isFetchingBoardActivity,
@@ -83,7 +82,7 @@ function BoardPage() {
                     slug: slug,
                     avatar: boardData?.avatarUrl || "/",
                     description: boardData?.tagline || "loading...",
-                    color: boardData?.settings.accentColor || "#f96680",
+                    color: boardData?.accentColor || "#f96680",
                   }}
                 />
                 <img
@@ -186,7 +185,7 @@ function BoardPage() {
         actionButton={
           isLoggedIn && (
             <PostingActionButton
-              accentColor={boardData?.settings.accentColor || "#f96680"}
+              accentColor={boardData?.accentColor || "#f96680"}
               onNewPost={() => setPostEditorOpen(true)}
             />
           )

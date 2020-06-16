@@ -13,8 +13,6 @@ export const getBoardActivityData = async (
   { slug }: { slug: string },
   cursor?: string
 ) => {
-  console.log(slug);
-  console.log(cursor);
   if (!slug) {
     return;
   }
