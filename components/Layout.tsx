@@ -5,7 +5,7 @@ import {
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import LoginModal from "./LoginModal";
-import { getBoardData, getAllBoardsData } from "./../utils/queries";
+import { getAllBoardsData } from "./../utils/queries";
 import { useAuth } from "./Auth";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
@@ -50,7 +50,9 @@ const Layout = (props: LayoutProps) => {
                 color: board.settings?.accentColor,
                 updates: !!(isLoggedIn && board.has_updates),
                 onClick: (slug: string) => {
-                  router.push(`/[boardId]`, `/!${slug.replace(" ", "_")}`);
+                  router.push(`/[boardId]`, `/!${slug.replace(" ", "_")}`, {
+                    shallow: true,
+                  });
                   // @ts-ignore
                   layoutRef.current?.closeSideMenu();
                   // TODO: do this on board opening

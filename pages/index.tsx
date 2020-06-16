@@ -18,6 +18,10 @@ function HomePage() {
           <div className="content">
             <div className="intro">
               <h1>Welcome to BobaBoard!</h1>
+              <div className="tagline">
+                "Where the bugs are funny and the people are cool" — Outdated
+                Meme
+              </div>
               <img src="/under_construction.gif" />
               <p>
                 Remember: this is the experimental version of an experimental
@@ -68,7 +72,9 @@ function HomePage() {
                   updates: board.has_updates,
                 }))}
                 onBoardClick={(slug: string) => {
-                  router.push(`/[boardId]`, `/!${slug.replace(" ", "_")}`);
+                  router.push(`/[boardId]`, `/!${slug.replace(" ", "_")}`, {
+                    shallow: true,
+                  });
                 }}
               />
             </div>
@@ -78,6 +84,12 @@ function HomePage() {
                 margin: 0 auto;
                 margin-bottom: 25px;
                 line-height: 20px;
+              }
+              .tagline {
+                font-style: italic;
+                opacity: 0.9;
+                margin-top: -10px;
+                margin-bottom: 15px;
               }
               .intro img {
                 height: 100px;

@@ -13,7 +13,6 @@ import { useRouter } from "next/router";
 import { getThreadData } from "../../../utils/queries";
 import { useQuery } from "react-query";
 import { useAuth } from "../../../components/Auth";
-import { useBoardTheme } from "../../../components/BoardTheme";
 import moment from "moment";
 import axios from "axios";
 
@@ -161,8 +160,6 @@ function ThreadPage() {
     refetchOnWindowFocus: false,
   });
   const [[root, postsMap], setPostsTree] = React.useState([undefined, {}]);
-  const slug: string = router.query.boardId?.slice(1) as string;
-  const { [slug]: boardData } = useBoardTheme();
 
   React.useEffect(() => {
     if (!isPending && isLoggedIn) {
@@ -178,6 +175,7 @@ function ThreadPage() {
     return <div />;
   }
 
+  const slug: string = router.query.boardId?.slice(1) as string;
   return (
     <div className="main">
       {isLoggedIn && (
@@ -243,7 +241,9 @@ function ThreadPage() {
         }
         title={`!${slug}`}
         onTitleClick={() => {
-          router.push(`/[boardId]`, `/!${slug}`);
+          router.push(`/[boardId]`, `/!${slug}`, {
+            shallow: true,
+          });
         }}
         loading={isFetchingPosts}
       />

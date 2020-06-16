@@ -127,13 +127,15 @@ function BoardPage() {
                             onOpenComments={() =>
                               router.push(
                                 `/[boardId]/thread/[id]`,
-                                `/${router.query.boardId}/thread/${post.thread_id}`
+                                `/${router.query.boardId}/thread/${post.thread_id}`,
+                                { shallow: true }
                               )
                             }
                             onOpenContributions={() =>
                               router.push(
                                 `/[boardId]/thread/[id]`,
-                                `/${router.query.boardId}/thread/${post.thread_id}`
+                                `/${router.query.boardId}/thread/${post.thread_id}`,
+                                { shallow: true }
                               )
                             }
                             onNewContribution={() =>

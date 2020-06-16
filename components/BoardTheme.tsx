@@ -11,16 +11,14 @@ import { useQuery } from "react-query";
 const BoardThemeProvider: React.FC<{}> = (props) => {
   const router = useRouter();
   const [themeData, setThemeData] = React.useState({});
-  const { data: boardData, isFetching: isFetchingBoardData } = useQuery(
+  const { data: boardData } = useQuery(
     ["boardData", { slug: router.query.boardId?.slice(1) }],
     getBoardData,
     { staleTime: Infinity }
   );
-  const { data: pinnedBoards, refetch } = useQuery(
-    "allBoardsData",
-    getAllBoardsData,
-    { staleTime: Infinity }
-  );
+  const { data: pinnedBoards } = useQuery("allBoardsData", getAllBoardsData, {
+    staleTime: Infinity,
+  });
 
   React.useEffect(() => {
     if (pinnedBoards) {
@@ -39,7 +37,7 @@ const BoardThemeProvider: React.FC<{}> = (props) => {
         ...newThemeData,
       });
     }
-  }, pinnedBoards);
+  }, [pinnedBoards]);
 
   React.useEffect(() => {
     if (boardData) {
@@ -54,7 +52,7 @@ const BoardThemeProvider: React.FC<{}> = (props) => {
       };
       setThemeData(newThemeData);
     }
-  }, boardData);
+  }, [boardData]);
 
   return <BoardThemeContext.Provider value={themeData} {...props} />;
 };
