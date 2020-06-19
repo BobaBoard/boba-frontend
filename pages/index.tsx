@@ -41,23 +41,20 @@ function HomePage() {
                   <li>Top header needs more compact mobile display.</li>
                   <li>Wonky random refresh when switching boards/threads.</li>
                   <li>
-                    There's no pagination <s>until some time tomorrow :P</s> I'm
-                    a liar, no pagination until it's evident we'll soon die
-                    without it
-                  </li>
-                  <li>
                     Stopping you all from murdering my baby by uploading too big
                     images/text.
                   </li>
+                  <li>I'm overdue for a "squash all iOS bugs" focus day.</li>
                 </ul>
               </p>
               <p>
                 New:{" "}
                 <ul>
                   <li>
-                    NOTIFICATIONS ARE FIXED. But you have to enter a thread to
-                    mark it as visited even if you've seen its only post on your
-                    dash. Sorry about that. I'll fix it, but not today.
+                    It's pagination time! I swear, I will make sure the back
+                    button brings you at the right place soon(ish), and refresh
+                    doesn't make you lose your place. Keep pestering me for
+                    this.
                   </li>
                 </ul>
               </p>

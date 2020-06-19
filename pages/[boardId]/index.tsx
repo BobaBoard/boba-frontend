@@ -103,7 +103,7 @@ function BoardPage() {
                       const hasReplies =
                         post.posts_amount > 1 || post.comments_amount > 0;
                       return (
-                        <div className="post">
+                        <div className="post" key={`${post.post_id}_container`}>
                           <Post
                             key={post.post_id}
                             createdTime={`${moment
@@ -163,25 +163,29 @@ function BoardPage() {
                             }
                             totalComments={post.comments_amount}
                             // subtract 1 since posts_amount is the amount of posts total in the thread
-                            // including the head one.
+                            // including the head one.-
                             totalContributions={post.posts_amount - 1}
                             directContributions={post.threads_amount}
                           />
                         </div>
                       );
                     })}
-                <button
-                  onClick={() => fetchMore()}
-                  disabled={!canFetchMore || isFetchingMore}
-                >
-                  {isFetchingMore
-                    ? "Loading more..."
-                    : canFetchMore
-                    ? "Load More"
-                    : "Nothing more to load"}
-                </button>
+                <div className="loading">
+                  {!showEmptyMessage &&
+                    boardActivityData?.length > 0 &&
+                    (isFetchingMore
+                      ? "Loading more..."
+                      : canFetchMore
+                      ? "..."
+                      : "Nothing more to load")}
+                </div>
               </div>
             }
+            onReachEnd={() => {
+              if (canFetchMore) {
+                fetchMore();
+              }
+            }}
           />
         }
         actionButton={
@@ -214,6 +218,11 @@ function BoardPage() {
           margin-top: 30px;
           filter: grayscale(0.4);
           max-width: 100%;
+        }
+        .loading {
+          text-align: center;
+          margin-bottom: 20px;
+          color: white;
         }
         .under-construction {
           width: 50px;
