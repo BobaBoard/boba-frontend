@@ -3,6 +3,7 @@ import "normalize.css";
 
 import React from "react";
 import axios from "axios";
+import Head from "next/head";
 import { AuthProvider, useAuth } from "../components/Auth";
 import { BoardThemeProvider } from "../components/BoardTheme";
 import {
@@ -58,13 +59,38 @@ setTumblrEmbedFetcher((url: string) => {
 
 function MyApp({ Component, pageProps }: any) {
   return (
-    <AuthProvider>
-      <BoardThemeProvider>
-        <AxiosInterceptor />
-        <ToastContainer />
-        <Component {...pageProps} />
-      </BoardThemeProvider>
-    </AuthProvider>
+    <>
+      <Head>
+        <title>
+          BobaBoard v0 — Where the bugs are funny and the people are cool!
+        </title>
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/icons/apple-touch-icon.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/icons/favicon-32x32.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/icons/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/icons/site.webmanifest"></link>
+      </Head>
+      <AuthProvider>
+        <BoardThemeProvider>
+          <AxiosInterceptor />
+          <ToastContainer />
+          <Component {...pageProps} />
+        </BoardThemeProvider>
+      </AuthProvider>
+    </>
   );
 }
 
