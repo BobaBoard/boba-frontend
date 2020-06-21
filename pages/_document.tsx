@@ -44,6 +44,9 @@ class MyDocument extends Document {
             type="text/css"
             dangerouslySetInnerHTML={{ __html: bodyCss }}
           />
+          <title>
+            BobaBoard v0 — Where the bugs are funny and the people are cool!
+          </title>
         </Head>
         <body>
           <Main />
