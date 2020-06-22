@@ -12,11 +12,11 @@ const BoardThemeProvider: React.FC<{}> = (props) => {
   const router = useRouter();
   const [themeData, setThemeData] = React.useState({});
   const { data: boardData } = useQuery(
-    ["boardData", { slug: router.query.boardId?.slice(1) }],
+    ["boardThemeData", { slug: router.query.boardId?.slice(1) }],
     getBoardData,
     { staleTime: Infinity }
   );
-  const { data: pinnedBoards } = useQuery("allBoardsData", getAllBoardsData, {
+  const { data: pinnedBoards } = useQuery("boardsThemeData", getAllBoardsData, {
     staleTime: Infinity,
   });
 

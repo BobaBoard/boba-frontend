@@ -5,31 +5,55 @@ import {
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import LoginModal from "./LoginModal";
-import { getAllBoardsData } from "./../utils/queries";
+import { getAllBoardsData, dismissAllNotifications } from "./../utils/queries";
 import { useAuth } from "./Auth";
 import { useRouter } from "next/router";
-import { useQuery } from "react-query";
+import { useQuery, useMutation, queryCache } from "react-query";
 // @ts-ignore
 import { ReactQueryDevtools } from "react-query-devtools";
 import { useBoardTheme } from "./BoardTheme";
+import debug from "debug";
+
+const log = debug("bobafrontend:queries-log");
+log.enabled = true;
 
 const Layout = (props: LayoutProps) => {
   const router = useRouter();
   const { isPending: isUserPending, user, isLoggedIn } = useAuth();
   const [loginOpen, setLoginOpen] = React.useState(false);
+  const [hasUpdates, setHasUpdates] = React.useState(false);
   const layoutRef = React.useRef<{ closeSideMenu: () => void }>(null);
   const slug: string = router.query.boardId?.slice(1) as string;
   const { [slug]: boardData, fetching } = useBoardTheme();
-
   const { data: pinnedBoards, refetch } = useQuery(
     "allBoardsData",
     getAllBoardsData
   );
+  const [dismissNotifications] = useMutation(dismissAllNotifications, {
+    onSuccess: () => {
+      log(`Successfully dismissed all notifications. Refetching...`);
+      queryCache.refetchQueries("allBoardsData");
+      if (slug) {
+        queryCache.refetchQueries(["boardActivityData", { slug }]);
+      }
+      if (router.query.id) {
+        queryCache.refetchQueries([
+          "threadData",
+          { threadId: router.query.id },
+        ]);
+      }
+    },
+  });
 
-  const hasUpdates = (pinnedBoards || []).reduce(
-    (current: boolean, board: any) => current || board.has_updates,
-    false
-  );
+  React.useEffect(() => {
+    setHasUpdates(
+      (pinnedBoards || []).reduce(
+        (current: boolean, board: any) => current || board.has_updates,
+        false
+      )
+    );
+  }, [pinnedBoards]);
+
   return (
     <div>
       <LoginModal
@@ -62,6 +86,11 @@ const Layout = (props: LayoutProps) => {
                 },
               }))}
               showSearch={false}
+              showDismissNotifications={isLoggedIn}
+              onNotificationsDismissRequest={() => {
+                console.log("clickity click!");
+                dismissNotifications();
+              }}
             />
           </>
         }

@@ -7,10 +7,17 @@ import {
   BoardsDisplay,
   // @ts-ignore
 } from "@bobaboard/ui-components";
+import debug from "debug";
+
+const info = debug("bobafrontend:index-info");
+info.enabled = true;
 
 function HomePage() {
   const { data: allBoards } = useQuery("allBoardsData", getAllBoardsData);
   const router = useRouter();
+
+  info(`Rerendering index with data:`);
+  info(allBoards);
   return (
     <div className="main">
       <Layout
