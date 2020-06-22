@@ -10,7 +10,6 @@ import {
 import debug from "debug";
 
 const info = debug("bobafrontend:index-info");
-info.enabled = true;
 
 function HomePage() {
   const { data: allBoards } = useQuery("allBoardsData", getAllBoardsData);
@@ -42,21 +41,10 @@ function HomePage() {
                 channel or the{" "}
                 <pre style={{ display: "inline" }}>!bobaland</pre> board.
               </p>
-              <p>
-                Most pressing issues:{" "}
+              <div className="updates">
+                <h2>New Stuff </h2>
                 <ul>
-                  <li>Top header needs more compact mobile display.</li>
-                  <li>Wonky random refresh when switching boards/threads.</li>
-                  <li>
-                    Stopping you all from murdering my baby by uploading too big
-                    images/text.
-                  </li>
-                  <li>I'm overdue for a "squash all iOS bugs" focus day.</li>
-                </ul>
-              </p>
-              <p>
-                New:{" "}
-                <ul>
+                  <li>[6/21/20] You can now dismiss all notifications!</li>
                   <li>
                     It's pagination time! I swear, I will make sure the back
                     button brings you at the right place soon(ish), and refresh
@@ -64,7 +52,7 @@ function HomePage() {
                     this.
                   </li>
                 </ul>
-              </p>
+              </div>
             </div>
             <div className="display">
               <BoardsDisplay
@@ -98,12 +86,14 @@ function HomePage() {
               .intro img {
                 height: 100px;
               }
-              .intro ul {
-                list-style-position: inside;
-                list-style-type: lower-greek;
+              .updates {
                 background-color: #1c1c1c;
                 padding: 15px;
                 border-radius: 25px;
+              }
+              .intro ul {
+                list-style-position: inside;
+                list-style-type: lower-greek;
               }
               .intro ul li {
                 padding-bottom: 5px;
