@@ -44,6 +44,10 @@ function HomePage() {
               <div className="updates">
                 <h2>New Stuff </h2>
                 <ul>
+                  <li>
+                    [6/22/20] Did someone casually mention "opening threads in
+                    new tab" once? You're welcome ;)
+                  </li>
                   <li>[6/21/20] You can now dismiss all notifications!</li>
                   <li>
                     It's pagination time! I swear, I will make sure the back

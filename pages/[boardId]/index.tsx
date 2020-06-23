@@ -124,20 +124,6 @@ function BoardPage() {
                               name: post.user_identity?.name,
                               avatar: post.user_identity?.avatar,
                             }}
-                            onOpenComments={() =>
-                              router.push(
-                                `/[boardId]/thread/[id]`,
-                                `/${router.query.boardId}/thread/${post.thread_id}`,
-                                { shallow: true }
-                              )
-                            }
-                            onOpenContributions={() =>
-                              router.push(
-                                `/[boardId]/thread/[id]`,
-                                `/${router.query.boardId}/thread/${post.thread_id}`,
-                                { shallow: true }
-                              )
-                            }
                             onNewContribution={() =>
                               router.push(
                                 `/[boardId]/thread/[id]`,
@@ -166,6 +152,14 @@ function BoardPage() {
                             // including the head one.-
                             totalContributions={post.posts_amount - 1}
                             directContributions={post.threads_amount}
+                            onNotesClick={() =>
+                              router.push(
+                                `/[boardId]/thread/[id]`,
+                                `/${router.query.boardId}/thread/${post.thread_id}`,
+                                { shallow: true }
+                              )
+                            }
+                            notesUrl={`/${router.query.boardId}/thread/${post.thread_id}`}
                           />
                         </div>
                       );
