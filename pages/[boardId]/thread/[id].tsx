@@ -100,6 +100,8 @@ const ThreadLevel: React.FC<{
               }
               centered={Object.keys(props.postsMap).length == 0}
               answerable={props.isLoggedIn}
+              onNotesClick={() => {}}
+              notesUrl={"#"}
             />
           </div>
         </ThreadIndent>
