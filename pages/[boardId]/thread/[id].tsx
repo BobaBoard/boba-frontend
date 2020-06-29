@@ -15,7 +15,6 @@ import { getThreadData, markThreadAsRead } from "../../../utils/queries";
 import { useQuery, useMutation } from "react-query";
 import { useAuth } from "../../../components/Auth";
 import moment from "moment";
-import axios from "axios";
 import debug from "debug";
 
 const log = debug("bobafrontend:thread-log");
