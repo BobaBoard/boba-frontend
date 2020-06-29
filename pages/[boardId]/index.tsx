@@ -137,7 +137,7 @@ function BoardPage() {
                               )
                             }
                             size={
-                              post.options?.wide
+                              post?.options?.wide
                                 ? PostSizes.WIDE
                                 : PostSizes.REGULAR
                             }

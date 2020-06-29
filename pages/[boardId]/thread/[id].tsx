@@ -4,6 +4,7 @@ import {
   Comment,
   ThreadIndent,
   Post,
+  PostSizes,
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import Layout from "../../../components/Layout";
@@ -80,6 +81,9 @@ const ThreadLevel: React.FC<{
           <div className="post">
             <Post
               key={props.post.id}
+              size={
+                props.post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR
+              }
               createdTime={moment.utc(props.post.created).fromNow()}
               text={props.post.content}
               secretIdentity={props.post.secret_identity}

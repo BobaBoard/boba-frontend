@@ -62,6 +62,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
               axios
                 .post(props.submitUrl, {
                   content: text,
+                  large,
                   forceAnonymous: false,
                 })
                 .then((response) => {
