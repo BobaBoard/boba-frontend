@@ -15,7 +15,6 @@ import { useBoardTheme } from "./BoardTheme";
 import debug from "debug";
 
 const log = debug("bobafrontend:queries-log");
-log.enabled = true;
 
 const Layout = (props: LayoutProps) => {
   const router = useRouter();

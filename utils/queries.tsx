@@ -59,3 +59,9 @@ export const dismissAllNotifications = async () => {
   await axios.post(`users/notifications/dismiss`);
   return true;
 };
+
+export const markThreadAsRead = async ({ threadId }: { threadId: string }) => {
+  log(`Marking thread ${threadId} as read.`);
+  await axios.get(`threads/${threadId}/visit`);
+  return true;
+};

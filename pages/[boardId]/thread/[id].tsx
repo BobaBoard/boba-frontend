@@ -11,11 +11,14 @@ import Layout from "../../../components/Layout";
 import PostEditorModal from "../../../components/PostEditorModal";
 import CommentEditorModal from "../../../components/CommentEditorModal";
 import { useRouter } from "next/router";
-import { getThreadData } from "../../../utils/queries";
-import { useQuery } from "react-query";
+import { getThreadData, markThreadAsRead } from "../../../utils/queries";
+import { useQuery, useMutation } from "react-query";
 import { useAuth } from "../../../components/Auth";
 import moment from "moment";
 import axios from "axios";
+import debug from "debug";
+
+const log = debug("bobafrontend:thread-log");
 
 const makePostsTree = (posts: any[]) => {
   if (!posts) {
@@ -154,7 +157,8 @@ function ThreadPage() {
     null
   );
   const router = useRouter();
-  const { isPending, user, isLoggedIn } = useAuth();
+  const threadId = router.query.id as string;
+  const { user, isLoggedIn } = useAuth();
   const {
     data: threadData,
     // @ts-ignore
@@ -162,16 +166,22 @@ function ThreadPage() {
     // @ts-ignore
     error: fetchPostsError,
     refetch: refetchTread,
-  } = useQuery(["threadData", { threadId: router.query.id }], getThreadData, {
+  } = useQuery(["threadData", { threadId }], getThreadData, {
     refetchOnWindowFocus: false,
+  });
+
+  const [readThread] = useMutation(() => markThreadAsRead({ threadId }), {
+    onSuccess: () => {
+      log(`Successfully marked thread as read`);
+    },
   });
   const [[root, postsMap], setPostsTree] = React.useState([undefined, {}]);
 
   React.useEffect(() => {
-    if (!isPending && isLoggedIn) {
-      axios.get(`threads/${router.query.id}/visit`);
+    if (isLoggedIn) {
+      readThread();
     }
-  }, [isPending, isLoggedIn]);
+  }, []);
 
   React.useEffect(() => {
     setPostsTree(makePostsTree(threadData?.posts) as any);

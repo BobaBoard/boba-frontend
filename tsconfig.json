@@ -3,20 +3,12 @@
     "outDir": "dist/",
     "module": "esnext",
     "target": "es5",
-    "lib": [
-      "es5",
-      "es6",
-      "es7",
-      "es2017",
-      "dom"
-    ],
+    "lib": ["es5", "es6", "es7", "es2017", "dom", "es2019"],
     "sourceMap": true,
     "allowJs": false,
     "jsx": "preserve",
     "moduleResolution": "node",
-    "rootDirs": [
-      "."
-    ],
+    "rootDirs": ["."],
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
@@ -29,25 +21,13 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
-    "types": [
-      "react",
-      "react-dom",
-      "styled-jsx",
-      "node"
-    ],
+    "types": ["react", "react-dom", "styled-jsx", "node"],
     "skipLibCheck": true,
     "strict": false,
     "noEmit": true,
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "include": [
-    "/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "build",
-    "scripts",
-    "dist"
-  ]
+  "include": ["/**/*"],
+  "exclude": ["node_modules", "build", "scripts", "dist"]
 }

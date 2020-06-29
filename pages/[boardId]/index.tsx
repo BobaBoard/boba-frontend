@@ -5,19 +5,21 @@ import {
   FeedWithMenu,
   BoardSidebar,
   PostingActionButton,
+  toast,
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import Layout from "../../components/Layout";
 import PostEditorModal from "../../components/PostEditorModal";
-import { useInfiniteQuery, queryCache } from "react-query";
+import { useInfiniteQuery, queryCache, useMutation } from "react-query";
 import { useAuth } from "../../components/Auth";
 import { useBoardTheme } from "../../components/BoardTheme";
-import { getBoardActivityData } from "../../utils/queries";
-import axios from "axios";
-
+import { getBoardActivityData, markThreadAsRead } from "../../utils/queries";
 import { useRouter } from "next/router";
-
+import axios from "axios";
+import debug from "debug";
 import moment from "moment";
+
+const log = debug("bobafrontend:boardPage-log");
 
 function BoardPage() {
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
@@ -35,17 +37,50 @@ function BoardPage() {
     canFetchMore,
   } = useInfiniteQuery(["boardActivityData", { slug }], getBoardActivityData, {
     getFetchMore: (lastGroup, allGroups) => {
-      console.log(lastGroup);
+      log(`Fetched next threads page`);
+      log(lastGroup);
       return lastGroup.next_page_cursor;
     },
   });
 
-  React.useEffect(() => {
-    console.log(`board_id:`, router.query.boardId?.slice(1));
-    if (!isPending && isLoggedIn) {
-      axios.get(`boards/${router.query.boardId?.slice(1)}/visit`);
+  const [readThread] = useMutation(
+    (threadId: string) => markThreadAsRead({ threadId }),
+    {
+      onMutate: (threadId) => {
+        log(`Optimistically marking thread ${threadId} as visited.`);
+        const boardActivityData = queryCache.getQueryData([
+          "boardActivityData",
+          { slug },
+        ]) as Array<any>;
+        const updatedPost = boardActivityData
+          .flatMap((data: any) => data.activity)
+          .find((post) => post.thread_id == threadId);
+        log(updatedPost);
+        updatedPost.is_new = false;
+        updatedPost.new_comments_amount = 0;
+        updatedPost.new_posts_amount = 0;
+        queryCache.setQueryData(
+          ["boardActivityData", { slug }],
+          () => boardActivityData
+        );
+      },
+      onError: (error: Error, threadId) => {
+        toast.error("Error while marking thread as visited");
+        log(`Error while marking thread ${threadId} as visited:`);
+        log(error);
+      },
+      onSuccess: (data: boolean, threadId) => {
+        log(`Successfully marked thread ${threadId} as visited.`);
+      },
     }
-  }, [isPending, isLoggedIn, router.query.boardId]);
+  );
+
+  React.useEffect(() => {
+    if (!isPending && isLoggedIn) {
+      log(`Marking board ${slug} as visited`);
+      axios.get(`boards/${slug}/visit`);
+    }
+  }, [isPending, isLoggedIn, slug]);
 
   const showEmptyMessage = boardActivityData?.[0]?.activity?.length === 0;
 
@@ -102,6 +137,7 @@ function BoardPage() {
                     .map((post: any) => {
                       const hasReplies =
                         post.posts_amount > 1 || post.comments_amount > 0;
+                      const threadUrl = `/${router.query.boardId}/thread/${post.thread_id}`;
                       return (
                         <div className="post" key={`${post.post_id}_container`}>
                           <Post
@@ -153,13 +189,36 @@ function BoardPage() {
                             totalContributions={post.posts_amount - 1}
                             directContributions={post.threads_amount}
                             onNotesClick={() =>
-                              router.push(
-                                `/[boardId]/thread/[id]`,
-                                `/${router.query.boardId}/thread/${post.thread_id}`,
-                                { shallow: true }
-                              )
+                              router.push(`/[boardId]/thread/[id]`, threadUrl, {
+                                shallow: true,
+                              })
                             }
-                            notesUrl={`/${router.query.boardId}/thread/${post.thread_id}`}
+                            notesUrl={threadUrl}
+                            menuOptions={[
+                              {
+                                name: "Copy Link",
+                                onClick: () => {
+                                  const tempInput = document.createElement(
+                                    "input"
+                                  );
+                                  tempInput.value = new URL(
+                                    threadUrl,
+                                    window.location.origin
+                                  ).toString();
+                                  document.body.appendChild(tempInput);
+                                  tempInput.select();
+                                  document.execCommand("copy");
+                                  document.body.removeChild(tempInput);
+                                  toast.success("Link copied!");
+                                },
+                              },
+                              {
+                                name: "Mark Visited",
+                                onClick: () => {
+                                  readThread(post.thread_id);
+                                },
+                              },
+                            ]}
                           />
                         </div>
                       );
