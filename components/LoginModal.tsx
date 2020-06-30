@@ -8,7 +8,13 @@ import { useAuth } from "./Auth";
 import classnames from "classnames";
 
 const LoginModal: React.FC<LoginModalProps> = (props) => {
-  const { isPending, isLoggedIn, attemptLogin, attemptLogout } = useAuth();
+  const {
+    isPending,
+    isLoggedIn,
+    attemptLogin,
+    attemptLogout,
+    authError,
+  } = useAuth();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
 
@@ -18,10 +24,12 @@ const LoginModal: React.FC<LoginModalProps> = (props) => {
       onCloseModal={props.onCloseModal}
       onSubmit={() => {
         if (!isLoggedIn) {
-          attemptLogin(email, password).then(() => {
-            setEmail("");
+          attemptLogin(email, password).then((success: boolean) => {
             setPassword("");
-            props.onCloseModal();
+            if (success) {
+              setEmail("");
+              props.onCloseModal();
+            }
           });
         } else {
           attemptLogout().then(() => {
@@ -60,6 +68,9 @@ const LoginModal: React.FC<LoginModalProps> = (props) => {
                   color={props.color}
                 />
               </div>
+              <div className={classnames("error", { hidden: !authError })}>
+                {authError || "Hidden error field!"}
+              </div>
             </div>
           </div>
         )}
@@ -84,6 +95,15 @@ const LoginModal: React.FC<LoginModalProps> = (props) => {
         }
         .buttons > div {
           margin-left: 15px;
+        }
+        .error {
+          color: red;
+          margin-top: 10px;
+          margin-left: 20px;
+          font-size: small;
+        }
+        .error.hidden {
+          visibility: hidden;
         }
       `}</style>
     </ModalWithButtons>

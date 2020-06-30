@@ -4,6 +4,7 @@ import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/storage";
 import axios from "axios";
+import debug from "debug";
 
 if (!firebase.apps.length) {
   const firebaseConfig = {
@@ -21,6 +22,7 @@ if (!firebase.apps.length) {
 const AuthContext = React.createContext({} as any);
 
 const useAuth = () => React.useContext(AuthContext);
+const log = debug("bobafrontend:auth-log");
 
 // Here we have a firebase user promise which checks whether we are
 // presently in a state where we don't effectively know the status
@@ -45,6 +47,7 @@ const AuthProvider: React.FC<{}> = (props) => {
       username: string;
       avatarUrl?: string;
     };
+    authError?: string;
   }>({
     isLoggedIn: false,
     isPending: true,
@@ -53,6 +56,7 @@ const AuthProvider: React.FC<{}> = (props) => {
   React.useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
       if (!user) {
+        log(`Firebase user state has changed to logged out.`);
         resolveFirebaseUserPromise(null);
         setStatus({
           isLoggedIn: false,
@@ -63,13 +67,16 @@ const AuthProvider: React.FC<{}> = (props) => {
       resolveFirebaseUserPromise(user);
       axios.get("users/me/").then((userResponse) => {
         if (!userResponse) {
+          log(`Request for user data has returned no user.`);
           // Error state
           setStatus({
             isLoggedIn: false,
             isPending: false,
+            authError: "Error while logging in on BobaBoard server.",
           });
           return;
         }
+        log(`Request for user data has returned. Logged in!`);
         setStatus({
           isLoggedIn: true,
           isPending: false,
@@ -81,6 +88,7 @@ const AuthProvider: React.FC<{}> = (props) => {
 
   const getAuthIdToken: () => Promise<string | undefined> = () => {
     return firebaseUserPromise.then((user) => {
+      log(`Firebase is done authenticating! Getting token...`);
       return user?.getIdToken().then((token) => {
         return token;
       });
@@ -93,6 +101,7 @@ const AuthProvider: React.FC<{}> = (props) => {
   ): Promise<boolean> => {
     setStatus({
       ...status,
+      authError: undefined,
       isPending: true,
     });
     firebaseUserPromise = newFirebaseUserPromise();
@@ -100,12 +109,17 @@ const AuthProvider: React.FC<{}> = (props) => {
       .auth()
       .signInWithEmailAndPassword(username, password)
       .then((user) => {
+        log(`Login succesful, found user:`);
+        log(user);
         return !!user;
       })
       .catch((e) => {
+        log(`Error occurred during login:`);
+        log(e);
         setStatus({
           isLoggedIn: false,
           isPending: false,
+          authError: e.message,
         });
         resolveFirebaseUserPromise(null);
         return false;
@@ -114,6 +128,7 @@ const AuthProvider: React.FC<{}> = (props) => {
 
   const attemptLogout = () => {
     firebaseUserPromise = newFirebaseUserPromise();
+    log(`Attempting to log out user...`);
     return firebase.auth().signOut();
   };
 

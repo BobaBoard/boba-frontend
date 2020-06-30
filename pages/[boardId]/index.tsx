@@ -221,7 +221,6 @@ function BoardPage() {
                                         readThread(post.thread_id);
                                       },
                                     },
-                                    ,
                                   ]
                                 : []),
                             ]}

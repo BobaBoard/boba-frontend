@@ -95,7 +95,10 @@ const Layout = (props: LayoutProps) => {
         }
         actionButton={props.actionButton}
         headerAccent={boardData?.accentColor || "#f96680"}
-        onUserBarClick={() => setLoginOpen(true)}
+        onUserBarClick={() => setLoginOpen(!isUserPending && !isLoggedIn)}
+        loggedInMenuOptions={
+          isLoggedIn && [{ name: "Logout", onClick: () => setLoginOpen(true) }]
+        }
         user={user}
         title={props.title}
         onTitleClick={props.onTitleClick}
