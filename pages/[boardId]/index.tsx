@@ -212,12 +212,18 @@ function BoardPage() {
                                   toast.success("Link copied!");
                                 },
                               },
-                              {
-                                name: "Mark Visited",
-                                onClick: () => {
-                                  readThread(post.thread_id);
-                                },
-                              },
+                              // Add options just for logged in users
+                              ...(isLoggedIn
+                                ? [
+                                    {
+                                      name: "Mark Visited",
+                                      onClick: () => {
+                                        readThread(post.thread_id);
+                                      },
+                                    },
+                                    ,
+                                  ]
+                                : []),
                             ]}
                           />
                         </div>
