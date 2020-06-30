@@ -90,6 +90,7 @@ const AuthProvider: React.FC<{}> = (props) => {
     return firebaseUserPromise.then((user) => {
       log(`Firebase is done authenticating! Getting token...`);
       return user?.getIdToken().then((token) => {
+        log(`Returning token!`);
         return token;
       });
     });
