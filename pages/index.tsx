@@ -45,6 +45,14 @@ function HomePage() {
                 <h2>New Stuff </h2>
                 <ul>
                   <li>
+                    [6/29/20] Dropdowns dropDOWNS DROPDOOOWNS!! There's some new
+                    dropdowns around. What do they do? Find out!{" "}
+                    <em>
+                      (*whispers* Among other things, they create a space to add
+                      more options in the future.)
+                    </em>
+                  </li>
+                  <li>
                     [6/22/20] Did someone casually mention "opening threads in
                     new tab" once? You're welcome ;)
                   </li>
@@ -98,9 +106,10 @@ function HomePage() {
               .intro ul {
                 list-style-position: inside;
                 list-style-type: lower-greek;
+                padding-left: 0px;
               }
               .intro ul li {
-                padding-bottom: 5px;
+                padding-bottom: 10px;
               }
               .content {
                 color: white;
