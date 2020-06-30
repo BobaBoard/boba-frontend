@@ -1,16 +1,42 @@
 import React from "react";
-// @ts-ignore
-import { Input, Button, ButtonStyle, Modal } from "@bobaboard/ui-components";
+import {
+  Input,
+  ModalWithButtons,
+  // @ts-ignore
+} from "@bobaboard/ui-components";
 import { useAuth } from "./Auth";
 import classnames from "classnames";
 
-const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
+const LoginModal: React.FC<LoginModalProps> = (props) => {
   const { isPending, isLoggedIn, attemptLogin, attemptLogout } = useAuth();
-  const [username, setEmail] = React.useState("");
+  const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
 
   return (
-    <Modal isOpen={props.isOpen}>
+    <ModalWithButtons
+      isOpen={props.isOpen}
+      onCloseModal={props.onCloseModal}
+      onSubmit={() => {
+        if (!isLoggedIn) {
+          attemptLogin(email, password).then(() => {
+            setEmail("");
+            setPassword("");
+            props.onCloseModal();
+          });
+        } else {
+          attemptLogout().then(() => {
+            props.onCloseModal();
+          });
+        }
+      }}
+      color={props.color}
+      primaryText={isLoggedIn ? "Logout" : "Login"}
+      primaryDisabled={
+        !isLoggedIn && (email.trim().length == 0 || password.length == 0)
+      }
+      secondaryText={"Cancel"}
+      shouldCloseOnOverlayClick={true}
+    >
       <>
         {!isLoggedIn && (
           <div className="login">
@@ -18,7 +44,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
               <div>
                 <Input
                   id={"email"}
-                  value={username}
+                  value={email}
                   label={"Email"}
                   onTextChange={(text: string) => setEmail(text)}
                   color={props.color}
@@ -35,96 +61,15 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
                 />
               </div>
             </div>
-            <div className="buttons">
-              <div>
-                <Button
-                  onClick={() => {
-                    setEmail("");
-                    setPassword("");
-                    props.onCloseModal();
-                  }}
-                  theme={ButtonStyle.DARK}
-                  color={props.color}
-                >
-                  Cancel
-                </Button>
-              </div>
-              <div>
-                <Button
-                  disabled={!username || !password}
-                  theme={ButtonStyle.DARK}
-                  color={props.color}
-                  onClick={() => {
-                    attemptLogin(username, password).then(() => {
-                      setEmail("");
-                      setPassword("");
-                      props.onCloseModal();
-                    });
-                  }}
-                >
-                  Login
-                </Button>
-              </div>
-            </div>
           </div>
         )}
         {isLoggedIn && (
           <div className="logout">
-            <div>Sorry this pop-up sucks ._.</div>
-            <div>
-              <Button
-                onClick={() => {
-                  setEmail("");
-                  setPassword("");
-                  props.onCloseModal();
-                }}
-                theme={ButtonStyle.DARK}
-                color={props.color}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={() => {
-                  attemptLogout().then(() => {
-                    props.onCloseModal();
-                  });
-                }}
-                theme={ButtonStyle.DARK}
-                color={props.color}
-              >
-                Logout
-              </Button>
-            </div>
+            <div>Pull the trigger, Piglet. </div>
           </div>
         )}
       </>
       <style jsx>{`
-        .login,
-        .logout {
-          position: relative;
-          margin: 20px auto;
-          padding: 25px;
-          max-width: 500px;
-          border-radius: 25px;
-          background-color: #131518;
-        }
-        .logout {
-          display: flex;
-          align-items: center;
-          flex-direction: column;
-          color: white;
-        }
-        .logout > div:first-child {
-          margin-bottom: 15px;
-        }
-        .logout > div:not(:first-child) {
-          display: flex;
-          place-content: space-evenly;
-          width: 200px;
-        }
-        .login.pending {
-          background-color: red;
-        }
         .inputs {
           margin: 0 auto;
           margin-bottom: 15px;
@@ -141,14 +86,14 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
           margin-left: 15px;
         }
       `}</style>
-    </Modal>
+    </ModalWithButtons>
   );
 };
 
-export interface PostEditorModalProps {
+export interface LoginModalProps {
   isOpen: boolean;
   onCloseModal: () => void;
   color?: string;
 }
 
-export default PostEditorModal;
+export default LoginModal;
