@@ -178,6 +178,14 @@ function ThreadPage() {
     },
   });
   const [[root, postsMap], setPostsTree] = React.useState([undefined, {}]);
+  const newComment = React.useCallback(
+    (answerTo: string) => setCommentReplyId(answerTo),
+    []
+  );
+  const newContribution = React.useCallback(
+    (answerTo: string) => setPostReplyId(answerTo),
+    []
+  );
 
   React.useEffect(() => {
     if (isLoggedIn) {
@@ -245,12 +253,8 @@ function ThreadPage() {
                   post={root}
                   postsMap={postsMap as any}
                   level={0}
-                  onNewComment={(answerTo: string) =>
-                    setCommentReplyId(answerTo)
-                  }
-                  onNewContribution={(answerTo: string) =>
-                    setPostReplyId(answerTo)
-                  }
+                  onNewComment={newComment}
+                  onNewContribution={newContribution}
                   isLoggedIn={isLoggedIn}
                 />
               </div>
