@@ -1,4 +1,6 @@
 import React from "react";
+import debug from "debug";
+const log = debug("bobafrontend:boardTheme-log");
 
 import { getBoardData, getAllBoardsData } from "./../utils/queries";
 
@@ -22,7 +24,7 @@ const BoardThemeProvider: React.FC<{}> = (props) => {
 
   React.useEffect(() => {
     if (pinnedBoards) {
-      console.log(pinnedBoards);
+      log(pinnedBoards);
       const newThemeData = pinnedBoards.reduce((agg: {}, value: any) => {
         agg[value.slug] = {
           slug: value.slug,

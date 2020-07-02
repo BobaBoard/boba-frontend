@@ -1,6 +1,6 @@
 import React from "react";
 import Layout from "../components/Layout";
-import { getAllBoardsData } from "./../utils/queries";
+import { getAllBoardsData, ALL_BOARDS_KEY } from "./../utils/queries";
 import { useQuery } from "react-query";
 import { useRouter } from "next/router";
 import {
@@ -12,7 +12,20 @@ import debug from "debug";
 const info = debug("bobafrontend:index-info");
 
 function HomePage() {
-  const { data: allBoards } = useQuery("allBoardsData", getAllBoardsData);
+  // TODO: fix this typing
+  // @ts-ignore
+  const { data: allBoards } = useQuery("allBoardsData", getAllBoardsData, {
+    initialData: () => {
+      if (typeof localStorage !== "undefined") {
+        // Localstorage is a client-only feature
+        const data = localStorage.getItem(ALL_BOARDS_KEY);
+        info(`Loaded data from localstorage: ${data}`);
+        return Promise.resolve(data && JSON.parse(data));
+      }
+      return undefined;
+    },
+    initialStale: true,
+  });
   const router = useRouter();
 
   info(`Rerendering index with data:`);

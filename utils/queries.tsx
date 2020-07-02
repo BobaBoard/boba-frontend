@@ -3,8 +3,6 @@ import debug from "debug";
 
 const log = debug("bobafrontend:queries-log");
 const info = debug("bobafrontend:queries-info");
-log.enabled = true;
-info.enabled = true;
 
 export const getBoardData = async (key: string, { slug }: { slug: string }) => {
   log(`Fetching board data for board with slug ${slug}.`);
@@ -47,11 +45,20 @@ export const getThreadData = async (
   return response.data;
 };
 
+export const ALL_BOARDS_KEY = "allBoardsData";
 export const getAllBoardsData = async (key: string) => {
   log(`Fetching all boards data.`);
   const response = await axios.get(`boards`);
   log(`Got response for all boards data.`);
   info(response.data);
+
+  try {
+    // Save response to localstorage to speed up loading
+    localStorage.setItem(ALL_BOARDS_KEY, JSON.stringify(response.data));
+  } catch (e) {
+    log("Error while saving boards to local storage.");
+  }
+
   return response.data;
 };
 
