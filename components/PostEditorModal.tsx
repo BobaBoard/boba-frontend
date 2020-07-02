@@ -58,12 +58,21 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
         onSubmit={(textPromise: Promise<{ text: string; large: boolean }>) => {
           setPostLoading(true);
           textPromise.then(
-            ({ text, large }: { text: string; large: boolean }) => {
+            ({
+              text,
+              large,
+              tags,
+            }: {
+              text: string;
+              large: boolean;
+              tags: string[];
+            }) => {
               axios
                 .post(props.submitUrl, {
                   content: text,
                   large,
                   forceAnonymous: false,
+                  whisperTags: tags,
                 })
                 .then((response) => {
                   props.onPostSaved({

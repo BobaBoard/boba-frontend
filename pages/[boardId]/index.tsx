@@ -43,6 +43,7 @@ function BoardPage() {
     },
   });
 
+  // @ts-ignore
   const [readThread] = useMutation(
     (threadId: string) => markThreadAsRead({ threadId }),
     {
@@ -152,6 +153,9 @@ function BoardPage() {
                                 : ""
                             }`}
                             text={post.content}
+                            tags={{
+                              whisperTags: post.whisper_tags,
+                            }}
                             secretIdentity={{
                               name: post.secret_identity.name,
                               avatar: post.secret_identity.avatar,
@@ -194,36 +198,36 @@ function BoardPage() {
                               })
                             }
                             notesUrl={threadUrl}
-                            menuOptions={[
-                              {
-                                name: "Copy Link",
-                                onClick: () => {
-                                  const tempInput = document.createElement(
-                                    "input"
-                                  );
-                                  tempInput.value = new URL(
-                                    threadUrl,
-                                    window.location.origin
-                                  ).toString();
-                                  document.body.appendChild(tempInput);
-                                  tempInput.select();
-                                  document.execCommand("copy");
-                                  document.body.removeChild(tempInput);
-                                  toast.success("Link copied!");
-                                },
-                              },
-                              // Add options just for logged in users
-                              ...(isLoggedIn
-                                ? [
-                                    {
-                                      name: "Mark Visited",
-                                      onClick: () => {
-                                        readThread(post.thread_id);
-                                      },
-                                    },
-                                  ]
-                                : []),
-                            ]}
+                            // menuOptions={[
+                            //   {
+                            //     name: "Copy Link",
+                            //     onClick: () => {
+                            //       const tempInput = document.createElement(
+                            //         "input"
+                            //       );
+                            //       tempInput.value = new URL(
+                            //         threadUrl,
+                            //         window.location.origin
+                            //       ).toString();
+                            //       document.body.appendChild(tempInput);
+                            //       tempInput.select();
+                            //       document.execCommand("copy");
+                            //       document.body.removeChild(tempInput);
+                            //       toast.success("Link copied!");
+                            //     },
+                            //   },
+                            //   // Add options just for logged in users
+                            //   ...(isLoggedIn
+                            //     ? [
+                            //         {
+                            //           name: "Mark Visited",
+                            //           onClick: () => {
+                            //             readThread(post.thread_id);
+                            //           },
+                            //         },
+                            //       ]
+                            //     : []),
+                            // ]}
                           />
                         </div>
                       );

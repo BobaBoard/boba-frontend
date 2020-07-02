@@ -45,6 +45,15 @@ function HomePage() {
                 <h2>New Stuff </h2>
                 <ul>
                   <li>
+                    [7/01/20] It's tags time!!! They do nothing, really. But you
+                    can chat in them! #what a userful feature #you're all
+                    welcome
+                    <em>
+                      (I've temporarily hidden the threads dropdown as I fix a
+                      bug.)
+                    </em>
+                  </li>
+                  <li>
                     [6/29/20] Dropdowns dropDOWNS DROPDOOOWNS!! There's some new
                     dropdowns around. What do they do? Find out!{" "}
                     <em>
@@ -57,12 +66,6 @@ function HomePage() {
                     new tab" once? You're welcome ;)
                   </li>
                   <li>[6/21/20] You can now dismiss all notifications!</li>
-                  <li>
-                    It's pagination time! I swear, I will make sure the back
-                    button brings you at the right place soon(ish), and refresh
-                    doesn't make you lose your place. Keep pestering me for
-                    this.
-                  </li>
                 </ul>
               </div>
             </div>

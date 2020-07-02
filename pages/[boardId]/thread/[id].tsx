@@ -108,6 +108,9 @@ const ThreadLevel: React.FC<{
               answerable={props.isLoggedIn}
               onNotesClick={() => {}}
               notesUrl={"#"}
+              tags={{
+                whisperTags: props.post.whisper_tags,
+              }}
             />
           </div>
         </ThreadIndent>
