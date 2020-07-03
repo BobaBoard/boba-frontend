@@ -1,5 +1,3 @@
-import { threadId } from "worker_threads";
-
 import Router from "next/router";
 
 export const goToThread = (boardId: string, threadId: string) => {

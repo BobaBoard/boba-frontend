@@ -20,7 +20,7 @@ function HomePage() {
         // Localstorage is a client-only feature
         const data = localStorage.getItem(ALL_BOARDS_KEY);
         info(`Loaded data from localstorage: ${data}`);
-        return Promise.resolve(data && JSON.parse(data));
+        return data ? JSON.parse(data) : undefined;
       }
       return undefined;
     },
@@ -58,6 +58,13 @@ function HomePage() {
                 <h2>New Stuff </h2>
                 <ul>
                   <li>
+                    [7/02/20] I've attempted some performance optimization. I
+                    don't know if you'll see any difference in speed, but do
+                    report if things break. I might push more performance
+                    updates throughout the week so keep an eye out for
+                    weirdness!
+                  </li>
+                  <li>
                     [7/01/20] It's tags time!!! They do nothing, really. But you
                     can chat in them! #what a userful feature #you're all
                     welcome
@@ -78,7 +85,6 @@ function HomePage() {
                     [6/22/20] Did someone casually mention "opening threads in
                     new tab" once? You're welcome ;)
                   </li>
-                  <li>[6/21/20] You can now dismiss all notifications!</li>
                 </ul>
               </div>
             </div>
