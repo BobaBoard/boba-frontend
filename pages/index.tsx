@@ -58,6 +58,10 @@ function HomePage() {
                 <h2>New Stuff </h2>
                 <ul>
                   <li>
+                    [7/03/20] Yesterday's update broke everything. This is take
+                    2.
+                  </li>
+                  <li>
                     [7/02/20] I've attempted some performance optimization. I
                     don't know if you'll see any difference in speed, but do
                     report if things break. I might push more performance

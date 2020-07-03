@@ -55,11 +55,13 @@ const Layout = (props: LayoutProps) => {
 
   return (
     <div>
-      <LoginModal
-        isOpen={loginOpen}
-        onCloseModal={() => setLoginOpen(false)}
-        color={boardData?.accentColor || "#f96680"}
-      />
+      {loginOpen && (
+        <LoginModal
+          isOpen={loginOpen}
+          onCloseModal={() => setLoginOpen(false)}
+          color={boardData?.accentColor || "#f96680"}
+        />
+      )}
       <InnerLayout
         ref={layoutRef}
         mainContent={props.mainContent}

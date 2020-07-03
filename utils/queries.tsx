@@ -54,7 +54,7 @@ export const getAllBoardsData = async (key: string) => {
 
   try {
     // Save response to localstorage to speed up loading
-    localStorage.setItem(ALL_BOARDS_KEY, JSON.stringify(response.data));
+    localStorage.setItem("allBoardsData", JSON.stringify(response.data));
   } catch (e) {
     log("Error while saving boards to local storage.");
   }

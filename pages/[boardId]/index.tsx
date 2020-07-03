@@ -15,7 +15,6 @@ import { useAuth } from "../../components/Auth";
 import { useBoardTheme } from "../../components/BoardTheme";
 import { getBoardActivityData, markThreadAsRead } from "../../utils/queries";
 import { useRouter } from "next/router";
-import { goToThread } from "../../utils/location";
 import axios from "axios";
 import debug from "debug";
 import moment from "moment";
@@ -29,9 +28,6 @@ function BoardPage() {
   const slug: string = router.query.boardId?.slice(1) as string;
   const { isPending, isLoggedIn, user } = useAuth();
   const { [slug]: boardData } = useBoardTheme();
-  // Create an object to memoize all the functions to go to a different thread so
-  // we don't trigger unnecessary rerenders
-  const goToThreadMemo = React.useRef<Map<string, () => void>>(new Map());
 
   const {
     data: boardActivityData,
@@ -143,14 +139,6 @@ function BoardPage() {
                       const hasReplies =
                         post.posts_amount > 1 || post.comments_amount > 0;
                       const threadUrl = `/${router.query.boardId}/thread/${post.thread_id}`;
-                      if (!goToThreadMemo.current.has(post.thread_id)) {
-                        goToThreadMemo.current.set(post.thread_id, () =>
-                          goToThread(
-                            router.query.boardId as string,
-                            post.thread_id
-                          )
-                        );
-                      }
                       return (
                         <div className="post" key={`${post.post_id}_container`}>
                           <Post
@@ -176,15 +164,17 @@ function BoardPage() {
                               name: post.user_identity?.name,
                               avatar: post.user_identity?.avatar,
                             }}
-                            onNewContribution={
-                              goToThreadMemo.current.get(
-                                post.thread_id
-                              ) as () => void
+                            onNewContribution={() =>
+                              router.push(
+                                `/[boardId]/thread/[id]`,
+                                `/${router.query.boardId}/thread/${post.thread_id}`
+                              )
                             }
-                            onNewComment={
-                              goToThreadMemo.current.get(
-                                post.thread_id
-                              ) as () => void
+                            onNewComment={() =>
+                              router.push(
+                                `/[boardId]/thread/[id]`,
+                                `/${router.query.boardId}/thread/${post.thread_id}`
+                              )
                             }
                             size={
                               post?.options?.wide
@@ -202,10 +192,10 @@ function BoardPage() {
                             // including the head one.-
                             totalContributions={post.posts_amount - 1}
                             directContributions={post.threads_amount}
-                            onNotesClick={
-                              goToThreadMemo.current.get(
-                                post.thread_id
-                              ) as () => void
+                            onNotesClick={() =>
+                              router.push(`/[boardId]/thread/[id]`, threadUrl, {
+                                shallow: true,
+                              })
                             }
                             notesUrl={threadUrl}
                             // menuOptions={[

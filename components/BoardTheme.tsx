@@ -1,14 +1,14 @@
 import React from "react";
 import debug from "debug";
-const log = debug("bobafrontend:boardTheme-log");
-
+import { useRouter } from "next/router";
+import { useQuery } from "react-query";
 import { getBoardData, getAllBoardsData } from "./../utils/queries";
 
 const BoardThemeContext = React.createContext({} as any);
 
 const useBoardTheme = () => React.useContext(BoardThemeContext);
-import { useRouter } from "next/router";
-import { useQuery } from "react-query";
+
+const log = debug("bobafrontend:boardTheme-log");
 
 const BoardThemeProvider: React.FC<{}> = (props) => {
   const router = useRouter();
