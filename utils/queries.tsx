@@ -47,7 +47,7 @@ const makeClientPost = (serverPost: any): PostType => ({
   comments: serverPost.comments?.map(makeClientComment),
   postsAmount: serverPost.posts_amount,
   threadsAmount: serverPost.threads_amount,
-  newPostsAmount: serverPost.new_posts_amunt,
+  newPostsAmount: serverPost.new_posts_amount,
   newCommentsAmount: serverPost.new_comments_amount,
   isNew: serverPost.is_new,
   lastActivity: serverPost.last_activity,
