@@ -18,7 +18,7 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import debug from "debug";
 import moment from "moment";
-import { PostType, BoardActivityResponse } from "../../types/PostTypes";
+import { PostType, BoardActivityResponse } from "../../types/Types";
 
 const error = debug("bobafrontend:boardPage-error");
 const log = debug("bobafrontend:boardPage-log");
@@ -142,12 +142,14 @@ function BoardPage() {
             sidebarContent={
               <>
                 <BoardSidebar
-                  board={{
-                    slug: slug,
-                    avatar: boardData?.avatarUrl || "/",
-                    description: boardData?.tagline || "loading...",
-                    color: boardData?.accentColor || "#f96680",
-                  }}
+                  board={
+                    boardData || {
+                      slug: slug,
+                      avatarUrl: "/",
+                      tagline: "loading...",
+                      accentColor: "#f96680",
+                    }
+                  }
                 />
                 <img
                   className="under-construction"

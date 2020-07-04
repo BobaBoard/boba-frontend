@@ -3,16 +3,22 @@ import debug from "debug";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
 import { getBoardData, getAllBoardsData } from "./../utils/queries";
+import { BoardData } from "../types/Types";
 
 const BoardThemeContext = React.createContext({} as any);
 
-const useBoardTheme = () => React.useContext(BoardThemeContext);
+const useBoardTheme = () =>
+  React.useContext<{ [key: string]: BoardData } & { fetching: string }>(
+    BoardThemeContext
+  );
 
 const log = debug("bobafrontend:boardTheme-log");
 
 const BoardThemeProvider: React.FC<{}> = (props) => {
   const router = useRouter();
-  const [themeData, setThemeData] = React.useState({});
+  const [themeData, setThemeData] = React.useState<{
+    [key: string]: BoardData;
+  }>({});
   const { data: boardData } = useQuery(
     ["boardThemeData", { slug: router.query.boardId?.slice(1) }],
     getBoardData,
@@ -25,15 +31,18 @@ const BoardThemeProvider: React.FC<{}> = (props) => {
   React.useEffect(() => {
     if (pinnedBoards) {
       log(pinnedBoards);
-      const newThemeData = pinnedBoards.reduce((agg: {}, value: any) => {
-        agg[value.slug] = {
-          slug: value.slug,
-          avatarUrl: value.avatarUrl,
-          tagline: value.tagline,
-          accentColor: value.settings.accentColor,
-        };
-        return agg;
-      }, {});
+      const newThemeData: { [key: string]: BoardData } = pinnedBoards.reduce(
+        (agg: {}, value: any) => {
+          agg[value.slug] = {
+            slug: value.slug,
+            avatarUrl: value.avatarUrl,
+            tagline: value.tagline,
+            accentColor: value.settings.accentColor,
+          };
+          return agg;
+        },
+        {}
+      );
       setThemeData({
         ...themeData,
         ...newThemeData,

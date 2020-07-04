@@ -30,3 +30,10 @@ export interface BoardActivityResponse {
   nextPageCursor?: string;
   activity: PostType[];
 }
+
+export interface BoardData {
+  slug: string;
+  avatarUrl: string;
+  tagline: string;
+  accentColor: string;
+}

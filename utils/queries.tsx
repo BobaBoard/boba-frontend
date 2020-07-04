@@ -1,6 +1,6 @@
 import axios from "axios";
 import debug from "debug";
-import { PostType, BoardActivityResponse } from "../types/PostTypes";
+import { PostType, BoardActivityResponse } from "../types/Types";
 
 const log = debug("bobafrontend:queries-log");
 const info = debug("bobafrontend:queries-info");
