@@ -1,5 +1,6 @@
 import axios from "axios";
 import debug from "debug";
+import { PostType, BoardActivityResponse } from "../types/PostTypes";
 
 const log = debug("bobafrontend:queries-log");
 const info = debug("bobafrontend:queries-info");
@@ -20,18 +21,54 @@ export const getBoardActivityData = async (
   key: string,
   { slug }: { slug: string },
   cursor?: string
-) => {
+): Promise<BoardActivityResponse | undefined> => {
+  log(`Fetching board activity for board with slug ${slug}.`);
   if (!slug) {
-    return;
+    log(`...can't fetch board activity for board with no slug.`);
+    // TODO: don't request activity when there's no slug.
+    throw new Error("Attempted to fetch board activity with no slug");
   }
   const response = await axios.get(`boards/${slug}/activity/latest`, {
     params: { cursor },
   });
+  log(
+    `Got response for board activity with slug ${slug}. Status: ${response.status}`
+  );
   if (response.status == 204) {
     // No data, let's return empty array
-    return { cursor: null, activity: [] };
+    return { nextPageCursor: undefined, activity: [] };
   }
-  return response.data;
+  // Transform post to client-side type.
+  return {
+    nextPageCursor: response.data.next_page_cursor,
+    activity: response.data.activity.map(
+      (post: any): PostType => ({
+        postId: post.post_id,
+        threadId: post.thread_id,
+        secretIdentity: {
+          name: post.secret_identity.name,
+          avatar: post.secret_identity.avatar,
+        },
+        userIdentity: post.user_identity && {
+          name: post.user_identity.name,
+          avatar: post.user_identity.avatar,
+        },
+        created: post.created,
+        content: post.content,
+        options: {
+          wide: post.options?.wide,
+        },
+        whisperTags: post.whisper_tags,
+        postsAmount: post.posts_amount,
+        threadsAmount: post.threads_amount,
+        newPostsAmount: post.new_posts_amunt,
+        newCommentsAmount: post.new_comments_amount,
+        isNew: post.is_new,
+        lastActivity: post.last_activity,
+        commentsAmount: post.comments_amount,
+      })
+    ),
+  };
 };
 
 export const getThreadData = async (

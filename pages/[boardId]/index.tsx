@@ -18,8 +18,11 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import debug from "debug";
 import moment from "moment";
+import { PostType, BoardActivityResponse } from "../../types/PostTypes";
 
+const error = debug("bobafrontend:boardPage-error");
 const log = debug("bobafrontend:boardPage-log");
+const info = debug("bobafrontend:boardPage-info");
 
 function BoardPage() {
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
@@ -28,6 +31,7 @@ function BoardPage() {
   const slug: string = router.query.boardId?.slice(1) as string;
   const { isPending, isLoggedIn, user } = useAuth();
   const { [slug]: boardData } = useBoardTheme();
+  const threadRedirectMethod = React.useRef(new Map<string, () => void>());
 
   const {
     data: boardActivityData,
@@ -37,9 +41,9 @@ function BoardPage() {
     canFetchMore,
   } = useInfiniteQuery(["boardActivityData", { slug }], getBoardActivityData, {
     getFetchMore: (lastGroup, allGroups) => {
-      log(`Fetched next threads page`);
+      log(`Fetching next threads page`);
       log(lastGroup);
-      return lastGroup.next_page_cursor;
+      return lastGroup?.nextPageCursor;
     },
   });
 
@@ -49,17 +53,23 @@ function BoardPage() {
     {
       onMutate: (threadId) => {
         log(`Optimistically marking thread ${threadId} as visited.`);
-        const boardActivityData = queryCache.getQueryData([
-          "boardActivityData",
-          { slug },
-        ]) as Array<any>;
+        const boardActivityData = queryCache.getQueryData<
+          BoardActivityResponse[]
+        >(["boardActivityData", { slug }]);
+
         const updatedPost = boardActivityData
-          .flatMap((data: any) => data.activity)
-          .find((post) => post.thread_id == threadId);
-        log(updatedPost);
-        updatedPost.is_new = false;
-        updatedPost.new_comments_amount = 0;
-        updatedPost.new_posts_amount = 0;
+          ?.flatMap((data) => data.activity)
+          .find((post) => post.threadId == threadId);
+
+        if (!updatedPost) {
+          error(
+            `Post wasn't found in data after marking thread ${threadId} as visited`
+          );
+          return;
+        }
+        updatedPost.isNew = false;
+        updatedPost.newCommentsAmount = 0;
+        updatedPost.newPostsAmount = 0;
         queryCache.setQueryData(
           ["boardActivityData", { slug }],
           () => boardActivityData
@@ -82,6 +92,24 @@ function BoardPage() {
       axios.get(`boards/${slug}/visit`);
     }
   }, [isPending, isLoggedIn, slug]);
+
+  const getMemoizedRedirectMethod = (threadId: string) => {
+    if (!threadRedirectMethod.current?.has(threadId)) {
+      info(`Creating new handler for thread id: ${threadId}`);
+      threadRedirectMethod.current?.set(threadId, () =>
+        router.push(
+          `/[boardId]/thread/[id]`,
+          `/${router.query.boardId}/thread/${threadId}`,
+          {
+            shallow: true,
+          }
+        )
+      );
+    }
+    info(`Returning handler for thread id: ${threadId}`);
+    // This should never be null
+    return threadRedirectMethod.current?.get(threadId) || (() => {});
+  };
 
   const showEmptyMessage = boardActivityData?.[0]?.activity?.length === 0;
 
@@ -135,68 +163,54 @@ function BoardPage() {
                 {boardActivityData &&
                   boardActivityData
                     .reduce((agg, val: any) => agg.concat(val.activity), [])
-                    .map((post: any) => {
+                    .map((post: PostType) => {
                       const hasReplies =
-                        post.posts_amount > 1 || post.comments_amount > 0;
-                      const threadUrl = `/${router.query.boardId}/thread/${post.thread_id}`;
+                        post.postsAmount > 1 || post.commentsAmount > 0;
+                      const threadUrl = `/${router.query.boardId}/thread/${post.threadId}`;
                       return (
-                        <div className="post" key={`${post.post_id}_container`}>
+                        <div className="post" key={`${post.postId}_container`}>
                           <Post
-                            key={post.post_id}
+                            key={post.postId}
                             createdTime={`${moment
                               .utc(post.created)
                               .fromNow()}${
                               hasReplies
                                 ? ` [updated: ${moment
-                                    .utc(post.last_activity)
+                                    .utc(post.lastActivity)
                                     .fromNow()}]`
                                 : ""
                             }`}
                             text={post.content}
                             tags={{
-                              whisperTags: post.whisper_tags,
+                              whisperTags: post.whisperTags,
                             }}
-                            secretIdentity={{
-                              name: post.secret_identity.name,
-                              avatar: post.secret_identity.avatar,
-                            }}
-                            userIdentity={{
-                              name: post.user_identity?.name,
-                              avatar: post.user_identity?.avatar,
-                            }}
-                            onNewContribution={() =>
-                              router.push(
-                                `/[boardId]/thread/[id]`,
-                                `/${router.query.boardId}/thread/${post.thread_id}`
-                              )
-                            }
-                            onNewComment={() =>
-                              router.push(
-                                `/[boardId]/thread/[id]`,
-                                `/${router.query.boardId}/thread/${post.thread_id}`
-                              )
-                            }
+                            secretIdentity={post.secretIdentity}
+                            userIdentity={post.userIdentity}
+                            onNewContribution={getMemoizedRedirectMethod(
+                              post.threadId
+                            )}
+                            onNewComment={getMemoizedRedirectMethod(
+                              post.threadId
+                            )}
                             size={
                               post?.options?.wide
                                 ? PostSizes.WIDE
                                 : PostSizes.REGULAR
                             }
-                            newPost={isLoggedIn && post.is_new}
-                            newComments={isLoggedIn && post.new_comments_amount}
+                            newPost={isLoggedIn && post.isNew}
+                            newComments={isLoggedIn && post.newCommentsAmount}
                             newContributions={
                               isLoggedIn &&
-                              post.new_posts_amount - (post.is_new ? 1 : 0)
+                              post.newPostsAmount - (post.isNew ? 1 : 0)
                             }
-                            totalComments={post.comments_amount}
+                            totalComments={post.commentsAmount}
                             // subtract 1 since posts_amount is the amount of posts total in the thread
                             // including the head one.-
-                            totalContributions={post.posts_amount - 1}
-                            directContributions={post.threads_amount}
-                            onNotesClick={() =>
-                              router.push(`/[boardId]/thread/[id]`, threadUrl, {
-                                shallow: true,
-                              })
-                            }
+                            totalContributions={post.postsAmount - 1}
+                            directContributions={post.threadsAmount}
+                            onNotesClick={getMemoizedRedirectMethod(
+                              post.threadId
+                            )}
                             notesUrl={threadUrl}
                             // menuOptions={[
                             //   {
@@ -244,9 +258,13 @@ function BoardPage() {
               </div>
             }
             onReachEnd={() => {
+              info(`Attempting to fetch more...`);
               if (canFetchMore) {
+                info(`...found stuff!`);
                 fetchMore();
+                return;
               }
+              info(`...but there's nothing!`);
             }}
           />
         }
