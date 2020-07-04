@@ -181,9 +181,7 @@ function BoardPage() {
                                 : ""
                             }`}
                             text={post.content}
-                            tags={{
-                              whisperTags: post.whisperTags,
-                            }}
+                            tags={post.tags}
                             secretIdentity={post.secretIdentity}
                             userIdentity={post.userIdentity}
                             onNewContribution={getMemoizedRedirectMethod(

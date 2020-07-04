@@ -58,7 +58,9 @@ export const getBoardActivityData = async (
         options: {
           wide: post.options?.wide,
         },
-        whisperTags: post.whisper_tags,
+        tags: {
+          whisperTags: post.whisper_tags,
+        },
         postsAmount: post.posts_amount,
         threadsAmount: post.threads_amount,
         newPostsAmount: post.new_posts_amunt,

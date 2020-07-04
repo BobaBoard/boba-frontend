@@ -14,7 +14,9 @@ export interface PostType {
   options: {
     wide?: boolean;
   };
-  whisperTags: string[];
+  tags: {
+    whisperTags: string[];
+  };
   postsAmount: number;
   commentsAmount: number;
   threadsAmount: number;
