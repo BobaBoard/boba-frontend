@@ -24,6 +24,8 @@ const error = debug("bobafrontend:boardPage-error");
 const log = debug("bobafrontend:boardPage-log");
 const info = debug("bobafrontend:boardPage-info");
 
+const MemoizedPost = React.memo(Post);
+
 function BoardPage() {
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
   const [showSidebar, setShowSidebar] = React.useState(false);
@@ -171,7 +173,7 @@ function BoardPage() {
                       const threadUrl = `/${router.query.boardId}/thread/${post.threadId}`;
                       return (
                         <div className="post" key={`${post.postId}_container`}>
-                          <Post
+                          <MemoizedPost
                             key={post.postId}
                             createdTime={`${moment
                               .utc(post.created)
