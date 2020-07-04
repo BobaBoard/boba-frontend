@@ -40,7 +40,7 @@ const makePostsTree = (posts: PostType[] | undefined) => {
       return;
     }
     parentChildrenMap.set(post.parentPostId, [
-      ...(parentChildrenMap[post.parentPostId] || ([] as PostType[])),
+      ...(parentChildrenMap.get(post.parentPostId) || ([] as PostType[])),
       post,
     ]);
   });
