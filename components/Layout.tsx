@@ -66,34 +66,32 @@ const Layout = (props: LayoutProps) => {
         ref={layoutRef}
         mainContent={props.mainContent}
         sideMenuContent={
-          <>
-            <SideMenu
-              pinnedBoards={(pinnedBoards || []).map((board: any) => ({
-                slug: board.slug.replace("_", " "),
-                avatar: `${board.avatarUrl}`,
-                description: board.tagline,
-                color: board.settings?.accentColor,
-                updates: !!(isLoggedIn && board.has_updates),
-                onClick: (slug: string) => {
-                  router.push(`/[boardId]`, `/!${slug.replace(" ", "_")}`, {
-                    shallow: true,
-                  });
-                  // @ts-ignore
-                  layoutRef.current?.closeSideMenu();
-                  // TODO: do this on board opening
-                  setTimeout(() => {
-                    refetch({ force: true });
-                  }, 2000);
-                },
-              }))}
-              showSearch={false}
-              showDismissNotifications={isLoggedIn}
-              onNotificationsDismissRequest={() => {
-                console.log("clickity click!");
-                dismissNotifications();
-              }}
-            />
-          </>
+          <SideMenu
+            pinnedBoards={(pinnedBoards || []).map((board: any) => ({
+              slug: board.slug.replace("_", " "),
+              avatar: `${board.avatarUrl}`,
+              description: board.tagline,
+              color: board.settings?.accentColor,
+              updates: !!(isLoggedIn && board.has_updates),
+              onClick: (slug: string) => {
+                router.push(`/[boardId]`, `/!${slug.replace(" ", "_")}`, {
+                  shallow: true,
+                });
+                // @ts-ignore
+                layoutRef.current?.closeSideMenu();
+                // TODO: do this on board opening
+                setTimeout(() => {
+                  refetch({ force: true });
+                }, 2000);
+              },
+            }))}
+            showSearch={false}
+            showDismissNotifications={isLoggedIn}
+            onNotificationsDismissRequest={() => {
+              console.log("clickity click!");
+              dismissNotifications();
+            }}
+          />
         }
         actionButton={props.actionButton}
         headerAccent={boardData?.accentColor || "#f96680"}

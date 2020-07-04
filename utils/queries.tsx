@@ -1,9 +1,58 @@
 import axios from "axios";
 import debug from "debug";
-import { PostType, BoardActivityResponse } from "../types/Types";
+import {
+  PostType,
+  BoardActivityResponse,
+  ThreadResponse,
+  CommentType,
+} from "../types/Types";
 
 const log = debug("bobafrontend:queries-log");
 const info = debug("bobafrontend:queries-info");
+
+const makeClientComment = (serverComment: any): CommentType => ({
+  commentId: serverComment.id,
+  secretIdentity: {
+    name: serverComment.secret_identity.name,
+    avatar: serverComment.secret_identity.avatar,
+  },
+  userIdentity: serverComment.user_identity && {
+    name: serverComment.user_identity.name,
+    avatar: serverComment.user_identity.avatar,
+  },
+  created: serverComment.created,
+  content: serverComment.content,
+});
+
+const makeClientPost = (serverPost: any): PostType => ({
+  postId: serverPost.post_id,
+  threadId: serverPost.thread_id,
+  parentPostId: serverPost.parent_post_id,
+  secretIdentity: {
+    name: serverPost.secret_identity.name,
+    avatar: serverPost.secret_identity.avatar,
+  },
+  userIdentity: serverPost.user_identity && {
+    name: serverPost.user_identity.name,
+    avatar: serverPost.user_identity.avatar,
+  },
+  created: serverPost.created,
+  content: serverPost.content,
+  options: {
+    wide: serverPost.options?.wide,
+  },
+  tags: {
+    whisperTags: serverPost.whisper_tags,
+  },
+  comments: serverPost.comments?.map(makeClientComment),
+  postsAmount: serverPost.posts_amount,
+  threadsAmount: serverPost.threads_amount,
+  newPostsAmount: serverPost.new_posts_amunt,
+  newCommentsAmount: serverPost.new_comments_amount,
+  isNew: serverPost.is_new,
+  lastActivity: serverPost.last_activity,
+  commentsAmount: serverPost.comments_amount,
+});
 
 export const getBoardData = async (key: string, { slug }: { slug: string }) => {
   log(`Fetching board data for board with slug ${slug}.`);
@@ -41,47 +90,27 @@ export const getBoardActivityData = async (
   // Transform post to client-side type.
   return {
     nextPageCursor: response.data.next_page_cursor,
-    activity: response.data.activity.map(
-      (post: any): PostType => ({
-        postId: post.post_id,
-        threadId: post.thread_id,
-        secretIdentity: {
-          name: post.secret_identity.name,
-          avatar: post.secret_identity.avatar,
-        },
-        userIdentity: post.user_identity && {
-          name: post.user_identity.name,
-          avatar: post.user_identity.avatar,
-        },
-        created: post.created,
-        content: post.content,
-        options: {
-          wide: post.options?.wide,
-        },
-        tags: {
-          whisperTags: post.whisper_tags,
-        },
-        postsAmount: post.posts_amount,
-        threadsAmount: post.threads_amount,
-        newPostsAmount: post.new_posts_amunt,
-        newCommentsAmount: post.new_comments_amount,
-        isNew: post.is_new,
-        lastActivity: post.last_activity,
-        commentsAmount: post.comments_amount,
-      })
-    ),
+    activity: response.data.activity.map(makeClientPost),
   };
 };
 
 export const getThreadData = async (
   key: string,
   { threadId }: { threadId: string }
-) => {
+): Promise<ThreadResponse> => {
   if (!threadId) {
-    return;
+    log(`...can't fetch thread with no id.`);
+    // TODO: don't request thread when there's no id.
+    throw new Error("Attempted to fetch thread with no id.");
   }
   const response = await axios.get(`threads/${threadId}/`);
-  return response.data;
+  return {
+    stringId: response.data.string_id,
+    newComments: response.data.new_comments,
+    totalComments: response.data.total_comments,
+    newPosts: response.data.new_posts,
+    posts: response.data.posts.map(makeClientPost),
+  };
 };
 
 export const ALL_BOARDS_KEY = "allBoardsData";

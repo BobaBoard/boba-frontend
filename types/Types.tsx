@@ -1,6 +1,21 @@
+export interface CommentType {
+  commentId: string;
+  secretIdentity: {
+    name: string;
+    avatar: string;
+  };
+  userIdentity?: {
+    name: string;
+    avatar: string;
+  };
+  content: string;
+  created: string;
+}
+
 export interface PostType {
   postId: string;
   threadId: string;
+  parentPostId: string;
   secretIdentity: {
     name: string;
     avatar: string;
@@ -17,6 +32,7 @@ export interface PostType {
   tags: {
     whisperTags: string[];
   };
+  comments?: CommentType[];
   postsAmount: number;
   commentsAmount: number;
   threadsAmount: number;
@@ -36,4 +52,12 @@ export interface BoardData {
   avatarUrl: string;
   tagline: string;
   accentColor: string;
+}
+
+export interface ThreadResponse {
+  stringId: string;
+  newComments: number;
+  totalComments: number;
+  newPosts: number;
+  posts: PostType[];
 }

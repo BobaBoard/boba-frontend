@@ -16,58 +16,74 @@ import { useQuery, useMutation } from "react-query";
 import { useAuth } from "../../../components/Auth";
 import moment from "moment";
 import debug from "debug";
+import { PostType, CommentType } from "../../../types/Types";
 
 const log = debug("bobafrontend:thread-log");
 
-const makePostsTree = (posts: any[]) => {
+// Transform the array of posts received from the server in a tree
+// representation. The return value is comprised of two values:
+// the root value is the top post of the thread; the parentChildrenMap
+// value is a Map from the string id of a post to its direct children.
+const makePostsTree = (posts: PostType[] | undefined) => {
   if (!posts) {
-    return [undefined, {}];
+    return {
+      root: undefined,
+      parentChildrenMap: new Map<string, PostType[]>(),
+    };
   }
-  let root = null;
-  const parentChildrenMap: { [key: string]: any } = {};
+  let root: PostType | null = null;
+  const parentChildrenMap = new Map<string, PostType[]>();
 
   posts.forEach((post) => {
-    if (!post.parent_post_id) {
+    if (!post.parentPostId) {
       root = post;
       return;
     }
-    parentChildrenMap[post.parent_post_id] = [
-      ...(parentChildrenMap[post.parent_post_id] || []),
+    parentChildrenMap.set(post.parentPostId, [
+      ...(parentChildrenMap[post.parentPostId] || ([] as PostType[])),
       post,
-    ];
+    ]);
   });
 
-  return [root, parentChildrenMap];
+  return { root, parentChildrenMap };
 };
 
-const getTotalContributions = (post: any, postsMap: { [key: string]: any }) => {
+const getTotalContributions = (
+  post: PostType,
+  postsMap: Map<string, PostType[]>
+) => {
   let total = 0;
-  let next = postsMap[post.id];
+  let next = postsMap.get(post.postId);
   while (next && next.length > 0) {
     total += next.length;
-    next = next.flatMap((child: any) => (child && postsMap[child.id]) || []);
+    next = next.flatMap(
+      (child: PostType) => (child && postsMap.get(child.postId)) || []
+    );
   }
   return total;
 };
+
 const getTotalNewContributions = (
-  post: any,
-  postsMap: { [key: string]: any }
+  post: PostType,
+  postsMap: Map<string, PostType[]>
 ) => {
   let total = 0;
-  let next = postsMap[post.id];
+  let next = postsMap.get(post.postId);
   while (next && next.length > 0) {
     total += next.reduce(
-      (value: number, post: any) => value + (post.is_new ? 1 : 0),
+      (value: number, post: PostType) => value + (post.isNew ? 1 : 0),
       0
     );
-    next = next.flatMap((child: any) => (child && postsMap[child.id]) || []);
+    next = next.flatMap(
+      (child: PostType) => (child && postsMap.get(child.postId)) || []
+    );
   }
   return total;
 };
 
 const ThreadLevel: React.FC<{
-  post: any;
-  postsMap: { [key: string]: any };
+  post: PostType;
+  postsMap: Map<string, PostType[]>;
   level: number;
   onNewComment: (id: string) => void;
   onNewContribution: (id: string) => void;
@@ -78,58 +94,61 @@ const ThreadLevel: React.FC<{
       <div className="level">
         <ThreadIndent
           level={props.level}
-          key={`${props.level}_${props.post.id}`}
+          key={`${props.level}_${props.post.postId}`}
         >
           <div className="post">
             <Post
-              key={props.post.id}
+              key={props.post.postId}
               size={
                 props.post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR
               }
               createdTime={moment.utc(props.post.created).fromNow()}
               text={props.post.content}
-              secretIdentity={props.post.secret_identity}
-              userIdentity={props.post.user_identity}
-              onNewContribution={() => props.onNewContribution(props.post.id)}
-              onNewComment={() => props.onNewComment(props.post.id)}
+              secretIdentity={props.post.secretIdentity}
+              userIdentity={props.post.userIdentity}
+              onNewContribution={() =>
+                props.onNewContribution(props.post.postId)
+              }
+              onNewComment={() => props.onNewComment(props.post.postId)}
               totalComments={props.post.comments?.length}
-              directContributions={props.postsMap[props.post.id]?.length}
+              directContributions={
+                props.postsMap.get(props.post.postId)?.length
+              }
               totalContributions={getTotalContributions(
                 props.post,
                 props.postsMap
               )}
-              newPost={props.isLoggedIn && props.post.is_new}
-              newComments={props.isLoggedIn && props.post.new_comments}
+              newPost={props.isLoggedIn && props.post.isNew}
+              newComments={props.isLoggedIn ? props.post.newCommentsAmount : 0}
               newContributions={
-                props.isLoggedIn &&
-                (getTotalNewContributions(props.post, props.postsMap) as any)
+                props.isLoggedIn
+                  ? getTotalNewContributions(props.post, props.postsMap)
+                  : 0
               }
-              centered={Object.keys(props.postsMap).length == 0}
+              centered={props.postsMap.size == 0}
               answerable={props.isLoggedIn}
               onNotesClick={() => {}}
               notesUrl={"#"}
-              tags={{
-                whisperTags: props.post.whisper_tags,
-              }}
+              tags={props.post.tags}
             />
           </div>
         </ThreadIndent>
         {props.post.comments && (
           <ThreadIndent level={props.level + 1}>
-            {props.post.comments.map((comment: any, i: number) => (
+            {props.post.comments.map((comment: CommentType, i: number) => (
               <Comment
-                key={props.post.comments.id}
-                id={props.post.comments.id}
-                secretIdentity={comment.secret_identity}
-                userIdentity={comment.user_identity}
+                key={comment.commentId}
+                id={comment.commentId}
+                secretIdentity={comment.secretIdentity}
+                userIdentity={comment.userIdentity}
                 initialText={comment.content}
               />
             ))}
           </ThreadIndent>
         )}
-        {props.postsMap[props.post.id]?.flatMap((post: any) => (
+        {props.postsMap.get(props.post.postId)?.flatMap((post: PostType) => (
           <ThreadLevel
-            key={post.id}
+            key={post.postId}
             post={post}
             postsMap={props.postsMap}
             level={props.level + 1}
@@ -152,6 +171,7 @@ const ThreadLevel: React.FC<{
     </>
   );
 };
+const MemoizedThreadLevel = React.memo(ThreadLevel);
 
 function ThreadPage() {
   const [postReplyId, setPostReplyId] = React.useState<string | null>(null);
@@ -163,10 +183,7 @@ function ThreadPage() {
   const { user, isLoggedIn } = useAuth();
   const {
     data: threadData,
-    // @ts-ignore
     isFetching: isFetchingPosts,
-    // @ts-ignore
-    error: fetchPostsError,
     refetch: refetchTread,
   } = useQuery(["threadData", { threadId }], getThreadData, {
     refetchOnWindowFocus: false,
@@ -177,17 +194,16 @@ function ThreadPage() {
       log(`Successfully marked thread as read`);
     },
   });
-  const [[root, postsMap], setPostsTree] = React.useState([undefined, {}]);
+  const { root, parentChildrenMap } = React.useMemo(
+    () => makePostsTree(threadData?.posts),
+    [threadData]
+  );
 
   React.useEffect(() => {
     if (isLoggedIn) {
       readThread();
     }
   }, []);
-
-  React.useEffect(() => {
-    setPostsTree(makePostsTree(threadData?.posts) as any);
-  }, [threadData]);
 
   if (!root) {
     return <div />;
@@ -241,16 +257,12 @@ function ThreadPage() {
             sidebarContent={<div />}
             feedContent={
               <div className="feed-content">
-                <ThreadLevel
+                <MemoizedThreadLevel
                   post={root}
-                  postsMap={postsMap as any}
+                  postsMap={parentChildrenMap}
                   level={0}
-                  onNewComment={(answerTo: string) =>
-                    setCommentReplyId(answerTo)
-                  }
-                  onNewContribution={(answerTo: string) =>
-                    setPostReplyId(answerTo)
-                  }
+                  onNewComment={setCommentReplyId}
+                  onNewContribution={setPostReplyId}
                   isLoggedIn={isLoggedIn}
                 />
               </div>
