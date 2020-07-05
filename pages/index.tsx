@@ -58,6 +58,10 @@ function HomePage() {
                 <h2>New Stuff </h2>
                 <ul>
                   <li>
+                    [7/04/20] A lot of performance updates. And... did someone
+                    mention "opening BOARDS in a new tab"?
+                  </li>
+                  <li>
                     [7/03/20] Yesterday's update broke everything. This is take
                     2.
                   </li>
@@ -85,10 +89,6 @@ function HomePage() {
                       more options in the future.)
                     </em>
                   </li>
-                  <li>
-                    [6/22/20] Did someone casually mention "opening threads in
-                    new tab" once? You're welcome ;)
-                  </li>
                 </ul>
               </div>
             </div>
@@ -106,6 +106,7 @@ function HomePage() {
                     shallow: true,
                   });
                 }}
+                getBoardHref={(slug: string) => `/!${slug.replace(" ", "_")}`}
               />
             </div>
             <style jsx>{`

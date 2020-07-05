@@ -88,6 +88,7 @@ const Layout = (props: LayoutProps) => {
       color: board.settings?.accentColor,
       updates: !!(isLoggedIn && board.has_updates),
       onClick: goToBoard,
+      href: `/!${board.slug.replace(" ", "_")}`,
     }));
   }, [pinnedBoards]);
 
