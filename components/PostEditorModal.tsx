@@ -1,14 +1,51 @@
 import React from "react";
 // @ts-ignore
-import { PostEditor, Modal } from "@bobaboard/ui-components";
+import { PostEditor, Modal, toast } from "@bobaboard/ui-components";
 import { useAuth } from "./Auth";
-import axios from "axios";
+import { useMutation } from "react-query";
+import debug from "debug";
 import firebase from "firebase/app";
 import { v4 as uuidv4 } from "uuid";
+import { createPost } from "../utils/queries";
+import { PostData, PostType } from "../types/Types";
+
+const log = debug("bobafrontend:postEditor-log");
+const error = debug("bobafrontend:postEditor-error");
 
 const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
   const [isPostLoading, setPostLoading] = React.useState(false);
   const { isLoggedIn } = useAuth();
+
+  const [postContribution] = useMutation(
+    ({
+      slug,
+      replyToPostId,
+      postData: { content, large, forceAnonymous, whisperTags },
+    }: {
+      slug: string;
+      replyToPostId: string | null;
+      postData: PostData;
+    }) =>
+      createPost(slug, replyToPostId, {
+        content,
+        large,
+        forceAnonymous,
+        whisperTags,
+      }),
+    {
+      onError: (serverError: Error, threadId) => {
+        toast.error("Error while marking thread as visited");
+        error(`Error while marking thread ${threadId} as visited:`);
+        error(serverError);
+      },
+      onSuccess: (data: PostType) => {
+        log(`Received post data after save:`);
+        log(data);
+        props.onPostSaved(data);
+        setPostLoading(false);
+      },
+    }
+  );
 
   if (!isLoggedIn) {
     return <div />;
@@ -67,26 +104,16 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
               large: boolean;
               tags: string[];
             }) => {
-              axios
-                .post(props.submitUrl, {
+              postContribution({
+                slug: props.slug,
+                replyToPostId: props.replyToPostId,
+                postData: {
                   content: text,
                   large,
                   forceAnonymous: false,
                   whisperTags: tags,
-                })
-                .then((response) => {
-                  props.onPostSaved({
-                    createdTime: "1 minute ago",
-                    text,
-                    secretIdentity: props.secretIdentity,
-                    userIdentity: props.userIdentity,
-                    options: {
-                      wide: large,
-                    },
-                    newPost: true,
-                  });
-                  setPostLoading(false);
-                });
+                },
+              });
             }
           );
         }}
@@ -108,9 +135,9 @@ export interface PostEditorModalProps {
     avatar: string;
     name: string;
   };
-  // TODO: add post type
-  onPostSaved: (post: any) => void;
-  submitUrl: string;
+  onPostSaved: (post: PostType) => void;
+  replyToPostId: string | null;
+  slug: string;
   uploadBaseUrl: string;
 }
 

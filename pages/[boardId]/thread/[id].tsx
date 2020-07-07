@@ -224,12 +224,32 @@ function ThreadPage() {
               name: user?.username,
               avatar: user?.avatarUrl,
             }}
-            onPostSaved={(post: any) => {
+            onPostSaved={(post: PostType) => {
+              log(`Optimistically marking thread ${threadId} as visited.`);
+              log(post);
+              // const boardActivityData = queryCache.getQueryData<
+              // PostData
+              // >(["boardActivityData", { slug }]);
+
+              // if (!updatedPost) {
+              //   error(
+              //     `Post wasn't found in data after marking thread ${threadId} as visited`
+              //   );
+              //   return;
+              // }
+              // updatedPost.isNew = false;
+              // updatedPost.newCommentsAmount = 0;
+              // updatedPost.newPostsAmount = 0;
+              // queryCache.setQueryData(
+              //   ["boardActivityData", { slug }],
+              //   () => boardActivityData
+              // );
               refetchTread();
               setPostReplyId(null);
             }}
             onCloseModal={() => setPostReplyId(null)}
-            submitUrl={`/posts/${postReplyId}/contribute`}
+            slug={slug}
+            replyToPostId={postReplyId}
             uploadBaseUrl={`images/${slug}/${router.query.id}/`}
           />
           <CommentEditorModal

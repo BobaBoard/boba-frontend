@@ -5,6 +5,7 @@ import {
   BoardActivityResponse,
   ThreadResponse,
   CommentType,
+  PostData,
 } from "../types/Types";
 
 const log = debug("bobafrontend:queries-log");
@@ -139,4 +140,25 @@ export const markThreadAsRead = async ({ threadId }: { threadId: string }) => {
   log(`Marking thread ${threadId} as read.`);
   await axios.get(`threads/${threadId}/visit`);
   return true;
+};
+
+export const createPost = async (
+  slug: string,
+  replyToPostId: string | null,
+  postData: PostData
+): Promise<PostType> => {
+  // Choose the endpoint according to the provided data.
+  // If there's no post to reply to, then it's a new thread.
+  // Else, it belongs as a contribution to that post.
+  let endPoint;
+  if (!replyToPostId) {
+    endPoint = `/threads/${slug}/create`;
+  } else {
+    endPoint = `/posts/${replyToPostId}/contribute`;
+  }
+  const response = await axios.post(endPoint, postData);
+  const post = makeClientPost(response.data.contribution);
+  log(`Received post from server:`);
+  log(post);
+  return makeClientPost(response.data.contribution);
 };

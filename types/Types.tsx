@@ -61,3 +61,10 @@ export interface ThreadResponse {
   newPosts: number;
   posts: PostType[];
 }
+
+export interface PostData {
+  content: string;
+  large: boolean;
+  forceAnonymous: boolean;
+  whisperTags: string[];
+}

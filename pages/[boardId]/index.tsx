@@ -133,7 +133,8 @@ function BoardPage() {
             setPostEditorOpen(false);
           }}
           onCloseModal={() => setPostEditorOpen(false)}
-          submitUrl={`/threads/${slug}/create`}
+          slug={slug}
+          replyToPostId={null}
           uploadBaseUrl={`images/${slug}/`}
         />
       )}
