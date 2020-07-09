@@ -3,9 +3,10 @@ import debug from "debug";
 import {
   PostType,
   BoardActivityResponse,
-  ThreadResponse,
   CommentType,
+  CommentData,
   PostData,
+  ThreadType,
 } from "../types/Types";
 
 const log = debug("bobafrontend:queries-log");
@@ -43,7 +44,7 @@ const makeClientPost = (serverPost: any): PostType => ({
     wide: serverPost.options?.wide,
   },
   tags: {
-    whisperTags: serverPost.whisper_tags,
+    whisperTags: serverPost.tags.whisper_tags,
   },
   comments: serverPost.comments?.map(makeClientComment),
   postsAmount: serverPost.posts_amount,
@@ -53,6 +54,16 @@ const makeClientPost = (serverPost: any): PostType => ({
   isNew: serverPost.is_new,
   lastActivity: serverPost.last_activity,
   commentsAmount: serverPost.comments_amount,
+});
+
+const makeClientThread = (serverThread: any): ThreadType => ({
+  posts: serverThread.posts.map(makeClientPost),
+  isNew: serverThread.posts[0].is_new,
+  threadId: serverThread.thread_id,
+  newPostsAmount: serverThread.thread_new_posts_amount,
+  newCommentsAmount: serverThread.thread_new_comments_amount,
+  totalCommentsAmount: serverThread.thread_total_comments_amount,
+  totalPostsAmount: serverThread.thread_total_posts_amount,
 });
 
 export const getBoardData = async (key: string, { slug }: { slug: string }) => {
@@ -91,27 +102,22 @@ export const getBoardActivityData = async (
   // Transform post to client-side type.
   return {
     nextPageCursor: response.data.next_page_cursor,
-    activity: response.data.activity.map(makeClientPost),
+    activity: response.data.activity.map(makeClientThread),
   };
 };
 
 export const getThreadData = async (
   key: string,
   { threadId }: { threadId: string }
-): Promise<ThreadResponse> => {
+): Promise<ThreadType> => {
   if (!threadId) {
     log(`...can't fetch thread with no id.`);
     // TODO: don't request thread when there's no id.
     throw new Error("Attempted to fetch thread with no id.");
   }
   const response = await axios.get(`threads/${threadId}/`);
-  return {
-    stringId: response.data.string_id,
-    newComments: response.data.new_comments,
-    totalComments: response.data.total_comments,
-    newPosts: response.data.new_posts,
-    posts: response.data.posts.map(makeClientPost),
-  };
+  log(`Fetched data for thread with id ${threadId}`);
+  return makeClientThread(response.data);
 };
 
 export const ALL_BOARDS_KEY = "allBoardsData";
@@ -160,5 +166,22 @@ export const createPost = async (
   const post = makeClientPost(response.data.contribution);
   log(`Received post from server:`);
   log(post);
-  return makeClientPost(response.data.contribution);
+  return post;
+};
+
+export const createComment = async ({
+  replyToPostId,
+  commentData,
+}: {
+  replyToPostId: string | null;
+  commentData: CommentData;
+}): Promise<CommentType> => {
+  const response = await axios.post(
+    `/posts/${replyToPostId}/comment`,
+    commentData
+  );
+  const comment = makeClientComment(response.data.comment);
+  log(`Received comment from server:`);
+  log(comment);
+  return comment;
 };

@@ -18,7 +18,7 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import debug from "debug";
 import moment from "moment";
-import { PostType, BoardActivityResponse } from "../../types/Types";
+import { BoardActivityResponse, ThreadType } from "../../types/Types";
 
 const error = debug("bobafrontend:boardPage-error");
 const log = debug("bobafrontend:boardPage-log");
@@ -59,19 +59,22 @@ function BoardPage() {
           BoardActivityResponse[]
         >(["boardActivityData", { slug }]);
 
-        const updatedPost = boardActivityData
+        const updatedThread = boardActivityData
           ?.flatMap((data) => data.activity)
-          .find((post) => post.threadId == threadId);
+          .find((thread) => thread.threadId == threadId);
 
-        if (!updatedPost) {
+        if (!updatedThread) {
           error(
             `Post wasn't found in data after marking thread ${threadId} as visited`
           );
           return;
         }
-        updatedPost.isNew = false;
-        updatedPost.newCommentsAmount = 0;
-        updatedPost.newPostsAmount = 0;
+        updatedThread.posts[0].isNew = false;
+        updatedThread.posts[0].newCommentsAmount = 0;
+        updatedThread.posts[0].newPostsAmount = 0;
+        updatedThread.isNew = false;
+        updatedThread.newCommentsAmount = 0;
+        updatedThread.newPostsAmount = 0;
         queryCache.setQueryData(
           ["boardActivityData", { slug }],
           () => boardActivityData
@@ -167,11 +170,12 @@ function BoardPage() {
                 )}
                 {boardActivityData &&
                   boardActivityData
-                    .reduce((agg, val: any) => agg.concat(val.activity), [])
-                    .map((post: PostType) => {
+                    .flatMap((activityData) => activityData?.activity)
+                    .map((thread: ThreadType) => {
+                      const post = thread.posts[0];
                       const hasReplies =
                         post.postsAmount > 1 || post.commentsAmount > 0;
-                      const threadUrl = `/${router.query.boardId}/thread/${post.threadId}`;
+                      const threadUrl = `/${router.query.boardId}/thread/${thread.threadId}`;
                       return (
                         <div className="post" key={`${post.postId}_container`}>
                           <MemoizedPost
@@ -201,18 +205,18 @@ function BoardPage() {
                                 : PostSizes.REGULAR
                             }
                             newPost={isLoggedIn && post.isNew}
-                            newComments={isLoggedIn && post.newCommentsAmount}
+                            newComments={isLoggedIn && thread.newCommentsAmount}
                             newContributions={
                               isLoggedIn &&
-                              post.newPostsAmount - (post.isNew ? 1 : 0)
+                              thread.newPostsAmount - (post.isNew ? 1 : 0)
                             }
-                            totalComments={post.commentsAmount}
+                            totalComments={thread.totalCommentsAmount}
                             // subtract 1 since posts_amount is the amount of posts total in the thread
                             // including the head one.-
-                            totalContributions={post.postsAmount - 1}
+                            totalContributions={thread.totalPostsAmount - 1}
                             directContributions={post.threadsAmount}
                             onNotesClick={getMemoizedRedirectMethod(
-                              post.threadId
+                              thread.threadId
                             )}
                             notesUrl={threadUrl}
                             // menuOptions={[
@@ -261,13 +265,13 @@ function BoardPage() {
               </div>
             }
             onReachEnd={() => {
-              info(`Attempting to fetch more...`);
+              // info(`Attempting to fetch more...`);
               if (canFetchMore) {
-                info(`...found stuff!`);
+                // info(`...found stuff!`);
                 fetchMore();
                 return;
               }
-              info(`...but there's nothing!`);
+              // info(`...but there's nothing!`);
             }}
           />
         }

@@ -10,6 +10,7 @@ export interface CommentType {
   };
   content: string;
   created: string;
+  isNew: string;
 }
 
 export interface PostType {
@@ -41,10 +42,20 @@ export interface PostType {
   isNew: boolean;
   lastActivity: string;
 }
+export interface ThreadType {
+  posts: PostType[];
+  threadId: string;
+  isNew: boolean;
+  newPostsAmount: number;
+  newCommentsAmount: number;
+  totalCommentsAmount: number;
+  totalPostsAmount: number;
+}
 
 export interface BoardActivityResponse {
   nextPageCursor?: string;
-  activity: PostType[];
+  // This thread will only have the top post and no comments.
+  activity: ThreadType[];
 }
 
 export interface BoardData {
@@ -54,17 +65,14 @@ export interface BoardData {
   accentColor: string;
 }
 
-export interface ThreadResponse {
-  stringId: string;
-  newComments: number;
-  totalComments: number;
-  newPosts: number;
-  posts: PostType[];
-}
-
 export interface PostData {
   content: string;
   large: boolean;
   forceAnonymous: boolean;
   whisperTags: string[];
+}
+
+export interface CommentData {
+  content: string;
+  forceAnonymous: boolean;
 }

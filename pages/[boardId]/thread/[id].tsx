@@ -5,6 +5,7 @@ import {
   ThreadIndent,
   Post,
   PostSizes,
+  toast,
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import Layout from "../../../components/Layout";
@@ -12,11 +13,11 @@ import PostEditorModal from "../../../components/PostEditorModal";
 import CommentEditorModal from "../../../components/CommentEditorModal";
 import { useRouter } from "next/router";
 import { getThreadData, markThreadAsRead } from "../../../utils/queries";
-import { useQuery, useMutation } from "react-query";
+import { useQuery, useMutation, queryCache } from "react-query";
 import { useAuth } from "../../../components/Auth";
 import moment from "moment";
 import debug from "debug";
-import { PostType, CommentType } from "../../../types/Types";
+import { PostType, CommentType, ThreadType } from "../../../types/Types";
 
 const log = debug("bobafrontend:thread-log");
 
@@ -24,7 +25,8 @@ const log = debug("bobafrontend:thread-log");
 // representation. The return value is comprised of two values:
 // the root value is the top post of the thread; the parentChildrenMap
 // value is a Map from the string id of a post to its direct children.
-const makePostsTree = (posts: PostType[] | undefined) => {
+const makePostsTree = (posts: PostType[] | undefined, threadId: string) => {
+  log(`Creating posts tree for thread ${threadId}`);
   if (!posts) {
     return {
       root: undefined,
@@ -181,13 +183,13 @@ function ThreadPage() {
   const router = useRouter();
   const threadId = router.query.id as string;
   const { user, isLoggedIn } = useAuth();
-  const {
-    data: threadData,
-    isFetching: isFetchingPosts,
-    refetch: refetchTread,
-  } = useQuery(["threadData", { threadId }], getThreadData, {
-    refetchOnWindowFocus: false,
-  });
+  const { data: threadData, isFetching: isFetchingPosts } = useQuery(
+    ["threadData", { threadId }],
+    getThreadData,
+    {
+      refetchOnWindowFocus: false,
+    }
+  );
 
   const [readThread] = useMutation(() => markThreadAsRead({ threadId }), {
     onSuccess: () => {
@@ -195,15 +197,15 @@ function ThreadPage() {
     },
   });
   const { root, parentChildrenMap } = React.useMemo(
-    () => makePostsTree(threadData?.posts),
-    [threadData]
+    () => makePostsTree(threadData?.posts, threadId),
+    [threadData, threadId]
   );
 
   React.useEffect(() => {
     if (isLoggedIn) {
       readThread();
     }
-  }, []);
+  }, [isLoggedIn]);
 
   if (!root) {
     return <div />;
@@ -225,26 +227,24 @@ function ThreadPage() {
               avatar: user?.avatarUrl,
             }}
             onPostSaved={(post: PostType) => {
-              log(`Optimistically marking thread ${threadId} as visited.`);
+              log(
+                `Saved new prompt to thread ${threadId}, replying to post ${postReplyId}.`
+              );
               log(post);
-              // const boardActivityData = queryCache.getQueryData<
-              // PostData
-              // >(["boardActivityData", { slug }]);
-
-              // if (!updatedPost) {
-              //   error(
-              //     `Post wasn't found in data after marking thread ${threadId} as visited`
-              //   );
-              //   return;
-              // }
-              // updatedPost.isNew = false;
-              // updatedPost.newCommentsAmount = 0;
-              // updatedPost.newPostsAmount = 0;
-              // queryCache.setQueryData(
-              //   ["boardActivityData", { slug }],
-              //   () => boardActivityData
-              // );
-              refetchTread();
+              const threadData = queryCache.getQueryData<ThreadType>([
+                "threadData",
+                { threadId },
+              ]);
+              if (!threadData) {
+                log(
+                  `Couldn't read thread data during post upload for thread id ${threadId}`
+                );
+                return;
+              }
+              threadData.posts = [...threadData.posts, post];
+              queryCache.setQueryData(["threadData", { threadId }], () => ({
+                ...threadData,
+              }));
               setPostReplyId(null);
             }}
             onCloseModal={() => setPostReplyId(null)}
@@ -263,11 +263,44 @@ function ThreadPage() {
               avatar: user?.avatarUrl,
             }}
             onCommentSaved={(comment: any) => {
-              refetchTread();
+              log(
+                `Saved new comment to thread ${threadId}, replying to post ${commentReplyId}.`
+              );
+              log(comment);
+              const threadData = queryCache.getQueryData<ThreadType>([
+                "threadData",
+                { threadId },
+              ]);
+              if (!threadData) {
+                log(
+                  `Couldn't read thread data during comment upload for thread id ${threadId}`
+                );
+                return;
+              }
+              const parentIndex = threadData.posts.findIndex(
+                (post) => post.postId == commentReplyId
+              );
+              log(`Found parent post with index ${parentIndex}`);
+              if (parentIndex == -1) {
+                toast.error("wtf");
+                return;
+              }
+              threadData.posts[parentIndex] = {
+                ...threadData.posts[parentIndex],
+                newCommentsAmount:
+                  threadData.posts[parentIndex].newCommentsAmount + 1,
+                comments: [
+                  ...(threadData.posts[parentIndex].comments || []),
+                  comment,
+                ],
+              };
+              queryCache.setQueryData(["threadData", { threadId }], () => ({
+                ...threadData,
+              }));
               setCommentReplyId(null);
             }}
             onCloseModal={() => setCommentReplyId(null)}
-            submitUrl={`/posts/${commentReplyId}/comment`}
+            replyTo={commentReplyId}
           />
         </>
       )}

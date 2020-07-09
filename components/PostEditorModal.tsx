@@ -33,9 +33,9 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
         whisperTags,
       }),
     {
-      onError: (serverError: Error, threadId) => {
-        toast.error("Error while marking thread as visited");
-        error(`Error while marking thread ${threadId} as visited:`);
+      onError: (serverError: Error, { replyToPostId }) => {
+        toast.error("Error while creating new post.");
+        error(`Error while answering to post ${replyToPostId}:`);
         error(serverError);
       },
       onSuccess: (data: PostType) => {
