@@ -16,13 +16,17 @@ function HomePage() {
   // @ts-ignore
   const { data: allBoards } = useQuery("allBoardsData", getAllBoardsData, {
     initialData: () => {
-      if (typeof localStorage !== "undefined") {
-        // Localstorage is a client-only feature
-        const data = localStorage.getItem(ALL_BOARDS_KEY);
-        info(`Loaded data from localstorage: ${data}`);
-        return data ? JSON.parse(data) : undefined;
+      if (typeof localStorage === "undefined") {
+        return undefined;
       }
-      return undefined;
+      // Localstorage is a client-only feature
+      const data = localStorage.getItem(ALL_BOARDS_KEY);
+      if (!data) {
+        return undefined;
+      }
+      const boardData = JSON.parse(data);
+      boardData.forEach((board: any) => (board.has_updates = false));
+      return boardData;
     },
     initialStale: true,
   });
