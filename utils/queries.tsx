@@ -13,7 +13,7 @@ const log = debug("bobafrontend:queries-log");
 const info = debug("bobafrontend:queries-info");
 
 const makeClientComment = (serverComment: any): CommentType => ({
-  commentId: serverComment.id,
+  commentId: serverComment.comment_id,
   secretIdentity: {
     name: serverComment.secret_identity.name,
     avatar: serverComment.secret_identity.avatar,
@@ -24,6 +24,7 @@ const makeClientComment = (serverComment: any): CommentType => ({
   },
   created: serverComment.created,
   content: serverComment.content,
+  isNew: serverComment.is_new,
 });
 
 const makeClientPost = (serverPost: any): PostType => ({
@@ -148,21 +149,24 @@ export const markThreadAsRead = async ({ threadId }: { threadId: string }) => {
   return true;
 };
 
-export const createPost = async (
+export const createThread = async (
   slug: string,
-  replyToPostId: string | null,
+  postData: PostData
+): Promise<ThreadType> => {
+  const response = await axios.post(`/threads/${slug}/create`, postData);
+  log(`Received thread from server:`);
+  log(response.data);
+  return makeClientThread(response.data);
+};
+
+export const createPost = async (
+  replyToPostId: string,
   postData: PostData
 ): Promise<PostType> => {
-  // Choose the endpoint according to the provided data.
-  // If there's no post to reply to, then it's a new thread.
-  // Else, it belongs as a contribution to that post.
-  let endPoint;
-  if (!replyToPostId) {
-    endPoint = `/threads/${slug}/create`;
-  } else {
-    endPoint = `/posts/${replyToPostId}/contribute`;
-  }
-  const response = await axios.post(endPoint, postData);
+  const response = await axios.post(
+    `/posts/${replyToPostId}/contribute`,
+    postData
+  );
   const post = makeClientPost(response.data.contribution);
   log(`Received post from server:`);
   log(post);

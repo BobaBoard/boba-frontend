@@ -9,7 +9,7 @@
     "start": "next start -p 8080",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "rm -rf .next/ && rm -rf build/ && yarn run build && gcloud config set project bobaboard && gcloud app deploy --version live",
-    "stage": "rm -rf .next/ && rm -rf build/ && yarn run build && gcloud config set project bobaboard && gcloud app deploy --quiet --version staging  && gcloud app services set-traffic default --splits live=1  --quiet"
+    "stage": "rm -rf .next/ && rm -rf build/ && yarn run build && gcloud config set project bobaboard && gcloud app deploy --quiet --version staging  && gcloud app services set-traffic frontend --splits live=1  --quiet"
   },
   "author": "",
   "license": "ISC",

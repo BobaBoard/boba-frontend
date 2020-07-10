@@ -6,8 +6,8 @@ import { useMutation } from "react-query";
 import debug from "debug";
 import firebase from "firebase/app";
 import { v4 as uuidv4 } from "uuid";
-import { createPost } from "../utils/queries";
-import { PostData, PostType } from "../types/Types";
+import { createPost, createThread } from "../utils/queries";
+import { PostData, PostType, ThreadType } from "../types/Types";
 
 const log = debug("bobafrontend:postEditor-log");
 const error = debug("bobafrontend:postEditor-error");
@@ -16,32 +16,52 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
   const [isPostLoading, setPostLoading] = React.useState(false);
   const { isLoggedIn } = useAuth();
 
-  const [postContribution] = useMutation(
+  const [postContribution] = useMutation<
+    PostType | ThreadType,
+    {
+      slug: string;
+      replyToPostId: string | null;
+      postData: PostData;
+    }
+  >(
     ({
       slug,
       replyToPostId,
       postData: { content, large, forceAnonymous, whisperTags },
-    }: {
-      slug: string;
-      replyToPostId: string | null;
-      postData: PostData;
-    }) =>
-      createPost(slug, replyToPostId, {
-        content,
-        large,
-        forceAnonymous,
-        whisperTags,
-      }),
+    }) => {
+      // Choose the endpoint according to the provided data.
+      // If there's no post to reply to, then it's a new thread.
+      // Else, it belongs as a contribution to that post.
+      if (!replyToPostId) {
+        return createThread(slug, {
+          content,
+          large,
+          forceAnonymous,
+          whisperTags,
+        });
+      } else {
+        return createPost(replyToPostId, {
+          content,
+          large,
+          forceAnonymous,
+          whisperTags,
+        });
+      }
+    },
     {
       onError: (serverError: Error, { replyToPostId }) => {
         toast.error("Error while creating new post.");
         error(`Error while answering to post ${replyToPostId}:`);
         error(serverError);
       },
-      onSuccess: (data: PostType) => {
+      onSuccess: (data: PostType | ThreadType, { replyToPostId }) => {
         log(`Received post data after save:`);
         log(data);
-        props.onPostSaved(data);
+        if (!replyToPostId) {
+          props.onPostSaved(data as PostType);
+        } else {
+          props.onPostSaved((data as ThreadType).posts[0]);
+        }
         setPostLoading(false);
       },
     }

@@ -14,13 +14,17 @@ import {
 } from "@bobaboard/ui-components";
 
 let location;
+let isStaging = false;
 if (typeof window !== "undefined") {
   location = window.location.hostname;
+  isStaging = new URL(window.location.href).hostname.startsWith("staging");
 }
 
 axios.defaults.baseURL =
   process.env.NODE_ENV == "production"
-    ? "https://backend-dot-bobaboard.uc.r.appspot.com/"
+    ? isStaging
+      ? "https://staging-dot-backend-dot-bobaboard.uc.r.appspot.com/"
+      : "https://backend-dot-bobaboard.uc.r.appspot.com/"
     : `http://${location}:4200/`;
 
 // We make the axios interceptor be a component so we can have auth
