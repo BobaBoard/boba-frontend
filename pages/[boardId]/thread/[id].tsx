@@ -132,6 +132,7 @@ const ThreadLevel: React.FC<{
               onNotesClick={() => {}}
               notesUrl={"#"}
               tags={props.post.tags}
+              muted={props.isLoggedIn && !props.post.isNew && props.level > 0}
             />
           </div>
         </ThreadIndent>
@@ -144,6 +145,7 @@ const ThreadLevel: React.FC<{
                 secretIdentity={comment.secretIdentity}
                 userIdentity={comment.userIdentity}
                 initialText={comment.content}
+                muted={props.isLoggedIn && !comment.isNew}
               />
             ))}
           </ThreadIndent>

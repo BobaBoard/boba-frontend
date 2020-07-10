@@ -62,6 +62,12 @@ function HomePage() {
                 <h2>New Stuff </h2>
                 <ul>
                   <li>
+                    [7/09/20] Sorry for the intermittent troubles today! A bunch
+                    of backend updates you won't even notice and... small
+                    experimental update on displaying read replies with a more
+                    subdued style. Onwards with better thread management!
+                  </li>
+                  <li>
                     [7/04/20] A lot of performance updates. And... did someone
                     mention "opening BOARDS in a new tab"?
                   </li>
@@ -83,14 +89,6 @@ function HomePage() {
                     <em>
                       (I've temporarily hidden the threads dropdown as I fix a
                       bug.)
-                    </em>
-                  </li>
-                  <li>
-                    [6/29/20] Dropdowns dropDOWNS DROPDOOOWNS!! There's some new
-                    dropdowns around. What do they do? Find out!{" "}
-                    <em>
-                      (*whispers* Among other things, they create a space to add
-                      more options in the future.)
                     </em>
                   </li>
                 </ul>

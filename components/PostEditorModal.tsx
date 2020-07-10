@@ -57,7 +57,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
       onSuccess: (data: PostType | ThreadType, { replyToPostId }) => {
         log(`Received post data after save:`);
         log(data);
-        if (!replyToPostId) {
+        if (!(data as any).posts) {
           props.onPostSaved(data as PostType);
         } else {
           props.onPostSaved((data as ThreadType).posts[0]);
