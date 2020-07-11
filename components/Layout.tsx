@@ -48,17 +48,19 @@ const Layout = (props: LayoutProps) => {
         return boardData;
       },
       initialStale: true,
+      refetchInterval: 1000 * 60 * 1, // Refetch automatically every minute
+      refetchOnWindowFocus: true,
     }
   );
   const [dismissNotifications] = useMutation(dismissAllNotifications, {
     onSuccess: () => {
       log(`Successfully dismissed all notifications. Refetching...`);
-      queryCache.refetchQueries("allBoardsData");
+      queryCache.invalidateQueries("allBoardsData");
       if (slug) {
-        queryCache.refetchQueries(["boardActivityData", { slug }]);
+        queryCache.invalidateQueries(["boardActivityData", { slug }]);
       }
       if (router.query.id) {
-        queryCache.refetchQueries([
+        queryCache.invalidateQueries([
           "threadData",
           { threadId: router.query.id },
         ]);
@@ -82,7 +84,7 @@ const Layout = (props: LayoutProps) => {
     layoutRef.current?.closeSideMenu();
     // TODO: do this on board opening
     setTimeout(() => {
-      refetch({ force: true });
+      refetch();
     }, 2000);
   }, []);
   const pinnedBoardsData = React.useMemo(() => {

@@ -132,7 +132,7 @@ function BoardPage() {
             avatar: user?.avatarUrl,
           }}
           onPostSaved={(post: any) => {
-            queryCache.refetchQueries(["boardActivityData", { slug }]);
+            queryCache.invalidateQueries(["boardActivityData", { slug }]);
             setPostEditorOpen(false);
           }}
           onCloseModal={() => setPostEditorOpen(false)}

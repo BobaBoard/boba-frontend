@@ -17,7 +17,13 @@ import { useQuery, useMutation, queryCache } from "react-query";
 import { useAuth } from "../../../components/Auth";
 import moment from "moment";
 import debug from "debug";
-import { PostType, CommentType, ThreadType } from "../../../types/Types";
+import {
+  PostType,
+  CommentType,
+  ThreadType,
+  BoardActivityResponse,
+} from "../../../types/Types";
+import classnames from "classnames";
 
 const log = debug("bobafrontend:thread-log");
 
@@ -185,11 +191,43 @@ function ThreadPage() {
   const router = useRouter();
   const threadId = router.query.id as string;
   const { user, isLoggedIn } = useAuth();
-  const { data: threadData, isFetching: isFetchingPosts } = useQuery(
+  const slug: string = router.query.boardId?.slice(1) as string;
+  const { data: threadData, isFetching: isFetchingThread } = useQuery(
     ["threadData", { threadId }],
     getThreadData,
     {
       refetchOnWindowFocus: false,
+      initialData: () => {
+        log(
+          `Searching board activity data for board ${slug} and thread ${threadId}`
+        );
+        const boardData:
+          | BoardActivityResponse[]
+          | undefined = queryCache.getQueryData([
+          "boardActivityData",
+          { slug },
+        ]);
+        if (!boardData) {
+          log(`Found no initial board activity data`);
+          return undefined;
+        }
+        log(`Found initial board activity data for board ${slug}`);
+        log(boardData);
+        const thread = boardData
+          .flatMap((data) => data.activity)
+          .find((thread) => thread.threadId == threadId);
+
+        log(`Found thread:`);
+        log(thread);
+        return thread;
+      },
+      onSuccess: () => {
+        log(`Retrieved thread data for thread with id ${threadId}`);
+        if (isLoggedIn) {
+          readThread();
+        }
+      },
+      initialStale: true,
     }
   );
 
@@ -203,17 +241,10 @@ function ThreadPage() {
     [threadData, threadId]
   );
 
-  React.useEffect(() => {
-    if (isLoggedIn) {
-      readThread();
-    }
-  }, [isLoggedIn]);
-
   if (!root) {
     return <div />;
   }
 
-  const slug: string = router.query.boardId?.slice(1) as string;
   return (
     <div className="main">
       {isLoggedIn && (
@@ -320,6 +351,13 @@ function ThreadPage() {
                   onNewContribution={setPostReplyId}
                   isLoggedIn={isLoggedIn}
                 />
+                <div
+                  className={classnames("loading-indicator", {
+                    loading: isFetchingThread,
+                  })}
+                >
+                  Loading...
+                </div>
               </div>
             }
           />
@@ -330,13 +368,23 @@ function ThreadPage() {
             shallow: true,
           });
         }}
-        loading={isFetchingPosts}
+        loading={isFetchingThread}
       />
       <style jsx>
         {`
           .feed-content {
             max-width: 100%;
             padding-bottom: 20px;
+          }
+          .loading-indicator {
+            color: white;
+            width: 100%;
+            text-align: center;
+            padding: 20px;
+            display: none;
+          }
+          .loading-indicator.loading {
+            display: block;
           }
         `}
       </style>

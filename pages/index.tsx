@@ -12,8 +12,6 @@ import debug from "debug";
 const info = debug("bobafrontend:index-info");
 
 function HomePage() {
-  // TODO: fix this typing
-  // @ts-ignore
   const { data: allBoards } = useQuery("allBoardsData", getAllBoardsData, {
     initialData: () => {
       if (typeof localStorage === "undefined") {
