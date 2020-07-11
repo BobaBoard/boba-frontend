@@ -10,7 +10,7 @@ export interface CommentType {
   };
   content: string;
   created: string;
-  isNew: string;
+  isNew: boolean;
 }
 
 export interface PostType {

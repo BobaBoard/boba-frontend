@@ -3,10 +3,7 @@ import Layout from "../components/Layout";
 import { getAllBoardsData, ALL_BOARDS_KEY } from "./../utils/queries";
 import { useQuery } from "react-query";
 import { useRouter } from "next/router";
-import {
-  BoardsDisplay,
-  // @ts-ignore
-} from "@bobaboard/ui-components";
+import { BoardsDisplay, useCompact } from "@bobaboard/ui-components";
 import debug from "debug";
 
 const info = debug("bobafrontend:index-info");
@@ -29,6 +26,8 @@ function HomePage() {
     initialStale: true,
   });
   const router = useRouter();
+  const divRef = React.createRef<HTMLDivElement>();
+  const expandDiv = useCompact(divRef, 150, "#1c1c1c");
 
   info(`Rerendering index with data:`);
   info(allBoards);
@@ -56,9 +55,18 @@ function HomePage() {
                 channel or the{" "}
                 <pre style={{ display: "inline" }}>!bobaland</pre> board.
               </p>
-              <div className="updates">
+              <div className="updates" ref={divRef}>
                 <h2>New Stuff </h2>
                 <ul>
+                  <li>
+                    [7/10/20] Updates section goes down... updates section goes
+                    up... (What I mean is, click on that arrow at the bottom to
+                    expand)
+                    <br />I hope with this update to have solved all our
+                    notification woes. Please do let me know if notification or
+                    "new comment/post" indicators don't act as you'd naturally
+                    expect.
+                  </li>
                   <li>
                     [7/09/20] Sorry for the intermittent troubles today! A bunch
                     of backend updates you won't even notice and... small
@@ -90,6 +98,7 @@ function HomePage() {
                     </em>
                   </li>
                 </ul>
+                {expandDiv}
               </div>
             </div>
             <div className="display">
@@ -129,6 +138,10 @@ function HomePage() {
                 background-color: #1c1c1c;
                 padding: 15px;
                 border-radius: 25px;
+                position: relative;
+              }
+              .updates :global(.expand-overlay) :global(svg) {
+                margin-top: 15px;
               }
               .intro ul {
                 list-style-position: inside;

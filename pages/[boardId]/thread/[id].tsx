@@ -183,6 +183,34 @@ const ThreadLevel: React.FC<{
 };
 const MemoizedThreadLevel = React.memo(ThreadLevel);
 
+const getThreadInBoardCache = ({
+  slug,
+  threadId,
+}: {
+  slug: string;
+  threadId: string;
+}) => {
+  const boardData:
+    | BoardActivityResponse[]
+    | undefined = queryCache.getQueryData(["boardActivityData", { slug }]);
+  if (!boardData) {
+    log(`Found no initial board activity data`);
+    return undefined;
+  }
+  log(`Found initial board activity data for board ${slug}`);
+  log(boardData);
+  const thread = boardData
+    .flatMap((data) => data.activity)
+    .find((thread) => thread.threadId == threadId);
+  if (!thread) {
+    return undefined;
+  }
+
+  log(`Found thread:`);
+  log(thread);
+  return { thread, boardData };
+};
+
 function ThreadPage() {
   const [postReplyId, setPostReplyId] = React.useState<string | null>(null);
   const [commentReplyId, setCommentReplyId] = React.useState<string | null>(
@@ -201,25 +229,7 @@ function ThreadPage() {
         log(
           `Searching board activity data for board ${slug} and thread ${threadId}`
         );
-        const boardData:
-          | BoardActivityResponse[]
-          | undefined = queryCache.getQueryData([
-          "boardActivityData",
-          { slug },
-        ]);
-        if (!boardData) {
-          log(`Found no initial board activity data`);
-          return undefined;
-        }
-        log(`Found initial board activity data for board ${slug}`);
-        log(boardData);
-        const thread = boardData
-          .flatMap((data) => data.activity)
-          .find((thread) => thread.threadId == threadId);
-
-        log(`Found thread:`);
-        log(thread);
-        return thread;
+        return getThreadInBoardCache({ slug, threadId })?.thread;
       },
       onSuccess: () => {
         log(`Retrieved thread data for thread with id ${threadId}`);
@@ -234,6 +244,28 @@ function ThreadPage() {
   const [readThread] = useMutation(() => markThreadAsRead({ threadId }), {
     onSuccess: () => {
       log(`Successfully marked thread as read`);
+      const threadResult = getThreadInBoardCache({ slug, threadId });
+      if (threadResult) {
+        log(`Found thread in cache:`);
+        log(threadResult.thread);
+        threadResult.thread.isNew = false;
+        threadResult.thread.newCommentsAmount = 0;
+        threadResult.thread.newPostsAmount = 0;
+
+        threadResult.thread.posts.forEach((post) => {
+          post.isNew = false;
+          post.newCommentsAmount = 0;
+          post.newPostsAmount = 0;
+          post.comments?.forEach((comment) => {
+            comment.isNew = false;
+          });
+        });
+
+        queryCache.setQueryData(
+          ["boardActivityData", { slug }],
+          threadResult.boardData
+        );
+      }
     },
   });
   const { root, parentChildrenMap } = React.useMemo(
