@@ -53,7 +53,6 @@ const makeClientPost = (serverPost: any): PostType => ({
   newPostsAmount: serverPost.new_posts_amount,
   newCommentsAmount: serverPost.new_comments_amount,
   isNew: serverPost.is_new,
-  lastActivity: serverPost.last_activity,
   commentsAmount: serverPost.comments_amount,
 });
 
@@ -65,6 +64,7 @@ const makeClientThread = (serverThread: any): ThreadType => ({
   newCommentsAmount: serverThread.thread_new_comments_amount,
   totalCommentsAmount: serverThread.thread_total_comments_amount,
   totalPostsAmount: serverThread.thread_total_posts_amount,
+  lastActivity: serverThread.thread_last_activity,
 });
 
 export const getBoardData = async (key: string, { slug }: { slug: string }) => {

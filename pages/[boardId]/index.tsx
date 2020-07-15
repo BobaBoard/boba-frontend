@@ -174,7 +174,8 @@ function BoardPage() {
                     .map((thread: ThreadType) => {
                       const post = thread.posts[0];
                       const hasReplies =
-                        post.postsAmount > 1 || post.commentsAmount > 0;
+                        thread.totalPostsAmount > 1 ||
+                        thread.totalCommentsAmount > 0;
                       const threadUrl = `/${router.query.boardId}/thread/${thread.threadId}`;
                       return (
                         <div className="post" key={`${post.postId}_container`}>
@@ -185,7 +186,7 @@ function BoardPage() {
                               .fromNow()}${
                               hasReplies
                                 ? ` [updated: ${moment
-                                    .utc(post.lastActivity)
+                                    .utc(thread.lastActivity)
                                     .fromNow()}]`
                                 : ""
                             }`}

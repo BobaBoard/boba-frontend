@@ -3,6 +3,7 @@ import Layout from "../components/Layout";
 import { getAllBoardsData, ALL_BOARDS_KEY } from "./../utils/queries";
 import { useQuery } from "react-query";
 import { useRouter } from "next/router";
+// @ts-ignore
 import { BoardsDisplay, useCompact } from "@bobaboard/ui-components";
 import debug from "debug";
 
@@ -58,6 +59,7 @@ function HomePage() {
               <div className="updates" ref={divRef}>
                 <h2>New Stuff </h2>
                 <ul>
+                  <li>[7/14/20] [Spoilers Warning] We have spoilers now.</li>
                   <li>
                     [7/10/20] Updates section goes down... updates section goes
                     up... (What I mean is, click on that arrow at the bottom to

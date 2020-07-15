@@ -40,7 +40,6 @@ export interface PostType {
   newPostsAmount: number;
   newCommentsAmount: number;
   isNew: boolean;
-  lastActivity: string;
 }
 export interface ThreadType {
   posts: PostType[];
@@ -50,6 +49,7 @@ export interface ThreadType {
   newCommentsAmount: number;
   totalCommentsAmount: number;
   totalPostsAmount: number;
+  lastActivity?: string;
 }
 
 export interface BoardActivityResponse {
