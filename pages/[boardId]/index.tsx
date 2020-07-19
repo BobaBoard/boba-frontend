@@ -23,6 +23,7 @@ import { BoardActivityResponse, ThreadType } from "../../types/Types";
 const error = debug("bobafrontend:boardPage-error");
 const log = debug("bobafrontend:boardPage-log");
 const info = debug("bobafrontend:boardPage-info");
+info.log = console.info.bind(console);
 
 const MemoizedPost = React.memo(Post);
 
@@ -43,8 +44,9 @@ function BoardPage() {
     canFetchMore,
   } = useInfiniteQuery(["boardActivityData", { slug }], getBoardActivityData, {
     getFetchMore: (lastGroup, allGroups) => {
-      log(`Fetching next threads page`);
-      log(lastGroup);
+      // TODO: if this method fires too often in a row, sometimes there's duplicate
+      // values within allGroups (aka groups fetched with the same cursor).
+      // This seems to be a library problem.
       return lastGroup?.nextPageCursor;
     },
   });
@@ -168,14 +170,25 @@ function BoardPage() {
                 {showEmptyMessage && (
                   <img className="empty" src={"/nothing.jpg"} />
                 )}
+                {log(
+                  `Displaying boardActivityData:`,
+                  boardActivityData
+                    ?.flatMap((activityData) => activityData?.activity)
+                    .map((thread) => thread?.posts[0].content)
+                )}
                 {boardActivityData &&
                   boardActivityData
                     .flatMap((activityData) => activityData?.activity)
                     .map((thread: ThreadType) => {
+                      log(`Displaying thread:`);
+                      log(thread.posts[0].content);
                       const post = thread.posts[0];
                       const hasReplies =
                         thread.totalPostsAmount > 1 ||
                         thread.totalCommentsAmount > 0;
+                      const redirectMethod = getMemoizedRedirectMethod(
+                        thread.threadId
+                      );
                       const threadUrl = `/${router.query.boardId}/thread/${thread.threadId}`;
                       return (
                         <div className="post" key={`${post.postId}_container`}>
@@ -194,12 +207,8 @@ function BoardPage() {
                             tags={post.tags}
                             secretIdentity={post.secretIdentity}
                             userIdentity={post.userIdentity}
-                            onNewContribution={getMemoizedRedirectMethod(
-                              post.threadId
-                            )}
-                            onNewComment={getMemoizedRedirectMethod(
-                              post.threadId
-                            )}
+                            onNewContribution={redirectMethod}
+                            onNewComment={redirectMethod}
                             size={
                               post?.options?.wide
                                 ? PostSizes.WIDE
@@ -216,9 +225,7 @@ function BoardPage() {
                             // including the head one.-
                             totalContributions={thread.totalPostsAmount - 1}
                             directContributions={post.threadsAmount}
-                            onNotesClick={getMemoizedRedirectMethod(
-                              thread.threadId
-                            )}
+                            onNotesClick={redirectMethod}
                             notesUrl={threadUrl}
                             // menuOptions={[
                             //   {
@@ -256,7 +263,7 @@ function BoardPage() {
                     })}
                 <div className="loading">
                   {!showEmptyMessage &&
-                    boardActivityData?.length > 0 &&
+                    boardActivityData?.length &&
                     (isFetchingMore
                       ? "Loading more..."
                       : canFetchMore
@@ -266,13 +273,18 @@ function BoardPage() {
               </div>
             }
             onReachEnd={() => {
-              // info(`Attempting to fetch more...`);
-              if (canFetchMore) {
-                // info(`...found stuff!`);
+              info(`Attempting to fetch more...`);
+              info(canFetchMore);
+              if (canFetchMore && !isFetchingMore) {
+                info(`...found stuff!`);
                 fetchMore();
                 return;
               }
-              // info(`...but there's nothing!`);
+              info(
+                isFetchingMore
+                  ? `...but we're already fetching`
+                  : `...but there's nothing!`
+              );
             }}
           />
         }

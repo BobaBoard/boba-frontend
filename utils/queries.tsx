@@ -98,11 +98,11 @@ export const getBoardActivityData = async (
   );
   if (response.status == 204) {
     // No data, let's return empty array
-    return { nextPageCursor: undefined, activity: [] };
+    return { nextPageCursor: null, activity: [] };
   }
   // Transform post to client-side type.
   return {
-    nextPageCursor: response.data.next_page_cursor,
+    nextPageCursor: response.data.next_page_cursor || null,
     activity: response.data.activity.map(makeClientThread),
   };
 };

@@ -53,7 +53,7 @@ export interface ThreadType {
 }
 
 export interface BoardActivityResponse {
-  nextPageCursor?: string;
+  nextPageCursor: string | null;
   // This thread will only have the top post and no comments.
   activity: ThreadType[];
 }

@@ -26,7 +26,7 @@
     "next": "^9.3.6",
     "next-transpile-modules": "^3.3.0",
     "normalize.css": "^8.0.1",
-    "react-query": "^2.4.14",
+    "react-query": "^2.5.4",
     "react-query-devtools": "^2.3.0"
   },
   "devDependencies": {
