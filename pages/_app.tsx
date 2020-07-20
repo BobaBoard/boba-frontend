@@ -1,5 +1,6 @@
 import "@bobaboard/ui-components/dist/main.css";
 import "normalize.css";
+import smoothscroll from "smoothscroll-polyfill";
 
 import React from "react";
 import axios from "axios";
@@ -16,6 +17,7 @@ import {
 let location;
 let isStaging = false;
 if (typeof window !== "undefined") {
+  smoothscroll.polyfill();
   location = window.location.hostname;
   isStaging = new URL(window.location.href).hostname.startsWith("staging");
 }

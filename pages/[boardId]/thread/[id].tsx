@@ -24,6 +24,7 @@ import {
   BoardActivityResponse,
 } from "../../../types/Types";
 import classnames from "classnames";
+import { useBoardTheme } from "../../../components/BoardTheme";
 
 const log = debug("bobafrontend:thread-log");
 
@@ -89,6 +90,29 @@ const getTotalNewContributions = (
   return total;
 };
 
+const scrollToPost = (postId: string) => {
+  log(`Beaming up to post with id ${postId}`);
+  const element: HTMLElement | null = document.querySelector(
+    `.post[data-post-id='${postId}']`
+  );
+  if (!element) {
+    return;
+  }
+  const observer = new IntersectionObserver((observed) => {
+    if (observed[0].isIntersecting) {
+      element.classList.remove("outline-hidden");
+      element.ontransitionend = () => {
+        element.classList.add("outline-hidden");
+        element.ontransitionend = null;
+      };
+      observer.disconnect();
+    }
+  });
+  observer.observe(element);
+  element.classList.add("outline-hidden");
+  element.scrollIntoView({ behavior: "smooth" });
+};
+
 const ThreadLevel: React.FC<{
   post: PostType;
   postsMap: Map<string, PostType[]>;
@@ -96,15 +120,32 @@ const ThreadLevel: React.FC<{
   onNewComment: (id: string) => void;
   onNewContribution: (id: string) => void;
   isLoggedIn: boolean;
+  lastOf: { level: number; postId: string }[];
 }> = (props) => {
+  const router = useRouter();
+  const slug = router.query.boardId?.slice(1) as string;
+  const { [slug]: boardData } = useBoardTheme();
+  log(
+    `Rendering subtree at level ${props.level} starting with post with id ${props.post.postId}`
+  );
+  const isLeaf = !props.postsMap.get(props.post.postId)?.length;
+  log(`Leaf post? ${isLeaf}`);
+  const endsArray = isLeaf
+    ? props.lastOf.map((ends) => ({
+        level: ends.level,
+        onClick: () => scrollToPost(ends.postId),
+      }))
+    : [];
+  log(`Ends array: %o`, endsArray);
   return (
     <>
       <div className="level">
         <ThreadIndent
           level={props.level}
           key={`${props.level}_${props.post.postId}`}
+          ends={props.post.comments ? [] : endsArray}
         >
-          <div className="post">
+          <div className="post outline-hidden" data-post-id={props.post.postId}>
             <Post
               key={props.post.postId}
               size={
@@ -143,7 +184,20 @@ const ThreadLevel: React.FC<{
           </div>
         </ThreadIndent>
         {props.post.comments && (
-          <ThreadIndent level={props.level + 1}>
+          <ThreadIndent
+            level={props.level + 1}
+            ends={
+              isLeaf
+                ? [
+                    ...endsArray,
+                    {
+                      level: props.level,
+                      onClick: () => scrollToPost(props.post.postId),
+                    },
+                  ]
+                : []
+            }
+          >
             {props.post.comments.map((comment: CommentType, i: number) => (
               <Comment
                 key={comment.commentId}
@@ -156,17 +210,27 @@ const ThreadLevel: React.FC<{
             ))}
           </ThreadIndent>
         )}
-        {props.postsMap.get(props.post.postId)?.flatMap((post: PostType) => (
-          <ThreadLevel
-            key={post.postId}
-            post={post}
-            postsMap={props.postsMap}
-            level={props.level + 1}
-            onNewComment={props.onNewComment}
-            onNewContribution={props.onNewContribution}
-            isLoggedIn={props.isLoggedIn}
-          />
-        ))}
+        {props.postsMap
+          .get(props.post.postId)
+          ?.flatMap((post: PostType, index: number, array) => (
+            <ThreadLevel
+              key={post.postId}
+              post={post}
+              postsMap={props.postsMap}
+              level={props.level + 1}
+              onNewComment={props.onNewComment}
+              onNewContribution={props.onNewContribution}
+              isLoggedIn={props.isLoggedIn}
+              lastOf={
+                index == array.length - 1
+                  ? [
+                      ...props.lastOf,
+                      { level: props.level, postId: props.post.postId },
+                    ]
+                  : props.lastOf
+              }
+            />
+          ))}
         <style jsx>
           {`
             .level {
@@ -174,6 +238,28 @@ const ThreadLevel: React.FC<{
             }
             .post {
               margin-top: 15px;
+              scroll-margin: 10px;
+              position: relative;
+            }
+            .post.outline-hidden::after{
+              background-color: transparent;
+              box-shadow: 0px 0px 0px 0px ${boardData?.accentColor};
+            }
+            .post::after {
+              content: "";
+              top: 0px;
+              bottom: 0px
+              left: 0px;
+              right: 0px;
+              background-color: ${boardData?.accentColor};
+              position: absolute;
+              z-index: -1;
+              width: 100%;
+              height: 100%;
+              opacity: 0.8;
+              border-radius: 15px;
+              box-shadow: 0px 0px 5px 3px ${boardData?.accentColor};
+              transition: all 0.3s ease-out;
             }
           `}
         </style>
@@ -382,6 +468,7 @@ function ThreadPage() {
                   onNewComment={setCommentReplyId}
                   onNewContribution={setPostReplyId}
                   isLoggedIn={isLoggedIn}
+                  lastOf={[]}
                 />
                 <div
                   className={classnames("loading-indicator", {
