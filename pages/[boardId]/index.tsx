@@ -170,18 +170,10 @@ function BoardPage() {
                 {showEmptyMessage && (
                   <img className="empty" src={"/nothing.jpg"} />
                 )}
-                {log(
-                  `Displaying boardActivityData:`,
-                  boardActivityData
-                    ?.flatMap((activityData) => activityData?.activity)
-                    .map((thread) => thread?.posts[0].content)
-                )}
                 {boardActivityData &&
                   boardActivityData
                     .flatMap((activityData) => activityData?.activity)
                     .map((thread: ThreadType) => {
-                      log(`Displaying thread:`);
-                      log(thread.posts[0].content);
                       const post = thread.posts[0];
                       const hasReplies =
                         thread.totalPostsAmount > 1 ||
@@ -190,6 +182,7 @@ function BoardPage() {
                         thread.threadId
                       );
                       const threadUrl = `/${router.query.boardId}/thread/${thread.threadId}`;
+                      // TODO: memoize whole div
                       return (
                         <div className="post" key={`${post.postId}_container`}>
                           <MemoizedPost
@@ -227,36 +220,36 @@ function BoardPage() {
                             directContributions={post.threadsAmount}
                             onNotesClick={redirectMethod}
                             notesUrl={threadUrl}
-                            // menuOptions={[
-                            //   {
-                            //     name: "Copy Link",
-                            //     onClick: () => {
-                            //       const tempInput = document.createElement(
-                            //         "input"
-                            //       );
-                            //       tempInput.value = new URL(
-                            //         threadUrl,
-                            //         window.location.origin
-                            //       ).toString();
-                            //       document.body.appendChild(tempInput);
-                            //       tempInput.select();
-                            //       document.execCommand("copy");
-                            //       document.body.removeChild(tempInput);
-                            //       toast.success("Link copied!");
-                            //     },
-                            //   },
-                            //   // Add options just for logged in users
-                            //   ...(isLoggedIn
-                            //     ? [
-                            //         {
-                            //           name: "Mark Visited",
-                            //           onClick: () => {
-                            //             readThread(post.thread_id);
-                            //           },
-                            //         },
-                            //       ]
-                            //     : []),
-                            // ]}
+                            menuOptions={[
+                              {
+                                name: "Copy Link",
+                                onClick: () => {
+                                  const tempInput = document.createElement(
+                                    "input"
+                                  );
+                                  tempInput.value = new URL(
+                                    threadUrl,
+                                    window.location.origin
+                                  ).toString();
+                                  document.body.appendChild(tempInput);
+                                  tempInput.select();
+                                  document.execCommand("copy");
+                                  document.body.removeChild(tempInput);
+                                  toast.success("Link copied!");
+                                },
+                              },
+                              // Add options just for logged in users
+                              ...(isLoggedIn
+                                ? [
+                                    {
+                                      name: "Mark Visited",
+                                      onClick: () => {
+                                        readThread(thread.threadId);
+                                      },
+                                    },
+                                  ]
+                                : []),
+                            ]}
                           />
                         </div>
                       );
