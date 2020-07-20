@@ -59,6 +59,35 @@ function HomePage() {
               <div className="updates" ref={divRef}>
                 <h2>New Stuff </h2>
                 <ul>
+                  <li>
+                    [7/19/20] [PLEASE READ] A bunch of "crossing fingers I don't
+                    murder the whole website" updates:
+                    <ul>
+                      <li>
+                        I added the top-right dropdown on board threads again.
+                        If any of you gets flickering again, let me know so you
+                        can help me get at the bottom of it.
+                      </li>
+                      <li>
+                        The library I'm using for query caching has a bug, and I
+                        solved it by re-implementing "load next board page" from
+                        scratch. Hopefully this fixes duplicates posts and
+                        doesn't break anything new.
+                      </li>
+                      <li>
+                        Beam me up, Scotty! You can now click on the thread
+                        balls to go back up and answer more quickly. This update
+                        gave me the impression of causing degraded performance
+                        on thread rendering, which I didn't have time to
+                        investigate fully. I'll do more testing in the next
+                        days.
+                      </li>
+                      <li>
+                        Updated tags logic in preparation for indexed tags. If
+                        you notice problems, you know where to go.
+                      </li>
+                    </ul>
+                  </li>
                   <li>[7/14/20] [Spoilers Warning] We have spoilers now.</li>
                   <li>
                     [7/10/20] Updates section goes down... updates section goes
@@ -149,6 +178,13 @@ function HomePage() {
                 list-style-position: inside;
                 list-style-type: lower-greek;
                 padding-left: 0px;
+              }
+              .intro ul ul {
+                padding-left: 10px;
+                list-style-type: circle;
+              }
+              .intro ul ul li {
+                padding-bottom: 5px;
               }
               .intro ul li {
                 padding-bottom: 10px;

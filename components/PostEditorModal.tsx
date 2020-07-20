@@ -122,8 +122,9 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
             }: {
               text: string;
               large: boolean;
-              tags: string[];
+              tags: { name: string }[];
             }) => {
+              log(tags);
               postContribution({
                 slug: props.slug,
                 replyToPostId: props.replyToPostId,
@@ -131,7 +132,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
                   content: text,
                   large,
                   forceAnonymous: false,
-                  whisperTags: tags,
+                  whisperTags: tags.map((tag) => tag.name),
                 },
               });
             }
