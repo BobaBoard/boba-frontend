@@ -217,7 +217,7 @@ function BoardPage() {
                             // subtract 1 since posts_amount is the amount of posts total in the thread
                             // including the head one.-
                             totalContributions={thread.totalPostsAmount - 1}
-                            directContributions={post.threadsAmount}
+                            directContributions={thread.directThreadsAmount}
                             onNotesClick={redirectMethod}
                             notesUrl={threadUrl}
                             menuOptions={[

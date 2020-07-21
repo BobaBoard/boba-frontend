@@ -49,6 +49,7 @@ export interface ThreadType {
   newCommentsAmount: number;
   totalCommentsAmount: number;
   totalPostsAmount: number;
+  directThreadsAmount: number;
   lastActivity?: string;
 }
 

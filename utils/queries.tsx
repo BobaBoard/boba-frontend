@@ -64,6 +64,7 @@ const makeClientThread = (serverThread: any): ThreadType => ({
   newCommentsAmount: serverThread.thread_new_comments_amount,
   totalCommentsAmount: serverThread.thread_total_comments_amount,
   totalPostsAmount: serverThread.thread_total_posts_amount,
+  directThreadsAmount: serverThread.thread_direct_threads_amount,
   lastActivity: serverThread.thread_last_activity,
 });
 
