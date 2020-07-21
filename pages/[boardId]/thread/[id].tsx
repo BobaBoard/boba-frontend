@@ -5,6 +5,7 @@ import {
   ThreadIndent,
   Post,
   PostSizes,
+  PostHandle,
   toast,
   // @ts-ignore
 } from "@bobaboard/ui-components";
@@ -90,7 +91,7 @@ const getTotalNewContributions = (
   return total;
 };
 
-const scrollToPost = (postId: string) => {
+const scrollToPost = (postId: string, handler: PostHandle, color: string) => {
   log(`Beaming up to post with id ${postId}`);
   const element: HTMLElement | null = document.querySelector(
     `.post[data-post-id='${postId}']`
@@ -100,11 +101,7 @@ const scrollToPost = (postId: string) => {
   }
   const observer = new IntersectionObserver((observed) => {
     if (observed[0].isIntersecting) {
-      element.classList.remove("outline-hidden");
-      element.ontransitionend = () => {
-        element.classList.add("outline-hidden");
-        element.ontransitionend = null;
-      };
+      handler.highlight(color);
       observer.disconnect();
     }
   });
@@ -113,6 +110,7 @@ const scrollToPost = (postId: string) => {
   element.scrollIntoView({ behavior: "smooth" });
 };
 
+const postHandlers = new Map<string, PostHandle>();
 const ThreadLevel: React.FC<{
   post: PostType;
   postsMap: Map<string, PostType[]>;
@@ -133,7 +131,13 @@ const ThreadLevel: React.FC<{
   const endsArray = isLeaf
     ? props.lastOf.map((ends) => ({
         level: ends.level,
-        onClick: () => scrollToPost(ends.postId),
+        onClick: () => {
+          scrollToPost(
+            ends.postId,
+            postHandlers.get(ends.postId),
+            boardData.accentColor
+          );
+        },
       }))
     : [];
   log(`Ends array: %o`, endsArray);
@@ -148,6 +152,9 @@ const ThreadLevel: React.FC<{
           <div className="post outline-hidden" data-post-id={props.post.postId}>
             <Post
               key={props.post.postId}
+              ref={(handler: PostHandle) =>
+                postHandlers.set(props.post.postId, handler)
+              }
               size={
                 props.post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR
               }
@@ -192,7 +199,12 @@ const ThreadLevel: React.FC<{
                     ...endsArray,
                     {
                       level: props.level,
-                      onClick: () => scrollToPost(props.post.postId),
+                      onClick: () =>
+                        scrollToPost(
+                          props.post.postId,
+                          postHandlers.get(props.post.postId),
+                          boardData.accentColor
+                        ),
                     },
                   ]
                 : []
@@ -240,26 +252,6 @@ const ThreadLevel: React.FC<{
               margin-top: 15px;
               scroll-margin: 10px;
               position: relative;
-            }
-            .post.outline-hidden::after{
-              background-color: transparent;
-              box-shadow: 0px 0px 0px 0px ${boardData?.accentColor};
-            }
-            .post::after {
-              content: "";
-              top: 0px;
-              bottom: 0px
-              left: 0px;
-              right: 0px;
-              background-color: ${boardData?.accentColor};
-              position: absolute;
-              z-index: -1;
-              width: 100%;
-              height: 100%;
-              opacity: 0.8;
-              border-radius: 15px;
-              box-shadow: 0px 0px 5px 3px ${boardData?.accentColor};
-              transition: all 0.3s ease-out;
             }
           `}
         </style>
