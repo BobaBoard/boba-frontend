@@ -32,6 +32,7 @@ export interface PostType {
   };
   tags: {
     whisperTags: string[];
+    indexTags: string[];
   };
   comments?: CommentType[];
   postsAmount: number;
@@ -71,6 +72,7 @@ export interface PostData {
   large: boolean;
   forceAnonymous: boolean;
   whisperTags: string[];
+  indexTags: string[];
 }
 
 export interface CommentData {

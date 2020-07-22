@@ -27,7 +27,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
     ({
       slug,
       replyToPostId,
-      postData: { content, large, forceAnonymous, whisperTags },
+      postData: { content, large, forceAnonymous, whisperTags, indexTags },
     }) => {
       // Choose the endpoint according to the provided data.
       // If there's no post to reply to, then it's a new thread.
@@ -38,6 +38,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
           large,
           forceAnonymous,
           whisperTags,
+          indexTags,
         });
       } else {
         return createPost(replyToPostId, {
@@ -45,6 +46,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
           large,
           forceAnonymous,
           whisperTags,
+          indexTags,
         });
       }
     },
@@ -53,6 +55,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
         toast.error("Error while creating new post.");
         error(`Error while answering to post ${replyToPostId}:`);
         error(serverError);
+        setPostLoading(false);
       },
       onSuccess: (data: PostType | ThreadType, { replyToPostId }) => {
         log(`Received post data after save:`);
@@ -122,7 +125,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
             }: {
               text: string;
               large: boolean;
-              tags: { name: string }[];
+              tags: { name: string; indexable: boolean }[];
             }) => {
               log(tags);
               postContribution({
@@ -132,7 +135,12 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
                   content: text,
                   large,
                   forceAnonymous: false,
-                  whisperTags: tags.map((tag) => tag.name),
+                  whisperTags: tags
+                    .filter((tag) => !tag.indexable)
+                    .map((tag) => tag.name),
+                  indexTags: tags
+                    .filter((tag) => tag.indexable)
+                    .map((tag) => tag.name),
                 },
               });
             }

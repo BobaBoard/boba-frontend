@@ -46,6 +46,7 @@ const makeClientPost = (serverPost: any): PostType => ({
   },
   tags: {
     whisperTags: serverPost.tags.whisper_tags,
+    indexTags: serverPost.tags.index_tags,
   },
   comments: serverPost.comments?.map(makeClientComment),
   postsAmount: serverPost.posts_amount,

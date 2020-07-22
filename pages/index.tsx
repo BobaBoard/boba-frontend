@@ -60,6 +60,13 @@ function HomePage() {
                 <h2>New Stuff </h2>
                 <ul>
                   <li>
+                    [7/21/20] Exactly 20 days after tags first appeared... we
+                    have indexable tags! Simply type ! at the beginning of a tag
+                    to make it searchable at some point in the future. Yeah, I
+                    mean, I said we had indexable tags, not USEFUL indexable
+                    tags.
+                  </li>
+                  <li>
                     [7/19/20] [PLEASE READ] A bunch of "crossing fingers I don't
                     murder the whole website" updates:
                     <ul>

@@ -91,7 +91,11 @@ const getTotalNewContributions = (
   return total;
 };
 
-const scrollToPost = (postId: string, handler: PostHandle, color: string) => {
+const scrollToPost = (
+  postId: string,
+  handler: PostHandle | undefined,
+  color: string
+) => {
   log(`Beaming up to post with id ${postId}`);
   const element: HTMLElement | null = document.querySelector(
     `.post[data-post-id='${postId}']`
@@ -101,7 +105,7 @@ const scrollToPost = (postId: string, handler: PostHandle, color: string) => {
   }
   const observer = new IntersectionObserver((observed) => {
     if (observed[0].isIntersecting) {
-      handler.highlight(color);
+      handler?.highlight(color);
       observer.disconnect();
     }
   });
