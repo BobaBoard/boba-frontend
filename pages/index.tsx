@@ -60,6 +60,12 @@ function HomePage() {
                 <h2>New Stuff </h2>
                 <ul>
                   <li>
+                    [7/22/20] Try the small experimental new button on threads
+                    that will cycle you through all the new contribution. UX has
+                    a lot to improve, but I wanted to give it to you as soon as
+                    possible!
+                  </li>
+                  <li>
                     [7/21/20] Exactly 20 days after tags first appeared... we
                     have indexable tags! Simply type ! at the beginning of a tag
                     to make it searchable at some point in the future. Yeah, I

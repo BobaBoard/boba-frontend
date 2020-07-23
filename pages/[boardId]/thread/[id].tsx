@@ -2,10 +2,12 @@ import React from "react";
 import {
   FeedWithMenu,
   Comment,
+  CommentHandler,
   ThreadIndent,
   Post,
   PostSizes,
-  PostHandle,
+  PostHandler,
+  CycleNewButton,
   toast,
   // @ts-ignore
 } from "@bobaboard/ui-components";
@@ -26,6 +28,7 @@ import {
 } from "../../../types/Types";
 import classnames from "classnames";
 import { useBoardTheme } from "../../../components/BoardTheme";
+//import { useHotkeys } from "react-hotkeys-hook";
 
 const log = debug("bobafrontend:thread-log");
 
@@ -43,6 +46,7 @@ const makePostsTree = (posts: PostType[] | undefined, threadId: string) => {
   }
   let root: PostType | null = null;
   const parentChildrenMap = new Map<string, PostType[]>();
+  const postsDisplaySequence: PostType[] = [];
 
   posts.forEach((post) => {
     if (!post.parentPostId) {
@@ -55,7 +59,23 @@ const makePostsTree = (posts: PostType[] | undefined, threadId: string) => {
     ]);
   });
 
-  return { root, parentChildrenMap };
+  if (root) {
+    const postsStacks: PostType[] = [root];
+    while (postsStacks.length) {
+      const currentPost = postsStacks.pop() as PostType;
+      postsDisplaySequence.push(currentPost);
+
+      const children = parentChildrenMap.get(currentPost.postId);
+      if (!children) {
+        continue;
+      }
+      for (let i = children.length - 1; i >= 0; i--) {
+        postsStacks.push(children[i]);
+      }
+    }
+  }
+
+  return { root, parentChildrenMap, postsDisplaySequence };
 };
 
 const getTotalContributions = (
@@ -91,11 +111,7 @@ const getTotalNewContributions = (
   return total;
 };
 
-const scrollToPost = (
-  postId: string,
-  handler: PostHandle | undefined,
-  color: string
-) => {
+const scrollToPost = (postId: string, color: string) => {
   log(`Beaming up to post with id ${postId}`);
   const element: HTMLElement | null = document.querySelector(
     `.post[data-post-id='${postId}']`
@@ -105,8 +121,7 @@ const scrollToPost = (
   }
   const observer = new IntersectionObserver((observed) => {
     if (observed[0].isIntersecting) {
-      handler?.highlight(color);
-      observer.disconnect();
+      postHandlers.get(postId)?.highlight(color), observer.disconnect();
     }
   });
   observer.observe(element);
@@ -114,7 +129,26 @@ const scrollToPost = (
   element.scrollIntoView({ behavior: "smooth" });
 };
 
-const postHandlers = new Map<string, PostHandle>();
+const scrollToComment = (commentId: string, color: string) => {
+  log(`Beaming up to comment with id ${commentId}`);
+  const element: HTMLElement | null = document.querySelector(
+    `.comment[data-comment-id='${commentId}']`
+  );
+  if (!element) {
+    return;
+  }
+  const observer = new IntersectionObserver((observed) => {
+    if (observed[0].isIntersecting) {
+      commentHandlers.get(commentId)?.highlight(color), observer.disconnect();
+    }
+  });
+  observer.observe(element);
+  element.classList.add("outline-hidden");
+  element.scrollIntoView({ behavior: "smooth" });
+};
+
+const postHandlers = new Map<string, PostHandler>();
+const commentHandlers = new Map<string, CommentHandler>();
 const ThreadLevel: React.FC<{
   post: PostType;
   postsMap: Map<string, PostType[]>;
@@ -136,11 +170,7 @@ const ThreadLevel: React.FC<{
     ? props.lastOf.map((ends) => ({
         level: ends.level,
         onClick: () => {
-          scrollToPost(
-            ends.postId,
-            postHandlers.get(ends.postId),
-            boardData.accentColor
-          );
+          scrollToPost(ends.postId, boardData.accentColor);
         },
       }))
     : [];
@@ -156,7 +186,7 @@ const ThreadLevel: React.FC<{
           <div className="post outline-hidden" data-post-id={props.post.postId}>
             <Post
               key={props.post.postId}
-              ref={(handler: PostHandle) =>
+              ref={(handler: PostHandler) =>
                 postHandlers.set(props.post.postId, handler)
               }
               size={
@@ -204,25 +234,26 @@ const ThreadLevel: React.FC<{
                     {
                       level: props.level,
                       onClick: () =>
-                        scrollToPost(
-                          props.post.postId,
-                          postHandlers.get(props.post.postId),
-                          boardData.accentColor
-                        ),
+                        scrollToPost(props.post.postId, boardData.accentColor),
                     },
                   ]
                 : []
             }
           >
             {props.post.comments.map((comment: CommentType, i: number) => (
-              <Comment
-                key={comment.commentId}
-                id={comment.commentId}
-                secretIdentity={comment.secretIdentity}
-                userIdentity={comment.userIdentity}
-                initialText={comment.content}
-                muted={props.isLoggedIn && !comment.isNew}
-              />
+              <div className="comment" data-comment-id={comment.commentId}>
+                <Comment
+                  ref={(handler: CommentHandler) =>
+                    commentHandlers.set(comment.commentId, handler)
+                  }
+                  key={comment.commentId}
+                  id={comment.commentId}
+                  secretIdentity={comment.secretIdentity}
+                  userIdentity={comment.userIdentity}
+                  initialText={comment.content}
+                  muted={props.isLoggedIn && !comment.isNew}
+                />
+              </div>
             ))}
           </ThreadIndent>
         )}
@@ -322,6 +353,7 @@ function ThreadPage() {
       initialStale: true,
     }
   );
+  const { [slug]: boardData } = useBoardTheme();
 
   const [readThread] = useMutation(() => markThreadAsRead({ threadId }), {
     onSuccess: () => {
@@ -350,10 +382,48 @@ function ThreadPage() {
       }
     },
   });
-  const { root, parentChildrenMap } = React.useMemo(
+  const { root, parentChildrenMap, postsDisplaySequence } = React.useMemo(
     () => makePostsTree(threadData?.posts, threadId),
     [threadData, threadId]
   );
+  // TODO: disable this while post editing and readd
+  // const currentPostIndex = React.useRef<number>(-1);
+  // useHotkeys(
+  //   "n",
+  //   () => {
+  //     if (!postsDisplaySequence) {
+  //       return;
+  //     }
+  //     currentPostIndex.current =
+  //       (currentPostIndex.current + 1) % postsDisplaySequence.length;
+  //     scrollToPost(
+  //       postsDisplaySequence[currentPostIndex.current].postId,
+  //       boardData.accentColor
+  //     );
+  //   },
+  //   [postsDisplaySequence]
+  // );
+  const newAnswersIndex = React.useRef<number>(-1);
+  const newAnswersArray = React.useRef<
+    { postId?: string; commentId?: string }[]
+  >([]);
+  React.useEffect(() => {
+    newAnswersIndex.current = -1;
+    newAnswersArray.current = [];
+    if (!postsDisplaySequence) {
+      return;
+    }
+    postsDisplaySequence.forEach((post) => {
+      if (post.isNew) {
+        newAnswersArray.current.push({ postId: post.postId });
+        post.comments?.forEach((comment) => {
+          if (comment.isNew) {
+            newAnswersArray.current.push({ commentId: comment.commentId });
+          }
+        });
+      }
+    });
+  }, [postsDisplaySequence]);
 
   if (!root) {
     return <div />;
@@ -484,6 +554,31 @@ function ThreadPage() {
           });
         }}
         loading={isFetchingThread}
+        actionButton={
+          !!newAnswersArray.current?.length ? (
+            <CycleNewButton
+              text="Next New"
+              onNext={() => {
+                if (!newAnswersArray.current) {
+                  return;
+                }
+                newAnswersIndex.current =
+                  (newAnswersIndex.current + 1) %
+                  newAnswersArray.current.length;
+                const nextPost =
+                  newAnswersArray.current[newAnswersIndex.current].postId;
+                const nextComment =
+                  newAnswersArray.current[newAnswersIndex.current].commentId;
+                if (nextPost) {
+                  scrollToPost(nextPost, boardData.accentColor);
+                }
+                if (nextComment) {
+                  scrollToComment(nextComment, boardData.accentColor);
+                }
+              }}
+            />
+          ) : undefined
+        }
       />
       <style jsx>
         {`
