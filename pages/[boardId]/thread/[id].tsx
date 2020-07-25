@@ -414,14 +414,14 @@ function ThreadPage() {
       return;
     }
     postsDisplaySequence.forEach((post) => {
-      if (post.isNew) {
+      if (post.isNew && post.parentPostId != null) {
         newAnswersArray.current.push({ postId: post.postId });
-        post.comments?.forEach((comment) => {
-          if (comment.isNew) {
-            newAnswersArray.current.push({ commentId: comment.commentId });
-          }
-        });
       }
+      post.comments?.forEach((comment) => {
+        if (comment.isNew) {
+          newAnswersArray.current.push({ commentId: comment.commentId });
+        }
+      });
     });
   }, [postsDisplaySequence]);
 

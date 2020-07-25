@@ -60,6 +60,12 @@ function HomePage() {
                 <h2>New Stuff </h2>
                 <ul>
                   <li>
+                    [7/23/20] The constant reload of embeds at inappropriate
+                    times should be fixed once and for all. Forgive me for the
+                    trouble, I had angered the programming gods by being, well,
+                    an idiot.
+                  </li>
+                  <li>
                     [7/22/20] Try the small experimental new button on threads
                     that will cycle you through all the new contribution. UX has
                     a lot to improve, but I wanted to give it to you as soon as
