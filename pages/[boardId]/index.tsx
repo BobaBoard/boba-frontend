@@ -13,7 +13,11 @@ import PostEditorModal from "../../components/PostEditorModal";
 import { useInfiniteQuery, queryCache, useMutation } from "react-query";
 import { useAuth } from "../../components/Auth";
 import { useBoardTheme } from "../../components/BoardTheme";
-import { getBoardActivityData, markThreadAsRead } from "../../utils/queries";
+import {
+  getBoardActivityData,
+  markThreadAsRead,
+  muteThread,
+} from "../../utils/queries";
 import { useRouter } from "next/router";
 import axios from "axios";
 import debug from "debug";
@@ -26,6 +30,71 @@ const info = debug("bobafrontend:boardPage-info");
 info.log = console.info.bind(console);
 
 const MemoizedPost = React.memo(Post);
+
+const removeThreadActivityFromCache = ({
+  slug,
+  threadId,
+}: {
+  slug: string;
+  threadId: string;
+}) => {
+  const boardActivityData = queryCache.getQueryData<BoardActivityResponse[]>([
+    "boardActivityData",
+    { slug },
+  ]);
+
+  const updatedThread = boardActivityData
+    ?.flatMap((data) => data.activity)
+    .find((thread) => thread.threadId == threadId);
+
+  if (!updatedThread) {
+    error(
+      `Thread wasn't found in data after marking thread ${threadId} as visited`
+    );
+    return;
+  }
+  updatedThread.posts[0].isNew = false;
+  updatedThread.posts[0].newCommentsAmount = 0;
+  updatedThread.posts[0].newPostsAmount = 0;
+  updatedThread.isNew = false;
+  updatedThread.newCommentsAmount = 0;
+  updatedThread.newPostsAmount = 0;
+  queryCache.setQueryData(
+    ["boardActivityData", { slug }],
+    () => boardActivityData
+  );
+};
+
+const setThreadMutedInCache = ({
+  slug,
+  threadId,
+  mute,
+}: {
+  slug: string;
+  threadId: string;
+  mute: boolean;
+}) => {
+  const boardActivityData = queryCache.getQueryData<BoardActivityResponse[]>([
+    "boardActivityData",
+    { slug },
+  ]);
+
+  const updatedThread = boardActivityData
+    ?.flatMap((data) => data.activity)
+    .find((thread) => thread.threadId == threadId);
+
+  if (!updatedThread) {
+    error(
+      `Thread wasn't found in data after marking thread ${threadId} as muted`
+    );
+    return;
+  }
+  updatedThread.muted = mute;
+  queryCache.setQueryData(
+    ["boardActivityData", { slug }],
+    () => boardActivityData
+  );
+};
 
 function BoardPage() {
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
@@ -51,36 +120,12 @@ function BoardPage() {
     },
   });
 
-  // @ts-ignore
   const [readThread] = useMutation(
     (threadId: string) => markThreadAsRead({ threadId }),
     {
       onMutate: (threadId) => {
         log(`Optimistically marking thread ${threadId} as visited.`);
-        const boardActivityData = queryCache.getQueryData<
-          BoardActivityResponse[]
-        >(["boardActivityData", { slug }]);
-
-        const updatedThread = boardActivityData
-          ?.flatMap((data) => data.activity)
-          .find((thread) => thread.threadId == threadId);
-
-        if (!updatedThread) {
-          error(
-            `Post wasn't found in data after marking thread ${threadId} as visited`
-          );
-          return;
-        }
-        updatedThread.posts[0].isNew = false;
-        updatedThread.posts[0].newCommentsAmount = 0;
-        updatedThread.posts[0].newPostsAmount = 0;
-        updatedThread.isNew = false;
-        updatedThread.newCommentsAmount = 0;
-        updatedThread.newPostsAmount = 0;
-        queryCache.setQueryData(
-          ["boardActivityData", { slug }],
-          () => boardActivityData
-        );
+        removeThreadActivityFromCache({ slug, threadId });
       },
       onError: (error: Error, threadId) => {
         toast.error("Error while marking thread as visited");
@@ -89,6 +134,36 @@ function BoardPage() {
       },
       onSuccess: (data: boolean, threadId) => {
         log(`Successfully marked thread ${threadId} as visited.`);
+      },
+    }
+  );
+
+  const [setThreadMuted] = useMutation(
+    ({ threadId, mute }: { threadId: string; mute: boolean }) =>
+      muteThread({ threadId, mute }),
+    {
+      onMutate: ({ threadId, mute }) => {
+        log(
+          `Optimistically marking thread ${threadId} as ${
+            mute ? "muted" : "unmuted"
+          }.`
+        );
+        setThreadMutedInCache({ slug, threadId, mute });
+      },
+      onError: (error: Error, { threadId, mute }) => {
+        toast.error(
+          `Error while marking thread as ${mute ? "muted" : "unmuted"}`
+        );
+        log(`Error while marking thread ${threadId} as muted:`);
+        log(error);
+      },
+      onSuccess: (data: boolean, { threadId, mute }) => {
+        log(
+          `Successfully marked thread ${threadId} as  ${
+            mute ? "muted" : "unmuted"
+          }.`
+        );
+        queryCache.invalidateQueries("allBoardsData");
       },
     }
   );
@@ -207,11 +282,18 @@ function BoardPage() {
                                 ? PostSizes.WIDE
                                 : PostSizes.REGULAR
                             }
-                            newPost={isLoggedIn && post.isNew}
-                            newComments={isLoggedIn && thread.newCommentsAmount}
+                            newPost={isLoggedIn && !thread.muted && post.isNew}
+                            newComments={
+                              isLoggedIn &&
+                              (thread.muted
+                                ? undefined
+                                : thread.newCommentsAmount)
+                            }
                             newContributions={
                               isLoggedIn &&
-                              thread.newPostsAmount - (post.isNew ? 1 : 0)
+                              (thread.muted
+                                ? undefined
+                                : thread.newPostsAmount - (post.isNew ? 1 : 0))
                             }
                             totalComments={thread.totalCommentsAmount}
                             // subtract 1 since posts_amount is the amount of posts total in the thread
@@ -220,6 +302,7 @@ function BoardPage() {
                             directContributions={thread.directThreadsAmount}
                             onNotesClick={redirectMethod}
                             notesUrl={threadUrl}
+                            muted={isLoggedIn && thread.muted}
                             menuOptions={[
                               {
                                 name: "Copy Link",
@@ -245,6 +328,15 @@ function BoardPage() {
                                       name: "Mark Visited",
                                       onClick: () => {
                                         readThread(thread.threadId);
+                                      },
+                                    },
+                                    {
+                                      name: thread.muted ? "Unmute" : "Mute",
+                                      onClick: () => {
+                                        setThreadMuted({
+                                          threadId: thread.threadId,
+                                          mute: !thread.muted,
+                                        });
                                       },
                                     },
                                   ]

@@ -52,6 +52,8 @@ export interface ThreadType {
   totalPostsAmount: number;
   directThreadsAmount: number;
   lastActivity?: string;
+  muted: boolean;
+  hidden: boolean;
 }
 
 export interface BoardActivityResponse {

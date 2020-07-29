@@ -67,6 +67,8 @@ const makeClientThread = (serverThread: any): ThreadType => ({
   totalPostsAmount: serverThread.thread_total_posts_amount,
   directThreadsAmount: serverThread.thread_direct_threads_amount,
   lastActivity: serverThread.thread_last_activity,
+  muted: serverThread.muted,
+  hidden: serverThread.hidden,
 });
 
 export const getBoardData = async (key: string, { slug }: { slug: string }) => {
@@ -148,6 +150,22 @@ export const dismissAllNotifications = async () => {
 export const markThreadAsRead = async ({ threadId }: { threadId: string }) => {
   log(`Marking thread ${threadId} as read.`);
   await axios.get(`threads/${threadId}/visit`);
+  return true;
+};
+
+export const muteThread = async ({
+  threadId,
+  mute,
+}: {
+  threadId: string;
+  mute: boolean;
+}) => {
+  log(`Marking thread ${threadId} as read.`);
+  if (mute) {
+    await axios.get(`threads/${threadId}/mute`);
+  } else {
+    await axios.get(`threads/${threadId}/unmute`);
+  }
   return true;
 };
 
