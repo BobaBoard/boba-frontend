@@ -1,32 +1,15 @@
 import React from "react";
 import {
   FeedWithMenu,
-  Comment,
-  CommentHandler,
-  ThreadIndent,
-  Post,
-  PostSizes,
-  PostHandler,
-  CycleNewButton,
-  toast,
   PostingActionButton,
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import Layout from "../../../components/Layout";
 import PostEditorModal from "../../../components/PostEditorModal";
-import CommentEditorModal from "../../../components/CommentEditorModal";
 import { useRouter } from "next/router";
-import { getThreadData, markThreadAsRead } from "../../../utils/queries";
-import { useQuery, useMutation, queryCache } from "react-query";
 import { useAuth } from "../../../components/Auth";
-import moment from "moment";
 import debug from "debug";
-import {
-  PostType,
-  CommentType,
-  ThreadType,
-  BoardActivityResponse,
-} from "../../../types/Types";
+import { PostType } from "../../../types/Types";
 import classnames from "classnames";
 import { useBoardTheme } from "../../../components/BoardTheme";
 
@@ -38,8 +21,7 @@ function CollectionPage() {
   const collectionId = router.query.collectionId as string;
 
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
-  const [showSidebar, setShowSidebar] = React.useState(false);
-  const { isPending, isLoggedIn, user } = useAuth();
+  const { isLoggedIn, user } = useAuth();
   const { [slug]: boardData } = useBoardTheme();
 
   return (

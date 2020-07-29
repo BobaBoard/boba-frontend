@@ -125,7 +125,7 @@ const Layout = (props: LayoutProps) => {
         loggedInMenuOptions={
           isLoggedIn && [
             {
-              name: "Older Update Logs",
+              name: "Logs Archive",
               onClick: () => {
                 router.push("/update-logs");
               },

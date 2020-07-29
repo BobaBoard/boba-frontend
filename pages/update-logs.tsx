@@ -1,8 +1,5 @@
 import React from "react";
 import Layout from "../components/Layout";
-import debug from "debug";
-
-const info = debug("bobafrontend:index-info");
 
 function HomePage() {
   return (

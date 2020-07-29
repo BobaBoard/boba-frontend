@@ -481,6 +481,7 @@ function BoardPage() {
         }
         .post.hidden {
           max-width: 500px;
+          width: calc(100% - 40px);
           background-color: gray;
           padding: 20px;
           border: 1px dashed black;
