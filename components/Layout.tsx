@@ -123,7 +123,15 @@ const Layout = (props: LayoutProps) => {
         headerAccent={boardData?.accentColor || "#f96680"}
         onUserBarClick={() => setLoginOpen(!isUserPending && !isLoggedIn)}
         loggedInMenuOptions={
-          isLoggedIn && [{ name: "Logout", onClick: () => setLoginOpen(true) }]
+          isLoggedIn && [
+            {
+              name: "Older Update Logs",
+              onClick: () => {
+                router.push("/update-logs");
+              },
+            },
+            { name: "Logout", onClick: () => setLoginOpen(true) },
+          ]
         }
         user={user}
         title={props.title}

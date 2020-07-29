@@ -160,11 +160,27 @@ export const muteThread = async ({
   threadId: string;
   mute: boolean;
 }) => {
-  log(`Marking thread ${threadId} as read.`);
+  log(`Updating thread ${threadId} muted state.`);
   if (mute) {
     await axios.get(`threads/${threadId}/mute`);
   } else {
     await axios.get(`threads/${threadId}/unmute`);
+  }
+  return true;
+};
+
+export const hideThread = async ({
+  threadId,
+  hide,
+}: {
+  threadId: string;
+  hide: boolean;
+}) => {
+  log(`Updating thread ${threadId} hidden state.`);
+  if (hide) {
+    await axios.get(`threads/${threadId}/hide`);
+  } else {
+    await axios.get(`threads/${threadId}/unhide`);
   }
   return true;
 };

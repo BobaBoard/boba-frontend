@@ -17,6 +17,7 @@ import {
   getBoardActivityData,
   markThreadAsRead,
   muteThread,
+  hideThread,
 } from "../../utils/queries";
 import { useRouter } from "next/router";
 import axios from "axios";
@@ -96,6 +97,37 @@ const setThreadMutedInCache = ({
   );
 };
 
+const setThreadHiddenInCache = ({
+  slug,
+  threadId,
+  hide,
+}: {
+  slug: string;
+  threadId: string;
+  hide: boolean;
+}) => {
+  const boardActivityData = queryCache.getQueryData<BoardActivityResponse[]>([
+    "boardActivityData",
+    { slug },
+  ]);
+
+  const updatedThread = boardActivityData
+    ?.flatMap((data) => data.activity)
+    .find((thread) => thread.threadId == threadId);
+
+  if (!updatedThread) {
+    error(
+      `Thread wasn't found in data after marking thread ${threadId} as hidden`
+    );
+    return;
+  }
+  updatedThread.hidden = hide;
+  queryCache.setQueryData(
+    ["boardActivityData", { slug }],
+    () => boardActivityData
+  );
+};
+
 function BoardPage() {
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
   const [showSidebar, setShowSidebar] = React.useState(false);
@@ -161,6 +193,36 @@ function BoardPage() {
         log(
           `Successfully marked thread ${threadId} as  ${
             mute ? "muted" : "unmuted"
+          }.`
+        );
+        queryCache.invalidateQueries("allBoardsData");
+      },
+    }
+  );
+
+  const [setThreadHidden] = useMutation(
+    ({ threadId, hide }: { threadId: string; hide: boolean }) =>
+      hideThread({ threadId, hide }),
+    {
+      onMutate: ({ threadId, hide }) => {
+        log(
+          `Optimistically marking thread ${threadId} as ${
+            hide ? "hidden" : "visible"
+          }.`
+        );
+        setThreadHiddenInCache({ slug, threadId, hide });
+      },
+      onError: (error: Error, { threadId, hide }) => {
+        toast.error(
+          `Error while marking thread as ${hide ? "hidden" : "visible"}`
+        );
+        log(`Error while marking thread ${threadId} as hidden:`);
+        log(error);
+      },
+      onSuccess: (data: boolean, { threadId, hide }) => {
+        log(
+          `Successfully marked thread ${threadId} as  ${
+            hide ? "hidden" : "visible"
           }.`
         );
         queryCache.invalidateQueries("allBoardsData");
@@ -257,6 +319,24 @@ function BoardPage() {
                         thread.threadId
                       );
                       const threadUrl = `/${router.query.boardId}/thread/${thread.threadId}`;
+                      if (thread.hidden) {
+                        return (
+                          <div className="post hidden" key={thread.threadId}>
+                            This thread was hidden{" "}
+                            <a
+                              href="#"
+                              onClick={() => {
+                                setThreadHidden({
+                                  threadId: thread.threadId,
+                                  hide: !thread.hidden,
+                                });
+                              }}
+                            >
+                              [unhide]
+                            </a>
+                          </div>
+                        );
+                      }
                       // TODO: memoize whole div
                       return (
                         <div className="post" key={`${post.postId}_container`}>
@@ -339,6 +419,15 @@ function BoardPage() {
                                         });
                                       },
                                     },
+                                    {
+                                      name: thread.hidden ? "Unhide" : "Hide",
+                                      onClick: () => {
+                                        setThreadHidden({
+                                          threadId: thread.threadId,
+                                          hide: !thread.hidden,
+                                        });
+                                      },
+                                    },
                                   ]
                                 : []),
                             ]}
@@ -389,6 +478,13 @@ function BoardPage() {
       <style jsx>{`
         .main {
           width: 100%;
+        }
+        .post.hidden {
+          max-width: 500px;
+          background-color: gray;
+          padding: 20px;
+          border: 1px dashed black;
+          border-radius: 15px;
         }
         .post {
           margin: 20px auto;
