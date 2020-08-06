@@ -9,6 +9,7 @@ import {
   PostHandler,
   CycleNewButton,
   toast,
+  DefaultTheme,
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import Layout from "../../../components/Layout";
@@ -111,6 +112,7 @@ const getTotalNewContributions = (
   return total;
 };
 
+// TODO: unify this and scrollToComment
 const scrollToPost = (postId: string, color: string) => {
   log(`Beaming up to post with id ${postId}`);
   const element: HTMLElement | null = document.querySelector(
@@ -126,7 +128,13 @@ const scrollToPost = (postId: string, color: string) => {
   });
   observer.observe(element);
   element.classList.add("outline-hidden");
-  element.scrollIntoView({ behavior: "smooth" });
+  window.scroll({
+    top:
+      element.getBoundingClientRect().top +
+      window.pageYOffset -
+      DefaultTheme.HEADER_HEIGHT_PX,
+    behavior: "smooth",
+  });
 };
 
 const scrollToComment = (commentId: string, color: string) => {
@@ -144,7 +152,13 @@ const scrollToComment = (commentId: string, color: string) => {
   });
   observer.observe(element);
   element.classList.add("outline-hidden");
-  element.scrollIntoView({ behavior: "smooth" });
+  window.scroll({
+    top:
+      element.getBoundingClientRect().top +
+      window.pageYOffset -
+      DefaultTheme.HEADER_HEIGHT_PX,
+    behavior: "smooth",
+  });
 };
 
 const postHandlers = new Map<string, PostHandler>();
@@ -549,9 +563,13 @@ function ThreadPage() {
         }
         title={`!${slug}`}
         onTitleClick={() => {
-          router.push(`/[boardId]`, `/!${slug}`, {
-            shallow: true,
-          });
+          router
+            .push(`/[boardId]`, `/!${slug}`, {
+              shallow: true,
+            })
+            .then(() => {
+              window.scrollTo(0, 0);
+            });
         }}
         loading={isFetchingThread}
         actionButton={

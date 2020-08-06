@@ -241,13 +241,17 @@ function BoardPage() {
     if (!threadRedirectMethod.current?.has(threadId)) {
       info(`Creating new handler for thread id: ${threadId}`);
       threadRedirectMethod.current?.set(threadId, () =>
-        router.push(
-          `/[boardId]/thread/[id]`,
-          `/${router.query.boardId}/thread/${threadId}`,
-          {
-            shallow: true,
-          }
-        )
+        router
+          .push(
+            `/[boardId]/thread/[id]`,
+            `/${router.query.boardId}/thread/${threadId}`,
+            {
+              shallow: true,
+            }
+          )
+          .then(() => {
+            window.scrollTo(0, 0);
+          })
       );
     }
     info(`Returning handler for thread id: ${threadId}`);
@@ -283,6 +287,7 @@ function BoardPage() {
       <Layout
         mainContent={
           <FeedWithMenu
+            onCloseSidebar={() => setShowSidebar(false)}
             showSidebar={showSidebar}
             sidebarContent={
               <>

@@ -11,6 +11,13 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [7/28/2020]
+                  <ul>
+                    <li>New options for threads: hide & mute.</li>
+                    <li>Older logs now hidden in the user menu.</li>
+                  </ul>
+                </li>
+                <li>
                   [7/23/20] The constant reload of embeds at inappropriate times
                   should be fixed once and for all. Forgive me for the trouble,
                   I had angered the programming gods by being, well, an idiot.

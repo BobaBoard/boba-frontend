@@ -4,11 +4,30 @@ import Document, { Html, Head, Main, NextScript } from "next/document";
 import { flush as componentsFlush } from "@bobaboard/ui-components";
 
 const bodyCss = `
-body {
+  body {
     font-family: "Inter", sans-serif;
-    overflow: hidden;
     background-color: rgb(47, 47, 48);
-}`;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #131518 #2f2f30;
+  }
+  *::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+  }
+
+  *::-webkit-scrollbar {
+    width: 10px;
+    background-color: #2f2f30;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    border-radius: 15px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: #131518;;
+  }`;
 
 class MyDocument extends Document {
   static async getInitialProps(ctx: any) {

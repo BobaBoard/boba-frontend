@@ -77,15 +77,16 @@ const Layout = (props: LayoutProps) => {
     [pinnedBoards]
   );
   const goToBoard = React.useCallback((slug: string) => {
-    router.push(`/[boardId]`, `/!${slug.replace(" ", "_")}`, {
-      shallow: true,
-    });
+    router
+      .push(`/[boardId]`, `/!${slug.replace(" ", "_")}`, {
+        shallow: true,
+      })
+      .then(() => {
+        window.scrollTo(0, 0);
+        refetch();
+      });
     // @ts-ignore
     layoutRef.current?.closeSideMenu();
-    // TODO: do this on board opening
-    setTimeout(() => {
-      refetch();
-    }, 2000);
   }, []);
   const pinnedBoardsData = React.useMemo(() => {
     return (pinnedBoards || []).map((board: any) => ({
@@ -127,7 +128,7 @@ const Layout = (props: LayoutProps) => {
             {
               name: "Logs Archive",
               onClick: () => {
-                router.push("/update-logs");
+                router.push("/update-logs").then(() => window.scrollTo(0, 0));
               },
             },
             { name: "Logout", onClick: () => setLoginOpen(true) },
@@ -138,7 +139,7 @@ const Layout = (props: LayoutProps) => {
         onTitleClick={props.onTitleClick}
         forceHideTitle={props.forceHideTitle}
         loading={props.loading || fetching || isUserPending}
-        onLogoClick={() => router.push("/")}
+        onLogoClick={() => router.push("/").then(() => window.scrollTo(0, 0))}
         updates={isLoggedIn && hasUpdates}
       />
       <ReactQueryDevtools initialIsOpen={false} />
