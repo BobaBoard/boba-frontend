@@ -73,7 +73,7 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
 export interface CommentEditorModalProps {
   isOpen: boolean;
   onCloseModal: () => void;
-  secretIdentity: {
+  secretIdentity?: {
     avatar: string;
     name: string;
   };

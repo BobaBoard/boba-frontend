@@ -11,6 +11,15 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [8/02/2020] Completely changed the underlying HTML/CSS layout
+                  structure. You will see a bunch of improvements all around
+                  (e.g. address bar on mobile should disappear, scroll position
+                  on page change should work way better).
+                  <br />
+                  <strong>Stuff is also likely to have broken.</strong> Please
+                  do report anything that's not working right.
+                </li>
+                <li>
                   [7/28/2020]
                   <ul>
                     <li>New options for threads: hide & mute.</li>

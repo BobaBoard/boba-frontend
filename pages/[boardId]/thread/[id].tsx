@@ -449,10 +449,6 @@ function ThreadPage() {
         <>
           <PostEditorModal
             isOpen={!!postReplyId}
-            secretIdentity={{
-              name: "[TBD]",
-              avatar: `/tuxedo-mask.jpg`,
-            }}
             userIdentity={{
               name: user?.username,
               avatar: user?.avatarUrl,
@@ -485,10 +481,6 @@ function ThreadPage() {
           />
           <CommentEditorModal
             isOpen={!!commentReplyId}
-            secretIdentity={{
-              name: "[TBD]",
-              avatar: `/tuxedo-mask.jpg`,
-            }}
             userIdentity={{
               name: user?.username,
               avatar: user?.avatarUrl,

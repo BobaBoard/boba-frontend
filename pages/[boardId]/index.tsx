@@ -266,10 +266,6 @@ function BoardPage() {
       {isLoggedIn && (
         <PostEditorModal
           isOpen={postEditorOpen}
-          secretIdentity={{
-            name: "[TBD]",
-            avatar: `/tuxedo-mask.jpg`,
-          }}
           userIdentity={{
             name: user?.username,
             avatar: user?.avatarUrl,
