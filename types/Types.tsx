@@ -1,5 +1,7 @@
 export interface CommentType {
   commentId: string;
+  parentCommentId: string | null;
+  chainParentId: string | null;
   secretIdentity: {
     name: string;
     avatar: string;

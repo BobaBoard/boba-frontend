@@ -2,6 +2,7 @@ import React from "react";
 import {
   FeedWithMenu,
   Comment,
+  CommentChain,
   CommentHandler,
   ThreadIndent,
   Post,
@@ -32,6 +33,39 @@ import { useBoardTheme } from "../../../components/BoardTheme";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 const log = debug("bobafrontend:thread-log");
+
+const makeCommentsTree = (
+  comments: CommentType[] | undefined,
+  postId: string
+) => {
+  log(`Creating comments tree for post ${postId}`);
+  const result = {
+    roots: [] as CommentType[],
+    parentChainMap: new Map<string, CommentType>(),
+    parentChildrenMap: new Map<string, CommentType[]>(),
+  };
+  if (!comments) {
+    return result;
+  }
+  comments.forEach((comment) => {
+    if (!comment.parentCommentId && !comment.chainParentId) {
+      result.roots.push(comment);
+      return;
+    }
+    if (comment.parentCommentId) {
+      result.parentChildrenMap.set(comment.parentCommentId, [
+        ...(result.parentChildrenMap.get(comment.parentCommentId) ||
+          ([] as CommentType[])),
+        comment,
+      ]);
+    }
+    if (comment.chainParentId) {
+      result.parentChainMap.set(comment.chainParentId, comment);
+    }
+  });
+
+  return result;
+};
 
 // Transform the array of posts received from the server in a tree
 // representation. The return value is comprised of two values:
@@ -161,8 +195,66 @@ const scrollToComment = (commentId: string, color: string) => {
   });
 };
 
-const postHandlers = new Map<string, PostHandler>();
 const commentHandlers = new Map<string, CommentHandler>();
+const CommentsThread: React.FC<{
+  comments: CommentType[];
+  parentPostId: string;
+  isLoggedIn: boolean;
+}> = (props) => {
+  const { roots, parentChainMap } = React.useMemo(
+    () => makeCommentsTree(props.comments, props.parentPostId),
+    [props.comments]
+  );
+  return (
+    <>
+      {roots.map((comment: CommentType, i: number) => {
+        const chain = [comment];
+        let currentChainId = comment.commentId;
+        while (parentChainMap.has(currentChainId)) {
+          const next = parentChainMap.get(currentChainId) as CommentType;
+          chain.push(next);
+          currentChainId = next.commentId;
+        }
+        return (
+          <div className="comment" data-comment-id={comment.commentId}>
+            {chain.length > 1 ? (
+              <CommentChain
+                ref={(handler: CommentHandler) =>
+                  chain.forEach((el) =>
+                    commentHandlers.set(el.commentId, handler)
+                  )
+                }
+                key={comment.commentId}
+                id={comment.commentId}
+                secretIdentity={comment.secretIdentity}
+                userIdentity={comment.userIdentity}
+                comments={chain.map((el) => ({
+                  id: el.commentId,
+                  text: el.content,
+                }))}
+                muted={props.isLoggedIn && !comment.isNew}
+              />
+            ) : (
+              <Comment
+                ref={(handler: CommentHandler) =>
+                  commentHandlers.set(comment.commentId, handler)
+                }
+                key={comment.commentId}
+                id={comment.commentId}
+                secretIdentity={comment.secretIdentity}
+                userIdentity={comment.userIdentity}
+                initialText={comment.content}
+                muted={props.isLoggedIn && !comment.isNew}
+              />
+            )}
+          </div>
+        );
+      })}
+    </>
+  );
+};
+
+const postHandlers = new Map<string, PostHandler>();
 const ThreadLevel: React.FC<{
   post: PostType;
   postsMap: Map<string, PostType[]>;
@@ -254,21 +346,13 @@ const ThreadLevel: React.FC<{
                 : []
             }
           >
-            {props.post.comments.map((comment: CommentType, i: number) => (
-              <div className="comment" data-comment-id={comment.commentId}>
-                <Comment
-                  ref={(handler: CommentHandler) =>
-                    commentHandlers.set(comment.commentId, handler)
-                  }
-                  key={comment.commentId}
-                  id={comment.commentId}
-                  secretIdentity={comment.secretIdentity}
-                  userIdentity={comment.userIdentity}
-                  initialText={comment.content}
-                  muted={props.isLoggedIn && !comment.isNew}
-                />
-              </div>
-            ))}
+            {
+              <CommentsThread
+                comments={props.post.comments}
+                isLoggedIn={props.isLoggedIn}
+                parentPostId={props.post.postId}
+              />
+            }
           </ThreadIndent>
         )}
         {props.postsMap
@@ -432,7 +516,7 @@ function ThreadPage() {
         newAnswersArray.current.push({ postId: post.postId });
       }
       post.comments?.forEach((comment) => {
-        if (comment.isNew) {
+        if (comment.isNew && !comment.chainParentId) {
           newAnswersArray.current.push({ commentId: comment.commentId });
         }
       });

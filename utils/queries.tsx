@@ -14,6 +14,8 @@ const info = debug("bobafrontend:queries-info");
 
 const makeClientComment = (serverComment: any): CommentType => ({
   commentId: serverComment.comment_id,
+  chainParentId: serverComment.chain_parent_id,
+  parentCommentId: serverComment.parent_comment_id,
   secretIdentity: {
     name: serverComment.secret_identity.name,
     avatar: serverComment.secret_identity.avatar,
