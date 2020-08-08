@@ -227,3 +227,22 @@ export const createComment = async ({
   log(comment);
   return comment;
 };
+
+export const createCommentChain = async ({
+  replyToPostId,
+  commentData,
+}: {
+  replyToPostId: string | null;
+  commentData: CommentData[];
+}): Promise<CommentType[]> => {
+  const response = await axios.post(`/posts/${replyToPostId}/comment/chain`, {
+    contentArray: commentData.map((comment) => comment.content),
+    forceAnonymous: commentData.some((data) => data.forceAnonymous),
+  });
+  const comments = response.data.comments.map((comment: any) =>
+    makeClientComment(comment)
+  );
+  log(`Received comment from server:`);
+  log(comments);
+  return comments;
+};

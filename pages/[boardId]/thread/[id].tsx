@@ -225,7 +225,6 @@ const CommentsThread: React.FC<{
                   )
                 }
                 key={comment.commentId}
-                id={comment.commentId}
                 secretIdentity={comment.secretIdentity}
                 userIdentity={comment.userIdentity}
                 comments={chain.map((el) => ({
@@ -569,11 +568,11 @@ function ThreadPage() {
               name: user?.username,
               avatar: user?.avatarUrl,
             }}
-            onCommentSaved={(comment: any) => {
+            onCommentsSaved={(comments: CommentType[]) => {
               log(
-                `Saved new comment to thread ${threadId}, replying to post ${commentReplyId}.`
+                `Saved new comment(s) to thread ${threadId}, replying to post ${commentReplyId}.`
               );
-              log(comment);
+              log(comments);
               const threadData = queryCache.getQueryData<ThreadType>([
                 "threadData",
                 { threadId },
@@ -598,7 +597,7 @@ function ThreadPage() {
                   threadData.posts[parentIndex].newCommentsAmount + 1,
                 comments: [
                   ...(threadData.posts[parentIndex].comments || []),
-                  comment,
+                  ...comments,
                 ],
               };
               queryCache.setQueryData(["threadData", { threadId }], () => ({
