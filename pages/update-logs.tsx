@@ -11,6 +11,27 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [8/5/20]
+                  <ul>
+                    <li>Quit my job!</li>
+                    <li>
+                      Fixed "go to new comments/contributions" offset bug.
+                    </li>
+                    <li>
+                      Changed spacing of comments. Longer comments should be
+                      much more readable now.
+                    </li>
+                    <li>
+                      ...especially important cause now you have{" "}
+                      <strong>300 characters for comments</strong>.
+                    </li>
+                    <li>
+                      Also, the secret identity avatar assigned in each thread
+                      will now be visible alongside your real avatar.
+                    </li>
+                  </ul>
+                </li>
+                <li>
                   [8/02/2020] Completely changed the underlying HTML/CSS layout
                   structure. You will see a bunch of improvements all around
                   (e.g. address bar on mobile should disappear, scroll position
@@ -164,7 +185,7 @@ function HomePage() {
             `}</style>
           </div>
         }
-        title={`Hello!`}
+        title={`Logs Archive`}
         onTitleClick={() => {}}
       />
     </div>

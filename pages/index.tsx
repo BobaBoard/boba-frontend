@@ -56,23 +56,9 @@ function HomePage() {
               </p>
               <div className="updates">
                 <h2>New Stuff </h2>
-                <div className="last">[Last Updated: 8/5/2020]</div>
-                <ul>
-                  <li>Quit my job!</li>
-                  <li>Fixed "go to new comments/contributions" offset bug.</li>
-                  <li>
-                    Changed spacing of comments. Longer comments should be much
-                    more readable now.
-                  </li>
-                  <li>
-                    ...especially important cause now you have{" "}
-                    <strong>300 characters for comments</strong>.
-                  </li>
-                  <li>
-                    Also, the secret identity avatar assigned in each thread
-                    will now be visible alongside your real avatar.
-                  </li>
-                </ul>
+                <div className="last">[Last Updated: 8/8/2020]</div>
+                Comment chains! Started a comment but space is running out?
+                Chain another one!
               </div>
             </div>
             <div className="display">
@@ -116,6 +102,7 @@ function HomePage() {
               }
               .updates .last {
                 font-size: small;
+                margin-bottom: 5px;
               }
               .updates :global(.expand-overlay) :global(svg) {
                 margin-top: 15px;
