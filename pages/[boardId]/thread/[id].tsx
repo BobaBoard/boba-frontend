@@ -274,8 +274,11 @@ const ThreadLevel: React.FC<{
   const endsArray = isLeaf
     ? props.lastOf.map((ends) => ({
         level: ends.level,
-        onClick: () => {
+        onBeamUpClick: () => {
           scrollToPost(ends.postId, boardData.accentColor);
+        },
+        onAddContributionClick: () => {
+          props.onNewContribution(ends.postId);
         },
       }))
     : [];
@@ -338,8 +341,11 @@ const ThreadLevel: React.FC<{
                     ...endsArray,
                     {
                       level: props.level,
-                      onClick: () =>
+                      onBeamUpClick: () =>
                         scrollToPost(props.post.postId, boardData.accentColor),
+                      onAddContributionClick: () => {
+                        props.onNewContribution(props.post.postId);
+                      },
                     },
                   ]
                 : []
