@@ -277,6 +277,7 @@ const ThreadLevel: React.FC<{
         onBeamUpClick: () => {
           scrollToPost(ends.postId, boardData.accentColor);
         },
+        showAddContribution: props.isLoggedIn,
         onAddContributionClick: () => {
           props.onNewContribution(ends.postId);
         },
@@ -343,6 +344,7 @@ const ThreadLevel: React.FC<{
                       level: props.level,
                       onBeamUpClick: () =>
                         scrollToPost(props.post.postId, boardData.accentColor),
+                      showAddContribution: props.isLoggedIn,
                       onAddContributionClick: () => {
                         props.onNewContribution(props.post.postId);
                       },
