@@ -27,6 +27,7 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
         toast.error("Error while creating new comment.");
         error(`Error while commenting on post ${replyToPostId}:`);
         error(serverError);
+        setCommentLoading(false);
       },
       onSuccess: (data: CommentType) => {
         log(`Received comment data after save:`);
@@ -72,24 +73,26 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
           userIdentity={props.userIdentity}
           loading={isCommentLoading}
           onSubmit={(text: string[]) => {
-            if (!props.replyTo) {
+            if (!props.replyTo || !props.replyTo.postId) {
               return;
             }
             setCommentLoading(true);
             if (text.length > 1) {
               postCommentChain({
-                replyToPostId: props.replyTo,
+                replyToPostId: props.replyTo.postId,
                 commentData: text.map((t) => ({
                   content: t,
                   forceAnonymous: false,
+                  replyToCommentId: props.replyTo?.commentId || null,
                 })),
               });
             } else {
               postComment({
-                replyToPostId: props.replyTo,
+                replyToPostId: props.replyTo.postId,
                 commentData: {
                   content: text[0],
                   forceAnonymous: false,
+                  replyToCommentId: props.replyTo?.commentId || null,
                 },
               });
             }
@@ -120,7 +123,10 @@ export interface CommentEditorModalProps {
     name: string;
   };
   onCommentsSaved: (comments: CommentType[]) => void;
-  replyTo: string | null;
+  replyTo: {
+    postId: string | null;
+    commentId: string | null;
+  } | null;
 }
 
 export default CommentEditorModal;
