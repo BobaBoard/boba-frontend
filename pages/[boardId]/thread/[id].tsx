@@ -4,6 +4,8 @@ import {
   Comment,
   CommentChain,
   CommentHandler,
+  CompactThreadIndent,
+  useIndent,
   ThreadIndent,
   Post,
   PostSizes,
@@ -28,123 +30,17 @@ import {
   ThreadType,
   BoardActivityResponse,
 } from "../../../types/Types";
+import {
+  makeCommentsTree,
+  makePostsTree,
+  getTotalContributions,
+  getTotalNewContributions,
+} from "../../../utils/thread-utils";
 import classnames from "classnames";
 import { useBoardTheme } from "../../../components/BoardTheme";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 const log = debug("bobafrontend:thread-log");
-
-const makeCommentsTree = (
-  comments: CommentType[] | undefined,
-  postId: string
-) => {
-  log(`Creating comments tree for post ${postId}`);
-  const result = {
-    roots: [] as CommentType[],
-    parentChainMap: new Map<string, CommentType>(),
-    parentChildrenMap: new Map<string, CommentType[]>(),
-  };
-  if (!comments) {
-    return result;
-  }
-  comments.forEach((comment) => {
-    if (!comment.parentCommentId && !comment.chainParentId) {
-      result.roots.push(comment);
-      return;
-    }
-    if (comment.parentCommentId) {
-      result.parentChildrenMap.set(comment.parentCommentId, [
-        ...(result.parentChildrenMap.get(comment.parentCommentId) ||
-          ([] as CommentType[])),
-        comment,
-      ]);
-    }
-    if (comment.chainParentId) {
-      result.parentChainMap.set(comment.chainParentId, comment);
-    }
-  });
-
-  return result;
-};
-
-// Transform the array of posts received from the server in a tree
-// representation. The return value is comprised of two values:
-// the root value is the top post of the thread; the parentChildrenMap
-// value is a Map from the string id of a post to its direct children.
-const makePostsTree = (posts: PostType[] | undefined, threadId: string) => {
-  log(`Creating posts tree for thread ${threadId}`);
-  if (!posts) {
-    return {
-      root: undefined,
-      parentChildrenMap: new Map<string, PostType[]>(),
-    };
-  }
-  let root: PostType | null = null;
-  const parentChildrenMap = new Map<string, PostType[]>();
-  const postsDisplaySequence: PostType[] = [];
-
-  posts.forEach((post) => {
-    if (!post.parentPostId) {
-      root = post;
-      return;
-    }
-    parentChildrenMap.set(post.parentPostId, [
-      ...(parentChildrenMap.get(post.parentPostId) || ([] as PostType[])),
-      post,
-    ]);
-  });
-
-  if (root) {
-    const postsStacks: PostType[] = [root];
-    while (postsStacks.length) {
-      const currentPost = postsStacks.pop() as PostType;
-      postsDisplaySequence.push(currentPost);
-
-      const children = parentChildrenMap.get(currentPost.postId);
-      if (!children) {
-        continue;
-      }
-      for (let i = children.length - 1; i >= 0; i--) {
-        postsStacks.push(children[i]);
-      }
-    }
-  }
-
-  return { root, parentChildrenMap, postsDisplaySequence };
-};
-
-const getTotalContributions = (
-  post: PostType,
-  postsMap: Map<string, PostType[]>
-) => {
-  let total = 0;
-  let next = postsMap.get(post.postId);
-  while (next && next.length > 0) {
-    total += next.length;
-    next = next.flatMap(
-      (child: PostType) => (child && postsMap.get(child.postId)) || []
-    );
-  }
-  return total;
-};
-
-const getTotalNewContributions = (
-  post: PostType,
-  postsMap: Map<string, PostType[]>
-) => {
-  let total = 0;
-  let next = postsMap.get(post.postId);
-  while (next && next.length > 0) {
-    total += next.reduce(
-      (value: number, post: PostType) => value + (post.isNew ? 1 : 0),
-      0
-    );
-    next = next.flatMap(
-      (child: PostType) => (child && postsMap.get(child.postId)) || []
-    );
-  }
-  return total;
-};
 
 // TODO: unify this and scrollToComment
 const scrollToPost = (postId: string, color: string) => {
@@ -195,58 +91,124 @@ const scrollToComment = (commentId: string, color: string) => {
   });
 };
 
+const CommentsThreadLevel: React.FC<{
+  comment: CommentType;
+  comments: CommentType[];
+  parentChainMap: Map<string, CommentType>;
+  parentChildrenMap: Map<string, CommentType[]>;
+  parentPostId: string;
+  parentCommentId: string | null;
+  isLoggedIn: boolean;
+  level: number;
+  onReplyTo: (replyTo: string) => void;
+}> = (props) => {
+  const indent = useIndent();
+  const chain = [props.comment];
+  let currentChainId = props.comment.commentId;
+  while (props.parentChainMap.has(currentChainId)) {
+    const next = props.parentChainMap.get(currentChainId) as CommentType;
+    chain.push(next);
+    currentChainId = next.commentId;
+  }
+  const lastCommentId = chain[chain.length - 1].commentId;
+  const children = props.parentChildrenMap.get(lastCommentId);
+  return (
+    <CompactThreadIndent
+      level={props.level}
+      startsFromViewport={indent.bounds}
+      hideLine={!children}
+    >
+      <div className="comment" data-comment-id={props.comment.commentId}>
+        {chain.length > 1 ? (
+          <CommentChain
+            ref={(handler: CommentHandler) => {
+              chain.forEach((el) => commentHandlers.set(el.commentId, handler));
+              // Typescript marks this as a read-only property but there seems to be no
+              // other way to do this. TODO: investigate.
+              // @ts-ignore
+              indent.handler.current = handler;
+            }}
+            key={props.comment.commentId}
+            secretIdentity={props.comment.secretIdentity}
+            userIdentity={props.comment.userIdentity}
+            comments={chain.map((el) => ({
+              id: el.commentId,
+              text: el.content,
+            }))}
+            muted={props.isLoggedIn && !props.comment.isNew}
+            onExtraAction={
+              props.isLoggedIn
+                ? () => props.onReplyTo(lastCommentId)
+                : undefined
+            }
+          />
+        ) : (
+          <Comment
+            ref={(handler: CommentHandler) => {
+              commentHandlers.set(props.comment.commentId, handler);
+              // Typescript marks this as a read-only property but there seems to be no
+              // other way to do this. TODO: investigate.
+              // @ts-ignore
+              indent.handler.current = handler;
+            }}
+            key={props.comment.commentId}
+            id={props.comment.commentId}
+            secretIdentity={props.comment.secretIdentity}
+            userIdentity={props.comment.userIdentity}
+            initialText={props.comment.content}
+            muted={props.isLoggedIn && !props.comment.isNew}
+            onExtraAction={
+              props.isLoggedIn
+                ? () => props.onReplyTo(props.comment.commentId)
+                : undefined
+            }
+          />
+        )}
+      </div>
+      {children ? (
+        <CommentsThread
+          comments={props.comments}
+          level={props.level + 1}
+          parentCommentId={lastCommentId}
+          parentPostId={props.parentPostId}
+          isLoggedIn={props.isLoggedIn}
+          onReplyTo={props.onReplyTo}
+        />
+      ) : (
+        <></>
+      )}
+    </CompactThreadIndent>
+  );
+};
+
 const commentHandlers = new Map<string, CommentHandler>();
 const CommentsThread: React.FC<{
   comments: CommentType[];
   parentPostId: string;
+  parentCommentId: string | null;
   isLoggedIn: boolean;
+  level: number;
+  onReplyTo: (replyTo: string) => void;
 }> = (props) => {
-  const { roots, parentChainMap } = React.useMemo(
-    () => makeCommentsTree(props.comments, props.parentPostId),
+  const { roots, parentChainMap, parentChildrenMap } = React.useMemo(
+    () =>
+      makeCommentsTree(
+        props.comments,
+        props.parentCommentId,
+        props.parentPostId
+      ),
     [props.comments]
   );
   return (
     <>
       {roots.map((comment: CommentType, i: number) => {
-        const chain = [comment];
-        let currentChainId = comment.commentId;
-        while (parentChainMap.has(currentChainId)) {
-          const next = parentChainMap.get(currentChainId) as CommentType;
-          chain.push(next);
-          currentChainId = next.commentId;
-        }
         return (
-          <div className="comment" data-comment-id={comment.commentId}>
-            {chain.length > 1 ? (
-              <CommentChain
-                ref={(handler: CommentHandler) =>
-                  chain.forEach((el) =>
-                    commentHandlers.set(el.commentId, handler)
-                  )
-                }
-                key={comment.commentId}
-                secretIdentity={comment.secretIdentity}
-                userIdentity={comment.userIdentity}
-                comments={chain.map((el) => ({
-                  id: el.commentId,
-                  text: el.content,
-                }))}
-                muted={props.isLoggedIn && !comment.isNew}
-              />
-            ) : (
-              <Comment
-                ref={(handler: CommentHandler) =>
-                  commentHandlers.set(comment.commentId, handler)
-                }
-                key={comment.commentId}
-                id={comment.commentId}
-                secretIdentity={comment.secretIdentity}
-                userIdentity={comment.userIdentity}
-                initialText={comment.content}
-                muted={props.isLoggedIn && !comment.isNew}
-              />
-            )}
-          </div>
+          <CommentsThreadLevel
+            comment={comment}
+            parentChainMap={parentChainMap}
+            parentChildrenMap={parentChildrenMap}
+            {...props}
+          />
         );
       })}
     </>
@@ -258,7 +220,10 @@ const ThreadLevel: React.FC<{
   post: PostType;
   postsMap: Map<string, PostType[]>;
   level: number;
-  onNewComment: (id: string) => void;
+  onNewComment: (
+    replyToPostId: string,
+    replyToCommentId: string | null
+  ) => void;
   onNewContribution: (id: string) => void;
   isLoggedIn: boolean;
   lastOf: { level: number; postId: string }[];
@@ -308,7 +273,7 @@ const ThreadLevel: React.FC<{
               onNewContribution={() =>
                 props.onNewContribution(props.post.postId)
               }
-              onNewComment={() => props.onNewComment(props.post.postId)}
+              onNewComment={() => props.onNewComment(props.post.postId, null)}
               totalComments={props.post.comments?.length}
               directContributions={
                 props.postsMap.get(props.post.postId)?.length
@@ -358,6 +323,11 @@ const ThreadLevel: React.FC<{
                 comments={props.post.comments}
                 isLoggedIn={props.isLoggedIn}
                 parentPostId={props.post.postId}
+                parentCommentId={null}
+                level={0}
+                onReplyTo={(replyToCommentId: string) =>
+                  props.onNewComment(props.post.postId, replyToCommentId)
+                }
               />
             }
           </ThreadIndent>
@@ -431,9 +401,10 @@ const getThreadInBoardCache = ({
 
 function ThreadPage() {
   const [postReplyId, setPostReplyId] = React.useState<string | null>(null);
-  const [commentReplyId, setCommentReplyId] = React.useState<string | null>(
-    null
-  );
+  const [commentReplyId, setCommentReplyId] = React.useState<{
+    postId: string | null;
+    commentId: string | null;
+  } | null>(null);
   const router = useRouter();
   const threadId = router.query.id as string;
   const { user, isLoggedIn } = useAuth();
@@ -592,7 +563,7 @@ function ThreadPage() {
                 return;
               }
               const parentIndex = threadData.posts.findIndex(
-                (post) => post.postId == commentReplyId
+                (post) => post.postId == commentReplyId?.postId
               );
               log(`Found parent post with index ${parentIndex}`);
               if (parentIndex == -1) {
@@ -628,7 +599,12 @@ function ThreadPage() {
                   post={root}
                   postsMap={parentChildrenMap}
                   level={0}
-                  onNewComment={setCommentReplyId}
+                  onNewComment={(replyToPostId, replyToCommentId) =>
+                    setCommentReplyId({
+                      postId: replyToPostId,
+                      commentId: replyToCommentId,
+                    })
+                  }
                   onNewContribution={setPostReplyId}
                   isLoggedIn={isLoggedIn}
                   lastOf={[]}

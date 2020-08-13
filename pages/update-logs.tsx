@@ -11,6 +11,20 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [8/8/20]
+                  <ul>
+                    <li>
+                      [Comments chains] Started a comment but space is running
+                      out? Chain another one!
+                    </li>
+                    <li>
+                      [Append Contribution] Want to add another contribution to
+                      a specific thread? You can now do so directly from the end
+                      of the thread. No need to beam up!
+                    </li>
+                  </ul>
+                </li>
+                <li>
                   [8/5/20]
                   <ul>
                     <li>Quit my job!</li>
