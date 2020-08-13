@@ -56,9 +56,13 @@ function HomePage() {
               </p>
               <div className="updates">
                 <h2>New Stuff </h2>
-                <div className="last">[Last Updated: 8/8/2020]</div>
-                Comment chains! Started a comment but space is running out?
-                Chain another one!
+                <div className="last">[Last Updated: 8/12/2020]</div>
+                <ul>
+                  <li>
+                    [Comment threads] We need to go deeper... It's time to start
+                    threading comments too!
+                  </li>
+                </ul>
               </div>
             </div>
             <div className="display">

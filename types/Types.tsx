@@ -82,4 +82,5 @@ export interface PostData {
 export interface CommentData {
   content: string;
   forceAnonymous: boolean;
+  replyToCommentId: string | null;
 }

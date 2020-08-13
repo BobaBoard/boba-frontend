@@ -15,7 +15,7 @@ const info = debug("bobafrontend:queries-info");
 const makeClientComment = (serverComment: any): CommentType => ({
   commentId: serverComment.comment_id,
   chainParentId: serverComment.chain_parent_id,
-  parentCommentId: serverComment.parent_comment_id,
+  parentCommentId: serverComment.parent_comment,
   secretIdentity: {
     name: serverComment.secret_identity.name,
     avatar: serverComment.secret_identity.avatar,
@@ -238,6 +238,7 @@ export const createCommentChain = async ({
   const response = await axios.post(`/posts/${replyToPostId}/comment/chain`, {
     contentArray: commentData.map((comment) => comment.content),
     forceAnonymous: commentData.some((data) => data.forceAnonymous),
+    replyToCommentId: commentData[0].replyToCommentId,
   });
   const comments = response.data.comments.map((comment: any) =>
     makeClientComment(comment)
