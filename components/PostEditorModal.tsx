@@ -27,7 +27,15 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
     ({
       slug,
       replyToPostId,
-      postData: { content, large, forceAnonymous, whisperTags, indexTags },
+      postData: {
+        content,
+        large,
+        forceAnonymous,
+        whisperTags,
+        indexTags,
+        categoryTags,
+        contentWarnings,
+      },
     }) => {
       // Choose the endpoint according to the provided data.
       // If there's no post to reply to, then it's a new thread.
@@ -39,6 +47,8 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
           forceAnonymous,
           whisperTags,
           indexTags,
+          categoryTags,
+          contentWarnings,
         });
       } else {
         return createPost(replyToPostId, {
@@ -47,6 +57,8 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
           forceAnonymous,
           whisperTags,
           indexTags,
+          categoryTags,
+          contentWarnings,
         });
       }
     },
@@ -125,7 +137,12 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
             }: {
               text: string;
               large: boolean;
-              tags: { name: string; indexable: boolean }[];
+              tags: {
+                name: string;
+                indexable: boolean;
+                category: boolean;
+                contentWarning: boolean;
+              }[];
             }) => {
               log(tags);
               postContribution({
@@ -136,10 +153,19 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
                   large,
                   forceAnonymous: false,
                   whisperTags: tags
-                    .filter((tag) => !tag.indexable)
+                    .filter(
+                      (tag) =>
+                        !tag.indexable && !tag.category && !tag.contentWarning
+                    )
                     .map((tag) => tag.name),
                   indexTags: tags
                     .filter((tag) => tag.indexable)
+                    .map((tag) => tag.name),
+                  contentWarnings: tags
+                    .filter((tag) => tag.contentWarning)
+                    .map((tag) => tag.name),
+                  categoryTags: tags
+                    .filter((tag) => tag.category)
                     .map((tag) => tag.name),
                 },
               });

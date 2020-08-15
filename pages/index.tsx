@@ -5,6 +5,7 @@ import { useQuery } from "react-query";
 import { useRouter } from "next/router";
 // @ts-ignore
 import { BoardsDisplay, useCompact } from "@bobaboard/ui-components";
+import Link from "next/link";
 import debug from "debug";
 
 const info = debug("bobafrontend:index-info");
@@ -56,12 +57,31 @@ function HomePage() {
               </p>
               <div className="updates">
                 <h2>New Stuff </h2>
-                <div className="last">[Last Updated: 8/12/2020]</div>
+                <div className="last">
+                  [Last Updated: 8/15/20.{" "}
+                  <Link href="/update-logs">
+                    <a>Older logs.</a>
+                  </Link>
+                  ]
+                </div>
                 <ul>
                   <li>
-                    [Comment threads] We need to go deeper... It's time to start
-                    threading comments too!
+                    [Category Tags]: you can prefix tags with + to turn them
+                    into category tags. Category tags will be searchable only
+                    within the context of a board or of a thread. Want to add a
+                    +Luigi category to your "fictional husbands" shrine without
+                    having every single post show up in search? Now you can.
                   </li>
+                  <li>
+                    [Content Warning Tags]: you can prefix tags with "cw:" to
+                    turn them into content warning tags. Other than a swanky
+                    yellow color that makes them more visible, I plan to have a
+                    couple features around them in the future, like showing them
+                    at the top of the post instead, or making sure synonyms are
+                    taken into account when deny-listing them.
+                  </li>
+                  Feedback always appreciated! These are, like everything,
+                  experimental features.
                 </ul>
               </div>
             </div>
@@ -88,6 +108,9 @@ function HomePage() {
                 margin: 0 auto;
                 margin-bottom: 25px;
                 line-height: 20px;
+              }
+              a {
+                color: #f96680;
               }
               .tagline {
                 font-style: italic;

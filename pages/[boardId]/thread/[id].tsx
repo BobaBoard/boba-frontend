@@ -62,7 +62,7 @@ const scrollToPost = (postId: string, color: string) => {
     top:
       element.getBoundingClientRect().top +
       window.pageYOffset -
-      DefaultTheme.HEADER_HEIGHT_PX,
+      (DefaultTheme.HEADER_HEIGHT_PX + 2),
     behavior: "smooth",
   });
 };
@@ -86,7 +86,7 @@ const scrollToComment = (commentId: string, color: string) => {
     top:
       element.getBoundingClientRect().top +
       window.pageYOffset -
-      DefaultTheme.HEADER_HEIGHT_PX,
+      (DefaultTheme.HEADER_HEIGHT_PX + 2),
     behavior: "smooth",
   });
 };

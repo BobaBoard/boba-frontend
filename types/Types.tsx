@@ -35,6 +35,8 @@ export interface PostType {
   tags: {
     whisperTags: string[];
     indexTags: string[];
+    categoryTags: string[];
+    contentWarnings: string[];
   };
   comments?: CommentType[];
   postsAmount: number;
@@ -77,6 +79,8 @@ export interface PostData {
   forceAnonymous: boolean;
   whisperTags: string[];
   indexTags: string[];
+  categoryTags: string[];
+  contentWarnings: string[];
 }
 
 export interface CommentData {

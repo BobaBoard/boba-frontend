@@ -10,6 +10,16 @@ function HomePage() {
             <div className="intro updates">
               <h1>Update Logs!</h1>
               <ul>
+                {" "}
+                <li>
+                  [8/12/2020]
+                  <ul>
+                    <li>
+                      [Comment threads] We need to go deeper... It's time to
+                      start threading comments too!
+                    </li>
+                  </ul>
+                </li>
                 <li>
                   [8/8/20]
                   <ul>
