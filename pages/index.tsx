@@ -100,6 +100,7 @@ function HomePage() {
                   });
                 }}
                 getBoardHref={(slug: string) => `/!${slug.replace(" ", "_")}`}
+                minSizePx={180}
               />
             </div>
             <style jsx>{`
