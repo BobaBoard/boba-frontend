@@ -27,7 +27,7 @@ const Layout = (props: LayoutProps) => {
   const layoutRef = React.useRef<{ closeSideMenu: () => void }>(null);
   const slug: string = router.query.boardId?.slice(1) as string;
   const { [slug]: boardData, fetching } = useBoardTheme();
-  const { data: pinnedBoards, refetch } = useQuery(
+  const { data: pinnedBoards, refetch, isLoading } = useQuery(
     "allBoardsData",
     // TODO: fix this typing
     // @ts-ignore
@@ -48,6 +48,7 @@ const Layout = (props: LayoutProps) => {
         return boardData;
       },
       initialStale: true,
+      staleTime: 1000 * 30, // Make stale after 30s
       refetchInterval: 1000 * 60 * 1, // Refetch automatically every minute
       refetchOnWindowFocus: true,
     }
@@ -118,6 +119,7 @@ const Layout = (props: LayoutProps) => {
             showSearch={false}
             showDismissNotifications={isLoggedIn}
             onNotificationsDismissRequest={dismissNotifications}
+            loading={isLoading}
           />
         }
         actionButton={props.actionButton}
@@ -141,6 +143,7 @@ const Layout = (props: LayoutProps) => {
         loading={props.loading || fetching || isUserPending}
         onLogoClick={() => router.push("/").then(() => window.scrollTo(0, 0))}
         updates={isLoggedIn && hasUpdates}
+        onSideMenuButtonClick={refetch}
       />
       <ReactQueryDevtools initialIsOpen={false} />
     </div>
