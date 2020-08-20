@@ -10,7 +10,27 @@ function HomePage() {
             <div className="intro updates">
               <h1>Update Logs!</h1>
               <ul>
-                {" "}
+                <li>
+                  [8/15/2020]
+                  <ul>
+                    <li>
+                      [Category Tags]: you can prefix tags with + to turn them
+                      into category tags. Category tags will be searchable only
+                      within the context of a board or of a thread. Want to add
+                      a +Luigi category to your "fictional husbands" shrine
+                      without having every single post show up in search? Now
+                      you can.
+                    </li>
+                    <li>
+                      [Content Warning Tags]: you can prefix tags with "cw:" to
+                      turn them into content warning tags. Other than a swanky
+                      yellow color that makes them more visible, I plan to have
+                      a couple features around them in the future, like showing
+                      them at the top of the post instead, or making sure
+                      synonyms are taken into account when deny-listing them.
+                    </li>
+                  </ul>
+                </li>
                 <li>
                   [8/12/2020]
                   <ul>

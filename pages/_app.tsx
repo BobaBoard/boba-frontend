@@ -11,6 +11,7 @@ import {
   ToastContainer,
   toast,
   setTumblrEmbedFetcher,
+  setOEmbedFetcher,
   // @ts-ignore
 } from "@bobaboard/ui-components";
 
@@ -61,6 +62,17 @@ setTumblrEmbedFetcher((url: string) => {
     console.log(res);
     return res.data;
   });
+});
+
+const embedsAxios = axios.create();
+setOEmbedFetcher((url: string) => {
+  console.log(`""Fetching"" from ${url}`);
+  return embedsAxios
+    .get(`https://embeds-dot-bobaboard.uc.r.appspot.com/iframely?uri=${url}`)
+    .then((res) => {
+      console.log(res);
+      return res.data;
+    });
 });
 
 function MyApp({ Component, pageProps }: any) {

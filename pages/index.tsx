@@ -58,30 +58,45 @@ function HomePage() {
               <div className="updates">
                 <h2>New Stuff </h2>
                 <div className="last">
-                  [Last Updated: 8/15/20.{" "}
+                  [Last Updated: 8/19/20.{" "}
                   <Link href="/update-logs">
                     <a>Older logs.</a>
                   </Link>
                   ]
                 </div>
+                <p>Today..... the editor rises!</p>
                 <ul>
                   <li>
-                    [Category Tags]: you can prefix tags with + to turn them
-                    into category tags. Category tags will be searchable only
-                    within the context of a board or of a thread. Want to add a
-                    +Luigi category to your "fictional husbands" shrine without
-                    having every single post show up in search? Now you can.
+                    [New Embed Types]: Pixiv, Reddit, Instagram and Vimeo!
                   </li>
                   <li>
-                    [Content Warning Tags]: you can prefix tags with "cw:" to
-                    turn them into content warning tags. Other than a swanky
-                    yellow color that makes them more visible, I plan to have a
-                    couple features around them in the future, like showing them
-                    at the top of the post instead, or making sure synonyms are
-                    taken into account when deny-listing them.
+                    [Embeds Size Saving]: We're now saving the size of the
+                    embeds, so you shouldn't see (for new posts) as much jumping
+                    around as the embeds load. This is a bit experimental. Cross
+                    your fingers.
                   </li>
-                  Feedback always appreciated! These are, like everything,
-                  experimental features.
+                  <li>
+                    [Removing Extra White Lines]: Extra white lines at the end
+                    are now automatically removed.
+                  </li>
+                  <li>
+                    [Bug Fix 1]: Fixed bug with link auto-highlighting, where a
+                    simple www would result in the following word being marked
+                    as link.
+                  </li>
+                  <li>
+                    [Bug Fix 2]: You can now right click to save images even
+                    when they're marked as spoilers!
+                  </li>
+                  <li>
+                    [Bug Fix 3]: Removing an embed while it's still loading is
+                    now enabled.
+                  </li>
+                  <li>
+                    [Bug Fix 4]: re-enable copy paste that was broken in some
+                    iOS versions, and re-enabled the pasting of images, which
+                    was broken in other browsers.
+                  </li>
                 </ul>
               </div>
             </div>
