@@ -68,7 +68,9 @@ const embedsAxios = axios.create();
 setOEmbedFetcher((url: string) => {
   console.log(`""Fetching"" from ${url}`);
   return embedsAxios
-    .get(`https://embeds-dot-bobaboard.uc.r.appspot.com/iframely?uri=${url}`)
+    .get(
+      `https://embeds-dot-bobaboard.uc.r.appspot.com/iframely?uri=${url}&iframe=0`
+    )
     .then((res) => {
       console.log(res);
       return res.data;
