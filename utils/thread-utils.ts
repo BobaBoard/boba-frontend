@@ -45,12 +45,17 @@ export const makeCommentsTree = (
 export const makePostsTree = (
   posts: PostType[] | undefined,
   threadId: string
-) => {
+): {
+  root: null | PostType;
+  parentChildrenMap: Map<string, PostType[]>;
+  postsDisplaySequence: null | PostType[];
+} => {
   log(`Creating posts tree for thread ${threadId}`);
   if (!posts) {
     return {
-      root: undefined,
+      root: null,
       parentChildrenMap: new Map<string, PostType[]>(),
+      postsDisplaySequence: null,
     };
   }
   let root: PostType | null = null;
@@ -118,4 +123,80 @@ export const getTotalNewContributions = (
     );
   }
   return total;
+};
+
+export const extractCategories = (posts: PostType[] | undefined) => {
+  return Array.from(
+    new Set(posts?.flatMap((post) => post.tags.categoryTags))
+  ) as string[];
+};
+
+export const applyCategoriesFilter = (
+  root: PostType | null,
+  parentChildrenMap: Map<string, PostType[]>,
+  categoriesFilter: { name: string; active: boolean }[]
+) => {
+  const activeCategories = categoriesFilter.filter(
+    (category) => category.active
+  );
+  if (!root || activeCategories.length == categoriesFilter.length) {
+    // All categories are active, don't filter
+    return {
+      root,
+      parentChildrenMap,
+    };
+  }
+  // Filter away all posts that don't have children in the category.
+  // Root should never be filtered out.
+  debugger;
+  const resultsMap = new Map<string, boolean>();
+  makeActiveChildrenMap(root, parentChildrenMap, activeCategories, resultsMap);
+  const newParentChildrenMap = new Map<string, PostType[]>();
+  parentChildrenMap.forEach((childrenArray, postId) => {
+    const activeChildren = childrenArray.filter((child) =>
+      resultsMap.get(child.postId)
+    );
+    if (resultsMap.get(postId) && activeChildren.length > 0) {
+      newParentChildrenMap.set(postId, activeChildren);
+    }
+  });
+  return {
+    root,
+    parentChildrenMap: newParentChildrenMap,
+  };
+};
+
+const makeActiveChildrenMap = (
+  root: PostType,
+  parentChildrenMap: Map<string, PostType[]>,
+  activeCategories: { name: string; active: boolean }[],
+  resultsMap: Map<string, boolean>
+) => {
+  if (resultsMap.has(root.postId)) {
+    return resultsMap.get(root.postId) as boolean;
+  }
+  const children = parentChildrenMap.get(root.postId);
+  if (!children) {
+    const hasActiveCategory =
+      root.tags.categoryTags &&
+      root.tags.categoryTags.some((category) =>
+        activeCategories.some(
+          (activeCategory) => category == activeCategory.name
+        )
+      );
+    resultsMap.set(root.postId, hasActiveCategory);
+    return hasActiveCategory;
+  }
+  let hasCategoryChildren = false;
+  children.forEach((child) => {
+    const childResult = makeActiveChildrenMap(
+      child,
+      parentChildrenMap,
+      activeCategories,
+      resultsMap
+    );
+    hasCategoryChildren = hasCategoryChildren || childResult;
+  });
+  resultsMap.set(root.postId, hasCategoryChildren);
+  return hasCategoryChildren;
 };

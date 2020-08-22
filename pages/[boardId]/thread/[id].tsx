@@ -3,6 +3,7 @@ import {
   FeedWithMenu,
   CycleNewButton,
   toast,
+  CategoryFilter,
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import Layout from "../../../components/Layout";
@@ -19,7 +20,11 @@ import {
   ThreadType,
   BoardActivityResponse,
 } from "../../../types/Types";
-import { makePostsTree } from "../../../utils/thread-utils";
+import {
+  makePostsTree,
+  extractCategories,
+  applyCategoriesFilter,
+} from "../../../utils/thread-utils";
 import classnames from "classnames";
 import { useBoardTheme } from "../../../components/BoardTheme";
 //import { useHotkeys } from "react-hotkeys-hook";
@@ -69,6 +74,12 @@ function ThreadPage() {
   const threadId = router.query.id as string;
   const { user, isLoggedIn } = useAuth();
   const slug: string = router.query.boardId?.slice(1) as string;
+  const [categoryFilterState, setCategoryFilterState] = React.useState<
+    {
+      name: string;
+      active: boolean;
+    }[]
+  >([]);
   const { data: threadData, isFetching: isFetchingThread } = useQuery(
     ["threadData", { threadId }],
     getThreadData,
@@ -122,6 +133,31 @@ function ThreadPage() {
     () => makePostsTree(threadData?.posts, threadId),
     [threadData, threadId]
   );
+
+  React.useEffect(() => {
+    if (!threadData) {
+      setCategoryFilterState([]);
+    }
+    const currentCategories = extractCategories(threadData?.posts);
+    setCategoryFilterState(
+      currentCategories.map((category) => ({
+        name: category,
+        active:
+          categoryFilterState.find(
+            (stateCategory) => stateCategory.name == category
+          )?.active || true,
+      }))
+    );
+  }, [threadData, threadId]);
+
+  const {
+    root: filteredRoot,
+    parentChildrenMap: filteredParentChildrenMap,
+  } = React.useMemo(
+    () => applyCategoriesFilter(root, parentChildrenMap, categoryFilterState),
+    [root, parentChildrenMap, categoryFilterState]
+  );
+
   // TODO: disable this while post editing and readd
   // const currentPostIndex = React.useRef<number>(-1);
   // useHotkeys(
@@ -161,7 +197,7 @@ function ThreadPage() {
     });
   }, [postsDisplaySequence]);
 
-  if (!root) {
+  if (!filteredRoot) {
     return <div />;
   }
 
@@ -252,12 +288,32 @@ function ThreadPage() {
       <Layout
         mainContent={
           <FeedWithMenu
-            sidebarContent={<div />}
+            sidebarContent={
+              <div>
+                {categoryFilterState && (
+                  <CategoryFilter
+                    categories={categoryFilterState}
+                    onCategoryStateChange={(name: string, active: boolean) => {
+                      setCategoryFilterState(
+                        categoryFilterState.map((category) =>
+                          category.name == name
+                            ? {
+                                name,
+                                active,
+                              }
+                            : category
+                        )
+                      );
+                    }}
+                  />
+                )}
+              </div>
+            }
             feedContent={
               <div className="feed-content">
                 <MemoizedThreadLevel
-                  post={root}
-                  postsMap={parentChildrenMap}
+                  post={filteredRoot}
+                  postsMap={filteredParentChildrenMap}
                   level={0}
                   onNewComment={(replyToPostId, replyToCommentId) =>
                     setCommentReplyId({
