@@ -3,7 +3,6 @@ import {
   FeedWithMenu,
   CycleNewButton,
   toast,
-  CategoryFilter,
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import Layout from "components/Layout";
@@ -14,7 +13,7 @@ import { getThreadData, markThreadAsRead } from "utils/queries";
 import { useQuery, useMutation } from "react-query";
 import { useAuth } from "components/Auth";
 import debug from "debug";
-import { PostType, CommentType } from "types/Types";
+import { PostType, CommentType, THREAD_VIEW_MODES } from "types/Types";
 import {
   makePostsTree,
   extractCategories,
@@ -31,15 +30,11 @@ import ThreadLevel, {
   scrollToComment,
   scrollToPost,
 } from "components/thread/ThreadLevel";
+import ThreadSidebar from "components/thread/ThreadSidebar";
 import MasonryThreadView from "components/thread/MasonryThreadView";
 const log = debug("bobafrontend:threadPage-log");
 
 const MemoizedThreadLevel = React.memo(ThreadLevel);
-
-enum VIEW_MODES {
-  THREAD,
-  MASONRY,
-}
 
 function ThreadPage() {
   const [postReplyId, setPostReplyId] = React.useState<string | null>(null);
@@ -51,7 +46,7 @@ function ThreadPage() {
   const threadId = router.query.id as string;
   const { user, isLoggedIn } = useAuth();
   const slug: string = router.query.boardId?.slice(1) as string;
-  const [viewMode, setViewMode] = React.useState(VIEW_MODES.THREAD);
+  const [viewMode, setViewMode] = React.useState(THREAD_VIEW_MODES.MASONRY);
   const [categoryFilterState, setCategoryFilterState] = React.useState<
     {
       name: string;
@@ -219,34 +214,22 @@ function ThreadPage() {
         mainContent={
           <FeedWithMenu
             sidebarContent={
-              <div>
-                {categoryFilterState && (
-                  <CategoryFilter
-                    categories={categoryFilterState}
-                    onCategoryStateChange={(name: string, active: boolean) => {
-                      setCategoryFilterState(
-                        categoryFilterState.map((category) =>
-                          category.name == name
-                            ? {
-                                name,
-                                active,
-                              }
-                            : category
-                        )
-                      );
-                    }}
-                  />
-                )}
-              </div>
+              <ThreadSidebar
+                firstPost={filteredRoot}
+                categoryFilters={categoryFilterState}
+                onFiltersStatecChange={setCategoryFilterState}
+                viewMode={viewMode}
+                onViewChange={setViewMode}
+              />
             }
             feedContent={
               <div
                 className={classnames("feed", {
-                  thread: viewMode == VIEW_MODES.THREAD,
-                  masonry: viewMode == VIEW_MODES.MASONRY,
+                  thread: viewMode == THREAD_VIEW_MODES.THREAD,
+                  masonry: viewMode == THREAD_VIEW_MODES.MASONRY,
                 })}
               >
-                {viewMode == VIEW_MODES.THREAD ? (
+                {viewMode == THREAD_VIEW_MODES.THREAD ? (
                   <div className="feed-content">
                     <MemoizedThreadLevel
                       post={filteredRoot}

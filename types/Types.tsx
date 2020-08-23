@@ -88,3 +88,13 @@ export interface CommentData {
   forceAnonymous: boolean;
   replyToCommentId: string | null;
 }
+
+export interface CategoryFilterType {
+  name: string;
+  active: boolean;
+}
+
+export enum THREAD_VIEW_MODES {
+  THREAD,
+  MASONRY,
+}

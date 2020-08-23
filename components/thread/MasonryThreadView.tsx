@@ -40,7 +40,9 @@ const MasonryThreadView: React.FC<{
   lastOf: { level: number; postId: string }[];
 }> = (props) => {
   const orderedPosts = React.useMemo(() => {
-    const sortedArray = props.posts ? [...props.posts] : [];
+    let [unusedFirstElement, ...sortedArray] = props.posts
+      ? [...props.posts]
+      : [];
     sortedArray.sort((post1, post2) => {
       if (moment.utc(post1.created).isBefore(moment.utc(post2.created))) {
         return -1;
@@ -50,6 +52,7 @@ const MasonryThreadView: React.FC<{
       }
       return 0;
     });
+
     const activeCategories = props.categoryFilters.filter(
       (category) => category.active
     );
