@@ -6,15 +6,15 @@ import {
   CategoryFilter,
   // @ts-ignore
 } from "@bobaboard/ui-components";
-import Layout from "../../../components/Layout";
-import PostEditorModal from "../../../components/PostEditorModal";
-import CommentEditorModal from "../../../components/CommentEditorModal";
+import Layout from "components/Layout";
+import PostEditorModal from "components/PostEditorModal";
+import CommentEditorModal from "components/CommentEditorModal";
 import { useRouter } from "next/router";
-import { getThreadData, markThreadAsRead } from "../../../utils/queries";
+import { getThreadData, markThreadAsRead } from "utils/queries";
 import { useQuery, useMutation } from "react-query";
-import { useAuth } from "../../../components/Auth";
+import { useAuth } from "components/Auth";
 import debug from "debug";
-import { PostType, CommentType } from "../../../types/Types";
+import { PostType, CommentType } from "types/Types";
 import {
   makePostsTree,
   extractCategories,
@@ -23,15 +23,15 @@ import {
   updatePostCache,
   getThreadInBoardCache,
   updateThreadReadState,
-} from "../../../utils/thread-utils";
+} from "utils/thread-utils";
 import classnames from "classnames";
-import { useBoardTheme } from "../../../components/BoardTheme";
+import { useBoardTheme } from "components/BoardTheme";
 //import { useHotkeys } from "react-hotkeys-hook";
 import ThreadLevel, {
   scrollToComment,
   scrollToPost,
-} from "../../../components/thread/ThreadLevel";
-import MasonryThreadView from "../../../components/thread/MasonryThreadView";
+} from "components/thread/ThreadLevel";
+import MasonryThreadView from "components/thread/MasonryThreadView";
 const log = debug("bobafrontend:threadPage-log");
 
 const MemoizedThreadLevel = React.memo(ThreadLevel);

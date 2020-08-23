@@ -95,17 +95,7 @@ const MasonryThreadView: React.FC<{
           />
         </div>
       ))}
-      <style jsx>{`
-        .post {
-           {
-            /* margin-bottom: 15px;
-          max-width: 500px;
-          width: 300px;
-          height: 300px;
-          background-color: red; */
-          }
-        }
-      `}</style>
+      <style jsx>{``}</style>
     </MasonryView>
   );
 };
