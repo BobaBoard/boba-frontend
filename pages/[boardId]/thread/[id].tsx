@@ -11,19 +11,18 @@ import PostEditorModal from "../../../components/PostEditorModal";
 import CommentEditorModal from "../../../components/CommentEditorModal";
 import { useRouter } from "next/router";
 import { getThreadData, markThreadAsRead } from "../../../utils/queries";
-import { useQuery, useMutation, queryCache } from "react-query";
+import { useQuery, useMutation } from "react-query";
 import { useAuth } from "../../../components/Auth";
 import debug from "debug";
-import {
-  PostType,
-  CommentType,
-  ThreadType,
-  BoardActivityResponse,
-} from "../../../types/Types";
+import { PostType, CommentType } from "../../../types/Types";
 import {
   makePostsTree,
   extractCategories,
   applyCategoriesFilter,
+  updateCommentCache,
+  updatePostCache,
+  getThreadInBoardCache,
+  updateThreadReadState,
 } from "../../../utils/thread-utils";
 import classnames from "classnames";
 import { useBoardTheme } from "../../../components/BoardTheme";
@@ -36,34 +35,6 @@ import MasonryThreadView from "../../../components/thread/MasonryThreadView";
 const log = debug("bobafrontend:threadPage-log");
 
 const MemoizedThreadLevel = React.memo(ThreadLevel);
-
-const getThreadInBoardCache = ({
-  slug,
-  threadId,
-}: {
-  slug: string;
-  threadId: string;
-}) => {
-  const boardData:
-    | BoardActivityResponse[]
-    | undefined = queryCache.getQueryData(["boardActivityData", { slug }]);
-  if (!boardData) {
-    log(`Found no initial board activity data`);
-    return undefined;
-  }
-  log(`Found initial board activity data for board ${slug}`);
-  log(boardData);
-  const thread = boardData
-    .flatMap((data) => data.activity)
-    .find((thread) => thread.threadId == threadId);
-  if (!thread) {
-    return undefined;
-  }
-
-  log(`Found thread:`);
-  log(thread);
-  return { thread, boardData };
-};
 
 enum VIEW_MODES {
   THREAD,
@@ -80,7 +51,7 @@ function ThreadPage() {
   const threadId = router.query.id as string;
   const { user, isLoggedIn } = useAuth();
   const slug: string = router.query.boardId?.slice(1) as string;
-  const [viewMode, setViewMode] = React.useState(VIEW_MODES.MASONRY);
+  const [viewMode, setViewMode] = React.useState(VIEW_MODES.THREAD);
   const [categoryFilterState, setCategoryFilterState] = React.useState<
     {
       name: string;
@@ -112,28 +83,7 @@ function ThreadPage() {
   const [readThread] = useMutation(() => markThreadAsRead({ threadId }), {
     onSuccess: () => {
       log(`Successfully marked thread as read`);
-      const threadResult = getThreadInBoardCache({ slug, threadId });
-      if (threadResult) {
-        log(`Found thread in cache:`);
-        log(threadResult.thread);
-        threadResult.thread.isNew = false;
-        threadResult.thread.newCommentsAmount = 0;
-        threadResult.thread.newPostsAmount = 0;
-
-        threadResult.thread.posts.forEach((post) => {
-          post.isNew = false;
-          post.newCommentsAmount = 0;
-          post.newPostsAmount = 0;
-          post.comments?.forEach((comment) => {
-            comment.isNew = false;
-          });
-        });
-
-        queryCache.setQueryData(
-          ["boardActivityData", { slug }],
-          threadResult.boardData
-        );
-      }
+      updateThreadReadState({ threadId, slug });
     },
   });
   const { root, parentChildrenMap, postsDisplaySequence } = React.useMemo(
@@ -223,20 +173,11 @@ function ThreadPage() {
                 `Saved new prompt to thread ${threadId}, replying to post ${postReplyId}.`
               );
               log(post);
-              const threadData = queryCache.getQueryData<ThreadType>([
-                "threadData",
-                { threadId },
-              ]);
-              if (!threadData) {
-                log(
-                  `Couldn't read thread data during post upload for thread id ${threadId}`
+              if (!updatePostCache({ threadId, post })) {
+                toast.error(
+                  `Error updating post cache after posting new comment.`
                 );
-                return;
               }
-              threadData.posts = [...threadData.posts, post];
-              queryCache.setQueryData(["threadData", { threadId }], () => ({
-                ...threadData,
-              }));
               setPostReplyId(null);
             }}
             onCloseModal={() => setPostReplyId(null)}
@@ -255,36 +196,18 @@ function ThreadPage() {
                 `Saved new comment(s) to thread ${threadId}, replying to post ${commentReplyId}.`
               );
               log(comments);
-              const threadData = queryCache.getQueryData<ThreadType>([
-                "threadData",
-                { threadId },
-              ]);
-              if (!threadData) {
-                log(
-                  `Couldn't read thread data during comment upload for thread id ${threadId}`
+              if (
+                !commentReplyId ||
+                !updateCommentCache({
+                  threadId,
+                  newComments: comments,
+                  replyTo: commentReplyId,
+                })
+              ) {
+                toast.error(
+                  `Error updating comment cache after posting new comment.`
                 );
-                return;
               }
-              const parentIndex = threadData.posts.findIndex(
-                (post) => post.postId == commentReplyId?.postId
-              );
-              log(`Found parent post with index ${parentIndex}`);
-              if (parentIndex == -1) {
-                toast.error("wtf");
-                return;
-              }
-              threadData.posts[parentIndex] = {
-                ...threadData.posts[parentIndex],
-                newCommentsAmount:
-                  threadData.posts[parentIndex].newCommentsAmount + 1,
-                comments: [
-                  ...(threadData.posts[parentIndex].comments || []),
-                  ...comments,
-                ],
-              };
-              queryCache.setQueryData(["threadData", { threadId }], () => ({
-                ...threadData,
-              }));
               setCommentReplyId(null);
             }}
             onCloseModal={() => setCommentReplyId(null)}
@@ -317,37 +240,46 @@ function ThreadPage() {
               </div>
             }
             feedContent={
-              <div className="feed-content">
+              <div
+                className={classnames("feed", {
+                  thread: viewMode == VIEW_MODES.THREAD,
+                  masonry: viewMode == VIEW_MODES.MASONRY,
+                })}
+              >
                 {viewMode == VIEW_MODES.THREAD ? (
-                  <MemoizedThreadLevel
-                    post={filteredRoot}
-                    postsMap={filteredParentChildrenMap}
-                    level={0}
-                    onNewComment={(replyToPostId, replyToCommentId) =>
-                      setCommentReplyId({
-                        postId: replyToPostId,
-                        commentId: replyToCommentId,
-                      })
-                    }
-                    onNewContribution={setPostReplyId}
-                    isLoggedIn={isLoggedIn}
-                    lastOf={[]}
-                  />
+                  <div className="feed-content">
+                    <MemoizedThreadLevel
+                      post={filteredRoot}
+                      postsMap={filteredParentChildrenMap}
+                      level={0}
+                      onNewComment={(replyToPostId, replyToCommentId) =>
+                        setCommentReplyId({
+                          postId: replyToPostId,
+                          commentId: replyToCommentId,
+                        })
+                      }
+                      onNewContribution={setPostReplyId}
+                      isLoggedIn={isLoggedIn}
+                      lastOf={[]}
+                    />
+                  </div>
                 ) : (
-                  <MasonryThreadView
-                    posts={threadData?.posts}
-                    postsMap={filteredParentChildrenMap}
-                    categoryFilters={categoryFilterState}
-                    onNewComment={(replyToPostId, replyToCommentId) =>
-                      setCommentReplyId({
-                        postId: replyToPostId,
-                        commentId: replyToCommentId,
-                      })
-                    }
-                    onNewContribution={setPostReplyId}
-                    isLoggedIn={isLoggedIn}
-                    lastOf={[]}
-                  />
+                  <div className="masonry-feed">
+                    <MasonryThreadView
+                      posts={threadData?.posts}
+                      postsMap={filteredParentChildrenMap}
+                      categoryFilters={categoryFilterState}
+                      onNewComment={(replyToPostId, replyToCommentId) =>
+                        setCommentReplyId({
+                          postId: replyToPostId,
+                          commentId: replyToCommentId,
+                        })
+                      }
+                      onNewContribution={setPostReplyId}
+                      isLoggedIn={isLoggedIn}
+                      lastOf={[]}
+                    />
+                  </div>
                 )}
                 <div
                   className={classnames("loading-indicator", {
@@ -402,6 +334,13 @@ function ThreadPage() {
           .feed-content {
             max-width: 100%;
             padding-bottom: 40px;
+          }
+          .feed.masonry {
+            width: 100%;
+          }
+          .masonry-feed {
+            width: 100%;
+            position: relative;
           }
           .loading-indicator {
             color: white;

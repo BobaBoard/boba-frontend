@@ -10,6 +10,7 @@ import {
   PostSizes,
   PostHandler,
   DefaultTheme,
+  MasonryView,
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import { useRouter } from "next/router";
@@ -65,9 +66,9 @@ const MasonryThreadView: React.FC<{
   }, [props.posts, props.categoryFilters]);
 
   return (
-    <div>
+    <MasonryView>
       {orderedPosts.map((post) => (
-        <div key={post.postId}>
+        <div className="post" key={post.postId}>
           <Post
             key={post.postId}
             size={post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}
@@ -94,7 +95,18 @@ const MasonryThreadView: React.FC<{
           />
         </div>
       ))}
-    </div>
+      <style jsx>{`
+        .post {
+           {
+            /* margin-bottom: 15px;
+          max-width: 500px;
+          width: 300px;
+          height: 300px;
+          background-color: red; */
+          }
+        }
+      `}</style>
+    </MasonryView>
   );
 };
 
