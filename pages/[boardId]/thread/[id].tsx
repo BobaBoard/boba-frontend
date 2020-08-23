@@ -32,6 +32,7 @@ import ThreadLevel, {
   scrollToComment,
   scrollToPost,
 } from "../../../components/thread/ThreadLevel";
+import MasonryThreadView from "../../../components/thread/MasonryThreadView";
 const log = debug("bobafrontend:threadPage-log");
 
 const MemoizedThreadLevel = React.memo(ThreadLevel);
@@ -64,6 +65,11 @@ const getThreadInBoardCache = ({
   return { thread, boardData };
 };
 
+enum VIEW_MODES {
+  THREAD,
+  MASONRY,
+}
+
 function ThreadPage() {
   const [postReplyId, setPostReplyId] = React.useState<string | null>(null);
   const [commentReplyId, setCommentReplyId] = React.useState<{
@@ -74,6 +80,7 @@ function ThreadPage() {
   const threadId = router.query.id as string;
   const { user, isLoggedIn } = useAuth();
   const slug: string = router.query.boardId?.slice(1) as string;
+  const [viewMode, setViewMode] = React.useState(VIEW_MODES.MASONRY);
   const [categoryFilterState, setCategoryFilterState] = React.useState<
     {
       name: string;
@@ -311,20 +318,37 @@ function ThreadPage() {
             }
             feedContent={
               <div className="feed-content">
-                <MemoizedThreadLevel
-                  post={filteredRoot}
-                  postsMap={filteredParentChildrenMap}
-                  level={0}
-                  onNewComment={(replyToPostId, replyToCommentId) =>
-                    setCommentReplyId({
-                      postId: replyToPostId,
-                      commentId: replyToCommentId,
-                    })
-                  }
-                  onNewContribution={setPostReplyId}
-                  isLoggedIn={isLoggedIn}
-                  lastOf={[]}
-                />
+                {viewMode == VIEW_MODES.THREAD ? (
+                  <MemoizedThreadLevel
+                    post={filteredRoot}
+                    postsMap={filteredParentChildrenMap}
+                    level={0}
+                    onNewComment={(replyToPostId, replyToCommentId) =>
+                      setCommentReplyId({
+                        postId: replyToPostId,
+                        commentId: replyToCommentId,
+                      })
+                    }
+                    onNewContribution={setPostReplyId}
+                    isLoggedIn={isLoggedIn}
+                    lastOf={[]}
+                  />
+                ) : (
+                  <MasonryThreadView
+                    posts={threadData?.posts}
+                    postsMap={filteredParentChildrenMap}
+                    categoryFilters={categoryFilterState}
+                    onNewComment={(replyToPostId, replyToCommentId) =>
+                      setCommentReplyId({
+                        postId: replyToPostId,
+                        commentId: replyToCommentId,
+                      })
+                    }
+                    onNewContribution={setPostReplyId}
+                    isLoggedIn={isLoggedIn}
+                    lastOf={[]}
+                  />
+                )}
                 <div
                   className={classnames("loading-indicator", {
                     loading: isFetchingThread,
@@ -377,7 +401,7 @@ function ThreadPage() {
         {`
           .feed-content {
             max-width: 100%;
-            padding-bottom: 20px;
+            padding-bottom: 40px;
           }
           .loading-indicator {
             color: white;

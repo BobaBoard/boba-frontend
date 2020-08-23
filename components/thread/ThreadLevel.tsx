@@ -24,7 +24,7 @@ import {
 import { useBoardTheme } from "../BoardTheme";
 //import { useHotkeys } from "react-hotkeys-hook";
 
-const log = debug("bobafrontend:thread-log");
+const log = debug("bobafrontend:threadLevel-log");
 
 // TODO: unify this and scrollToComment
 export const scrollToPost = (postId: string, color: string) => {
