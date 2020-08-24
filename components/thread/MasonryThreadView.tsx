@@ -1,27 +1,16 @@
 import React from "react";
 import {
-  Comment,
-  CommentChain,
-  CommentHandler,
-  CompactThreadIndent,
-  useIndent,
-  ThreadIndent,
   Post,
   PostSizes,
-  PostHandler,
-  DefaultTheme,
   MasonryView,
   // @ts-ignore
 } from "@bobaboard/ui-components";
-import { useRouter } from "next/router";
 import debug from "debug";
-import { PostType, CommentType } from "../../types/Types";
+import { PostType } from "../../types/Types";
 import {
-  makeCommentsTree,
   getTotalContributions,
   getTotalNewContributions,
 } from "../../utils/thread-utils";
-import { useBoardTheme } from "../BoardTheme";
 import moment from "moment";
 //import { useHotkeys } from "react-hotkeys-hook";
 
@@ -68,6 +57,10 @@ const MasonryThreadView: React.FC<{
     );
   }, [props.posts, props.categoryFilters]);
 
+  if (!orderedPosts.length) {
+    return <div>The gallery is empty :(</div>;
+  }
+
   return (
     <MasonryView>
       {orderedPosts.map((post) => (
@@ -91,7 +84,6 @@ const MasonryThreadView: React.FC<{
                 ? getTotalNewContributions(post, props.postsMap)
                 : 0
             }
-            answerable={props.isLoggedIn}
             onNotesClick={() => {}}
             notesUrl={"#"}
             tags={post.tags}

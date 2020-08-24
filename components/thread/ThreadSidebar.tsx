@@ -1,9 +1,10 @@
 import React from "react";
 import {
-  Post,
   CategoryFilter,
   Button,
   ButtonStyle,
+  PostQuote,
+  DefaultTheme,
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import { CategoryFilterType, PostType, THREAD_VIEW_MODES } from "types/Types";
@@ -14,18 +15,12 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
   return (
     <div className="thread-sidebar">
       <div className="post-header">
-        <Post
-          key={post.postId}
+        <PostQuote
           createdTime={moment.utc(post.created).fromNow()}
           text={post.content}
           secretIdentity={post.secretIdentity}
           userIdentity={post.userIdentity}
-          totalComments={post.comments?.length}
-          onNewContribution={() => {}}
-          onNewComment={() => {}}
-          onNotesClick={() => {}}
-          notesUrl={"#"}
-          tags={post.tags}
+          backgroundColor={DefaultTheme.LAYOUT_BOARD_SIDEBAR_BACKGROUND_COLOR}
         />
       </div>
       <div className="views">
@@ -77,6 +72,7 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
           padding: 10px;
         }
         .post-header {
+          margin-top: 20px;
           margin-bottom: 10px;
         }
         .views {
