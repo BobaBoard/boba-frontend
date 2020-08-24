@@ -97,4 +97,5 @@ export interface CategoryFilterType {
 export enum THREAD_VIEW_MODES {
   THREAD,
   MASONRY,
+  TIMELINE,
 }

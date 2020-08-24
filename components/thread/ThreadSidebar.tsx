@@ -45,7 +45,16 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
         >
           Masonry
         </Button>
-        <Button theme={ButtonStyle.DARK}>Timeline</Button>
+        <Button
+          theme={
+            props.viewMode == THREAD_VIEW_MODES.TIMELINE
+              ? ButtonStyle.LIGHT
+              : ButtonStyle.DARK
+          }
+          onClick={() => props.onViewChange(THREAD_VIEW_MODES.TIMELINE)}
+        >
+          Timeline
+        </Button>
       </div>
       {props.categoryFilters && (
         <div className="category-filters">

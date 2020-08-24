@@ -32,6 +32,7 @@ import ThreadLevel, {
 } from "components/thread/ThreadLevel";
 import ThreadSidebar from "components/thread/ThreadSidebar";
 import MasonryThreadView from "components/thread/MasonryThreadView";
+import TimelineThreadView from "components/thread/TimelineThreadView";
 const log = debug("bobafrontend:threadPage-log");
 
 const MemoizedThreadLevel = React.memo(ThreadLevel);
@@ -46,7 +47,7 @@ function ThreadPage() {
   const threadId = router.query.id as string;
   const { user, isLoggedIn } = useAuth();
   const slug: string = router.query.boardId?.slice(1) as string;
-  const [viewMode, setViewMode] = React.useState(THREAD_VIEW_MODES.MASONRY);
+  const [viewMode, setViewMode] = React.useState(THREAD_VIEW_MODES.TIMELINE);
   const [categoryFilterState, setCategoryFilterState] = React.useState<
     {
       name: string;
@@ -227,6 +228,7 @@ function ThreadPage() {
                 className={classnames("feed", {
                   thread: viewMode == THREAD_VIEW_MODES.THREAD,
                   masonry: viewMode == THREAD_VIEW_MODES.MASONRY,
+                  timeline: viewMode == THREAD_VIEW_MODES.TIMELINE,
                 })}
               >
                 {viewMode == THREAD_VIEW_MODES.THREAD ? (
@@ -246,9 +248,26 @@ function ThreadPage() {
                       lastOf={[]}
                     />
                   </div>
-                ) : (
+                ) : viewMode == THREAD_VIEW_MODES.MASONRY ? (
                   <div className="masonry-feed">
                     <MasonryThreadView
+                      posts={threadData?.posts}
+                      postsMap={filteredParentChildrenMap}
+                      categoryFilters={categoryFilterState}
+                      onNewComment={(replyToPostId, replyToCommentId) =>
+                        setCommentReplyId({
+                          postId: replyToPostId,
+                          commentId: replyToCommentId,
+                        })
+                      }
+                      onNewContribution={setPostReplyId}
+                      isLoggedIn={isLoggedIn}
+                      lastOf={[]}
+                    />
+                  </div>
+                ) : (
+                  <div className="timeline-feed">
+                    <TimelineThreadView
                       posts={threadData?.posts}
                       postsMap={filteredParentChildrenMap}
                       categoryFilters={categoryFilterState}
