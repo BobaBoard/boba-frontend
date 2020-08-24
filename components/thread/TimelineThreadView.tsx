@@ -15,6 +15,7 @@ import {
 import moment from "moment";
 //import { useHotkeys } from "react-hotkeys-hook";
 
+// @ts-ignore
 const log = debug("bobafrontend:threadLevel-log");
 
 enum TIMELINE_VIEW_MODE {
@@ -39,6 +40,7 @@ const TimelineView: React.FC<{
     TIMELINE_VIEW_MODE.ALL
   );
   const orderedPosts = React.useMemo(() => {
+    // @ts-ignore
     let [unusedFirstElement, ...sortedArray] = props.posts
       ? [...props.posts]
       : [];

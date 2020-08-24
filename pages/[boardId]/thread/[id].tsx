@@ -103,6 +103,12 @@ function ThreadPage() {
     );
   }, [threadData, threadId]);
 
+  React.useEffect(() => {
+    if (router.query.gallery == "true") {
+      setViewMode(THREAD_VIEW_MODES.MASONRY);
+    }
+  }, [router.query.gallery]);
+
   const {
     root: filteredRoot,
     parentChildrenMap: filteredParentChildrenMap,
@@ -214,6 +220,7 @@ function ThreadPage() {
       <Layout
         mainContent={
           <FeedWithMenu
+            forceHideSidebar={router.query.gallery == "true"}
             sidebarContent={
               <ThreadSidebar
                 firstPost={filteredRoot}
