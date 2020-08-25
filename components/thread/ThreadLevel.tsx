@@ -203,7 +203,7 @@ const postHandlers = new Map<string, PostHandler>();
 
 const ThreadLevel: React.FC<{
   post: PostType;
-  postsMap: Map<string, PostType[]>;
+  postsMap: Map<string, { children: PostType[]; parent: PostType | null }>;
   level: number;
   onNewComment: (
     replyToPostId: string,
@@ -219,7 +219,7 @@ const ThreadLevel: React.FC<{
   log(
     `Rendering subtree at level ${props.level} starting with post with id ${props.post.postId}`
   );
-  const isLeaf = !props.postsMap.get(props.post.postId)?.length;
+  const isLeaf = !props.postsMap.get(props.post.postId)?.children?.length;
   log(`Leaf post? ${isLeaf}`);
   const endsArray = isLeaf
     ? props.lastOf.map((ends) => ({
@@ -234,6 +234,10 @@ const ThreadLevel: React.FC<{
       }))
     : [];
   log(`Ends array: %o`, endsArray);
+  const postId = router.query.threadId?.[1] as string;
+  const baseUrl = !!postId
+    ? window.location.href.substring(0, window.location.href.lastIndexOf("/"))
+    : window.location.href;
   return (
     <>
       <div className="level">
@@ -252,6 +256,7 @@ const ThreadLevel: React.FC<{
                 props.post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR
               }
               createdTime={moment.utc(props.post.created).fromNow()}
+              createdTimeHref={`${baseUrl}/${props.post.postId}`}
               text={props.post.content}
               secretIdentity={props.post.secretIdentity}
               userIdentity={props.post.userIdentity}
@@ -261,7 +266,7 @@ const ThreadLevel: React.FC<{
               onNewComment={() => props.onNewComment(props.post.postId, null)}
               totalComments={props.post.comments?.length}
               directContributions={
-                props.postsMap.get(props.post.postId)?.length
+                props.postsMap.get(props.post.postId)?.children?.length
               }
               totalContributions={getTotalContributions(
                 props.post,
@@ -319,7 +324,7 @@ const ThreadLevel: React.FC<{
         )}
         {props.postsMap
           .get(props.post.postId)
-          ?.flatMap((post: PostType, index: number, array) => (
+          ?.children.flatMap((post: PostType, index: number, array) => (
             <ThreadLevel
               key={post.postId}
               post={post}

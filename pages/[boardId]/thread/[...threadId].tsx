@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import {
   FeedWithMenu,
   CycleNewButton,
@@ -66,7 +67,9 @@ function ThreadPage() {
     commentId: string | null;
   } | null>(null);
   const router = useRouter();
-  const threadId = router.query.id as string;
+  console.log(router.query.threadId);
+  const threadId = router.query.threadId?.[0] as string;
+  const postId = router.query.threadId?.[1] as string;
   const { user, isLoggedIn } = useAuth();
   const slug: string = router.query.boardId?.slice(1) as string;
   const { data: threadData, isFetching: isFetchingThread } = useQuery(
@@ -165,6 +168,9 @@ function ThreadPage() {
     return <div />;
   }
 
+  const baseUrl = !!postId
+    ? window.location.href.substring(0, window.location.href.lastIndexOf("/"))
+    : window.location.href;
   return (
     <div className="main">
       {isLoggedIn && (
@@ -255,8 +261,21 @@ function ThreadPage() {
             sidebarContent={<div />}
             feedContent={
               <div className="feed-content">
+                <div
+                  className={classnames("whole-thread", {
+                    visible: !!postId,
+                  })}
+                >
+                  <Link href={baseUrl}>
+                    <a>Show whole thread</a>
+                  </Link>
+                </div>
                 <MemoizedThreadLevel
-                  post={root}
+                  post={
+                    !!postId
+                      ? threadData.posts.find((post) => post.postId == postId)
+                      : root
+                  }
                   postsMap={parentChildrenMap}
                   level={0}
                   onNewComment={(replyToPostId, replyToCommentId) =>
