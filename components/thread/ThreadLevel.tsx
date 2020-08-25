@@ -235,9 +235,17 @@ const ThreadLevel: React.FC<{
     : [];
   log(`Ends array: %o`, endsArray);
   const postId = router.query.threadId?.[1] as string;
+
+  const pathnameNoTrailingSlash =
+    window.location.pathname[window.location.pathname.length - 1] == "/"
+      ? window.location.pathname.substr(0, window.location.pathname.length - 1)
+      : window.location.pathname;
   const baseUrl = !!postId
-    ? window.location.href.substring(0, window.location.href.lastIndexOf("/"))
-    : window.location.href;
+    ? pathnameNoTrailingSlash.substring(
+        0,
+        pathnameNoTrailingSlash.lastIndexOf("/")
+      )
+    : pathnameNoTrailingSlash;
   return (
     <>
       <div className="level">
@@ -256,7 +264,7 @@ const ThreadLevel: React.FC<{
                 props.post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR
               }
               createdTime={moment.utc(props.post.created).fromNow()}
-              createdTimeHref={`${baseUrl}/${props.post.postId}`}
+              createdTimeHref={`${baseUrl}/${props.post.postId}/`}
               text={props.post.content}
               secretIdentity={props.post.secretIdentity}
               userIdentity={props.post.userIdentity}

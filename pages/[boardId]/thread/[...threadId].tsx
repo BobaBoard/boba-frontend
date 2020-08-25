@@ -168,9 +168,16 @@ function ThreadPage() {
     return <div />;
   }
 
+  const pathnameNoTrailingSlash =
+    window.location.pathname[window.location.pathname.length - 1] == "/"
+      ? window.location.pathname.substr(0, window.location.pathname.length - 1)
+      : window.location.pathname;
   const baseUrl = !!postId
-    ? window.location.href.substring(0, window.location.href.lastIndexOf("/"))
-    : window.location.href;
+    ? pathnameNoTrailingSlash.substring(
+        0,
+        pathnameNoTrailingSlash.lastIndexOf("/") + 1
+      )
+    : pathnameNoTrailingSlash;
   return (
     <div className="main">
       {isLoggedIn && (
@@ -266,14 +273,20 @@ function ThreadPage() {
                     visible: !!postId,
                   })}
                 >
-                  <Link href={baseUrl}>
+                  <Link
+                    as={baseUrl}
+                    href={`/[boardId]/thread/[...threadId]`}
+                    shallow={true}
+                  >
                     <a>Show whole thread</a>
                   </Link>
                 </div>
                 <MemoizedThreadLevel
                   post={
-                    !!postId
-                      ? threadData.posts.find((post) => post.postId == postId)
+                    !!postId && threadData
+                      ? (threadData.posts.find(
+                          (post) => post.postId == postId
+                        ) as PostType)
                       : root
                   }
                   postsMap={parentChildrenMap}
@@ -351,6 +364,18 @@ function ThreadPage() {
           }
           .loading-indicator.loading {
             display: block;
+          }
+          .whole-thread {
+            margin-bottom: -5px;
+            padding-top: 10px;
+            display: none;
+          }
+          .whole-thread.visible {
+            display: block;
+          }
+          .whole-thread a {
+            color: white;
+            font-size: 13px;
           }
         `}
       </style>

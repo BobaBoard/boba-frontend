@@ -352,6 +352,7 @@ function BoardPage() {
                                     .fromNow()}]`
                                 : ""
                             }`}
+                            createdTimeHref={threadUrl}
                             text={post.content}
                             tags={post.tags}
                             secretIdentity={post.secretIdentity}
