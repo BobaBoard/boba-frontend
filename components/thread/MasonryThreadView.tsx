@@ -19,7 +19,7 @@ const log = debug("bobafrontend:threadLevel-log");
 
 const MasonryThreadView: React.FC<{
   posts: PostType[] | undefined;
-  postsMap: Map<string, PostType[]>;
+  postsMap: Map<string, { children: PostType[]; parent: PostType | null }>;
   categoryFilters: { name: string; active: boolean }[];
   onNewComment: (
     replyToPostId: string,

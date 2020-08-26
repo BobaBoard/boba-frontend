@@ -26,7 +26,7 @@ enum TIMELINE_VIEW_MODE {
 
 const TimelineView: React.FC<{
   posts: PostType[] | undefined;
-  postsMap: Map<string, PostType[]>;
+  postsMap: Map<string, { children: PostType[]; parent: PostType | null }>;
   categoryFilters: { name: string; active: boolean }[];
   onNewComment: (
     replyToPostId: string,
@@ -114,13 +114,16 @@ const TimelineView: React.FC<{
               key={post.postId}
               size={post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}
               createdTime={moment.utc(post.created).fromNow()}
+              createdTimeHref="#"
               text={post.content}
               secretIdentity={post.secretIdentity}
               userIdentity={post.userIdentity}
               onNewContribution={() => props.onNewContribution(post.postId)}
               onNewComment={() => props.onNewComment(post.postId, null)}
               totalComments={post.comments?.length}
-              directContributions={props.postsMap.get(post.postId)?.length}
+              directContributions={
+                props.postsMap.get(post.postId)?.children.length
+              }
               totalContributions={getTotalContributions(post, props.postsMap)}
               newPost={props.isLoggedIn && post.isNew}
               newComments={props.isLoggedIn ? post.newCommentsAmount : 0}

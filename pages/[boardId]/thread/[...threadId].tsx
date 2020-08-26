@@ -267,6 +267,7 @@ function ThreadPage() {
                       </Link>
                     </div>
                     <MemoizedThreadLevel
+                      //@ts-ignore
                       post={
                         !!postId && threadData
                           ? (threadData.posts.find(

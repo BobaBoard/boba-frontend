@@ -155,7 +155,10 @@ export const extractCategories = (posts: PostType[] | undefined) => {
 
 export const applyCategoriesFilter = (
   root: PostType | null,
-  parentChildrenMap: Map<string, PostType[]>,
+  parentChildrenMap: Map<
+    string,
+    { children: PostType[]; parent: PostType | null }
+  >,
   categoriesFilter: { name: string; active: boolean }[]
 ) => {
   const activeCategories = categoriesFilter.filter(
@@ -172,13 +175,19 @@ export const applyCategoriesFilter = (
   // Root should never be filtered out.
   const resultsMap = new Map<string, boolean>();
   makeActiveChildrenMap(root, parentChildrenMap, activeCategories, resultsMap);
-  const newParentChildrenMap = new Map<string, PostType[]>();
+  const newParentChildrenMap = new Map<
+    string,
+    { children: PostType[]; parent: PostType | null }
+  >();
   parentChildrenMap.forEach((childrenArray, postId) => {
-    const activeChildren = childrenArray.filter((child) =>
+    const activeChildren = childrenArray?.children.filter((child) =>
       resultsMap.get(child.postId)
     );
     if (resultsMap.get(postId) && activeChildren.length > 0) {
-      newParentChildrenMap.set(postId, activeChildren);
+      newParentChildrenMap.set(postId, {
+        children: activeChildren,
+        parent: childrenArray.parent,
+      });
     }
   });
   return {
@@ -189,14 +198,17 @@ export const applyCategoriesFilter = (
 
 const makeActiveChildrenMap = (
   root: PostType,
-  parentChildrenMap: Map<string, PostType[]>,
+  parentChildrenMap: Map<
+    string,
+    { children: PostType[]; parent: PostType | null }
+  >,
   activeCategories: { name: string; active: boolean }[],
   resultsMap: Map<string, boolean>
 ) => {
   if (resultsMap.has(root.postId)) {
     return resultsMap.get(root.postId) as boolean;
   }
-  const children = parentChildrenMap.get(root.postId);
+  const children = parentChildrenMap.get(root.postId)?.children;
   if (!children) {
     const hasActiveCategory =
       root.tags.categoryTags &&
