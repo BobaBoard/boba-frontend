@@ -67,9 +67,14 @@ function ThreadPage() {
     commentId: string | null;
   } | null>(null);
   const router = useRouter();
-  console.log(router.query.threadId);
-  const threadId = router.query.threadId?.[0] as string;
-  const postId = router.query.threadId?.[1] as string;
+  const threadId =
+    router.query.threadId && router.query.threadId.length > 0
+      ? (router.query.threadId?.[0] as string)
+      : "";
+  const postId =
+    router.query.threadId && router.query.threadId.length > 1
+      ? (router.query.threadId?.[1] as string)
+      : undefined;
   const { user, isLoggedIn } = useAuth();
   const slug: string = router.query.boardId?.slice(1) as string;
   const { data: threadData, isFetching: isFetchingThread } = useQuery(
@@ -86,7 +91,10 @@ function ThreadPage() {
       onSuccess: () => {
         log(`Retrieved thread data for thread with id ${threadId}`);
         if (isLoggedIn) {
+          log(`Marking thread ${threadId} as read`);
           readThread();
+        } else {
+          log(`Logged out user. Not marking ${threadId} as read.`);
         }
       },
       initialStale: true,
@@ -96,7 +104,7 @@ function ThreadPage() {
 
   const [readThread] = useMutation(() => markThreadAsRead({ threadId }), {
     onSuccess: () => {
-      log(`Successfully marked thread as read`);
+      log(`Successfully marked thread ${threadId} as read`);
       const threadResult = getThreadInBoardCache({ slug, threadId });
       if (threadResult) {
         log(`Found thread in cache:`);
@@ -268,19 +276,21 @@ function ThreadPage() {
             sidebarContent={<div />}
             feedContent={
               <div className="feed-content">
-                <div
-                  className={classnames("whole-thread", {
-                    visible: !!postId,
-                  })}
-                >
-                  <Link
-                    as={baseUrl}
-                    href={`/[boardId]/thread/[...threadId]`}
-                    shallow={true}
+                {postId && (
+                  <div
+                    className={classnames("whole-thread", {
+                      visible: !!postId,
+                    })}
                   >
-                    <a>Show whole thread</a>
-                  </Link>
-                </div>
+                    <Link
+                      as={baseUrl}
+                      href={`/[boardId]/thread/[...threadId]`}
+                      shallow={true}
+                    >
+                      <a>Show whole thread</a>
+                    </Link>
+                  </div>
+                )}
                 <MemoizedThreadLevel
                   post={
                     !!postId && threadData

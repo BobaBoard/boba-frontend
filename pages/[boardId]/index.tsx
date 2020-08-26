@@ -243,7 +243,7 @@ function BoardPage() {
       threadRedirectMethod.current?.set(threadId, () =>
         router
           .push(
-            `/[boardId]/thread/[id]`,
+            `/[boardId]/thread/[...threadId]`,
             `/${router.query.boardId}/thread/${threadId}`,
             {
               shallow: true,
