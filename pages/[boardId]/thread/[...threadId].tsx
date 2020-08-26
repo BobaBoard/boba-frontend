@@ -384,6 +384,8 @@ function ThreadPage() {
           .masonry-feed {
             width: 100%;
             position: relative;
+            margin-top: 20px;
+            margin-bottom: 20px;
           }
           .loading-indicator {
             color: white;
