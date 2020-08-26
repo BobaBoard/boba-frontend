@@ -58,46 +58,16 @@ function HomePage() {
               <div className="updates">
                 <h2>New Stuff </h2>
                 <div className="last">
-                  [Last Updated: 8/19/20.{" "}
+                  [Last Updated: .{" "}
                   <Link href="/update-logs">
                     <a>Older logs.</a>
                   </Link>
                   ]
                 </div>
-                <p>Today..... the editor rises!</p>
-                <ul>
-                  <li>
-                    [New Embed Types]: Pixiv, Reddit, Instagram and Vimeo!
-                  </li>
-                  <li>
-                    [Embeds Size Saving]: We're now saving the size of the
-                    embeds, so you shouldn't see (for new posts) as much jumping
-                    around as the embeds load. This is a bit experimental. Cross
-                    your fingers.
-                  </li>
-                  <li>
-                    [Removing Extra White Lines]: Extra white lines at the end
-                    are now automatically removed.
-                  </li>
-                  <li>
-                    [Bug Fix 1]: Fixed bug with link auto-highlighting, where a
-                    simple www would result in the following word being marked
-                    as link.
-                  </li>
-                  <li>
-                    [Bug Fix 2]: You can now right click to save images even
-                    when they're marked as spoilers!
-                  </li>
-                  <li>
-                    [Bug Fix 3]: Removing an embed while it's still loading is
-                    now enabled.
-                  </li>
-                  <li>
-                    [Bug Fix 4]: re-enable copy paste that was broken in some
-                    iOS versions, and re-enabled the pasting of images, which
-                    was broken in other browsers.
-                  </li>
-                </ul>
+                <p>
+                  I heard you like direct links to specific posts... (pppsstt:
+                  click on the posts timestamps)
+                </p>
               </div>
             </div>
             <div className="display">

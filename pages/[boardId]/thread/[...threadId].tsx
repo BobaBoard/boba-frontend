@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import {
   FeedWithMenu,
   CycleNewButton,
@@ -44,7 +45,9 @@ function ThreadPage() {
     commentId: string | null;
   } | null>(null);
   const router = useRouter();
-  const threadId = router.query.id as string;
+  console.log(router.query.threadId);
+  const threadId = router.query.threadId?.[0] as string;
+  const postId = router.query.threadId?.[1] as string;
   const { user, isLoggedIn } = useAuth();
   const slug: string = router.query.boardId?.slice(1) as string;
   const [viewMode, setViewMode] = React.useState(THREAD_VIEW_MODES.TIMELINE);
@@ -160,6 +163,16 @@ function ThreadPage() {
     return <div />;
   }
 
+  const pathnameNoTrailingSlash =
+    window.location.pathname[window.location.pathname.length - 1] == "/"
+      ? window.location.pathname.substr(0, window.location.pathname.length - 1)
+      : window.location.pathname;
+  const baseUrl = !!postId
+    ? pathnameNoTrailingSlash.substring(
+        0,
+        pathnameNoTrailingSlash.lastIndexOf("/") + 1
+      )
+    : pathnameNoTrailingSlash;
   return (
     <div className="main">
       {isLoggedIn && (
@@ -240,9 +253,28 @@ function ThreadPage() {
               >
                 {viewMode == THREAD_VIEW_MODES.THREAD ? (
                   <div className="feed-content">
+                    <div
+                      className={classnames("whole-thread", {
+                        visible: !!postId,
+                      })}
+                    >
+                      <Link
+                        as={baseUrl}
+                        href={`/[boardId]/thread/[...threadId]`}
+                        shallow={true}
+                      >
+                        <a>Show whole thread</a>
+                      </Link>
+                    </div>
                     <MemoizedThreadLevel
-                      post={filteredRoot}
-                      postsMap={filteredParentChildrenMap}
+                      post={
+                        !!postId && threadData
+                          ? (threadData.posts.find(
+                              (post) => post.postId == postId
+                            ) as PostType)
+                          : root
+                      }
+                      postsMap={parentChildrenMap}
                       level={0}
                       onNewComment={(replyToPostId, replyToCommentId) =>
                         setCommentReplyId({
@@ -290,6 +322,7 @@ function ThreadPage() {
                     />
                   </div>
                 )}
+
                 <div
                   className={classnames("loading-indicator", {
                     loading: isFetchingThread,
@@ -360,6 +393,18 @@ function ThreadPage() {
           }
           .loading-indicator.loading {
             display: block;
+          }
+          .whole-thread {
+            margin-bottom: -5px;
+            padding-top: 10px;
+            display: none;
+          }
+          .whole-thread.visible {
+            display: block;
+          }
+          .whole-thread a {
+            color: white;
+            font-size: 13px;
           }
         `}
       </style>

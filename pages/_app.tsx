@@ -23,12 +23,21 @@ if (typeof window !== "undefined") {
   isStaging = new URL(window.location.href).hostname.startsWith("staging");
 }
 
+const DEV_SERVER_KEY = "devServer";
+let devServer = `http://${location}:4200/`;
+if (typeof localStorage !== "undefined") {
+  const data = localStorage.getItem(DEV_SERVER_KEY);
+  if (data) {
+    devServer = data;
+  }
+}
+
 axios.defaults.baseURL =
   process.env.NODE_ENV == "production"
     ? isStaging
       ? "https://staging-dot-backend-dot-bobaboard.uc.r.appspot.com/"
       : "https://backend-dot-bobaboard.uc.r.appspot.com/"
-    : `http://${location}:4200/`;
+    : devServer;
 
 // We make the axios interceptor be a component so we can have auth
 // provided within.

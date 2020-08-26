@@ -53,19 +53,28 @@ export const makePostsTree = (
   threadId: string
 ): {
   root: null | PostType;
-  parentChildrenMap: Map<string, PostType[]>;
+  parentChildrenMap: Map<
+    string,
+    { children: PostType[]; parent: PostType | null }
+  >;
   postsDisplaySequence: null | PostType[];
 } => {
   log(`Creating posts tree for thread ${threadId}`);
   if (!posts) {
     return {
       root: null,
-      parentChildrenMap: new Map<string, PostType[]>(),
+      parentChildrenMap: new Map<
+        string,
+        { children: PostType[]; parent: PostType | null }
+      >(),
       postsDisplaySequence: null,
     };
   }
   let root: PostType | null = null;
-  const parentChildrenMap = new Map<string, PostType[]>();
+  const parentChildrenMap = new Map<
+    string,
+    { children: PostType[]; parent: PostType | null }
+  >();
   const postsDisplaySequence: PostType[] = [];
 
   posts.forEach((post) => {
@@ -73,10 +82,17 @@ export const makePostsTree = (
       root = post;
       return;
     }
-    parentChildrenMap.set(post.parentPostId, [
-      ...(parentChildrenMap.get(post.parentPostId) || ([] as PostType[])),
-      post,
-    ]);
+    const parent =
+      posts.find((parentCandidate) => parentCandidate.postId == post.postId) ||
+      null;
+    parentChildrenMap.set(post.parentPostId, {
+      parent,
+      children: [
+        ...(parentChildrenMap.get(post.parentPostId)?.children ||
+          ([] as PostType[])),
+        post,
+      ],
+    });
   });
 
   if (root) {
@@ -85,7 +101,7 @@ export const makePostsTree = (
       const currentPost = postsStacks.pop() as PostType;
       postsDisplaySequence.push(currentPost);
 
-      const children = parentChildrenMap.get(currentPost.postId);
+      const children = parentChildrenMap.get(currentPost.postId)?.children;
       if (!children) {
         continue;
       }
@@ -100,14 +116,14 @@ export const makePostsTree = (
 
 export const getTotalContributions = (
   post: PostType,
-  postsMap: Map<string, PostType[]>
+  postsMap: Map<string, { children: PostType[]; parent: PostType | null }>
 ) => {
   let total = 0;
-  let next = postsMap.get(post.postId);
+  let next = postsMap.get(post.postId)?.children;
   while (next && next.length > 0) {
     total += next.length;
     next = next.flatMap(
-      (child: PostType) => (child && postsMap.get(child.postId)) || []
+      (child: PostType) => (child && postsMap.get(child.postId)?.children) || []
     );
   }
   return total;
@@ -115,17 +131,17 @@ export const getTotalContributions = (
 
 export const getTotalNewContributions = (
   post: PostType,
-  postsMap: Map<string, PostType[]>
+  postsMap: Map<string, { children: PostType[]; parent: PostType | null }>
 ) => {
   let total = 0;
-  let next = postsMap.get(post.postId);
+  let next = postsMap.get(post.postId)?.children;
   while (next && next.length > 0) {
     total += next.reduce(
       (value: number, post: PostType) => value + (post.isNew ? 1 : 0),
       0
     );
     next = next.flatMap(
-      (child: PostType) => (child && postsMap.get(child.postId)) || []
+      (child: PostType) => (child && postsMap.get(child.postId)?.children) || []
     );
   }
   return total;
