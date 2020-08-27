@@ -12,6 +12,10 @@ import moment from "moment";
 
 const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
   const post = props.firstPost;
+
+  if (!post) {
+    return <div />;
+  }
   return (
     <div className="thread-sidebar">
       <div className="post-header">

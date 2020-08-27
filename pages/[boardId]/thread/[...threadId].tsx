@@ -16,10 +16,10 @@ import { updateCommentCache, updatePostCache } from "utils/thread-utils";
 import classnames from "classnames";
 import { useBoardTheme } from "components/BoardTheme";
 //import { useHotkeys } from "react-hotkeys-hook";
-import ThreadLevel, {
+import ThreadView, {
   scrollToComment,
   scrollToPost,
-} from "components/thread/ThreadLevel";
+} from "components/thread/ThreadView";
 import ThreadSidebar from "components/thread/ThreadSidebar";
 import MasonryThreadView from "components/thread/MasonryThreadView";
 import TimelineThreadView from "components/thread/TimelineThreadView";
@@ -29,8 +29,6 @@ import { useRouter } from "next/router";
 import debug from "debug";
 import { GetServerSideProps, NextPage } from "next";
 const log = debug("bobafrontend:threadPage-log");
-
-const MemoizedThreadLevel = React.memo(ThreadLevel);
 
 function ThreadPage() {
   const [postReplyId, setPostReplyId] = React.useState<string | null>(null);
@@ -57,7 +55,7 @@ function ThreadPage() {
     setCategoryFilterState,
   } = useThread();
   const { [slug]: boardData } = useBoardTheme();
-  const [viewMode, setViewMode] = React.useState(THREAD_VIEW_MODES.TIMELINE);
+  const [viewMode, setViewMode] = React.useState(THREAD_VIEW_MODES.THREAD);
 
   React.useEffect(() => {
     if (router.query.gallery == "true") {
@@ -180,11 +178,7 @@ function ThreadPage() {
                         <a>Show whole thread</a>
                       </Link>
                     </div>
-                    <MemoizedThreadLevel
-                      //@ts-ignore
-                      post={currentRoot}
-                      postsMap={filteredParentChildrenMap}
-                      level={0}
+                    <ThreadView
                       onNewComment={(replyToPostId, replyToCommentId) =>
                         setCommentReplyId({
                           postId: replyToPostId,
@@ -193,7 +187,6 @@ function ThreadPage() {
                       }
                       onNewContribution={setPostReplyId}
                       isLoggedIn={isLoggedIn}
-                      lastOf={[]}
                     />
                   </div>
                 ) : viewMode == THREAD_VIEW_MODES.MASONRY ? (

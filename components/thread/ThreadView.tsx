@@ -15,6 +15,7 @@ import {
 import { useRouter } from "next/router";
 import moment from "moment";
 import debug from "debug";
+import { useThread } from "components/thread/ThreadContext";
 import { PostType, CommentType } from "../../types/Types";
 import {
   makeCommentsTree,
@@ -368,4 +369,32 @@ const ThreadLevel: React.FC<{
   );
 };
 
-export default ThreadLevel;
+const MemoizedThreadLevel = React.memo(ThreadLevel);
+const ThreadView: React.FC<{
+  onNewComment: (
+    replyToPostId: string,
+    replyToCommentId: string | null
+  ) => void;
+  onNewContribution: (id: string) => void;
+  isLoggedIn: boolean;
+}> = (props) => {
+  const { currentRoot, filteredParentChildrenMap } = useThread();
+
+  if (!currentRoot) {
+    return <div />;
+  }
+  return (
+    <MemoizedThreadLevel
+      //@ts-ignore
+      post={currentRoot}
+      postsMap={filteredParentChildrenMap}
+      level={0}
+      onNewComment={props.onNewComment}
+      onNewContribution={props.onNewContribution}
+      isLoggedIn={props.isLoggedIn}
+      lastOf={[]}
+    />
+  );
+};
+
+export default ThreadView;
