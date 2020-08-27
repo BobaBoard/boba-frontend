@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from "react";
 import {
   Post,
@@ -7,32 +6,28 @@ import {
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import debug from "debug";
-import { PostType } from "../../types/Types";
 import {
   getTotalContributions,
   getTotalNewContributions,
 } from "../../utils/thread-utils";
 import moment from "moment";
-//import { useHotkeys } from "react-hotkeys-hook";
+import { useThread } from "components/thread/ThreadContext";
 
 const log = debug("bobafrontend:threadLevel-log");
 
 const MasonryThreadView: React.FC<{
-  posts: PostType[] | undefined;
-  postsMap: Map<string, { children: PostType[]; parent: PostType | null }>;
-  categoryFilters: { name: string; active: boolean }[];
   onNewComment: (
     replyToPostId: string,
     replyToCommentId: string | null
   ) => void;
   onNewContribution: (id: string) => void;
   isLoggedIn: boolean;
-  lastOf: { level: number; postId: string }[];
 }> = (props) => {
+  const { allPosts, categoryFilterState } = useThread();
+
   const orderedPosts = React.useMemo(() => {
-    let [unusedFirstElement, ...sortedArray] = props.posts
-      ? [...props.posts]
-      : [];
+    // @ts-ignore
+    let [unusedFirstElement, ...sortedArray] = allPosts ? [...allPosts] : [];
     sortedArray.sort((post1, post2) => {
       if (moment.utc(post1.created).isBefore(moment.utc(post2.created))) {
         return -1;
@@ -43,10 +38,10 @@ const MasonryThreadView: React.FC<{
       return 0;
     });
 
-    const activeCategories = props.categoryFilters.filter(
+    const activeCategories = categoryFilterState.filter(
       (category) => category.active
     );
-    if (activeCategories.length == props.categoryFilters.length) {
+    if (activeCategories.length == categoryFilterState.length) {
       return sortedArray;
     }
     return sortedArray.filter((post) =>
@@ -56,7 +51,7 @@ const MasonryThreadView: React.FC<{
         )
       )
     );
-  }, [props.posts, props.categoryFilters]);
+  }, [allPosts, categoryFilterState]);
 
   const picsContainerRef = React.useRef<HTMLDivElement[]>([]);
   const resizeObserver = React.useRef<ResizeObserver>();
