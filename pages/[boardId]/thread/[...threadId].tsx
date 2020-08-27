@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 import {
   FeedWithMenu,
   CycleNewButton,
@@ -40,16 +39,11 @@ function ThreadPage() {
   const router = useRouter();
   const {
     threadId,
-    postId,
     slug,
     threadRoot,
-    currentRoot,
-    allPosts,
     newAnswers,
     newAnswersIndex,
-    filteredRoot,
     isLoading: isFetchingThread,
-    baseUrl,
     categoryFilterState,
     filteredParentChildrenMap,
     setCategoryFilterState,
@@ -165,19 +159,6 @@ function ThreadPage() {
               >
                 {viewMode == THREAD_VIEW_MODES.THREAD ? (
                   <div className="feed-content">
-                    <div
-                      className={classnames("whole-thread", {
-                        visible: !!postId,
-                      })}
-                    >
-                      <Link
-                        as={baseUrl}
-                        href={`/[boardId]/thread/[...threadId]`}
-                        shallow={true}
-                      >
-                        <a>Show whole thread</a>
-                      </Link>
-                    </div>
                     <ThreadView
                       onNewComment={(replyToPostId, replyToCommentId) =>
                         setCommentReplyId({
@@ -192,9 +173,6 @@ function ThreadPage() {
                 ) : viewMode == THREAD_VIEW_MODES.MASONRY ? (
                   <div className="masonry-feed">
                     <MasonryThreadView
-                      posts={allPosts}
-                      postsMap={filteredParentChildrenMap}
-                      categoryFilters={categoryFilterState}
                       onNewComment={(replyToPostId, replyToCommentId) =>
                         setCommentReplyId({
                           postId: replyToPostId,
@@ -203,15 +181,11 @@ function ThreadPage() {
                       }
                       onNewContribution={setPostReplyId}
                       isLoggedIn={isLoggedIn}
-                      lastOf={[]}
                     />
                   </div>
                 ) : (
                   <div className="timeline-feed">
                     <TimelineThreadView
-                      posts={allPosts}
-                      postsMap={filteredParentChildrenMap}
-                      categoryFilters={categoryFilterState}
                       onNewComment={(replyToPostId, replyToCommentId) =>
                         setCommentReplyId({
                           postId: replyToPostId,
@@ -220,7 +194,6 @@ function ThreadPage() {
                       }
                       onNewContribution={setPostReplyId}
                       isLoggedIn={isLoggedIn}
-                      lastOf={[]}
                     />
                   </div>
                 )}
@@ -298,18 +271,6 @@ function ThreadPage() {
           }
           .loading-indicator.loading {
             display: block;
-          }
-          .whole-thread {
-            margin-bottom: -5px;
-            padding-top: 10px;
-            display: none;
-          }
-          .whole-thread.visible {
-            display: block;
-          }
-          .whole-thread a {
-            color: white;
-            font-size: 13px;
           }
         `}
       </style>

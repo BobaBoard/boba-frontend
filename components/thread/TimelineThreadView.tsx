@@ -13,6 +13,7 @@ import {
   getTotalNewContributions,
 } from "../../utils/thread-utils";
 import moment from "moment";
+import { useThread } from "components/thread/ThreadContext";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // @ts-ignore
@@ -25,25 +26,21 @@ enum TIMELINE_VIEW_MODE {
 }
 
 const TimelineView: React.FC<{
-  posts: PostType[] | undefined;
-  postsMap: Map<string, { children: PostType[]; parent: PostType | null }>;
-  categoryFilters: { name: string; active: boolean }[];
   onNewComment: (
     replyToPostId: string,
     replyToCommentId: string | null
   ) => void;
   onNewContribution: (id: string) => void;
   isLoggedIn: boolean;
-  lastOf: { level: number; postId: string }[];
 }> = (props) => {
   const [timelineView, setTimelineView] = React.useState(
     TIMELINE_VIEW_MODE.ALL
   );
+  const { allPosts, categoryFilterState } = useThread();
+
   const orderedPosts = React.useMemo(() => {
     // @ts-ignore
-    let [unusedFirstElement, ...sortedArray] = props.posts
-      ? [...props.posts]
-      : [];
+    let [unusedFirstElement, ...sortedArray] = allPosts ? [...allPosts] : [];
     sortedArray.sort((post1, post2) => {
       if (moment.utc(post1.created).isBefore(moment.utc(post2.created))) {
         return -1;
@@ -54,10 +51,10 @@ const TimelineView: React.FC<{
       return 0;
     });
 
-    const activeCategories = props.categoryFilters.filter(
+    const activeCategories = categoryFilterState.filter(
       (category) => category.active
     );
-    if (activeCategories.length == props.categoryFilters.length) {
+    if (activeCategories.length == categoryFilterState.length) {
       return sortedArray;
     }
     return sortedArray.filter((post) =>
@@ -67,7 +64,7 @@ const TimelineView: React.FC<{
         )
       )
     );
-  }, [props.posts, props.categoryFilters]);
+  }, [allPosts, categoryFilterState]);
 
   if (!orderedPosts.length) {
     return <div>The gallery is empty :(</div>;

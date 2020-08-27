@@ -22,7 +22,9 @@ import {
   getTotalContributions,
   getTotalNewContributions,
 } from "../../utils/thread-utils";
+import Link from "next/link";
 import { useBoardTheme } from "../BoardTheme";
+import classnames from "classnames";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 const log = debug("bobafrontend:threadLevel-log");
@@ -378,22 +380,56 @@ const ThreadView: React.FC<{
   onNewContribution: (id: string) => void;
   isLoggedIn: boolean;
 }> = (props) => {
-  const { currentRoot, filteredParentChildrenMap } = useThread();
+  const {
+    currentRoot,
+    filteredParentChildrenMap,
+    postId,
+    baseUrl,
+  } = useThread();
 
   if (!currentRoot) {
     return <div />;
   }
   return (
-    <MemoizedThreadLevel
-      //@ts-ignore
-      post={currentRoot}
-      postsMap={filteredParentChildrenMap}
-      level={0}
-      onNewComment={props.onNewComment}
-      onNewContribution={props.onNewContribution}
-      isLoggedIn={props.isLoggedIn}
-      lastOf={[]}
-    />
+    <>
+      <div
+        className={classnames("whole-thread", {
+          visible: !!postId,
+        })}
+      >
+        <Link
+          as={baseUrl}
+          href={`/[boardId]/thread/[...threadId]`}
+          shallow={true}
+        >
+          <a>Show whole thread</a>
+        </Link>
+      </div>
+      <MemoizedThreadLevel
+        //@ts-ignore
+        post={currentRoot}
+        postsMap={filteredParentChildrenMap}
+        level={0}
+        onNewComment={props.onNewComment}
+        onNewContribution={props.onNewContribution}
+        isLoggedIn={props.isLoggedIn}
+        lastOf={[]}
+      />
+      <style jsx>{`
+        .whole-thread {
+          margin-bottom: -5px;
+          padding-top: 10px;
+          display: none;
+        }
+        .whole-thread.visible {
+          display: block;
+        }
+        .whole-thread a {
+          color: white;
+          font-size: 13px;
+        }
+      `}</style>
+    </>
   );
 };
 
