@@ -7,7 +7,6 @@ import {
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import debug from "debug";
-import { PostType } from "../../types/Types";
 import {
   getTotalContributions,
   getTotalNewContributions,
@@ -36,7 +35,11 @@ const TimelineView: React.FC<{
   const [timelineView, setTimelineView] = React.useState(
     TIMELINE_VIEW_MODE.ALL
   );
-  const { allPosts, categoryFilterState } = useThread();
+  const {
+    allPosts,
+    categoryFilterState,
+    filteredParentChildrenMap,
+  } = useThread();
 
   const orderedPosts = React.useMemo(() => {
     // @ts-ignore
@@ -119,14 +122,17 @@ const TimelineView: React.FC<{
               onNewComment={() => props.onNewComment(post.postId, null)}
               totalComments={post.comments?.length}
               directContributions={
-                props.postsMap.get(post.postId)?.children.length
+                filteredParentChildrenMap.get(post.postId)?.children.length
               }
-              totalContributions={getTotalContributions(post, props.postsMap)}
+              totalContributions={getTotalContributions(
+                post,
+                filteredParentChildrenMap
+              )}
               newPost={props.isLoggedIn && post.isNew}
               newComments={props.isLoggedIn ? post.newCommentsAmount : 0}
               newContributions={
                 props.isLoggedIn
-                  ? getTotalNewContributions(post, props.postsMap)
+                  ? getTotalNewContributions(post, filteredParentChildrenMap)
                   : 0
               }
               onNotesClick={() => {}}

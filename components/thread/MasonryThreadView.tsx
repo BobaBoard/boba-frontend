@@ -23,7 +23,11 @@ const MasonryThreadView: React.FC<{
   onNewContribution: (id: string) => void;
   isLoggedIn: boolean;
 }> = (props) => {
-  const { allPosts, categoryFilterState } = useThread();
+  const {
+    allPosts,
+    filteredParentChildrenMap,
+    categoryFilterState,
+  } = useThread();
 
   const orderedPosts = React.useMemo(() => {
     // @ts-ignore
@@ -100,13 +104,18 @@ const MasonryThreadView: React.FC<{
             onNewContribution={() => props.onNewContribution(post.postId)}
             onNewComment={() => props.onNewComment(post.postId, null)}
             totalComments={post.comments?.length}
-            directContributions={props.postsMap.get(post.postId)?.length}
-            totalContributions={getTotalContributions(post, props.postsMap)}
+            directContributions={
+              filteredParentChildrenMap.get(post.postId)?.length
+            }
+            totalContributions={getTotalContributions(
+              post,
+              filteredParentChildrenMap
+            )}
             newPost={props.isLoggedIn && post.isNew}
             newComments={props.isLoggedIn ? post.newCommentsAmount : 0}
             newContributions={
               props.isLoggedIn
-                ? getTotalNewContributions(post, props.postsMap)
+                ? getTotalNewContributions(post, filteredParentChildrenMap)
                 : 0
             }
             onNotesClick={() => {}}
