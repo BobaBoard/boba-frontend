@@ -7,6 +7,7 @@ import axios from "axios";
 import Head from "next/head";
 import { AuthProvider, useAuth } from "../components/Auth";
 import { BoardThemeProvider } from "../components/BoardTheme";
+import type { AppProps } from "next/app";
 import {
   ToastContainer,
   toast,
@@ -14,6 +15,9 @@ import {
   setOEmbedFetcher,
   // @ts-ignore
 } from "@bobaboard/ui-components";
+
+import debug from "debug";
+const logging = debug("bobafrontend:app-log");
 
 let location;
 let isStaging = false;
@@ -66,27 +70,23 @@ const AxiosInterceptor = () => {
 };
 
 setTumblrEmbedFetcher((url: string) => {
-  console.log(`""Fetching"" from ${url}`);
   return axios.get(`posts/embed/tumblr?url=${url}`).then((res) => {
-    console.log(res);
     return res.data;
   });
 });
 
 const embedsAxios = axios.create();
 setOEmbedFetcher((url: string) => {
-  console.log(`""Fetching"" from ${url}`);
   return embedsAxios
     .get(
       `https://embeds-dot-bobaboard.uc.r.appspot.com/iframely?uri=${url}&iframe=0`
     )
     .then((res) => {
-      console.log(res);
       return res.data;
     });
 });
 
-function MyApp({ Component, pageProps }: any) {
+function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>

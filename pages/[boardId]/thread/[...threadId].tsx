@@ -9,21 +9,10 @@ import {
 import Layout from "components/Layout";
 import PostEditorModal from "components/PostEditorModal";
 import CommentEditorModal from "components/CommentEditorModal";
-import { useRouter } from "next/router";
-import { getThreadData, markThreadAsRead } from "utils/queries";
-import { useQuery, useMutation } from "react-query";
+import { ThreadProvider } from "components/thread/ThreadContext";
 import { useAuth } from "components/Auth";
-import debug from "debug";
 import { PostType, CommentType, THREAD_VIEW_MODES } from "types/Types";
-import {
-  makePostsTree,
-  extractCategories,
-  applyCategoriesFilter,
-  updateCommentCache,
-  updatePostCache,
-  getThreadInBoardCache,
-  updateThreadReadState,
-} from "utils/thread-utils";
+import { updateCommentCache, updatePostCache } from "utils/thread-utils";
 import classnames from "classnames";
 import { useBoardTheme } from "components/BoardTheme";
 //import { useHotkeys } from "react-hotkeys-hook";
@@ -34,6 +23,11 @@ import ThreadLevel, {
 import ThreadSidebar from "components/thread/ThreadSidebar";
 import MasonryThreadView from "components/thread/MasonryThreadView";
 import TimelineThreadView from "components/thread/TimelineThreadView";
+import { useThread } from "components/thread/ThreadContext";
+import { useRouter } from "next/router";
+
+import debug from "debug";
+import { GetServerSideProps, NextPage } from "next";
 const log = debug("bobafrontend:threadPage-log");
 
 const MemoizedThreadLevel = React.memo(ThreadLevel);
@@ -44,81 +38,32 @@ function ThreadPage() {
     postId: string | null;
     commentId: string | null;
   } | null>(null);
-  const router = useRouter();
-  console.log(router.query.threadId);
-  const threadId = router.query.threadId?.[0] as string;
-  const postId = router.query.threadId?.[1] as string;
   const { user, isLoggedIn } = useAuth();
-  const slug: string = router.query.boardId?.slice(1) as string;
-  const [viewMode, setViewMode] = React.useState(THREAD_VIEW_MODES.TIMELINE);
-  const [categoryFilterState, setCategoryFilterState] = React.useState<
-    {
-      name: string;
-      active: boolean;
-    }[]
-  >([]);
-  const { data: threadData, isFetching: isFetchingThread } = useQuery(
-    ["threadData", { threadId }],
-    getThreadData,
-    {
-      refetchOnWindowFocus: false,
-      initialData: () => {
-        log(
-          `Searching board activity data for board ${slug} and thread ${threadId}`
-        );
-        return getThreadInBoardCache({ slug, threadId })?.thread;
-      },
-      onSuccess: () => {
-        log(`Retrieved thread data for thread with id ${threadId}`);
-        if (isLoggedIn) {
-          readThread();
-        }
-      },
-      initialStale: true,
-    }
-  );
+  const router = useRouter();
+  const {
+    threadId,
+    postId,
+    slug,
+    threadRoot,
+    currentRoot,
+    allPosts,
+    newAnswers,
+    newAnswersIndex,
+    filteredRoot,
+    isLoading: isFetchingThread,
+    baseUrl,
+    categoryFilterState,
+    filteredParentChildrenMap,
+    setCategoryFilterState,
+  } = useThread();
   const { [slug]: boardData } = useBoardTheme();
-
-  const [readThread] = useMutation(() => markThreadAsRead({ threadId }), {
-    onSuccess: () => {
-      log(`Successfully marked thread as read`);
-      updateThreadReadState({ threadId, slug });
-    },
-  });
-  const { root, parentChildrenMap, postsDisplaySequence } = React.useMemo(
-    () => makePostsTree(threadData?.posts, threadId),
-    [threadData, threadId]
-  );
-
-  React.useEffect(() => {
-    if (!threadData) {
-      setCategoryFilterState([]);
-    }
-    const currentCategories = extractCategories(threadData?.posts);
-    setCategoryFilterState(
-      currentCategories.map((category) => ({
-        name: category,
-        active:
-          categoryFilterState.find(
-            (stateCategory) => stateCategory.name == category
-          )?.active || true,
-      }))
-    );
-  }, [threadData, threadId]);
+  const [viewMode, setViewMode] = React.useState(THREAD_VIEW_MODES.TIMELINE);
 
   React.useEffect(() => {
     if (router.query.gallery == "true") {
       setViewMode(THREAD_VIEW_MODES.MASONRY);
     }
   }, [router.query.gallery]);
-
-  const {
-    root: filteredRoot,
-    parentChildrenMap: filteredParentChildrenMap,
-  } = React.useMemo(
-    () => applyCategoriesFilter(root, parentChildrenMap, categoryFilterState),
-    [root, parentChildrenMap, categoryFilterState]
-  );
 
   // TODO: disable this while post editing and readd
   // const currentPostIndex = React.useRef<number>(-1);
@@ -137,42 +82,11 @@ function ThreadPage() {
   //   },
   //   [postsDisplaySequence]
   // );
-  const newAnswersIndex = React.useRef<number>(-1);
-  const newAnswersArray = React.useRef<
-    { postId?: string; commentId?: string }[]
-  >([]);
-  React.useEffect(() => {
-    newAnswersIndex.current = -1;
-    newAnswersArray.current = [];
-    if (!postsDisplaySequence) {
-      return;
-    }
-    postsDisplaySequence.forEach((post) => {
-      if (post.isNew && post.parentPostId != null) {
-        newAnswersArray.current.push({ postId: post.postId });
-      }
-      post.comments?.forEach((comment) => {
-        if (comment.isNew && !comment.chainParentId) {
-          newAnswersArray.current.push({ commentId: comment.commentId });
-        }
-      });
-    });
-  }, [postsDisplaySequence]);
 
-  if (!filteredRoot) {
-    return <div />;
-  }
+  log("Thread state:");
+  log(useThread());
+  log(filteredParentChildrenMap);
 
-  const pathnameNoTrailingSlash =
-    window.location.pathname[window.location.pathname.length - 1] == "/"
-      ? window.location.pathname.substr(0, window.location.pathname.length - 1)
-      : window.location.pathname;
-  const baseUrl = !!postId
-    ? pathnameNoTrailingSlash.substring(
-        0,
-        pathnameNoTrailingSlash.lastIndexOf("/") + 1
-      )
-    : pathnameNoTrailingSlash;
   return (
     <div className="main">
       {isLoggedIn && (
@@ -236,7 +150,7 @@ function ThreadPage() {
             forceHideSidebar={router.query.gallery == "true"}
             sidebarContent={
               <ThreadSidebar
-                firstPost={filteredRoot}
+                firstPost={threadRoot as PostType}
                 categoryFilters={categoryFilterState}
                 onFiltersStatecChange={setCategoryFilterState}
                 viewMode={viewMode}
@@ -268,14 +182,8 @@ function ThreadPage() {
                     </div>
                     <MemoizedThreadLevel
                       //@ts-ignore
-                      post={
-                        !!postId && threadData
-                          ? (threadData.posts.find(
-                              (post) => post.postId == postId
-                            ) as PostType)
-                          : root
-                      }
-                      postsMap={parentChildrenMap}
+                      post={currentRoot}
+                      postsMap={filteredParentChildrenMap}
                       level={0}
                       onNewComment={(replyToPostId, replyToCommentId) =>
                         setCommentReplyId({
@@ -291,7 +199,7 @@ function ThreadPage() {
                 ) : viewMode == THREAD_VIEW_MODES.MASONRY ? (
                   <div className="masonry-feed">
                     <MasonryThreadView
-                      posts={threadData?.posts}
+                      posts={allPosts}
                       postsMap={filteredParentChildrenMap}
                       categoryFilters={categoryFilterState}
                       onNewComment={(replyToPostId, replyToCommentId) =>
@@ -308,7 +216,7 @@ function ThreadPage() {
                 ) : (
                   <div className="timeline-feed">
                     <TimelineThreadView
-                      posts={threadData?.posts}
+                      posts={allPosts}
                       postsMap={filteredParentChildrenMap}
                       categoryFilters={categoryFilterState}
                       onNewComment={(replyToPostId, replyToCommentId) =>
@@ -347,20 +255,21 @@ function ThreadPage() {
         }}
         loading={isFetchingThread}
         actionButton={
-          !!newAnswersArray.current?.length ? (
+          !!newAnswers?.current?.length ? (
             <CycleNewButton
               text="Next New"
               onNext={() => {
-                if (!newAnswersArray.current) {
+                if (!newAnswers.current) {
                   return;
                 }
+                // @ts-ignore
                 newAnswersIndex.current =
-                  (newAnswersIndex.current + 1) %
-                  newAnswersArray.current.length;
+                  ((newAnswersIndex.current || -1) + 1) %
+                  newAnswers.current.length;
                 const nextPost =
-                  newAnswersArray.current[newAnswersIndex.current].postId;
+                  newAnswers.current[newAnswersIndex.current].postId;
                 const nextComment =
-                  newAnswersArray.current[newAnswersIndex.current].commentId;
+                  newAnswers.current[newAnswersIndex.current].commentId;
                 if (nextPost) {
                   scrollToPost(nextPost, boardData.accentColor);
                 }
@@ -415,4 +324,31 @@ function ThreadPage() {
   );
 }
 
-export default ThreadPage;
+export interface ThreadPageSSRContext {
+  url: string;
+  threadId: string;
+  postId: string | null;
+  slug: string;
+}
+const PageWithProvider: NextPage<ThreadPageSSRContext> = (props) => {
+  return (
+    <ThreadProvider {...props}>
+      <ThreadPage />
+    </ThreadProvider>
+  );
+};
+
+export default PageWithProvider;
+
+export const getServerSideProps: GetServerSideProps<ThreadPageSSRContext> = async (
+  context
+) => {
+  return {
+    props: {
+      url: context.req.url as string,
+      threadId: context.query.threadId?.[0] as string,
+      postId: context.query.threadId?.[1] || null,
+      slug: (context.query.boardId as string).substring(1),
+    },
+  };
+};
