@@ -55,7 +55,10 @@ function ThreadPage() {
     if (router.query.gallery == "true") {
       setViewMode(THREAD_VIEW_MODES.MASONRY);
     }
-  }, [router.query.gallery]);
+    if (router.query.timeline == "true") {
+      setViewMode(THREAD_VIEW_MODES.TIMELINE);
+    }
+  }, [router.query.gallery, router.query.timeline]);
 
   // TODO: disable this while post editing and readd
   // const currentPostIndex = React.useRef<number>(-1);
