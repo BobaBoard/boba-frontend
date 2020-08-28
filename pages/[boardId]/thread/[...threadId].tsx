@@ -286,30 +286,30 @@ function ThreadPage() {
 }
 
 export interface ThreadPageSSRContext {
-  url: string;
   threadId: string;
   postId: string | null;
   slug: string;
 }
-const PageWithProvider: NextPage<ThreadPageSSRContext> = (props) => {
+const PageWithProvider: NextPage<{}> = (props) => {
+  log("*****");
+  log(props);
+  const router = useRouter();
+  log(router);
+
   return (
-    <ThreadProvider {...props}>
+    <ThreadProvider
+      slug={(router.query.boardId as string).substring(1)}
+      threadId={router.query.threadId?.[0] as string}
+      postId={router.query.threadId?.[1] || null}
+    >
       <ThreadPage />
     </ThreadProvider>
   );
 };
 
-export default PageWithProvider;
-
-export const getServerSideProps: GetServerSideProps<ThreadPageSSRContext> = async (
-  context
-) => {
-  return {
-    props: {
-      url: context.req.url as string,
-      threadId: context.query.threadId?.[0] as string,
-      postId: context.query.threadId?.[1] || null,
-      slug: (context.query.boardId as string).substring(1),
-    },
-  };
+// Without getInitialProps the router query will be undefined at first
+PageWithProvider.getInitialProps = async () => {
+  return {};
 };
+
+export default PageWithProvider;
