@@ -28,6 +28,7 @@ import classnames from "classnames";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 const log = debug("bobafrontend:threadLevel-log");
+const info = debug("bobafrontend:threadLevel-info");
 
 // TODO: unify this and scrollToComment
 export const scrollToPost = (postId: string, color: string) => {
@@ -219,11 +220,11 @@ const ThreadLevel: React.FC<{
   const router = useRouter();
   const slug = router.query.boardId?.slice(1) as string;
   const { [slug]: boardData } = useBoardTheme();
-  log(
+  info(
     `Rendering subtree at level ${props.level} starting with post with id ${props.post.postId}`
   );
   const isLeaf = !props.postsMap.get(props.post.postId)?.children?.length;
-  log(`Leaf post? ${isLeaf}`);
+  info(`Leaf post? ${isLeaf}`);
   const endsArray = isLeaf
     ? props.lastOf.map((ends) => ({
         level: ends.level,
@@ -236,7 +237,7 @@ const ThreadLevel: React.FC<{
         },
       }))
     : [];
-  log(`Ends array: %o`, endsArray);
+  info(`Ends array: %o`, endsArray);
   const postId = router.query.threadId?.[1] as string;
 
   const pathnameNoTrailingSlash =
@@ -381,6 +382,7 @@ const ThreadView: React.FC<{
   isLoggedIn: boolean;
 }> = (props) => {
   const {
+    threadRoot,
     currentRoot,
     filteredParentChildrenMap,
     postId,

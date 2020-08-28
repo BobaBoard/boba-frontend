@@ -41,8 +41,7 @@ function ThreadPage() {
     threadId,
     slug,
     threadRoot,
-    newAnswers,
-    newAnswersIndex,
+    newAnswersSequence,
     isLoading: isFetchingThread,
     categoryFilterState,
     filteredParentChildrenMap,
@@ -59,6 +58,7 @@ function ThreadPage() {
       setViewMode(THREAD_VIEW_MODES.TIMELINE);
     }
   }, [router.query.gallery, router.query.timeline]);
+  const newAnswersIndex = React.useRef<number>(-1);
 
   // TODO: disable this while post editing and readd
   // const currentPostIndex = React.useRef<number>(-1);
@@ -224,21 +224,22 @@ function ThreadPage() {
         }}
         loading={isFetchingThread}
         actionButton={
-          !!newAnswers?.current?.length ? (
+          !!newAnswersSequence.length ? (
             <CycleNewButton
               text="Next New"
               onNext={() => {
-                if (!newAnswers.current) {
+                if (!newAnswersSequence) {
                   return;
                 }
+                log(newAnswersSequence);
+                log(newAnswersIndex);
                 // @ts-ignore
                 newAnswersIndex.current =
-                  ((newAnswersIndex.current || -1) + 1) %
-                  newAnswers.current.length;
+                  (newAnswersIndex.current + 1) % newAnswersSequence.length;
                 const nextPost =
-                  newAnswers.current[newAnswersIndex.current].postId;
+                  newAnswersSequence[newAnswersIndex.current].postId;
                 const nextComment =
-                  newAnswers.current[newAnswersIndex.current].commentId;
+                  newAnswersSequence[newAnswersIndex.current].commentId;
                 if (nextPost) {
                   scrollToPost(nextPost, boardData.accentColor);
                 }
@@ -255,6 +256,9 @@ function ThreadPage() {
           .feed-content {
             max-width: 100%;
             padding-bottom: 40px;
+          }
+          .feed {
+            max-width: 100%;
           }
           .feed.masonry {
             width: 100%;

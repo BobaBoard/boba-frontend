@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useAuth } from "components/Auth";
 import { getThreadData, markThreadAsRead } from "utils/queries";
 import { useQuery, useMutation } from "react-query";
-import { PostType } from "types/Types";
+import { PostType, ThreadType, CategoryFilterType } from "types/Types";
 import {
   makePostsTree,
   extractCategories,
@@ -11,16 +11,15 @@ import {
   getThreadInBoardCache,
   updateThreadReadState,
 } from "utils/thread-utils";
-import { useRouter } from "next/router";
 
 import debug from "debug";
 import { ThreadPageSSRContext } from "pages/[boardId]/thread/[...threadId]";
 const log = debug("bobafrontend:threadProvider-log");
 const info = debug("bobafrontend:threadProvider-info");
 
-const ThreadContext = React.createContext({} as ThreadType);
+const ThreadContext = React.createContext({} as ThreadContextType);
 
-interface ThreadType {
+interface ThreadContextType {
   // These two will never be null on thread paths.
   threadId: string;
   slug: string;
@@ -33,8 +32,7 @@ interface ThreadType {
   // The current post targeted by the page.
   currentRoot: PostType | null;
   allPosts: PostType[];
-  newAnswersIndex: React.RefObject<number>;
-  newAnswers: React.RefObject<{ postId?: string; commentId?: string }[]>;
+  newAnswersSequence: { postId?: string; commentId?: string }[];
   filteredRoot: PostType | null;
   filteredParentChildrenMap: Map<
     string,
@@ -48,108 +46,94 @@ interface ThreadType {
 }
 
 const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
-  url,
   threadId,
   postId,
   slug,
   children,
 }) => {
-  log("thread provider");
-  log(threadId);
-  const router = useRouter();
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
-  const pathnameNoTrailingSlash =
-    url[url.length - 1] == "/" ? url.substr(0, url.length - 1) : url;
-  const baseUrl = !!postId
-    ? pathnameNoTrailingSlash.substring(
-        0,
-        pathnameNoTrailingSlash.lastIndexOf("/") + 1
-      )
-    : pathnameNoTrailingSlash;
+  const baseUrl = `/!${slug}/thread/${threadId}`;
 
-  const newAnswersIndex = React.useRef<number>(-1);
-  const newAnswersArray = React.useRef<
-    { postId?: string; commentId?: string }[]
-  >([]);
-  const [categoryFilterState, setCategoryFilterState] = React.useState<
-    {
-      name: string;
-      active: boolean;
-    }[]
-  >([]);
+  const { data: threadData, isFetching: isFetchingThread } = useQuery<
+    ThreadType,
+    [
+      string,
+      {
+        threadId: string;
+      }
+    ]
+  >(["threadData", { threadId }], getThreadData, {
+    refetchOnWindowFocus: false,
+    initialData: () => {
+      log(
+        `Searching board activity data for board ${slug} and thread ${threadId}`
+      );
+      return getThreadInBoardCache({ slug, threadId })?.thread;
+    },
+    onSuccess: (data) => {
+      log(`Retrieved thread data for thread with id ${threadId}`);
+      info(data);
+    },
+    initialStale: true,
+  });
 
-  const { data: threadData, isFetching: isFetchingThread } = useQuery(
-    ["threadData", { threadId }],
-    getThreadData,
-    {
-      refetchOnWindowFocus: false,
-      initialData: () => {
-        log(
-          `Searching board activity data for board ${slug} and thread ${threadId}`
-        );
-        return getThreadInBoardCache({ slug, threadId })?.thread;
-      },
-      onSuccess: (data) => {
-        log(`Retrieved thread data for thread with id ${threadId}`);
-        info(data);
-        if (isAuthPending) {
-          const attemptLogin = () => {
-            if (isLoggedIn) {
-              readThread();
-              return;
-            }
-            if (isAuthPending) {
-              setTimeout(attemptLogin, 500);
-            }
-          };
-          setTimeout(attemptLogin, 500);
-        } else if (isLoggedIn) {
-          readThread();
-        }
-      },
-      initialStale: true,
-    }
-  );
-
+  // Mark thread as read on authentication and thread fetch
   const [readThread] = useMutation(() => markThreadAsRead({ threadId }), {
     onSuccess: () => {
       log(`Successfully marked thread as read`);
       updateThreadReadState({ threadId, slug });
     },
   });
+  React.useEffect(() => {
+    if (!isAuthPending && !isFetchingThread && isLoggedIn) {
+      readThread();
+      return;
+    }
+  }, [isAuthPending, isFetchingThread]);
 
-  const {
-    root,
-    parentChildrenMap,
-    postsDisplaySequence,
-  } = React.useMemo(() => {
+  // Extract posts data in a format that is easily consumable by context consumers.
+  const { root, parentChildrenMap, newAnswersSequence } = React.useMemo(() => {
     info("Building posts tree from data:");
     info(threadData);
-    return makePostsTree(threadData?.posts, threadId);
-  }, [threadData, threadId]);
-  React.useEffect(() => {
-    newAnswersIndex.current = -1;
-    newAnswersArray.current = [];
+    const { root, parentChildrenMap, postsDisplaySequence } = makePostsTree(
+      threadData?.posts,
+      threadId
+    );
+    let newAnswersSequence: { postId?: string; commentId?: string }[] = [];
     if (!postsDisplaySequence) {
-      return;
+      return {
+        root,
+        parentChildrenMap,
+        newAnswersSequence: [],
+      };
     }
     postsDisplaySequence.forEach((post) => {
       if (post.isNew && post.parentPostId != null) {
-        newAnswersArray.current.push({ postId: post.postId });
+        newAnswersSequence.push({ postId: post.postId });
       }
       post.comments?.forEach((comment) => {
         if (comment.isNew && !comment.chainParentId) {
-          newAnswersArray.current.push({ commentId: comment.commentId });
+          newAnswersSequence.push({ commentId: comment.commentId });
         }
       });
     });
-  }, [postsDisplaySequence]);
+    return {
+      root,
+      parentChildrenMap,
+      newAnswersSequence,
+    };
+  }, [threadData, threadId]);
 
+  // Listen to category filter changes and update data accordingly.
+  const [categoryFilterState, setCategoryFilterState] = React.useState<
+    CategoryFilterType[]
+  >([]);
   React.useEffect(() => {
     if (!threadData) {
       setCategoryFilterState([]);
+      return;
     }
-    const currentCategories = extractCategories(threadData?.posts);
+    const currentCategories = extractCategories(threadData.posts);
     setCategoryFilterState(
       currentCategories.map((category) => ({
         name: category,
@@ -185,8 +169,7 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
               ) as PostType)
             : root,
         allPosts: threadData?.posts || [],
-        newAnswers: newAnswersArray,
-        newAnswersIndex,
+        newAnswersSequence,
         filteredRoot,
         filteredParentChildrenMap,
         categoryFilterState,
