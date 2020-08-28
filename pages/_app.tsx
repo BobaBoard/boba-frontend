@@ -16,8 +16,8 @@ import {
   // @ts-ignore
 } from "@bobaboard/ui-components";
 
-import debug from "debug";
-const logging = debug("bobafrontend:app-log");
+// import debug from "debug";
+// const logging = debug("bobafrontend:app-log");
 
 let location;
 let isStaging = false;

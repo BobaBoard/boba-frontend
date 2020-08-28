@@ -26,7 +26,7 @@ import { useThread } from "components/thread/ThreadContext";
 import { useRouter } from "next/router";
 
 import debug from "debug";
-import { GetServerSideProps, NextPage } from "next";
+import { NextPage } from "next";
 const log = debug("bobafrontend:threadPage-log");
 
 function ThreadPage() {
@@ -291,10 +291,7 @@ export interface ThreadPageSSRContext {
   slug: string;
 }
 const PageWithProvider: NextPage<{}> = (props) => {
-  log("*****");
-  log(props);
   const router = useRouter();
-  log(router);
 
   return (
     <ThreadProvider

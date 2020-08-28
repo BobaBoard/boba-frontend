@@ -397,7 +397,6 @@ const ThreadView: React.FC<{
   isLoggedIn: boolean;
 }> = (props) => {
   const {
-    threadRoot,
     currentRoot,
     filteredParentChildrenMap,
     postId,

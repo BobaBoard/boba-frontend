@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 import { useAuth } from "components/Auth";
 import { getThreadData, markThreadAsRead } from "utils/queries";
