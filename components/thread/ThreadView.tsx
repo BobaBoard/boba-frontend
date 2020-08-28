@@ -268,7 +268,22 @@ const ThreadLevel: React.FC<{
                 props.post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR
               }
               createdTime={moment.utc(props.post.created).fromNow()}
-              createdTimeHref={`${baseUrl}/${props.post.postId}/`}
+              createdTimeLink={{
+                href: `${baseUrl}/${props.post.postId}/`,
+                onClick: () => {
+                  router
+                    .push(
+                      `/[boardId]/thread/[...threadId]`,
+                      `${baseUrl}/${props.post.postId}`,
+                      {
+                        shallow: true,
+                      }
+                    )
+                    .then(() => {
+                      window.scrollTo(0, 0);
+                    });
+                },
+              }}
               text={props.post.content}
               secretIdentity={props.post.secretIdentity}
               userIdentity={props.post.userIdentity}

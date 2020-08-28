@@ -352,7 +352,22 @@ function BoardPage() {
                                     .fromNow()}]`
                                 : ""
                             }`}
-                            createdTimeHref={threadUrl}
+                            createdTimeLink={{
+                              href: `${threadUrl}`,
+                              onClick: () => {
+                                router
+                                  .push(
+                                    `/[boardId]/thread/[...threadId]`,
+                                    `${threadUrl}`,
+                                    {
+                                      shallow: true,
+                                    }
+                                  )
+                                  .then(() => {
+                                    window.scrollTo(0, 0);
+                                  });
+                              },
+                            }}
                             text={post.content}
                             tags={post.tags}
                             secretIdentity={post.secretIdentity}
