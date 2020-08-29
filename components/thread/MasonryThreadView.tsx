@@ -73,57 +73,78 @@ const MasonryThreadView: React.FC<{
 
   return (
     <MasonryView ref={masonryRef}>
-      {orderedPosts.map((post) => (
-        <div
-          className="post"
-          key={post.postId}
-          // TODO: figure out why this is necessary.
-          // Right now it's here because there is a bug in the masonry view where
-          // when the elements are changed the positions are recalculated but, for some reason,
-          // position: absolute isn't maintained in certain divs. I assume it has somethign to do
-          // with react and re-rendering, but honestly I have no idea.
-          style={{ position: "absolute" }}
-        >
-          <Post
+      {
+        orderedPosts.map((post) => (
+          <div
+            className="post"
             key={post.postId}
-            size={post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}
-            createdTime={moment.utc(post.created).fromNow()}
-            text={post.content}
-            secretIdentity={post.secretIdentity}
-            userIdentity={post.userIdentity}
-            onNewContribution={() => props.onNewContribution(post.postId)}
-            onNewComment={() => props.onNewComment(post.postId, null)}
-            totalComments={post.comments?.length}
-            directContributions={
-              parentChildrenMap.get(post.postId)?.children.length
-            }
-            totalContributions={getTotalContributions(post, parentChildrenMap)}
-            newPost={props.isLoggedIn && post.isNew}
-            newComments={props.isLoggedIn ? post.newCommentsAmount : 0}
-            newContributions={
-              props.isLoggedIn
-                ? getTotalNewContributions(post, parentChildrenMap)
-                : 0
-            }
-            onNotesClick={() => {
-              router
-                .push(
-                  `/[boardId]/thread/[...threadId]`,
-                  `${baseUrl}/${post.postId}`,
-                  {
-                    shallow: true,
-                  }
-                )
-                .then(() => {
-                  window.scrollTo(0, 0);
-                });
-            }}
-            notesUrl={`${baseUrl}/${post.postId}/`}
-            tags={post.tags}
-            onEmbedLoaded={() => masonryRef.current?.reposition()}
-          />
-        </div>
-      ))}
+            // TODO: figure out why this is necessary.
+            // Right now it's here because there is a bug in the masonry view where
+            // when the elements are changed the positions are recalculated but, for some reason,
+            // position: absolute isn't maintained in certain divs. I assume it has somethign to do
+            // with react and re-rendering, but honestly I have no idea.
+            style={{ position: "absolute" }}
+          >
+            <Post
+              key={post.postId}
+              size={post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}
+              createdTime={moment.utc(post.created).fromNow()}
+              createdTimeLink={{
+                href: `${baseUrl}/${post.postId}/`,
+                onClick: () => {
+                  router
+                    .push(
+                      `/[boardId]/thread/[...threadId]`,
+                      `${baseUrl}/${post.postId}`,
+                      {
+                        shallow: true,
+                      }
+                    )
+                    .then(() => {
+                      window.scrollTo(0, 0);
+                    });
+                },
+              }}
+              text={post.content}
+              secretIdentity={post.secretIdentity}
+              userIdentity={post.userIdentity}
+              onNewContribution={() => props.onNewContribution(post.postId)}
+              onNewComment={() => props.onNewComment(post.postId, null)}
+              totalComments={post.comments?.length}
+              directContributions={
+                parentChildrenMap.get(post.postId)?.children.length
+              }
+              totalContributions={getTotalContributions(
+                post,
+                parentChildrenMap
+              )}
+              newPost={props.isLoggedIn && post.isNew}
+              newComments={props.isLoggedIn ? post.newCommentsAmount : 0}
+              newContributions={
+                props.isLoggedIn
+                  ? getTotalNewContributions(post, parentChildrenMap)
+                  : 0
+              }
+              onNotesClick={() => {
+                router
+                  .push(
+                    `/[boardId]/thread/[...threadId]`,
+                    `${baseUrl}/${post.postId}`,
+                    {
+                      shallow: true,
+                    }
+                  )
+                  .then(() => {
+                    window.scrollTo(0, 0);
+                  });
+              }}
+              notesUrl={`${baseUrl}/${post.postId}/`}
+              tags={post.tags}
+              onEmbedLoaded={() => masonryRef.current?.reposition()}
+            />
+          </div>
+        )) as any // TODO: figure out why it doesn't work without casting
+      }
       <style jsx>{`
         .post {
           max-width: min(45%, 550px);
