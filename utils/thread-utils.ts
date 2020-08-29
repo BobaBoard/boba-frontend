@@ -8,6 +8,8 @@ import {
 } from "../types/Types";
 const log = debug("bobafrontend:thread-utils");
 
+export const UNCATEGORIZED_LABEL = "uncategorized";
+
 export const makeCommentsTree = (
   comments: CommentType[] | undefined,
   parentCommentId: string | null,
@@ -161,16 +163,18 @@ export const applyCategoriesFilter = (
   >,
   categoriesFilter: { name: string; active: boolean }[]
 ) => {
-  const activeCategories = categoriesFilter.filter(
-    (category) => category.active
-  );
-  if (!root || activeCategories.length == categoriesFilter.length) {
-    // All categories are active, don't filter
+  log(`Applying category filter`);
+  if (!root) {
     return {
       root,
       parentChildrenMap,
     };
   }
+  const activeCategories = categoriesFilter.filter(
+    (category) => category.active
+  );
+  log(categoriesFilter);
+  log(activeCategories);
   // Filter away all posts that don't have children in the category.
   // Root should never be filtered out.
   const resultsMap = new Map<string, boolean>();
@@ -217,8 +221,21 @@ const makeActiveChildrenMap = (
           (activeCategory) => category == activeCategory.name
         )
       );
+    const isUncategorizedAndActive =
+      root.tags.categoryTags.length == 0 &&
+      activeCategories.some((category) => category.name == UNCATEGORIZED_LABEL);
+
+    const isActive = hasActiveCategory || isUncategorizedAndActive;
+    log(activeCategories);
+    log(
+      `Post with id ${root.postId}'s categories (${root.tags.categoryTags.join(
+        ","
+      )}) are: ${isActive ? "active" : "not active"}${
+        isUncategorizedAndActive ? " (uncategorized)" : ""
+      }`
+    );
     resultsMap.set(root.postId, hasActiveCategory);
-    return hasActiveCategory;
+    return isActive;
   }
   let hasCategoryChildren = false;
   children.forEach((child) => {

@@ -40,12 +40,9 @@ function ThreadPage() {
   const {
     threadId,
     slug,
-    threadRoot,
     newAnswersSequence,
     isLoading: isFetchingThread,
-    categoryFilterState,
     filteredParentChildrenMap,
-    setCategoryFilterState,
   } = useThread();
   const { [slug]: boardData } = useBoardTheme();
   const [viewMode, setViewMode] = React.useState(THREAD_VIEW_MODES.THREAD);
@@ -144,13 +141,7 @@ function ThreadPage() {
           <FeedWithMenu
             forceHideSidebar={router.query.gallery == "true"}
             sidebarContent={
-              <ThreadSidebar
-                firstPost={threadRoot as PostType}
-                categoryFilters={categoryFilterState}
-                onFiltersStatecChange={setCategoryFilterState}
-                viewMode={viewMode}
-                onViewChange={setViewMode}
-              />
+              <ThreadSidebar viewMode={viewMode} onViewChange={setViewMode} />
             }
             feedContent={
               <div

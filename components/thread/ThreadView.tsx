@@ -418,6 +418,7 @@ const ThreadView: React.FC<{
   if (!currentRoot) {
     return <div />;
   }
+  log(filteredParentChildrenMap);
   return (
     <>
       <div

@@ -7,23 +7,28 @@ import {
   DefaultTheme,
   // @ts-ignore
 } from "@bobaboard/ui-components";
-import { CategoryFilterType, PostType, THREAD_VIEW_MODES } from "types/Types";
+import { useThread } from "components/thread/ThreadContext";
+import { THREAD_VIEW_MODES } from "types/Types";
 import moment from "moment";
 
 const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
-  const post = props.firstPost;
+  const {
+    threadRoot,
+    categoryFilterState,
+    setCategoryFilterState,
+  } = useThread();
 
-  if (!post) {
+  if (!threadRoot) {
     return <div />;
   }
   return (
     <div className="thread-sidebar">
       <div className="post-header">
         <PostQuote
-          createdTime={moment.utc(post.created).fromNow()}
-          text={post.content}
-          secretIdentity={post.secretIdentity}
-          userIdentity={post.userIdentity}
+          createdTime={moment.utc(threadRoot.created).fromNow()}
+          text={threadRoot.content}
+          secretIdentity={threadRoot.secretIdentity}
+          userIdentity={threadRoot.userIdentity}
           backgroundColor={DefaultTheme.LAYOUT_BOARD_SIDEBAR_BACKGROUND_COLOR}
         />
       </div>
@@ -60,14 +65,14 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
           Timeline
         </Button>
       </div>
-      {props.categoryFilters && (
+      {categoryFilterState.length > 1 && (
         <div className="category-filters">
           <h3>Category Filters</h3>
           <CategoryFilter
-            categories={props.categoryFilters}
+            categories={categoryFilterState}
             onCategoryStateChange={(name: string, active: boolean) => {
-              props.onFiltersStatecChange(
-                props.categoryFilters.map((category) =>
+              setCategoryFilterState(
+                categoryFilterState.map((category) =>
                   category.name == name
                     ? {
                         name,
@@ -102,9 +107,6 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
 
 export default ThreadSidebar;
 export interface ThreadSidebarProps {
-  categoryFilters: CategoryFilterType[];
-  firstPost: PostType;
-  onFiltersStatecChange: (newState: CategoryFilterType[]) => void;
   viewMode: THREAD_VIEW_MODES;
   onViewChange: (viewType: THREAD_VIEW_MODES) => void;
 }

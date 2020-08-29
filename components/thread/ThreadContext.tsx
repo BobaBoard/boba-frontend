@@ -10,6 +10,7 @@ import {
   applyCategoriesFilter,
   getThreadInBoardCache,
   updateThreadReadState,
+  UNCATEGORIZED_LABEL,
 } from "utils/thread-utils";
 
 import debug from "debug";
@@ -34,6 +35,10 @@ interface ThreadContextType {
   allPosts: PostType[];
   newAnswersSequence: { postId?: string; commentId?: string }[];
   filteredRoot: PostType | null;
+  parentChildrenMap: Map<
+    string,
+    { children: PostType[]; parent: PostType | null }
+  >;
   filteredParentChildrenMap: Map<
     string,
     { children: PostType[]; parent: PostType | null }
@@ -134,6 +139,9 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
       return;
     }
     const currentCategories = extractCategories(threadData.posts);
+    currentCategories.push(UNCATEGORIZED_LABEL);
+    log(`Current categories:`);
+    log(currentCategories);
     setCategoryFilterState(
       currentCategories.map((category) => ({
         name: category,
@@ -171,6 +179,7 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
         allPosts: threadData?.posts || [],
         newAnswersSequence,
         filteredRoot,
+        parentChildrenMap,
         filteredParentChildrenMap,
         categoryFilterState,
         setCategoryFilterState,
