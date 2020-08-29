@@ -308,8 +308,20 @@ const ThreadLevel: React.FC<{
               }
               centered={props.postsMap.size == 0}
               answerable={props.isLoggedIn}
-              onNotesClick={() => {}}
-              notesUrl={"#"}
+              onNotesClick={() => {
+                router
+                  .push(
+                    `/[boardId]/thread/[...threadId]`,
+                    `${baseUrl}/${props.post.postId}`,
+                    {
+                      shallow: true,
+                    }
+                  )
+                  .then(() => {
+                    window.scrollTo(0, 0);
+                  });
+              }}
+              notesUrl={`${baseUrl}/${props.post.postId}/`}
               tags={props.post.tags}
               muted={props.isLoggedIn && !props.post.isNew && props.level > 0}
             />
