@@ -408,17 +408,12 @@ const ThreadView: React.FC<{
   onNewContribution: (id: string) => void;
   isLoggedIn: boolean;
 }> = (props) => {
-  const {
-    currentRoot,
-    filteredParentChildrenMap,
-    postId,
-    baseUrl,
-  } = useThread();
+  const { currentRoot, parentChildrenMap, postId, baseUrl } = useThread();
 
   if (!currentRoot) {
     return <div />;
   }
-  log(filteredParentChildrenMap);
+  log(parentChildrenMap);
   return (
     <>
       <div
@@ -437,7 +432,7 @@ const ThreadView: React.FC<{
       <MemoizedThreadLevel
         //@ts-ignore
         post={currentRoot}
-        postsMap={filteredParentChildrenMap}
+        postsMap={parentChildrenMap}
         level={0}
         onNewComment={props.onNewComment}
         onNewContribution={props.onNewContribution}
