@@ -29,6 +29,7 @@ const MasonryThreadView: React.FC<{
     filteredParentChildrenMap,
     categoryFilterState,
   } = useThread();
+  const masonryRef = React.useRef<{ reposition: () => void }>(null);
 
   const orderedPosts = React.useMemo(() => {
     // @ts-ignore
@@ -58,43 +59,14 @@ const MasonryThreadView: React.FC<{
     );
   }, [allPosts, categoryFilterState]);
 
-  const picsContainerRef = React.useRef<HTMLDivElement[]>([]);
-  const resizeObserver = React.useRef<ResizeObserver>();
-  const [x, setX] = React.useState(0);
-
-  React.useEffect(() => {
-    if (picsContainerRef.current) {
-      resizeObserver.current = new ResizeObserver((entries) => {
-        console.log(entries);
-        setX(x + 1);
-      });
-      picsContainerRef.current.forEach((pic) => {
-        if (pic && !pic.getAttribute("observing")) {
-          pic.setAttribute("observing", "true");
-          resizeObserver.current?.observe(pic);
-        }
-      });
-    }
-    return () => {
-      // picsContainerRef.current &&
-      //   resizeObserver.current?.unobserve(picsContainerRef.current);
-    };
-  }, [picsContainerRef.current.length, orderedPosts]);
-
   if (!orderedPosts.length) {
     return <div>The gallery is empty :(</div>;
   }
 
   return (
-    <MasonryView>
+    <MasonryView ref={masonryRef}>
       {orderedPosts.map((post) => (
-        <div
-          className="post"
-          key={post.postId}
-          ref={(ref) => {
-            picsContainerRef.current.push(ref);
-          }}
-        >
+        <div className="post" key={post.postId}>
           <Post
             key={post.postId}
             size={post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}
@@ -122,12 +94,18 @@ const MasonryThreadView: React.FC<{
             onNotesClick={() => {}}
             notesUrl={"#"}
             tags={post.tags}
+            onEmbedLoaded={() => masonryRef.current?.reposition()}
           />
         </div>
       ))}
       <style jsx>{`
         .post {
-          max-width: 45%;
+          max-width: min(45%, 550px);
+        }
+        @media only screen and (max-width: 550px) {
+          .post {
+            max-width: 100%;
+          }
         }
       `}</style>
     </MasonryView>
