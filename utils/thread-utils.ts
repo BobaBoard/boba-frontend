@@ -5,6 +5,7 @@ import {
   CommentType,
   ThreadType,
   BoardActivityResponse,
+  ThreadPostInfoType,
 } from "../types/Types";
 const log = debug("bobafrontend:thread-utils");
 
@@ -55,40 +56,39 @@ export const makePostsTree = (
   threadId: string
 ): {
   root: null | PostType;
-  parentChildrenMap: Map<
-    string,
-    { children: PostType[]; parent: PostType | null }
-  >;
-  postsDisplaySequence: null | PostType[];
+  parentChildrenMap: Map<string, ThreadPostInfoType>;
+  postsDisplaySequence: PostType[];
 } => {
   log(`Creating posts tree for thread ${threadId}`);
   if (!posts) {
     return {
       root: null,
-      parentChildrenMap: new Map<
-        string,
-        { children: PostType[]; parent: PostType | null }
-      >(),
-      postsDisplaySequence: null,
+      parentChildrenMap: new Map<string, ThreadPostInfoType>(),
+      postsDisplaySequence: [],
     };
   }
   let root: PostType | null = null;
-  const parentChildrenMap = new Map<
-    string,
-    { children: PostType[]; parent: PostType | null }
-  >();
+  const parentChildrenMap = new Map<string, ThreadPostInfoType>();
   const postsDisplaySequence: PostType[] = [];
 
+  // We add each post to the "parent children map" for its own parent.
+  // Furthermore, we also add the post as a parent for its own parent children map.
   posts.forEach((post) => {
     if (!post.parentPostId) {
       root = post;
       return;
     }
-    const parent =
-      posts.find((parentCandidate) => parentCandidate.postId == post.postId) ||
+    // TODO: here we're are getting the parent again for every child. just do this
+    // once if the parent is not already set.
+    const parentPost = posts.find(
+      (candidate) => candidate.postId == post.parentPostId
+    ) as PostType;
+    const grandPost =
+      posts.find((candidate) => candidate.postId == parentPost?.parentPostId) ||
       null;
     parentChildrenMap.set(post.parentPostId, {
-      parent,
+      parent: grandPost,
+      post: parentPost,
       children: [
         ...(parentChildrenMap.get(post.parentPostId)?.children ||
           ([] as PostType[])),

@@ -94,6 +94,12 @@ export interface CategoryFilterType {
   active: boolean;
 }
 
+export interface ThreadPostInfoType {
+  children: PostType[];
+  post: PostType;
+  parent: PostType | null;
+}
+
 export enum THREAD_VIEW_MODES {
   THREAD,
   MASONRY,
