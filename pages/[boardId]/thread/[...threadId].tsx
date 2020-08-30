@@ -42,7 +42,6 @@ function ThreadPage() {
     slug,
     newAnswersSequence,
     isLoading: isFetchingThread,
-    filteredParentChildrenMap,
   } = useThread();
   const { [slug]: boardData } = useBoardTheme();
   const [viewMode, setViewMode] = React.useState(THREAD_VIEW_MODES.THREAD);

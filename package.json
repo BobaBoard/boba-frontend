@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "DEBUG=bobafrontend:* next",
+    "dev:debug": "NODE_OPTIONS='--inspect' DEBUG=bobafrontend:* next dev",
     "build": "next build",
     "start": "next start -p 8080",
     "test": "jest",

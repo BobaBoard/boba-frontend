@@ -31,7 +31,7 @@ const MasonryThreadView: React.FC<{
     parentChildrenMap,
     categoryFilterState,
   } = useThread();
-  const masonryRef = React.useRef<{ reposition: () => void }>(null);
+  const masonryRef = React.createRef<{ reposition: () => void }>();
   const router = useRouter();
 
   // @ts-ignore
