@@ -58,7 +58,11 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const baseUrl = `/!${slug}/thread/${threadId}`;
 
-  const { data: threadData, isFetching: isFetchingThread } = useQuery<
+  const {
+    data: threadData,
+    isFetching: isFetchingThread,
+    isStale: isThreadStale,
+  } = useQuery<
     ThreadType,
     [
       string,
@@ -89,11 +93,11 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
     },
   });
   React.useEffect(() => {
-    if (!isAuthPending && !isFetchingThread && isLoggedIn) {
+    if (!isAuthPending && !isFetchingThread && !isThreadStale && isLoggedIn) {
       readThread();
       return;
     }
-  }, [isAuthPending, isFetchingThread]);
+  }, [isAuthPending, isFetchingThread, isThreadStale, isLoggedIn]);
 
   // Extract posts data in a format that is easily consumable by context consumers.
   const { root, parentChildrenMap, newAnswersSequence } = React.useMemo(() => {
