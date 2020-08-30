@@ -65,9 +65,7 @@ test("makes posts tree (root only)", () => {
 
   expect(postsTree).toEqual({
     parentChildrenMap: new Map(),
-    postsDisplaySequence: expect.arrayContaining([
-      expect.objectContaining({ postId: "1" }),
-    ]),
+    postsDisplaySequence: [expect.objectContaining({ postId: "1" })],
     root: expect.objectContaining({ postId: "1" }),
   });
 });

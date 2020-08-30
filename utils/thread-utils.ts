@@ -15,7 +15,11 @@ export const makeCommentsTree = (
   comments: CommentType[] | undefined,
   parentCommentId: string | null,
   postId: string
-) => {
+): {
+  roots: CommentType[];
+  parentChainMap: Map<string, CommentType>;
+  parentChildrenMap: Map<string, CommentType[]>;
+} => {
   log(`Creating comments tree for post ${postId}`);
   const result = {
     roots: [] as CommentType[],
@@ -157,10 +161,7 @@ export const extractCategories = (posts: PostType[] | undefined) => {
 
 export const applyCategoriesFilter = (
   root: PostType | null,
-  parentChildrenMap: Map<
-    string,
-    { children: PostType[]; parent: PostType | null }
-  >,
+  parentChildrenMap: Map<string, ThreadPostInfoType>,
   categoriesFilter: { name: string; active: boolean }[]
 ) => {
   log(`Applying category filter`);

@@ -3,7 +3,12 @@ import React from "react";
 import { useAuth } from "components/Auth";
 import { getThreadData, markThreadAsRead } from "utils/queries";
 import { useQuery, useMutation } from "react-query";
-import { PostType, ThreadType, CategoryFilterType } from "types/Types";
+import {
+  PostType,
+  ThreadType,
+  CategoryFilterType,
+  ThreadPostInfoType,
+} from "types/Types";
 import {
   makePostsTree,
   extractCategories,
@@ -35,14 +40,8 @@ interface ThreadContextType {
   allPosts: PostType[];
   newAnswersSequence: { postId?: string; commentId?: string }[];
   filteredRoot: PostType | null;
-  parentChildrenMap: Map<
-    string,
-    { children: PostType[]; parent: PostType | null }
-  >;
-  filteredParentChildrenMap: Map<
-    string,
-    { children: PostType[]; parent: PostType | null }
-  >;
+  parentChildrenMap: Map<string, ThreadPostInfoType>;
+  filteredParentChildrenMap: Map<string, ThreadPostInfoType>;
   categoryFilterState: { name: string; active: boolean }[];
   setCategoryFilterState: React.Dispatch<
     React.SetStateAction<{ name: string; active: boolean }[]>
