@@ -180,10 +180,7 @@ export const applyCategoriesFilter = (
   // Root should never be filtered out.
   const resultsMap = new Map<string, boolean>();
   makeActiveChildrenMap(root, parentChildrenMap, activeCategories, resultsMap);
-  const newParentChildrenMap = new Map<
-    string,
-    { children: PostType[]; parent: PostType | null }
-  >();
+  const newParentChildrenMap = new Map<string, ThreadPostInfoType>();
   parentChildrenMap.forEach((childrenArray, postId) => {
     const activeChildren = childrenArray?.children.filter((child) =>
       resultsMap.get(child.postId)
@@ -191,6 +188,7 @@ export const applyCategoriesFilter = (
     if (resultsMap.get(postId) && activeChildren.length > 0) {
       newParentChildrenMap.set(postId, {
         children: activeChildren,
+        post: childrenArray.post,
         parent: childrenArray.parent,
       });
     }
