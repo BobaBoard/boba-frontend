@@ -48,10 +48,10 @@ function ThreadPage() {
   const [viewMode, setViewMode] = React.useState(THREAD_VIEW_MODES.THREAD);
 
   React.useEffect(() => {
-    if (router.query.gallery == "true") {
+    if (router.query.gallery !== undefined) {
       setViewMode(THREAD_VIEW_MODES.MASONRY);
     }
-    if (router.query.timeline == "true") {
+    if (router.query.timeline !== undefined) {
       setViewMode(THREAD_VIEW_MODES.TIMELINE);
     }
   }, [router.query.gallery, router.query.timeline]);
@@ -74,10 +74,6 @@ function ThreadPage() {
   //   },
   //   [postsDisplaySequence]
   // );
-
-  log("Thread state:");
-  log(useThread());
-  log(filteredParentChildrenMap);
 
   return (
     <div className="main">
@@ -139,7 +135,7 @@ function ThreadPage() {
       <Layout
         mainContent={
           <FeedWithMenu
-            forceHideSidebar={router.query.gallery == "true"}
+            forceHideSidebar={router.query.hideSidebar !== undefined}
             sidebarContent={
               <ThreadSidebar viewMode={viewMode} onViewChange={setViewMode} />
             }

@@ -52,7 +52,7 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
           }
           onClick={() => props.onViewChange(THREAD_VIEW_MODES.MASONRY)}
         >
-          Masonry
+          Gallery
         </Button>
         <Button
           theme={
