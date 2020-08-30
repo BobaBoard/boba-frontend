@@ -6,21 +6,15 @@ import {
   ThreadType,
   BoardActivityResponse,
   ThreadPostInfoType,
+  ThreadCommentInfoType,
 } from "../types/Types";
 const log = debug("bobafrontend:thread-utils");
 
 export const UNCATEGORIZED_LABEL = "uncategorized";
 
 export const makeCommentsTree = (
-  comments: CommentType[] | undefined,
-  parentCommentId: string | null,
-  postId: string
-): {
-  roots: CommentType[];
-  parentChainMap: Map<string, CommentType>;
-  parentChildrenMap: Map<string, CommentType[]>;
-} => {
-  log(`Creating comments tree for post ${postId}`);
+  comments: CommentType[] | undefined
+): ThreadCommentInfoType => {
   const result = {
     roots: [] as CommentType[],
     parentChainMap: new Map<string, CommentType>(),
@@ -30,7 +24,7 @@ export const makeCommentsTree = (
     return result;
   }
   comments.forEach((comment) => {
-    if (comment.parentCommentId == parentCommentId && !comment.chainParentId) {
+    if (!comment.parentCommentId && !comment.chainParentId) {
       result.roots.push(comment);
       return;
     }
@@ -101,6 +95,10 @@ export const makePostsTree = (
     });
   });
 
+  // Creates a ordered sequence of posts like they'd be displayed in a thread
+  // (as opposed to by creation time).
+  // TODO: extract this to extractAnswerSequence if not needed elsewhere.
+  // Maybe needed for post loading?
   if (root) {
     const postsStacks: PostType[] = [root];
     while (postsStacks.length) {
@@ -118,6 +116,48 @@ export const makePostsTree = (
   }
 
   return { root, parentChildrenMap, postsDisplaySequence };
+};
+
+export const extractAnswersSequence = (
+  postsDisplaySequence: PostType[],
+  postCommentsMap: Map<string, ThreadCommentInfoType>
+): {
+  postId?: string;
+  commentId?: string;
+}[] => {
+  const newAnswersSequence = [] as {
+    postId?: string;
+    commentId?: string;
+  }[];
+  postsDisplaySequence.forEach((post) => {
+    if (post.isNew && post.parentPostId != null) {
+      newAnswersSequence.push({ postId: post.postId });
+    }
+    const {
+      roots,
+      parentChildrenMap: commentsChildrenMap,
+    } = postCommentsMap.get(post.postId) || {
+      roots: undefined,
+      parentChildrenMap: new Map(),
+    };
+
+    if (!roots) {
+      return;
+    }
+
+    let newCandidates = [...roots];
+    while (newCandidates.length > 0) {
+      const candidate = newCandidates.shift() as CommentType;
+      if (candidate.isNew) {
+        newAnswersSequence.push({ commentId: candidate.commentId });
+      }
+      const replies = commentsChildrenMap.get(candidate.commentId);
+      if (replies) {
+        newCandidates = [...replies, ...newCandidates];
+      }
+    }
+  });
+  return newAnswersSequence;
 };
 
 export const getTotalContributions = (

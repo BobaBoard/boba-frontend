@@ -8,6 +8,7 @@ import {
   ThreadType,
   CategoryFilterType,
   ThreadPostInfoType,
+  ThreadCommentInfoType,
 } from "types/Types";
 import {
   makePostsTree,
@@ -15,6 +16,8 @@ import {
   applyCategoriesFilter,
   getThreadInBoardCache,
   updateThreadReadState,
+  makeCommentsTree,
+  extractAnswersSequence,
   UNCATEGORIZED_LABEL,
 } from "utils/thread-utils";
 
@@ -41,6 +44,7 @@ interface ThreadContextType {
   newAnswersSequence: { postId?: string; commentId?: string }[];
   filteredRoot: PostType | null;
   parentChildrenMap: Map<string, ThreadPostInfoType>;
+  postCommentsMap: Map<string, ThreadCommentInfoType>;
   filteredParentChildrenMap: Map<string, ThreadPostInfoType>;
   categoryFilterState: { name: string; active: boolean }[];
   setCategoryFilterState: React.Dispatch<
@@ -107,7 +111,12 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
       threadData?.posts,
       threadId
     );
-    let newAnswersSequence: { postId?: string; commentId?: string }[] = [];
+    const postCommentsMap = new Map<string, ThreadCommentInfoType>();
+    threadData?.posts?.forEach((post) => {
+      log(`Creating comments tree for post ${postId}`);
+      postCommentsMap.set(post.postId, makeCommentsTree(post.comments));
+    });
+
     if (!postsDisplaySequence) {
       return {
         root,
@@ -115,20 +124,14 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
         newAnswersSequence: [],
       };
     }
-    postsDisplaySequence.forEach((post) => {
-      if (post.isNew && post.parentPostId != null) {
-        newAnswersSequence.push({ postId: post.postId });
-      }
-      post.comments?.forEach((comment) => {
-        if (comment.isNew && !comment.chainParentId) {
-          newAnswersSequence.push({ commentId: comment.commentId });
-        }
-      });
-    });
+
     return {
       root,
       parentChildrenMap,
-      newAnswersSequence,
+      newAnswersSequence: extractAnswersSequence(
+        postsDisplaySequence,
+        postCommentsMap
+      ),
     };
   }, [threadData, threadId]);
 

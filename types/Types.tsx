@@ -100,6 +100,12 @@ export interface ThreadPostInfoType {
   parent: PostType | null;
 }
 
+export interface ThreadCommentInfoType {
+  roots: CommentType[];
+  parentChainMap: Map<string, CommentType>;
+  parentChildrenMap: Map<string, CommentType[]>;
+}
+
 export enum THREAD_VIEW_MODES {
   THREAD,
   MASONRY,

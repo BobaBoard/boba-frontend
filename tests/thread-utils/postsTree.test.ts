@@ -2,38 +2,7 @@
 import { makePostsTree } from "../../utils/thread-utils";
 import { test, expect } from "@jest/globals";
 
-const makePost = ({
-  postId,
-  parentPostId,
-}: {
-  postId: string;
-  parentPostId?: string;
-}) => {
-  return {
-    postId,
-    parentPostId: parentPostId || "",
-    threadId: "",
-    secretIdentity: {
-      name: "",
-      avatar: "",
-    },
-    created: "",
-    content: "",
-    options: {},
-    tags: {
-      whisperTags: [],
-      indexTags: [],
-      categoryTags: [],
-      contentWarnings: [],
-    },
-    postsAmount: 0,
-    commentsAmount: 0,
-    threadsAmount: 0,
-    newPostsAmount: 0,
-    newCommentsAmount: 0,
-    isNew: false,
-  };
-};
+import { makePost } from "./utils";
 
 test("makes posts tree (empty array)", () => {
   const postsTree = makePostsTree([], "test");

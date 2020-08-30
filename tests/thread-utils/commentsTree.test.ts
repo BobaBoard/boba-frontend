@@ -1,29 +1,10 @@
 // TODO: figure out absolute import paths
 import { makeCommentsTree } from "../../utils/thread-utils";
 import { test, expect } from "@jest/globals";
-
-const makeComment = (properties: {
-  commentId: string;
-  parentCommentId?: string | null;
-  chainParentId?: string | null;
-  isNew?: boolean;
-}) => {
-  return {
-    parentCommentId: null,
-    chainParentId: null,
-    secretIdentity: {
-      name: "",
-      avatar: "",
-    },
-    created: "",
-    content: "",
-    isNew: false,
-    ...properties,
-  };
-};
+import { makeComment } from "./utils";
 
 test("makes comments tree (empty array)", () => {
-  const commentsTree = makeCommentsTree([], null, "test");
+  const commentsTree = makeCommentsTree([]);
   expect(commentsTree).toStrictEqual({
     roots: [],
     parentChainMap: new Map(),
@@ -32,11 +13,7 @@ test("makes comments tree (empty array)", () => {
 });
 
 test("makes comments tree (single comment)", () => {
-  const commentsTree = makeCommentsTree(
-    [makeComment({ commentId: "1" })],
-    null,
-    "test"
-  );
+  const commentsTree = makeCommentsTree([makeComment({ commentId: "1" })]);
   expect(commentsTree).toStrictEqual({
     roots: [expect.objectContaining({ commentId: "1" })],
     parentChainMap: new Map(),
@@ -45,15 +22,11 @@ test("makes comments tree (single comment)", () => {
 });
 
 test("makes comments tree (multiple comment roots)", () => {
-  const commentsTree = makeCommentsTree(
-    [
-      makeComment({ commentId: "1" }),
-      makeComment({ commentId: "2" }),
-      makeComment({ commentId: "3" }),
-    ],
-    null,
-    "test"
-  );
+  const commentsTree = makeCommentsTree([
+    makeComment({ commentId: "1" }),
+    makeComment({ commentId: "2" }),
+    makeComment({ commentId: "3" }),
+  ]);
   expect(commentsTree).toStrictEqual({
     roots: [
       expect.objectContaining({ commentId: "1" }),
@@ -69,15 +42,11 @@ test("makes comments tree (comment chains)", () => {
   /* Structure:
    * 1-2-3
    */
-  const commentsTree = makeCommentsTree(
-    [
-      makeComment({ commentId: "1" }),
-      makeComment({ commentId: "2", chainParentId: "1" }),
-      makeComment({ commentId: "3", chainParentId: "2" }),
-    ],
-    null,
-    "test"
-  );
+  const commentsTree = makeCommentsTree([
+    makeComment({ commentId: "1" }),
+    makeComment({ commentId: "2", chainParentId: "1" }),
+    makeComment({ commentId: "3", chainParentId: "2" }),
+  ]);
   expect(commentsTree).toStrictEqual({
     roots: [expect.objectContaining({ commentId: "1" })],
     parentChainMap: new Map([
@@ -92,16 +61,12 @@ test("makes comments tree (comment replies)", () => {
   /* Structure:
    * 1 -> 2 -> 3
    */
-  const commentsTree = makeCommentsTree(
-    [
-      makeComment({ commentId: "1" }),
-      makeComment({ commentId: "2", parentCommentId: "1" }),
-      makeComment({ commentId: "3", parentCommentId: "2" }),
-      makeComment({ commentId: "4", parentCommentId: "2" }),
-    ],
-    null,
-    "test"
-  );
+  const commentsTree = makeCommentsTree([
+    makeComment({ commentId: "1" }),
+    makeComment({ commentId: "2", parentCommentId: "1" }),
+    makeComment({ commentId: "3", parentCommentId: "2" }),
+    makeComment({ commentId: "4", parentCommentId: "2" }),
+  ]);
   expect(commentsTree).toStrictEqual({
     roots: [expect.objectContaining({ commentId: "1" })],
     parentChainMap: new Map(),
@@ -122,17 +87,13 @@ test("makes comments tree (comment replies with chain)", () => {
   /* Structure:
    * 1 -> 2-3-4 -> 5
    */
-  const commentsTree = makeCommentsTree(
-    [
-      makeComment({ commentId: "1" }),
-      makeComment({ commentId: "2", parentCommentId: "1" }),
-      makeComment({ commentId: "3", chainParentId: "2" }),
-      makeComment({ commentId: "4", chainParentId: "3" }),
-      makeComment({ commentId: "5", parentCommentId: "2" }),
-    ],
-    null,
-    "test"
-  );
+  const commentsTree = makeCommentsTree([
+    makeComment({ commentId: "1" }),
+    makeComment({ commentId: "2", parentCommentId: "1" }),
+    makeComment({ commentId: "3", chainParentId: "2" }),
+    makeComment({ commentId: "4", chainParentId: "3" }),
+    makeComment({ commentId: "5", parentCommentId: "2" }),
+  ]);
   expect(commentsTree).toStrictEqual({
     roots: [expect.objectContaining({ commentId: "1" })],
     parentChainMap: new Map([
