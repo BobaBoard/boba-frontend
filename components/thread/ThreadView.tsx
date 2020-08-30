@@ -16,9 +16,12 @@ import { useRouter } from "next/router";
 import moment from "moment";
 import debug from "debug";
 import { useThread } from "components/thread/ThreadContext";
-import { PostType, CommentType } from "../../types/Types";
 import {
-  makeCommentsTree,
+  PostType,
+  CommentType,
+  ThreadCommentInfoType,
+} from "../../types/Types";
+import {
   getTotalContributions,
   getTotalNewContributions,
 } from "../../utils/thread-utils";
@@ -81,7 +84,6 @@ export const scrollToComment = (commentId: string, color: string) => {
 
 const CommentsThreadLevel: React.FC<{
   comment: CommentType;
-  comments: CommentType[];
   parentChainMap: Map<string, CommentType>;
   parentChildrenMap: Map<string, CommentType[]>;
   parentPostId: string;
@@ -155,7 +157,6 @@ const CommentsThreadLevel: React.FC<{
       </div>
       {children ? (
         <CommentsThread
-          comments={props.comments}
           level={props.level + 1}
           parentCommentId={lastCommentId}
           parentPostId={props.parentPostId}
@@ -171,27 +172,30 @@ const CommentsThreadLevel: React.FC<{
 
 const commentHandlers = new Map<string, CommentHandler>();
 const CommentsThread: React.FC<{
-  comments: CommentType[];
   parentPostId: string;
   parentCommentId: string | null;
   isLoggedIn: boolean;
   level: number;
   onReplyTo: (replyTo: string) => void;
 }> = (props) => {
-  const { roots, parentChainMap, parentChildrenMap } = React.useMemo(
-    () =>
-      makeCommentsTree(
-        props.comments,
-        props.parentCommentId,
-        props.parentPostId
-      ),
-    [props.comments]
-  );
+  const { postCommentsMap } = useThread();
+
+  if (!postCommentsMap.has(props.parentPostId)) {
+    return <div />;
+  }
+
+  const { roots, parentChainMap, parentChildrenMap } = postCommentsMap.get(
+    props.parentPostId
+  ) as ThreadCommentInfoType;
+  let actualRoots = props.parentCommentId
+    ? parentChildrenMap.get(props.parentCommentId) || []
+    : roots;
   return (
     <>
-      {roots.map((comment: CommentType, i: number) => {
+      {actualRoots.map((comment: CommentType, i: number) => {
         return (
           <CommentsThreadLevel
+            key={comment.commentId}
             comment={comment}
             parentChainMap={parentChainMap}
             parentChildrenMap={parentChildrenMap}
@@ -349,7 +353,6 @@ const ThreadLevel: React.FC<{
           >
             {
               <CommentsThread
-                comments={props.post.comments}
                 isLoggedIn={props.isLoggedIn}
                 parentPostId={props.post.postId}
                 parentCommentId={null}

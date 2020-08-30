@@ -134,18 +134,18 @@ export const extractAnswersSequence = (
       newAnswersSequence.push({ postId: post.postId });
     }
     const {
-      roots,
+      roots: commentsRoots,
       parentChildrenMap: commentsChildrenMap,
     } = postCommentsMap.get(post.postId) || {
       roots: undefined,
       parentChildrenMap: new Map(),
     };
 
-    if (!roots) {
+    if (!commentsRoots) {
       return;
     }
 
-    let newCandidates = [...roots];
+    let newCandidates = [...commentsRoots];
     while (newCandidates.length > 0) {
       const candidate = newCandidates.shift() as CommentType;
       if (candidate.isNew) {

@@ -104,7 +104,12 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
   }, [isAuthPending, isFetchingThread, isThreadStale, isLoggedIn]);
 
   // Extract posts data in a format that is easily consumable by context consumers.
-  const { root, parentChildrenMap, newAnswersSequence } = React.useMemo(() => {
+  const {
+    root,
+    parentChildrenMap,
+    newAnswersSequence,
+    postCommentsMap,
+  } = React.useMemo(() => {
     info("Building posts tree from data:");
     info(threadData);
     const { root, parentChildrenMap, postsDisplaySequence } = makePostsTree(
@@ -114,24 +119,18 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
     const postCommentsMap = new Map<string, ThreadCommentInfoType>();
     threadData?.posts?.forEach((post) => {
       log(`Creating comments tree for post ${postId}`);
-      postCommentsMap.set(post.postId, makeCommentsTree(post.comments));
+      if (post.comments) {
+        postCommentsMap.set(post.postId, makeCommentsTree(post.comments));
+      }
     });
-
-    if (!postsDisplaySequence) {
-      return {
-        root,
-        parentChildrenMap,
-        newAnswersSequence: [],
-      };
-    }
 
     return {
       root,
       parentChildrenMap,
-      newAnswersSequence: extractAnswersSequence(
-        postsDisplaySequence,
-        postCommentsMap
-      ),
+      postCommentsMap,
+      newAnswersSequence: postsDisplaySequence
+        ? extractAnswersSequence(postsDisplaySequence, postCommentsMap)
+        : [],
     };
   }, [threadData, threadId]);
 
@@ -189,6 +188,7 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
         filteredParentChildrenMap,
         categoryFilterState,
         setCategoryFilterState,
+        postCommentsMap,
       }}
     >
       {children}
