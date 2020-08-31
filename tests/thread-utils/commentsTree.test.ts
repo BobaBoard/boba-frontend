@@ -3,6 +3,8 @@ import { makeCommentsTree } from "../../utils/thread-utils";
 import { test, expect } from "@jest/globals";
 import { makeComment } from "./utils";
 
+// NOTE: Chained comments also share the parent with the comment they're chained to.
+
 test("makes comments tree (empty array)", () => {
   const commentsTree = makeCommentsTree([]);
   expect(commentsTree).toStrictEqual({
@@ -44,8 +46,8 @@ test("makes comments tree (comment chains)", () => {
    */
   const commentsTree = makeCommentsTree([
     makeComment({ commentId: "1" }),
-    makeComment({ commentId: "2", chainParentId: "1" }),
-    makeComment({ commentId: "3", chainParentId: "2" }),
+    makeComment({ commentId: "2", chainParentId: "1", parentCommentId: "1" }),
+    makeComment({ commentId: "3", chainParentId: "2", parentCommentId: "1" }),
   ]);
   expect(commentsTree).toStrictEqual({
     roots: [expect.objectContaining({ commentId: "1" })],
@@ -90,8 +92,8 @@ test("makes comments tree (comment replies with chain)", () => {
   const commentsTree = makeCommentsTree([
     makeComment({ commentId: "1" }),
     makeComment({ commentId: "2", parentCommentId: "1" }),
-    makeComment({ commentId: "3", chainParentId: "2" }),
-    makeComment({ commentId: "4", chainParentId: "3" }),
+    makeComment({ commentId: "3", chainParentId: "2", parentCommentId: "1" }),
+    makeComment({ commentId: "4", chainParentId: "3", parentCommentId: "1" }),
     makeComment({ commentId: "5", parentCommentId: "2" }),
   ]);
   expect(commentsTree).toStrictEqual({

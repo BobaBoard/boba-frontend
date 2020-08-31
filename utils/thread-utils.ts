@@ -29,7 +29,8 @@ export const makeCommentsTree = (
       result.roots.push(comment);
       return;
     }
-    if (comment.parentCommentId) {
+    // Only the first comment in a chain should appear here
+    if (comment.parentCommentId && !comment.chainParentId) {
       result.parentChildrenMap.set(comment.parentCommentId, [
         ...(result.parentChildrenMap.get(comment.parentCommentId) ||
           ([] as CommentType[])),
