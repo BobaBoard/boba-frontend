@@ -34,55 +34,63 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
       </div>
       <div className="views">
         <h3>View Type</h3>
-        <Button
-          theme={
-            props.viewMode == THREAD_VIEW_MODES.THREAD
-              ? ButtonStyle.LIGHT
-              : ButtonStyle.DARK
-          }
-          onClick={() => props.onViewChange(THREAD_VIEW_MODES.THREAD)}
-        >
-          Thread
-        </Button>
-        <Button
-          theme={
-            props.viewMode == THREAD_VIEW_MODES.MASONRY
-              ? ButtonStyle.LIGHT
-              : ButtonStyle.DARK
-          }
-          onClick={() => props.onViewChange(THREAD_VIEW_MODES.MASONRY)}
-        >
-          Gallery
-        </Button>
-        <Button
-          theme={
-            props.viewMode == THREAD_VIEW_MODES.TIMELINE
-              ? ButtonStyle.LIGHT
-              : ButtonStyle.DARK
-          }
-          onClick={() => props.onViewChange(THREAD_VIEW_MODES.TIMELINE)}
-        >
-          Timeline
-        </Button>
+        <div className="buttons">
+          <Button
+            theme={
+              props.viewMode == THREAD_VIEW_MODES.THREAD
+                ? ButtonStyle.LIGHT
+                : ButtonStyle.DARK
+            }
+            onClick={() => props.onViewChange(THREAD_VIEW_MODES.THREAD)}
+          >
+            Thread
+          </Button>
+          <Button
+            theme={
+              props.viewMode == THREAD_VIEW_MODES.MASONRY
+                ? ButtonStyle.LIGHT
+                : ButtonStyle.DARK
+            }
+            onClick={() => props.onViewChange(THREAD_VIEW_MODES.MASONRY)}
+          >
+            Gallery
+          </Button>
+          <Button
+            theme={
+              props.viewMode == THREAD_VIEW_MODES.TIMELINE
+                ? ButtonStyle.LIGHT
+                : ButtonStyle.DARK
+            }
+            onClick={() => props.onViewChange(THREAD_VIEW_MODES.TIMELINE)}
+          >
+            Timeline
+          </Button>
+        </div>
       </div>
       {categoryFilterState.length > 1 && (
         <div className="category-filters">
           <h3>Category Filters</h3>
-          <CategoryFilter
-            categories={categoryFilterState}
-            onCategoryStateChange={(name: string, active: boolean) => {
-              setCategoryFilterState(
-                categoryFilterState.map((category) =>
-                  category.name == name
-                    ? {
-                        name,
-                        active,
-                      }
-                    : category
-                )
-              );
-            }}
-          />
+          {props.viewMode == THREAD_VIEW_MODES.MASONRY ? (
+            <CategoryFilter
+              categories={categoryFilterState}
+              onCategoryStateChange={(name: string, active: boolean) => {
+                setCategoryFilterState(
+                  categoryFilterState.map((category) =>
+                    category.name == name
+                      ? {
+                          name,
+                          active,
+                        }
+                      : category
+                  )
+                );
+              }}
+            />
+          ) : (
+            <div className="sorry">
+              Sorry! Category filters are not (yet) available in this mode.
+            </div>
+          )}
         </div>
       )}
       <style jsx>{`
@@ -97,8 +105,17 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
           color: white;
           margin-bottom: 10px;
         }
+        .views .buttons {
+          display: flex;
+          justify-content: space-around;
+        }
         .category-filters {
           color: white;
+        }
+        .sorry {
+          font-style: italic;
+          font-size: 16px;
+          margin-top: -6px;
         }
       `}</style>
     </div>

@@ -38,7 +38,6 @@ const TimelineView: React.FC<{
   );
   const {
     chronologicalPostsSequence,
-    categoryFilterState,
     filteredParentChildrenMap,
     baseUrl,
     isLoading,
