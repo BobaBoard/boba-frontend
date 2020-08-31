@@ -3,6 +3,7 @@ import {
   FeedWithMenu,
   CycleNewButton,
   toast,
+  PostingActionButton,
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import Layout from "components/Layout";
@@ -41,6 +42,7 @@ function ThreadPage() {
     threadId,
     postId,
     slug,
+    threadRoot,
     newAnswersSequence,
     isLoading: isFetchingThread,
     baseUrl,
@@ -77,6 +79,30 @@ function ThreadPage() {
   //   },
   //   [postsDisplaySequence]
   // );
+
+  const onNewAnswersButtonClick = () => {
+    if (!newAnswersSequence) {
+      return;
+    }
+    log(newAnswersSequence);
+    log(newAnswersIndex);
+    // @ts-ignore
+    newAnswersIndex.current =
+      (newAnswersIndex.current + 1) % newAnswersSequence.length;
+    const nextPost = newAnswersSequence[newAnswersIndex.current].postId;
+    const nextComment = newAnswersSequence[newAnswersIndex.current].commentId;
+    if (nextPost) {
+      scrollToPost(nextPost, boardData.accentColor);
+    }
+    if (nextComment) {
+      scrollToComment(nextComment, boardData.accentColor);
+    }
+  };
+
+  const canTopLevelPost =
+    isLoggedIn &&
+    (viewMode == THREAD_VIEW_MODES.MASONRY ||
+      viewMode == THREAD_VIEW_MODES.TIMELINE);
 
   return (
     <div className="main">
@@ -228,29 +254,13 @@ function ThreadPage() {
         }}
         loading={isFetchingThread}
         actionButton={
+          viewMode == THREAD_VIEW_MODES.THREAD &&
           !!newAnswersSequence.length ? (
-            <CycleNewButton
-              text="Next New"
-              onNext={() => {
-                if (!newAnswersSequence) {
-                  return;
-                }
-                log(newAnswersSequence);
-                log(newAnswersIndex);
-                // @ts-ignore
-                newAnswersIndex.current =
-                  (newAnswersIndex.current + 1) % newAnswersSequence.length;
-                const nextPost =
-                  newAnswersSequence[newAnswersIndex.current].postId;
-                const nextComment =
-                  newAnswersSequence[newAnswersIndex.current].commentId;
-                if (nextPost) {
-                  scrollToPost(nextPost, boardData.accentColor);
-                }
-                if (nextComment) {
-                  scrollToComment(nextComment, boardData.accentColor);
-                }
-              }}
+            <CycleNewButton text="Next New" onNext={onNewAnswersButtonClick} />
+          ) : canTopLevelPost ? (
+            <PostingActionButton
+              accentColor={boardData?.accentColor || "#f96680"}
+              onNewPost={() => threadRoot && setPostReplyId(threadRoot.postId)}
             />
           ) : undefined
         }
