@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from "react";
 import {
   Post,
@@ -14,6 +13,7 @@ import {
 } from "../../utils/thread-utils";
 import moment from "moment";
 import { useThread } from "components/thread/ThreadContext";
+import { useRouter } from "next/router";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // @ts-ignore
@@ -40,7 +40,35 @@ const TimelineView: React.FC<{
     allPosts,
     categoryFilterState,
     filteredParentChildrenMap,
+    baseUrl,
   } = useThread();
+  const router = useRouter();
+
+  React.useEffect(() => {
+    const url = new URL(`${window.location.origin}${router.asPath}`);
+    if (url.searchParams.has("timeline") && url.searchParams.has("all")) {
+      setTimelineView(TIMELINE_VIEW_MODE.ALL);
+    } else if (
+      url.searchParams.has("timeline") &&
+      url.searchParams.has("updates")
+    ) {
+      setTimelineView(TIMELINE_VIEW_MODE.UPDATED);
+    } else {
+      setTimelineView(TIMELINE_VIEW_MODE.NEW);
+    }
+  }, [router.asPath]);
+
+  const setTimelineViewMode = (viewMode: TIMELINE_VIEW_MODE) => {
+    const queryParam =
+      viewMode === TIMELINE_VIEW_MODE.ALL
+        ? "?timeline&all"
+        : viewMode == TIMELINE_VIEW_MODE.UPDATED
+        ? "?timeline&updated"
+        : "?timeline";
+    router.push(`/[boardId]/thread/[...threadId]`, `${baseUrl}${queryParam}`, {
+      shallow: true,
+    });
+  };
 
   const orderedPosts = React.useMemo(() => {
     // @ts-ignore
@@ -76,14 +104,14 @@ const TimelineView: React.FC<{
 
   return (
     <div>
-      <div className="views">
+      <div className="timeline-views">
         <Button
           theme={
             timelineView == TIMELINE_VIEW_MODE.NEW
               ? ButtonStyle.LIGHT
               : ButtonStyle.DARK
           }
-          onClick={() => setTimelineView(TIMELINE_VIEW_MODE.NEW)}
+          onClick={() => setTimelineViewMode(TIMELINE_VIEW_MODE.NEW)}
         >
           New
         </Button>
@@ -93,7 +121,7 @@ const TimelineView: React.FC<{
               ? ButtonStyle.LIGHT
               : ButtonStyle.DARK
           }
-          onClick={() => setTimelineView(TIMELINE_VIEW_MODE.UPDATED)}
+          onClick={() => setTimelineViewMode(TIMELINE_VIEW_MODE.UPDATED)}
         >
           Updated
         </Button>
@@ -103,7 +131,7 @@ const TimelineView: React.FC<{
               ? ButtonStyle.LIGHT
               : ButtonStyle.DARK
           }
-          onClick={() => setTimelineView(TIMELINE_VIEW_MODE.ALL)}
+          onClick={() => setTimelineViewMode(TIMELINE_VIEW_MODE.ALL)}
         >
           All
         </Button>
@@ -115,7 +143,22 @@ const TimelineView: React.FC<{
               key={post.postId}
               size={post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}
               createdTime={moment.utc(post.created).fromNow()}
-              createdTimeHref="#"
+              createdTimeLink={{
+                href: `${baseUrl}/${post.postId}/`,
+                onClick: () => {
+                  router
+                    .push(
+                      `/[boardId]/thread/[...threadId]`,
+                      `${baseUrl}/${post.postId}`,
+                      {
+                        shallow: true,
+                      }
+                    )
+                    .then(() => {
+                      window.scrollTo(0, 0);
+                    });
+                },
+              }}
               text={post.content}
               secretIdentity={post.secretIdentity}
               userIdentity={post.userIdentity}
@@ -142,12 +185,18 @@ const TimelineView: React.FC<{
             />
           </div>
         ))}
-        <style jsx>{`
-          .post {
-            margin-bottom: 20px;
-          }
-        `}</style>
       </div>
+      <style jsx>{`
+        .post {
+          margin-bottom: 20px;
+          max-width: 550px;
+        }
+        .timeline-views {
+          margin: 20px 30px;
+          display: flex;
+          justify-content: space-evenly;
+        }
+      `}</style>
     </div>
   );
 };

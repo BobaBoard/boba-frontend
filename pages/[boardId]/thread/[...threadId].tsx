@@ -56,7 +56,7 @@ function ThreadPage() {
     } else {
       setViewMode(THREAD_VIEW_MODES.THREAD);
     }
-  }, [router.query.gallery, router.query.timeline, router.asPath]);
+  }, [router.asPath]);
   const newAnswersIndex = React.useRef<number>(-1);
 
   // TODO: disable this while post editing and readd
@@ -168,44 +168,38 @@ function ThreadPage() {
                 })}
               >
                 {viewMode == THREAD_VIEW_MODES.THREAD ? (
-                  <div className="feed-content">
-                    <ThreadView
-                      onNewComment={(replyToPostId, replyToCommentId) =>
-                        setCommentReplyId({
-                          postId: replyToPostId,
-                          commentId: replyToCommentId,
-                        })
-                      }
-                      onNewContribution={setPostReplyId}
-                      isLoggedIn={isLoggedIn}
-                    />
-                  </div>
+                  <ThreadView
+                    onNewComment={(replyToPostId, replyToCommentId) =>
+                      setCommentReplyId({
+                        postId: replyToPostId,
+                        commentId: replyToCommentId,
+                      })
+                    }
+                    onNewContribution={setPostReplyId}
+                    isLoggedIn={isLoggedIn}
+                  />
                 ) : viewMode == THREAD_VIEW_MODES.MASONRY ? (
-                  <div className="masonry-feed">
-                    <MasonryThreadView
-                      onNewComment={(replyToPostId, replyToCommentId) =>
-                        setCommentReplyId({
-                          postId: replyToPostId,
-                          commentId: replyToCommentId,
-                        })
-                      }
-                      onNewContribution={setPostReplyId}
-                      isLoggedIn={isLoggedIn}
-                    />
-                  </div>
+                  <MasonryThreadView
+                    onNewComment={(replyToPostId, replyToCommentId) =>
+                      setCommentReplyId({
+                        postId: replyToPostId,
+                        commentId: replyToCommentId,
+                      })
+                    }
+                    onNewContribution={setPostReplyId}
+                    isLoggedIn={isLoggedIn}
+                  />
                 ) : (
-                  <div className="timeline-feed">
-                    <TimelineThreadView
-                      onNewComment={(replyToPostId, replyToCommentId) =>
-                        setCommentReplyId({
-                          postId: replyToPostId,
-                          commentId: replyToCommentId,
-                        })
-                      }
-                      onNewContribution={setPostReplyId}
-                      isLoggedIn={isLoggedIn}
-                    />
-                  </div>
+                  <TimelineThreadView
+                    onNewComment={(replyToPostId, replyToCommentId) =>
+                      setCommentReplyId({
+                        postId: replyToPostId,
+                        commentId: replyToCommentId,
+                      })
+                    }
+                    onNewContribution={setPostReplyId}
+                    isLoggedIn={isLoggedIn}
+                  />
                 )}
 
                 <div
@@ -268,9 +262,6 @@ function ThreadPage() {
             max-width: 100%;
           }
           .feed.masonry {
-            width: 100%;
-          }
-          .masonry-feed {
             width: 100%;
             position: relative;
             margin-top: 20px;

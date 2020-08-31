@@ -8,7 +8,8 @@ import {
   ThreadPostInfoType,
   ThreadCommentInfoType,
 } from "../types/Types";
-const log = debug("bobafrontend:thread-utils");
+const log = debug("bobafrontend:thread-utils-log");
+const info = debug("bobafrontend:thread-utils-info");
 
 export const UNCATEGORIZED_LABEL = "uncategorized";
 
@@ -265,8 +266,8 @@ const makeActiveChildrenMap = (
       activeCategories.some((category) => category.name == UNCATEGORIZED_LABEL);
 
     const isActive = hasActiveCategory || isUncategorizedAndActive;
-    log(activeCategories);
-    log(
+    info(activeCategories);
+    info(
       `Post with id ${root.postId}'s categories (${root.tags.categoryTags.join(
         ","
       )}) are: ${isActive ? "active" : "not active"}${
