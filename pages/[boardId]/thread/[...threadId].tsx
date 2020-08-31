@@ -39,6 +39,7 @@ function ThreadPage() {
   const router = useRouter();
   const {
     threadId,
+    postId,
     slug,
     newAnswersSequence,
     isLoading: isFetchingThread,
@@ -162,14 +163,14 @@ function ThreadPage() {
             feedContent={
               <div
                 className={classnames("feed", {
-                  thread: viewMode == THREAD_VIEW_MODES.THREAD,
-                  masonry: viewMode == THREAD_VIEW_MODES.MASONRY,
-                  timeline: viewMode == THREAD_VIEW_MODES.TIMELINE,
+                  thread: viewMode == THREAD_VIEW_MODES.THREAD || postId,
+                  masonry: viewMode == THREAD_VIEW_MODES.MASONRY && !postId,
+                  timeline: viewMode == THREAD_VIEW_MODES.TIMELINE && !postId,
                   loading: isFetchingThread,
                 })}
               >
                 <div className="view-modes">
-                  {viewMode == THREAD_VIEW_MODES.THREAD ? (
+                  {viewMode == THREAD_VIEW_MODES.THREAD || postId ? (
                     <ThreadView
                       onNewComment={(replyToPostId, replyToCommentId) =>
                         setCommentReplyId({

@@ -62,6 +62,7 @@ const MasonryThreadView: React.FC<{
     return <div>The gallery is empty :(</div>;
   }
 
+  const url = new URL(`${window.location.origin}${router.asPath}`);
   return (
     <MasonryView ref={masonryRef}>
       {
@@ -81,12 +82,12 @@ const MasonryThreadView: React.FC<{
               size={post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}
               createdTime={moment.utc(post.created).fromNow()}
               createdTimeLink={{
-                href: `${baseUrl}/${post.postId}/`,
+                href: `${baseUrl}/${post.postId}/${url.search}`,
                 onClick: () => {
                   router
                     .push(
                       `/[boardId]/thread/[...threadId]`,
-                      `${baseUrl}/${post.postId}`,
+                      `${baseUrl}/${post.postId}${url.search}`,
                       {
                         shallow: true,
                       }
@@ -120,7 +121,7 @@ const MasonryThreadView: React.FC<{
                 router
                   .push(
                     `/[boardId]/thread/[...threadId]`,
-                    `${baseUrl}/${post.postId}`,
+                    `${baseUrl}/${post.postId}${url.search}`,
                     {
                       shallow: true,
                     }
@@ -129,7 +130,7 @@ const MasonryThreadView: React.FC<{
                     window.scrollTo(0, 0);
                   });
               }}
-              notesUrl={`${baseUrl}/${post.postId}/`}
+              notesUrl={`${baseUrl}/${post.postId}/${url.search}`}
               tags={post.tags}
               onEmbedLoaded={() => masonryRef.current?.reposition()}
             />

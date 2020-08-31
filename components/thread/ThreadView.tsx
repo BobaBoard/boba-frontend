@@ -412,10 +412,12 @@ const ThreadView: React.FC<{
   isLoggedIn: boolean;
 }> = (props) => {
   const { currentRoot, parentChildrenMap, postId, baseUrl } = useThread();
+  const router = useRouter();
 
   if (!currentRoot) {
     return <div />;
   }
+  const url = new URL(`${window.location.origin}${router.asPath}`);
   return (
     <>
       <div
@@ -424,7 +426,7 @@ const ThreadView: React.FC<{
         })}
       >
         <Link
-          as={baseUrl}
+          as={`${baseUrl}${url.search}`}
           href={`/[boardId]/thread/[...threadId]`}
           shallow={true}
         >
