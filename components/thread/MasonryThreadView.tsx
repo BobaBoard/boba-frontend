@@ -27,7 +27,7 @@ const MasonryThreadView: React.FC<{
 }> = (props) => {
   const {
     baseUrl,
-    allPosts,
+    chronologicalPostsSequence,
     parentChildrenMap,
     categoryFilterState,
   } = useThread();
@@ -35,16 +35,7 @@ const MasonryThreadView: React.FC<{
   const router = useRouter();
 
   // @ts-ignore
-  let [unusedFirstElement, ...sortedArray] = allPosts || [];
-  sortedArray.sort((post1, post2) => {
-    if (moment.utc(post1.created).isBefore(moment.utc(post2.created))) {
-      return -1;
-    }
-    if (moment.utc(post1.created).isAfter(moment.utc(post2.created))) {
-      return 1;
-    }
-    return 0;
-  });
+  let [unusedFirstElement, ...unfilteredArray] = chronologicalPostsSequence;
 
   const activeCategories = categoryFilterState.filter(
     (category) => category.active
@@ -52,9 +43,9 @@ const MasonryThreadView: React.FC<{
   const isUntaggedActive = activeCategories.some(
     (category) => category.name == UNCATEGORIZED_LABEL
   );
-  let orderedPosts = sortedArray;
+  let orderedPosts = unfilteredArray;
   if (activeCategories.length != categoryFilterState.length) {
-    orderedPosts = sortedArray.filter(
+    orderedPosts = unfilteredArray.filter(
       (post) =>
         (post.tags.categoryTags.length == 0 && isUntaggedActive) ||
         post.tags.categoryTags.some((category) =>

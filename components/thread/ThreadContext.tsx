@@ -20,6 +20,7 @@ import {
   extractAnswersSequence,
   UNCATEGORIZED_LABEL,
 } from "utils/thread-utils";
+import moment from "moment";
 
 import debug from "debug";
 import { ThreadPageSSRContext } from "pages/[boardId]/thread/[...threadId]";
@@ -40,7 +41,7 @@ interface ThreadContextType {
   threadRoot: PostType | null;
   // The current post targeted by the page.
   currentRoot: PostType | null;
-  allPosts: PostType[];
+  chronologicalPostsSequence: PostType[];
   newAnswersSequence: { postId?: string; commentId?: string }[];
   filteredRoot: PostType | null;
   parentChildrenMap: Map<string, ThreadPostInfoType>;
@@ -109,6 +110,7 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
     parentChildrenMap,
     newAnswersSequence,
     postCommentsMap,
+    chronologicalPostsSequence,
   } = React.useMemo(() => {
     info("Building posts tree from data:");
     info(threadData);
@@ -124,10 +126,22 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
       }
     });
 
+    const chronologicalPostsSequence =
+      threadData?.posts.sort((post1, post2) => {
+        if (moment.utc(post1.created).isBefore(moment.utc(post2.created))) {
+          return -1;
+        }
+        if (moment.utc(post1.created).isAfter(moment.utc(post2.created))) {
+          return 1;
+        }
+        return 0;
+      }) || [];
+
     return {
       root,
       parentChildrenMap,
       postCommentsMap,
+      chronologicalPostsSequence,
       newAnswersSequence: postsDisplaySequence
         ? extractAnswersSequence(postsDisplaySequence, postCommentsMap)
         : [],
@@ -181,7 +195,6 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
                 (post) => post.postId == postId
               ) as PostType)
             : root,
-        allPosts: threadData?.posts || [],
         newAnswersSequence,
         filteredRoot,
         parentChildrenMap,
@@ -189,6 +202,7 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
         categoryFilterState,
         setCategoryFilterState,
         postCommentsMap,
+        chronologicalPostsSequence,
       }}
     >
       {children}

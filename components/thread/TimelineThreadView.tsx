@@ -37,10 +37,11 @@ const TimelineView: React.FC<{
     TIMELINE_VIEW_MODE.ALL
   );
   const {
-    allPosts,
+    chronologicalPostsSequence,
     categoryFilterState,
     filteredParentChildrenMap,
     baseUrl,
+    isLoading,
   } = useThread();
   const router = useRouter();
 
@@ -50,7 +51,7 @@ const TimelineView: React.FC<{
       setTimelineView(TIMELINE_VIEW_MODE.ALL);
     } else if (
       url.searchParams.has("timeline") &&
-      url.searchParams.has("updates")
+      url.searchParams.has("updated")
     ) {
       setTimelineView(TIMELINE_VIEW_MODE.UPDATED);
     } else {
@@ -70,40 +71,36 @@ const TimelineView: React.FC<{
     });
   };
 
-  const orderedPosts = React.useMemo(() => {
-    // @ts-ignore
-    let [unusedFirstElement, ...sortedArray] = allPosts ? [...allPosts] : [];
-    sortedArray.sort((post1, post2) => {
-      if (moment.utc(post1.created).isBefore(moment.utc(post2.created))) {
-        return -1;
-      }
-      if (moment.utc(post1.created).isAfter(moment.utc(post2.created))) {
-        return 1;
-      }
-      return 0;
-    });
-
-    const activeCategories = categoryFilterState.filter(
-      (category) => category.active
-    );
-    if (activeCategories.length == categoryFilterState.length) {
-      return sortedArray;
+  React.useEffect(() => {
+    if (!isLoading && !chronologicalPostsSequence.some((post) => post.isNew)) {
+      setTimelineViewMode(TIMELINE_VIEW_MODE.ALL);
     }
-    return sortedArray.filter((post) =>
-      post.tags.categoryTags.some((category) =>
-        activeCategories.some(
-          (activeCategory) => category == activeCategory.name
-        )
-      )
-    );
-  }, [allPosts, categoryFilterState]);
+  }, [isLoading]);
 
-  if (!orderedPosts.length) {
-    return <div>The gallery is empty :(</div>;
-  }
+  const { newPosts, updatedPosts, allPosts } = React.useMemo(() => {
+    // @ts-ignore
+    let [unusedFirstElement, ...allPosts] = chronologicalPostsSequence;
+    const newPosts = chronologicalPostsSequence.filter((post) => post.isNew);
+    const updatedPosts = chronologicalPostsSequence.filter(
+      (post) => post.isNew || post.newCommentsAmount > 0
+    );
+
+    return {
+      allPosts: chronologicalPostsSequence,
+      newPosts,
+      updatedPosts,
+    };
+  }, [chronologicalPostsSequence]);
+
+  const displayPosts =
+    timelineView === TIMELINE_VIEW_MODE.ALL
+      ? allPosts
+      : timelineView == TIMELINE_VIEW_MODE.UPDATED
+      ? updatedPosts
+      : newPosts;
 
   return (
-    <div>
+    <div className="timeline-container">
       <div className="timeline-views">
         <Button
           theme={
@@ -112,6 +109,7 @@ const TimelineView: React.FC<{
               : ButtonStyle.DARK
           }
           onClick={() => setTimelineViewMode(TIMELINE_VIEW_MODE.NEW)}
+          updates={newPosts.length > 0 ? newPosts.length : undefined}
         >
           New
         </Button>
@@ -122,9 +120,11 @@ const TimelineView: React.FC<{
               : ButtonStyle.DARK
           }
           onClick={() => setTimelineViewMode(TIMELINE_VIEW_MODE.UPDATED)}
+          updates={updatedPosts.length > 0 ? updatedPosts.length : undefined}
         >
           Updated
         </Button>
+        {/* @ts-ignore */}
         <Button
           theme={
             timelineView == TIMELINE_VIEW_MODE.ALL
@@ -133,11 +133,22 @@ const TimelineView: React.FC<{
           }
           onClick={() => setTimelineViewMode(TIMELINE_VIEW_MODE.ALL)}
         >
-          All
+          All ({allPosts.length})
         </Button>
       </div>
       <div>
-        {orderedPosts.map((post) => (
+        {displayPosts.length == 0 && (
+          <div className="empty">
+            No{" "}
+            {timelineView === TIMELINE_VIEW_MODE.NEW
+              ? "new "
+              : timelineView == TIMELINE_VIEW_MODE.UPDATED
+              ? "updated "
+              : ""}
+            post available.
+          </div>
+        )}
+        {displayPosts.map((post) => (
           <div className="post" key={post.postId}>
             <Post
               key={post.postId}
@@ -187,9 +198,18 @@ const TimelineView: React.FC<{
         ))}
       </div>
       <style jsx>{`
+        .timeline-container {
+          width: 100%;
+          text-align: center;
+          max-width: 550px;
+          margin: 0 auto;
+        }
         .post {
           margin-bottom: 20px;
-          max-width: 550px;
+        }
+        .empty {
+          color: white;
+          width: 100%;
         }
         .timeline-views {
           margin: 20px 30px;
@@ -202,3 +222,5 @@ const TimelineView: React.FC<{
 };
 
 export default TimelineView;
+
+0;

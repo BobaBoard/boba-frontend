@@ -165,43 +165,45 @@ function ThreadPage() {
                   thread: viewMode == THREAD_VIEW_MODES.THREAD,
                   masonry: viewMode == THREAD_VIEW_MODES.MASONRY,
                   timeline: viewMode == THREAD_VIEW_MODES.TIMELINE,
+                  loading: isFetchingThread,
                 })}
               >
-                {viewMode == THREAD_VIEW_MODES.THREAD ? (
-                  <ThreadView
-                    onNewComment={(replyToPostId, replyToCommentId) =>
-                      setCommentReplyId({
-                        postId: replyToPostId,
-                        commentId: replyToCommentId,
-                      })
-                    }
-                    onNewContribution={setPostReplyId}
-                    isLoggedIn={isLoggedIn}
-                  />
-                ) : viewMode == THREAD_VIEW_MODES.MASONRY ? (
-                  <MasonryThreadView
-                    onNewComment={(replyToPostId, replyToCommentId) =>
-                      setCommentReplyId({
-                        postId: replyToPostId,
-                        commentId: replyToCommentId,
-                      })
-                    }
-                    onNewContribution={setPostReplyId}
-                    isLoggedIn={isLoggedIn}
-                  />
-                ) : (
-                  <TimelineThreadView
-                    onNewComment={(replyToPostId, replyToCommentId) =>
-                      setCommentReplyId({
-                        postId: replyToPostId,
-                        commentId: replyToCommentId,
-                      })
-                    }
-                    onNewContribution={setPostReplyId}
-                    isLoggedIn={isLoggedIn}
-                  />
-                )}
-
+                <div className="view-modes">
+                  {viewMode == THREAD_VIEW_MODES.THREAD ? (
+                    <ThreadView
+                      onNewComment={(replyToPostId, replyToCommentId) =>
+                        setCommentReplyId({
+                          postId: replyToPostId,
+                          commentId: replyToCommentId,
+                        })
+                      }
+                      onNewContribution={setPostReplyId}
+                      isLoggedIn={isLoggedIn}
+                    />
+                  ) : viewMode == THREAD_VIEW_MODES.MASONRY ? (
+                    <MasonryThreadView
+                      onNewComment={(replyToPostId, replyToCommentId) =>
+                        setCommentReplyId({
+                          postId: replyToPostId,
+                          commentId: replyToCommentId,
+                        })
+                      }
+                      onNewContribution={setPostReplyId}
+                      isLoggedIn={isLoggedIn}
+                    />
+                  ) : (
+                    <TimelineThreadView
+                      onNewComment={(replyToPostId, replyToCommentId) =>
+                        setCommentReplyId({
+                          postId: replyToPostId,
+                          commentId: replyToCommentId,
+                        })
+                      }
+                      onNewContribution={setPostReplyId}
+                      isLoggedIn={isLoggedIn}
+                    />
+                  )}
+                </div>
                 <div
                   className={classnames("loading-indicator", {
                     loading: isFetchingThread,
@@ -254,18 +256,20 @@ function ThreadPage() {
       />
       <style jsx>
         {`
-          .feed-content {
+          .feed {
             max-width: 100%;
             padding-bottom: 40px;
           }
-          .feed {
-            max-width: 100%;
+          .feed.loading .view-modes {
+            display: none;
+          }
+          .feed.timeline {
+            width: 100%;
           }
           .feed.masonry {
             width: 100%;
             position: relative;
             margin-top: 20px;
-            margin-bottom: 20px;
           }
           .loading-indicator {
             color: white;
