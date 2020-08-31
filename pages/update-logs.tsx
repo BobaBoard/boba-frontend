@@ -11,6 +11,16 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [8/25/20]
+                  <ul>
+                    <li>
+                      I heard you like direct links to specific posts...
+                      (pppsstt: click on the posts timestamps)
+                    </li>
+                  </ul>
+                </li>
+
+                <li>
                   [8/19/20]
                   <p>Today..... the editor rises!</p>
                   <ul>
