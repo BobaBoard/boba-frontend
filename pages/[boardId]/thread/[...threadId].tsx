@@ -42,18 +42,21 @@ function ThreadPage() {
     slug,
     newAnswersSequence,
     isLoading: isFetchingThread,
+    baseUrl,
   } = useThread();
   const { [slug]: boardData } = useBoardTheme();
   const [viewMode, setViewMode] = React.useState(THREAD_VIEW_MODES.THREAD);
 
   React.useEffect(() => {
-    if (router.query.gallery !== undefined) {
+    const url = new URL(`${window.location.origin}${router.asPath}`);
+    if (url.searchParams.has("gallery")) {
       setViewMode(THREAD_VIEW_MODES.MASONRY);
-    }
-    if (router.query.timeline !== undefined) {
+    } else if (url.searchParams.has("timeline")) {
       setViewMode(THREAD_VIEW_MODES.TIMELINE);
+    } else {
+      setViewMode(THREAD_VIEW_MODES.THREAD);
     }
-  }, [router.query.gallery, router.query.timeline]);
+  }, [router.query.gallery, router.query.timeline, router.asPath]);
   const newAnswersIndex = React.useRef<number>(-1);
 
   // TODO: disable this while post editing and readd
@@ -136,7 +139,25 @@ function ThreadPage() {
           <FeedWithMenu
             forceHideSidebar={router.query.hideSidebar !== undefined}
             sidebarContent={
-              <ThreadSidebar viewMode={viewMode} onViewChange={setViewMode} />
+              <ThreadSidebar
+                viewMode={viewMode}
+                onViewChange={(viewMode) => {
+                  const queryParam =
+                    viewMode === THREAD_VIEW_MODES.MASONRY
+                      ? "?gallery"
+                      : viewMode == THREAD_VIEW_MODES.TIMELINE
+                      ? "?timeline"
+                      : "";
+                  router.push(
+                    `/[boardId]/thread/[...threadId]`,
+                    `${baseUrl}${queryParam}`,
+                    {
+                      shallow: true,
+                    }
+                  );
+                  setViewMode(viewMode);
+                }}
+              />
             }
             feedContent={
               <div
