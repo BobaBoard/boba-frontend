@@ -73,7 +73,11 @@ const TimelineView: React.FC<{
 
   React.useEffect(() => {
     if (!isLoading && !chronologicalPostsSequence.some((post) => post.isNew)) {
-      setTimelineViewMode(TIMELINE_VIEW_MODE.ALL);
+      setTimelineViewMode(
+        chronologicalPostsSequence.some((post) => post.newCommentsAmount > 0)
+          ? TIMELINE_VIEW_MODE.UPDATED
+          : TIMELINE_VIEW_MODE.ALL
+      );
     }
   }, [isLoading]);
 
