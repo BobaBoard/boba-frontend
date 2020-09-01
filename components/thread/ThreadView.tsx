@@ -15,16 +15,23 @@ import {
 import { useRouter } from "next/router";
 import moment from "moment";
 import debug from "debug";
-import { PostType, CommentType } from "../../types/Types";
+import { useThread } from "components/thread/ThreadContext";
 import {
-  makeCommentsTree,
+  PostType,
+  CommentType,
+  ThreadCommentInfoType,
+} from "../../types/Types";
+import {
   getTotalContributions,
   getTotalNewContributions,
 } from "../../utils/thread-utils";
+import Link from "next/link";
 import { useBoardTheme } from "../BoardTheme";
+import classnames from "classnames";
 //import { useHotkeys } from "react-hotkeys-hook";
 
-const log = debug("bobafrontend:thread-log");
+const log = debug("bobafrontend:threadLevel-log");
+const info = debug("bobafrontend:threadLevel-info");
 
 // TODO: unify this and scrollToComment
 export const scrollToPost = (postId: string, color: string) => {
@@ -77,7 +84,6 @@ export const scrollToComment = (commentId: string, color: string) => {
 
 const CommentsThreadLevel: React.FC<{
   comment: CommentType;
-  comments: CommentType[];
   parentChainMap: Map<string, CommentType>;
   parentChildrenMap: Map<string, CommentType[]>;
   parentPostId: string;
@@ -151,7 +157,6 @@ const CommentsThreadLevel: React.FC<{
       </div>
       {children ? (
         <CommentsThread
-          comments={props.comments}
           level={props.level + 1}
           parentCommentId={lastCommentId}
           parentPostId={props.parentPostId}
@@ -167,27 +172,30 @@ const CommentsThreadLevel: React.FC<{
 
 const commentHandlers = new Map<string, CommentHandler>();
 const CommentsThread: React.FC<{
-  comments: CommentType[];
   parentPostId: string;
   parentCommentId: string | null;
   isLoggedIn: boolean;
   level: number;
   onReplyTo: (replyTo: string) => void;
 }> = (props) => {
-  const { roots, parentChainMap, parentChildrenMap } = React.useMemo(
-    () =>
-      makeCommentsTree(
-        props.comments,
-        props.parentCommentId,
-        props.parentPostId
-      ),
-    [props.comments]
-  );
+  const { postCommentsMap } = useThread();
+
+  if (!postCommentsMap.has(props.parentPostId)) {
+    return <div />;
+  }
+
+  const { roots, parentChainMap, parentChildrenMap } = postCommentsMap.get(
+    props.parentPostId
+  ) as ThreadCommentInfoType;
+  let actualRoots = props.parentCommentId
+    ? parentChildrenMap.get(props.parentCommentId) || []
+    : roots;
   return (
     <>
-      {roots.map((comment: CommentType, i: number) => {
+      {actualRoots.map((comment: CommentType, i: number) => {
         return (
           <CommentsThreadLevel
+            key={comment.commentId}
             comment={comment}
             parentChainMap={parentChainMap}
             parentChildrenMap={parentChildrenMap}
@@ -216,11 +224,11 @@ const ThreadLevel: React.FC<{
   const router = useRouter();
   const slug = router.query.boardId?.slice(1) as string;
   const { [slug]: boardData } = useBoardTheme();
-  log(
+  info(
     `Rendering subtree at level ${props.level} starting with post with id ${props.post.postId}`
   );
   const isLeaf = !props.postsMap.get(props.post.postId)?.children?.length;
-  log(`Leaf post? ${isLeaf}`);
+  info(`Leaf post? ${isLeaf}`);
   const endsArray = isLeaf
     ? props.lastOf.map((ends) => ({
         level: ends.level,
@@ -233,7 +241,7 @@ const ThreadLevel: React.FC<{
         },
       }))
     : [];
-  log(`Ends array: %o`, endsArray);
+  info(`Ends array: %o`, endsArray);
   const postId = router.query.threadId?.[1] as string;
 
   const pathnameNoTrailingSlash =
@@ -264,7 +272,22 @@ const ThreadLevel: React.FC<{
                 props.post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR
               }
               createdTime={moment.utc(props.post.created).fromNow()}
-              createdTimeHref={`${baseUrl}/${props.post.postId}/`}
+              createdTimeLink={{
+                href: `${baseUrl}/${props.post.postId}/`,
+                onClick: () => {
+                  router
+                    .push(
+                      `/[boardId]/thread/[...threadId]`,
+                      `${baseUrl}/${props.post.postId}`,
+                      {
+                        shallow: true,
+                      }
+                    )
+                    .then(() => {
+                      window.scrollTo(0, 0);
+                    });
+                },
+              }}
               text={props.post.content}
               secretIdentity={props.post.secretIdentity}
               userIdentity={props.post.userIdentity}
@@ -289,8 +312,20 @@ const ThreadLevel: React.FC<{
               }
               centered={props.postsMap.size == 0}
               answerable={props.isLoggedIn}
-              onNotesClick={() => {}}
-              notesUrl={"#"}
+              onNotesClick={() => {
+                router
+                  .push(
+                    `/[boardId]/thread/[...threadId]`,
+                    `${baseUrl}/${props.post.postId}`,
+                    {
+                      shallow: true,
+                    }
+                  )
+                  .then(() => {
+                    window.scrollTo(0, 0);
+                  });
+              }}
+              notesUrl={`${baseUrl}/${props.post.postId}/`}
               tags={props.post.tags}
               muted={props.isLoggedIn && !props.post.isNew && props.level > 0}
             />
@@ -318,7 +353,6 @@ const ThreadLevel: React.FC<{
           >
             {
               <CommentsThread
-                comments={props.post.comments}
                 isLoggedIn={props.isLoggedIn}
                 parentPostId={props.post.postId}
                 parentCommentId={null}
@@ -368,4 +402,63 @@ const ThreadLevel: React.FC<{
   );
 };
 
-export default ThreadLevel;
+const MemoizedThreadLevel = React.memo(ThreadLevel);
+const ThreadView: React.FC<{
+  onNewComment: (
+    replyToPostId: string,
+    replyToCommentId: string | null
+  ) => void;
+  onNewContribution: (id: string) => void;
+  isLoggedIn: boolean;
+}> = (props) => {
+  const { currentRoot, parentChildrenMap, postId, baseUrl } = useThread();
+  const router = useRouter();
+
+  if (!currentRoot) {
+    return <div />;
+  }
+  const url = new URL(`${window.location.origin}${router.asPath}`);
+  return (
+    <>
+      <div
+        className={classnames("whole-thread", {
+          visible: !!postId,
+        })}
+      >
+        <Link
+          as={`${baseUrl}${url.search}`}
+          href={`/[boardId]/thread/[...threadId]`}
+          shallow={true}
+        >
+          <a>Show whole thread</a>
+        </Link>
+      </div>
+      <MemoizedThreadLevel
+        //@ts-ignore
+        post={currentRoot}
+        postsMap={parentChildrenMap}
+        level={0}
+        onNewComment={props.onNewComment}
+        onNewContribution={props.onNewContribution}
+        isLoggedIn={props.isLoggedIn}
+        lastOf={[]}
+      />
+      <style jsx>{`
+        .whole-thread {
+          margin-bottom: -5px;
+          padding-top: 10px;
+          display: none;
+        }
+        .whole-thread.visible {
+          display: block;
+        }
+        .whole-thread a {
+          color: white;
+          font-size: 13px;
+        }
+      `}</style>
+    </>
+  );
+};
+
+export default ThreadView;

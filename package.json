@@ -5,9 +5,11 @@
   "main": "index.js",
   "scripts": {
     "dev": "DEBUG=bobafrontend:* next",
+    "dev:debug": "NODE_OPTIONS='--inspect' DEBUG=bobafrontend:* next dev",
     "build": "next build",
     "start": "next start -p 8080",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "deploy": "rm -rf .next/ && rm -rf build/ && yarn run build && gcloud config set project bobaboard && gcloud app deploy --version live",
     "stage": "rm -rf .next/ && rm -rf build/ && yarn run build && gcloud config set project bobaboard && gcloud app deploy --quiet --version staging  && gcloud app services set-traffic frontend --splits live=1  --quiet"
   },
@@ -32,13 +34,16 @@
     "smoothscroll-polyfill": "^0.4.4"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.10",
     "@types/node": "^14.0.3",
     "@types/react": "^16.9.35",
     "@types/react-dom": "^16.9.8",
     "@types/smoothscroll-polyfill": "^0.3.1",
     "@types/styled-jsx": "^2.2.8",
+    "jest": "^26.4.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "ts-jest": "^26.3.0",
     "typescript": "^3.9.2"
   },
   "peerDependencies": {

@@ -88,3 +88,26 @@ export interface CommentData {
   forceAnonymous: boolean;
   replyToCommentId: string | null;
 }
+
+export interface CategoryFilterType {
+  name: string;
+  active: boolean;
+}
+
+export interface ThreadPostInfoType {
+  children: PostType[];
+  post: PostType;
+  parent: PostType | null;
+}
+
+export interface ThreadCommentInfoType {
+  roots: CommentType[];
+  parentChainMap: Map<string, CommentType>;
+  parentChildrenMap: Map<string, CommentType[]>;
+}
+
+export enum THREAD_VIEW_MODES {
+  THREAD,
+  MASONRY,
+  TIMELINE,
+}
