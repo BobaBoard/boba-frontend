@@ -8,15 +8,17 @@ import { v4 as uuidv4 } from "uuid";
 import firebase from "firebase/app";
 import debug from "debug";
 import { useAuth } from "components/Auth";
+import { useRouter } from "next/router";
 
 const log = debug("bobafrontend:index-log");
 
-function HomePage() {
+function UserPage() {
   const { isPending: isUserPending, user, isLoggedIn } = useAuth();
   const [editing, setEditing] = React.useState(false);
   const [username, setUsername] = React.useState("");
   const [avatar, setAvatar] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+  const router = useRouter();
 
   const [updateData] = useMutation(
     (data: { avatarUrl: string; username: string }) => updateUserData(data),
@@ -34,12 +36,15 @@ function HomePage() {
   );
 
   useEffect(() => {
-    if (isLoggedIn) {
+    if (!isUserPending && isLoggedIn) {
       setUsername(user.username);
       setAvatar(user.avatarUrl);
     }
-  }, [isLoggedIn]);
-  console.log(user);
+    if (!isUserPending && !isLoggedIn) {
+      router.push("/").then(() => window.scrollTo(0, 0));
+    }
+  }, [isLoggedIn, isUserPending]);
+
   return (
     <div className="main">
       <Layout
@@ -116,4 +121,4 @@ function HomePage() {
   );
 }
 
-export default HomePage;
+export default UserPage;
