@@ -133,6 +133,12 @@ const Layout = (props: LayoutProps) => {
                 router.push("/update-logs").then(() => window.scrollTo(0, 0));
               },
             },
+            {
+              name: "User Settings",
+              onClick: () => {
+                router.push("/users/me").then(() => window.scrollTo(0, 0));
+              },
+            },
             { name: "Logout", onClick: () => setLoginOpen(true) },
           ]
         }
