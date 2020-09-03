@@ -114,7 +114,7 @@ function UserPage() {
             `}</style>
           </div>
         }
-        title={`Hello!`}
+        title={`User Settings`}
         onTitleClick={() => {}}
       />
     </div>
