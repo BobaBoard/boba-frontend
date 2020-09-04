@@ -16,6 +16,13 @@ export const updateUserData = async (data: {
   return response.data;
 };
 
+export const getBobadex = async (): Promise<any> => {
+  const response = await axios.get(`/users/me/bobadex`);
+  log(`Updated user data on server:`);
+  log(response.data);
+  return response.data;
+};
+
 // TODO: this should belong to a settings utility.
 const DEV_SERVER_KEY = "devServer";
 let location;

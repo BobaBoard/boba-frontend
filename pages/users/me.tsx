@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import Layout from "components/Layout";
-import { updateUserData } from "utils/queries/user";
-import { useMutation } from "react-query";
+import { updateUserData, getBobadex } from "utils/queries/user";
+import { useQuery, useMutation } from "react-query";
 // @ts-ignore
-import { UserDetails } from "@bobaboard/ui-components";
+import { UserDetails, BobaDex } from "@bobaboard/ui-components";
 import { v4 as uuidv4 } from "uuid";
 import firebase from "firebase/app";
 import debug from "debug";
@@ -41,6 +41,8 @@ function UserPage() {
     }
   );
 
+  const { data, isFetching } = useQuery(["bobadex"], getBobadex);
+
   useEffect(() => {
     if (!isUserPending && isLoggedIn) {
       setUsername(user.username);
@@ -56,6 +58,11 @@ function UserPage() {
       <Layout
         mainContent={
           <div className="page">
+            <h2>You</h2>
+            <div>
+              This is how your own posts will appear to yourself. In the future,
+              you'll be able to share this identity with your friends.
+            </div>
             <div className="user-details">
               <UserDetails
                 username={username}
@@ -114,7 +121,19 @@ function UserPage() {
                 accentColor={"#f96680"}
               />
             </div>
-            <div>BobaDex</div>
+            <h2>BobaDex</h2>
+            <div>
+              A random identity is assigned to you on each thread you make (or
+              join!) on BobaBoard. Collect them all!
+            </div>
+            <div>
+              {data && (
+                <BobaDex
+                  totalIdentities={data.identities_count}
+                  revealedIdentities={data.user_identities}
+                />
+              )}
+            </div>
             <style jsx>{`
               .page {
                 width: 100%;
