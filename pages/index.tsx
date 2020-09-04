@@ -58,31 +58,23 @@ function HomePage() {
               <div className="updates">
                 <h2>New Stuff </h2>
                 <div className="last">
-                  [Last Updated: 8/30/20.{" "}
+                  [Last Updated: 9/4/20.{" "}
                   <Link href="/update-logs">
                     <a>Older logs.</a>
                   </Link>
-                  ]
+                  ]<p>Invites time!</p>
+                  <p>
+                    We now have an invite flows, and people can sign up simply
+                    by using a link tied up to their email address! (Gasp! The
+                    future is here!)
+                  </p>
+                  <p>
+                    For things more relevant to you all... Click on the top
+                    right menu and behold the user settings page. You can change
+                    your username, avatar and... I'm not going to say more. Just
+                    check it out.
+                  </p>
                 </div>
-                <p>Wheather forecast: buggy.</p>
-                <p>
-                  Today's update is huge. I've completely reworked the logic for
-                  displaying threads so it's not a crime against programming (as
-                  much), and added two view modes: <b>gallery</b> and{" "}
-                  <b>timeline</b>. In gallery mode, you can also use post
-                  categories to filter what you see.
-                </p>
-                <p>
-                  These modes are currently only available on larger screens
-                  (mobile is pending on me figuring out where to put the
-                  buttons). If all goes well, you'll soon be able to choose the
-                  default view mode when creating a new thread.
-                </p>
-                <p>
-                  While this doesn't defeat the Arcana thread yet, it's a step
-                  forward. Feedback & thoughts welcome (so hit that report
-                  button) (there's no report button) (use the usual avenues).
-                </p>
               </div>
             </div>
             <div className="display">

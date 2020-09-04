@@ -11,6 +11,28 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [8/30/20]
+                  <p>Weather forecast: buggy.</p>
+                  <p>
+                    Today's update is huge. I've completely reworked the logic
+                    for displaying threads so it's not a crime against
+                    programming (as much), and added two view modes:{" "}
+                    <b>gallery</b> and <b>timeline</b>. In gallery mode, you can
+                    also use post categories to filter what you see.
+                  </p>
+                  <p>
+                    These modes are currently only available on larger screens
+                    (mobile is pending on me figuring out where to put the
+                    buttons). If all goes well, you'll soon be able to choose
+                    the default view mode when creating a new thread.
+                  </p>
+                  <p>
+                    While this doesn't defeat the Arcana thread yet, it's a step
+                    forward. Feedback & thoughts welcome (so hit that report
+                    button) (there's no report button) (use the usual avenues).
+                  </p>
+                </li>
+                <li>
                   [8/25/20]
                   <ul>
                     <li>

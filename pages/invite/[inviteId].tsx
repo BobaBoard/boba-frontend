@@ -3,6 +3,8 @@ import Layout from "../../components/Layout";
 import {
   Input,
   Button,
+  ButtonStyle,
+  InputStyle,
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import { useAuth } from "../../components/Auth";
@@ -20,12 +22,7 @@ function InvitesPage() {
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
-  const {
-    isPending: isUserPending,
-    user,
-    isLoggedIn,
-    attemptLogin,
-  } = useAuth();
+  const { isPending: isUserPending, isLoggedIn, attemptLogin } = useAuth();
 
   const [updateData] = useMutation(
     (data: { password: string; email: string; nonce: string }) =>
@@ -60,10 +57,13 @@ function InvitesPage() {
         mainContent={
           <div className="page">
             <div className="invite-signup">
-              <p>
-                Hello, and (almost) welcome to BobaBoard. Just one last step
-                before you can join in the fun: time to choose a password!
-              </p>
+              <div className="hero">
+                <img src="/bobatan.png" />
+                <p>
+                  Hello, and (almost) welcome to BobaBoard. Just one last step
+                  before you can join in the fun: time to choose a password!
+                </p>
+              </div>
               <p>
                 In order to protect your precious invite, it's been bethroted to
                 your precious email. Make sure what you enter matches what was
@@ -72,14 +72,15 @@ function InvitesPage() {
               <p>
                 <strong>Remember:</strong> keeping BobaBoard a safe and
                 respectful community is everyone's job! Especially in these
-                early stages, you have real power to influence the culture that
-                will develop on this platform.
+                early stages, you have real power to influence the developing
+                culture on this platform. Be as nasty as your heart desires
+                towards fictional characters, but excellent to other boobies.
               </p>
               <p>
                 Communicate with care, assume good intentions, and remember that
-                sometimes leaving an upsetting conversation to take a breather
-                is the right thing to do. Make generous use of the "hide thread"
-                button, and stay tuned for better filtering tools.
+                leaving a derailing conversation to take a breather can go a
+                long way. Make generous use of the "hide thread" button, and
+                stay tuned for better filtering tools!
               </p>
               <p>
                 If you have concerns, no matter how small, the webmaster's door
@@ -93,6 +94,7 @@ function InvitesPage() {
                     label={"Email"}
                     onTextChange={(text: string) => setEmail(text)}
                     disabled={loading}
+                    theme={InputStyle.DARK}
                   />
                 </div>
                 <div>
@@ -103,6 +105,7 @@ function InvitesPage() {
                     onTextChange={(text: string) => setPassword(text)}
                     password
                     disabled={loading}
+                    theme={InputStyle.DARK}
                   />
                 </div>
                 <div className={classnames("error", { hidden: !error })}>
@@ -118,6 +121,7 @@ function InvitesPage() {
                         nonce: router.query.inviteId as string,
                       });
                     }}
+                    theme={ButtonStyle.DARK}
                   >
                     Signup
                   </Button>
@@ -126,13 +130,28 @@ function InvitesPage() {
             </div>
             <style jsx>{`
               .page {
-                width: 100%;
+                width: 80%;
                 color: white;
+                margin: 0 auto;
+                font-weight: normal;
+                line-height: 1.4em;
               }
               .invite-signup {
                 max-width: 500px;
-                width: 100%;
+                margin: 50px auto 70px;
+              }
+
+              .hero > img {
+                max-width: 350px;
+                display: block;
                 margin: 0 auto;
+                border-radius: 50%;
+              }
+
+              .hero > p {
+                font-size: 24px;
+                font-weight: 300;
+                line-height: 1.3em;
               }
               .inputs {
                 margin: 0 auto;

@@ -41,7 +41,7 @@ function UserPage() {
     }
   );
 
-  const { data, isFetching } = useQuery(["bobadex"], getBobadex);
+  const { data } = useQuery(["bobadex"], getBobadex);
 
   useEffect(() => {
     if (!isUserPending && isLoggedIn) {
@@ -59,7 +59,7 @@ function UserPage() {
         mainContent={
           <div className="page">
             <h2>You</h2>
-            <div>
+            <div className="description">
               This is how your own posts will appear to yourself. In the future,
               you'll be able to share this identity with your friends.
             </div>
@@ -122,7 +122,7 @@ function UserPage() {
               />
             </div>
             <h2>BobaDex</h2>
-            <div>
+            <div className="description">
               A random identity is assigned to you on each thread you make (or
               join!) on BobaBoard. Collect them all!
             </div>
@@ -130,17 +130,30 @@ function UserPage() {
               {data && (
                 <BobaDex
                   totalIdentities={data.identities_count}
-                  revealedIdentities={data.user_identities}
+                  revealedIdentities={data.user_identities || []}
                 />
               )}
             </div>
             <style jsx>{`
               .page {
-                width: 100%;
+                width: 80%;
+                color: white;
+                margin: 0 auto;
+                padding-bottom: 100px;
               }
+
+              h2 {
+                margin-top: 50px;
+              }
+
               .user-details {
                 max-width: 500px;
                 width: 100%;
+              }
+
+              .description {
+                margin-bottom: 30px;
+                font-size: large;
               }
             `}</style>
           </div>
