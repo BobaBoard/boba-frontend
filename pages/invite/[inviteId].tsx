@@ -20,16 +20,19 @@ function InvitesPage() {
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
-  const { isPending: isUserPending, user, isLoggedIn } = useAuth();
+  const {
+    isPending: isUserPending,
+    user,
+    isLoggedIn,
+    attemptLogin,
+  } = useAuth();
 
   const [updateData] = useMutation(
     (data: { password: string; email: string; nonce: string }) =>
       acceptInvite(data),
     {
       onSuccess: () => {
-        router
-          .push("/users/me?inviteSuccess")
-          .then(() => window.scrollTo(0, 0));
+        attemptLogin(email, password);
       },
       onError: (e) => {
         log(`Error while accepting invite:`);
@@ -43,7 +46,11 @@ function InvitesPage() {
 
   useEffect(() => {
     if (!isUserPending && isLoggedIn) {
-      router.push("/users/me").then(() => window.scrollTo(0, 0));
+      router
+        .push("/users/me?inviteSuccess", "/users/me?inviteSuccess", {
+          shallow: true,
+        })
+        .then(() => window.scrollTo(0, 0));
     }
   }, [isLoggedIn, isUserPending]);
 

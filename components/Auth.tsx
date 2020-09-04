@@ -24,6 +24,9 @@ const AuthContext = React.createContext({} as any);
 const useAuth = () => React.useContext(AuthContext);
 const log = debug("bobafrontend:auth-log");
 
+export const DEFAULT_USER_NAME = "You";
+export const DEFAULT_USER_AVATAR = "/bobatan.png";
+
 // Here we have a firebase user promise which checks whether we are
 // presently in a state where we don't effectively know the status
 // of the current user. This could be because the page has just loaded
@@ -80,7 +83,11 @@ const AuthProvider: React.FC<{}> = (props) => {
         setStatus({
           isLoggedIn: true,
           isPending: false,
-          user: userResponse.data,
+          user: {
+            ...userResponse.data,
+            username: userResponse.data.username || DEFAULT_USER_NAME,
+            avatarUrl: userResponse.data.avatarUrl || DEFAULT_USER_AVATAR,
+          },
         });
       });
     });

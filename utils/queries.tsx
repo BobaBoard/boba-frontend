@@ -8,6 +8,7 @@ import {
   PostData,
   ThreadType,
 } from "../types/Types";
+import { DEFAULT_USER_NAME, DEFAULT_USER_AVATAR } from "../components/Auth";
 
 const log = debug("bobafrontend:queries-log");
 const info = debug("bobafrontend:queries-info");
@@ -21,8 +22,8 @@ const makeClientComment = (serverComment: any): CommentType => ({
     avatar: serverComment.secret_identity.avatar,
   },
   userIdentity: serverComment.user_identity && {
-    name: serverComment.user_identity.name,
-    avatar: serverComment.user_identity.avatar,
+    name: serverComment.user_identity.name || DEFAULT_USER_NAME,
+    avatar: serverComment.user_identity.avatar || DEFAULT_USER_AVATAR,
   },
   created: serverComment.created,
   content: serverComment.content,
@@ -38,8 +39,8 @@ const makeClientPost = (serverPost: any): PostType => ({
     avatar: serverPost.secret_identity.avatar,
   },
   userIdentity: serverPost.user_identity && {
-    name: serverPost.user_identity.name,
-    avatar: serverPost.user_identity.avatar,
+    name: serverPost.user_identity.name || DEFAULT_USER_NAME,
+    avatar: serverPost.user_identity.avatar || DEFAULT_USER_AVATAR,
   },
   created: serverPost.created,
   content: serverPost.content,
