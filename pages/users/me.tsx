@@ -13,7 +13,12 @@ import { useRouter } from "next/router";
 const log = debug("bobafrontend:index-log");
 
 function UserPage() {
-  const { isPending: isUserPending, user, isLoggedIn } = useAuth();
+  const {
+    isPending: isUserPending,
+    user,
+    isLoggedIn,
+    refreshUserData,
+  } = useAuth();
   const [editing, setEditing] = React.useState(false);
   const [username, setUsername] = React.useState("");
   const [avatar, setAvatar] = React.useState("");
@@ -26,6 +31,7 @@ function UserPage() {
       onSuccess: ({ avatarUrl, username }) => {
         setAvatar(avatarUrl);
         setUsername(username);
+        refreshUserData({ username, avatarUrl });
         setEditing(false);
         setLoading(false);
       },
@@ -74,6 +80,12 @@ function UserPage() {
                     if (editedImg == avatar && username == newUsername) {
                       setEditing(false);
                       setLoading(false);
+                      return;
+                    } else if (editedImg == avatar) {
+                      updateData({
+                        avatarUrl: avatar,
+                        username: newUsername,
+                      });
                       return;
                     }
 

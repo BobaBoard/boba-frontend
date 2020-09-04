@@ -103,6 +103,13 @@ const AuthProvider: React.FC<{}> = (props) => {
     });
   };
 
+  const refreshUserData = (data: { username: string; avatarUrl: string }) => {
+    setStatus({
+      ...status,
+      user: { username: data.username, avatarUrl: data.avatarUrl },
+    });
+  };
+
   const attemptLogin = (
     username: string,
     password: string
@@ -147,6 +154,7 @@ const AuthProvider: React.FC<{}> = (props) => {
         getAuthIdToken,
         attemptLogin,
         attemptLogout,
+        refreshUserData,
       }}
       {...props}
     />
