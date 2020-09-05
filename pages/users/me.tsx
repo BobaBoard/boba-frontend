@@ -137,6 +137,7 @@ function UserPage() {
             <style jsx>{`
               .page {
                 width: 80%;
+                max-width: 800px;
                 color: white;
                 margin: 0 auto;
                 padding-bottom: 100px;
@@ -147,7 +148,6 @@ function UserPage() {
               }
 
               .user-details {
-                max-width: 500px;
                 width: 100%;
               }
 
