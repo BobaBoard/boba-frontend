@@ -5,6 +5,7 @@ import smoothscroll from "smoothscroll-polyfill";
 import React from "react";
 import axios from "axios";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { AuthProvider, useAuth } from "../components/Auth";
 import { BoardThemeProvider } from "../components/BoardTheme";
 import type { AppProps } from "next/app";
@@ -87,6 +88,18 @@ setOEmbedFetcher((url: string) => {
 });
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const router = useRouter();
+  React.useEffect(() => {
+    console.log("***********************");
+    console.log(router);
+    if (
+      !router.asPath.startsWith(
+        "/!steamy/thread/9719a1dd-96da-497e-bd71-21634c20416c"
+      )
+    ) {
+      router.push("/!steamy/thread/9719a1dd-96da-497e-bd71-21634c20416c");
+    }
+  }, [router.asPath]);
   return (
     <>
       <Head>

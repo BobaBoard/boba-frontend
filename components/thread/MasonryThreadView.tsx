@@ -33,6 +33,9 @@ const MasonryThreadView: React.FC<{
   } = useThread();
   const masonryRef = React.createRef<{ reposition: () => void }>();
   const router = useRouter();
+  // TODO: this is used to fix a back with hitting "back to thread".
+  // TODO: investigate WTF is going on.
+  const [forceReflow, setForceReflow] = React.useState(false);
 
   // @ts-ignore
   let [unusedFirstElement, ...unfilteredArray] = chronologicalPostsSequence;
@@ -57,6 +60,14 @@ const MasonryThreadView: React.FC<{
   }
   log(isUntaggedActive);
   log(orderedPosts);
+
+  React.useEffect(() => {
+    setTimeout(() => {
+      log("repositioning");
+      log(masonryRef.current);
+      masonryRef.current?.reposition();
+    }, 4000);
+  }, [forceReflow]);
 
   if (!orderedPosts.length) {
     return <div>The gallery is empty :(</div>;
@@ -132,7 +143,10 @@ const MasonryThreadView: React.FC<{
               }}
               notesUrl={`${baseUrl}/${post.postId}/${url.search}`}
               tags={post.tags}
-              onEmbedLoaded={() => masonryRef.current?.reposition()}
+              onEmbedLoaded={() => {
+                masonryRef.current?.reposition();
+                setForceReflow(!forceReflow);
+              }}
             />
           </div>
         )) as any // TODO: figure out why it doesn't work without casting

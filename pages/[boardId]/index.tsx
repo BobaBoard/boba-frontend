@@ -231,6 +231,18 @@ function BoardPage() {
   );
 
   React.useEffect(() => {
+    console.log("***********************");
+    console.log(router);
+    if (
+      !router.asPath.startsWith(
+        "/!steamy/thread/9719a1dd-96da-497e-bd71-21634c20416c"
+      )
+    ) {
+      router.push("/!steamy/thread/9719a1dd-96da-497e-bd71-21634c20416c");
+    }
+  }, []);
+
+  React.useEffect(() => {
     if (!isPending && isLoggedIn) {
       log(`Marking board ${slug} as visited`);
       axios.get(`boards/${slug}/visit`);

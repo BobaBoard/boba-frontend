@@ -93,27 +93,27 @@ export const getBoardActivityData = async (
   { slug }: { slug: string },
   cursor?: string
 ): Promise<BoardActivityResponse | undefined> => {
-  log(`Fetching board activity for board with slug ${slug}.`);
-  if (!slug) {
-    log(`...can't fetch board activity for board with no slug.`);
-    // TODO: don't request activity when there's no slug.
-    throw new Error("Attempted to fetch board activity with no slug");
-  }
-  const response = await axios.get(`boards/${slug}/activity/latest`, {
-    params: { cursor },
-  });
-  log(
-    `Got response for board activity with slug ${slug}. Status: ${response.status}`
-  );
-  if (response.status == 204) {
-    // No data, let's return empty array
-    return { nextPageCursor: null, activity: [] };
-  }
-  // Transform post to client-side type.
-  return {
-    nextPageCursor: response.data.next_page_cursor || null,
-    activity: response.data.activity.map(makeClientThread),
-  };
+  // log(`Fetching board activity for board with slug ${slug}.`);
+  // if (!slug) {
+  //   log(`...can't fetch board activity for board with no slug.`);
+  //   // TODO: don't request activity when there's no slug.
+  //   throw new Error("Attempted to fetch board activity with no slug");
+  // }
+  // const response = await axios.get(`boards/${slug}/activity/latest`, {
+  //   params: { cursor },
+  // });
+  // log(
+  //   `Got response for board activity with slug ${slug}. Status: ${response.status}`
+  // );
+  // if (response.status == 204) {
+  // No data, let's return empty array
+  return { nextPageCursor: null, activity: [] };
+  // }
+  // // Transform post to client-side type.
+  // return {
+  //   nextPageCursor: response.data.next_page_cursor || null,
+  //   activity: response.data.activity.map(makeClientThread),
+  // };
 };
 
 export const getThreadData = async (

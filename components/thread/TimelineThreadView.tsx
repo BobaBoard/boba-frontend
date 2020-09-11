@@ -14,6 +14,8 @@ import {
 import moment from "moment";
 import { useThread } from "components/thread/ThreadContext";
 import { useRouter } from "next/router";
+import classnames from "classnames";
+import { useAuth } from "components/Auth";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // @ts-ignore
@@ -43,6 +45,7 @@ const TimelineView: React.FC<{
     isLoading,
   } = useThread();
   const router = useRouter();
+  const { loggedIn } = useAuth();
 
   React.useEffect(() => {
     const url = new URL(`${window.location.origin}${router.asPath}`);
@@ -105,7 +108,7 @@ const TimelineView: React.FC<{
   const url = new URL(`${window.location.origin}${router.asPath}`);
   return (
     <div className="timeline-container">
-      <div className="timeline-views">
+      <div className={classnames("timeline-views", { "logged-in": loggedIn })}>
         <Button
           theme={
             timelineView == TIMELINE_VIEW_MODE.NEW
