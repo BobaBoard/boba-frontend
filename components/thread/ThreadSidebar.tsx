@@ -71,21 +71,39 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
         <div className="category-filters">
           <h3>Category Filters</h3>
           {props.viewMode == THREAD_VIEW_MODES.MASONRY ? (
-            <CategoryFilter
-              categories={categoryFilterState}
-              onCategoryStateChange={(name: string, active: boolean) => {
-                setCategoryFilterState(
-                  categoryFilterState.map((category) =>
-                    category.name == name
-                      ? {
-                          name,
-                          active,
-                        }
-                      : category
-                  )
-                );
-              }}
-            />
+            <div>
+              <CategoryFilter
+                categories={categoryFilterState}
+                onCategoryStateChange={(name: string, active: boolean) => {
+                  setCategoryFilterState(
+                    categoryFilterState.map((category) =>
+                      category.name == name
+                        ? {
+                            name,
+                            active,
+                          }
+                        : { ...category, active: false }
+                    )
+                  );
+                }}
+              />
+              {categoryFilterState.some((category) => !category.active) && (
+                <a
+                  className="clear-filters"
+                  href="#"
+                  onClick={() => {
+                    setCategoryFilterState(
+                      categoryFilterState.map((category) => ({
+                        ...category,
+                        active: true,
+                      }))
+                    );
+                  }}
+                >
+                  Clear filters
+                </a>
+              )}
+            </div>
           ) : (
             <div className="sorry">
               Sorry! Category filters are not (yet) available in this mode.
@@ -116,6 +134,21 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
           font-style: italic;
           font-size: 16px;
           margin-top: -6px;
+        }
+        .clear-filters {
+          color: white;
+          font-size: smaller;
+          display: block;
+          margin-top: 5px;
+          text-align: center;
+        }
+        /*TODO: remove this and figure out how not to load the tweets in the sidebar
+          when not needed. (Tweets loaded in the sidebar will have problems with people
+          clicking on them even if the sidebar is not displayed.*/
+        @media screen and (max-width: 950px) {
+          .thread-sidebar {
+            display: none;
+          }
         }
       `}</style>
     </div>

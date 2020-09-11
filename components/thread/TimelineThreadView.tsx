@@ -14,6 +14,7 @@ import {
 import moment from "moment";
 import { useThread } from "components/thread/ThreadContext";
 import { useRouter } from "next/router";
+import classnames from "classnames";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // @ts-ignore
@@ -105,40 +106,50 @@ const TimelineView: React.FC<{
   const url = new URL(`${window.location.origin}${router.asPath}`);
   return (
     <div className="timeline-container">
-      <div className="timeline-views">
-        <Button
-          theme={
-            timelineView == TIMELINE_VIEW_MODE.NEW
-              ? ButtonStyle.LIGHT
-              : ButtonStyle.DARK
-          }
-          onClick={() => setTimelineViewMode(TIMELINE_VIEW_MODE.NEW)}
-          updates={newPosts.length > 0 ? newPosts.length : undefined}
-        >
-          New
-        </Button>
-        <Button
-          theme={
-            timelineView == TIMELINE_VIEW_MODE.UPDATED
-              ? ButtonStyle.LIGHT
-              : ButtonStyle.DARK
-          }
-          onClick={() => setTimelineViewMode(TIMELINE_VIEW_MODE.UPDATED)}
-          updates={updatedPosts.length > 0 ? updatedPosts.length : undefined}
-        >
-          Updated
-        </Button>
-        {/* @ts-ignore */}
-        <Button
-          theme={
-            timelineView == TIMELINE_VIEW_MODE.ALL
-              ? ButtonStyle.LIGHT
-              : ButtonStyle.DARK
-          }
-          onClick={() => setTimelineViewMode(TIMELINE_VIEW_MODE.ALL)}
-        >
-          All ({allPosts.length})
-        </Button>
+      <div
+        className={classnames("timeline-views", {
+          "logged-in": props.isLoggedIn,
+        })}
+      >
+        <div className="button new">
+          <Button
+            theme={
+              timelineView == TIMELINE_VIEW_MODE.NEW
+                ? ButtonStyle.LIGHT
+                : ButtonStyle.DARK
+            }
+            onClick={() => setTimelineViewMode(TIMELINE_VIEW_MODE.NEW)}
+            updates={newPosts.length > 0 ? newPosts.length : undefined}
+          >
+            New
+          </Button>
+        </div>
+        <div className="button updated">
+          <Button
+            theme={
+              timelineView == TIMELINE_VIEW_MODE.UPDATED
+                ? ButtonStyle.LIGHT
+                : ButtonStyle.DARK
+            }
+            onClick={() => setTimelineViewMode(TIMELINE_VIEW_MODE.UPDATED)}
+            updates={updatedPosts.length > 0 ? updatedPosts.length : undefined}
+          >
+            Updated
+          </Button>
+        </div>
+        <div className="button all">
+          {/* @ts-ignore */}
+          <Button
+            theme={
+              timelineView == TIMELINE_VIEW_MODE.ALL
+                ? ButtonStyle.LIGHT
+                : ButtonStyle.DARK
+            }
+            onClick={() => setTimelineViewMode(TIMELINE_VIEW_MODE.ALL)}
+          >
+            All ({allPosts.length})
+          </Button>
+        </div>
       </div>
       <div>
         {displayPosts.length == 0 && (
@@ -231,6 +242,12 @@ const TimelineView: React.FC<{
           margin: 20px 30px;
           display: flex;
           justify-content: space-evenly;
+        }
+        .button {
+          display: none;
+        }
+        .logged-in .button {
+          display: block;
         }
       `}</style>
     </div>
