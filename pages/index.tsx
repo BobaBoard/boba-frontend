@@ -58,21 +58,19 @@ function HomePage() {
               <div className="updates">
                 <h2>New Stuff </h2>
                 <div className="last">
-                  [Last Updated: 9/4/20.{" "}
+                  [Last Updated: 9/11/20.{" "}
                   <Link href="/update-logs">
                     <a>Older logs.</a>
                   </Link>
-                  ]<p>Invites time!</p>
+                  ]
                   <p>
-                    We now have an invite flows, and people can sign up simply
-                    by using a link tied up to their email address! (Gasp! The
-                    future is here!)
+                    Still technically on hiatus and working on the volunteers
+                    onboarding, but I couldn't see you all suffer like this.
                   </p>
                   <p>
-                    For things more relevant to you all... Click on the top
-                    right menu and behold the user settings page. You can change
-                    your username, avatar and... I'm not going to say more. Just
-                    check it out.
+                    Fixed the * button (I hope), testing a new method to get
+                    around Big Orange, and adding some fixes I had made for the
+                    TTTE gallery preview back into the main website.
                   </p>
                 </div>
               </div>

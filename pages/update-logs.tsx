@@ -11,6 +11,21 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [9/4/20]
+                  <p>Invites time!</p>
+                  <p>
+                    We now have an invite flows, and people can sign up simply
+                    by using a link tied up to their email address! (Gasp! The
+                    future is here!)
+                  </p>
+                  <p>
+                    For things more relevant to you all... Click on the top
+                    right menu and behold the user settings page. You can change
+                    your username, avatar and... I'm not going to say more. Just
+                    check it out.
+                  </p>
+                </li>
+                <li>
                   [8/30/20]
                   <p>Weather forecast: buggy.</p>
                   <p>
