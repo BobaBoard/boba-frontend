@@ -165,3 +165,28 @@ test("extract answers sequence (multiple poss with staggered comment replies)", 
     expect.objectContaining({ commentId: "c4" }),
   ]);
 });
+
+test("extract answers sequence (chained comments)", () => {
+  const commentsTree = extractAnswersSequence(
+    [makePost({ postId: "p1", isNew: false })],
+    new Map([
+      [
+        "p1",
+        {
+          roots: [makeComment({ commentId: "c1", isNew: false })],
+          parentChainMap: new Map([
+            ["c1", makeComment({ commentId: "c2", isNew: false })],
+            ["c2", makeComment({ commentId: "c3", isNew: false })],
+            ["c3", makeComment({ commentId: "c4", isNew: false })],
+          ]),
+          parentChildrenMap: new Map([
+            ["c4", [makeComment({ commentId: "c5", isNew: true })]],
+          ]),
+        },
+      ],
+    ])
+  );
+  expect(commentsTree).toStrictEqual([
+    expect.objectContaining({ commentId: "c5" }),
+  ]);
+});

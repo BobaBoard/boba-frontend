@@ -12,7 +12,18 @@ const log = debug("bobafrontend:thread-utils-log");
 const info = debug("bobafrontend:thread-utils-info");
 
 export const UNCATEGORIZED_LABEL = "uncategorized";
-
+/**
+ * Creates a tree representation of the comments in reply to a single post.
+ *
+ * @param comments A list of all the comments belonging to a post.
+ *
+ * @returns An object reperesenting the post tree.
+ *     - roots: all top-level comments (i.e. direct comments to the post).
+ *     - parentChainMap: a commentId->NextCommentInChain map. If a comment is not part
+ *          of a chain, its id will not appear in this map.
+ *     - parentChildrenMap: a commentId->CommentReplies map. Replies to chains are keyed
+ *          by the id of the last post in the chain.
+ */
 export const makeCommentsTree = (
   comments: CommentType[] | undefined
 ): ThreadCommentInfoType => {
@@ -137,6 +148,7 @@ export const extractAnswersSequence = (
     }
     const {
       roots: commentsRoots,
+      parentChainMap: commentsChainMap,
       parentChildrenMap: commentsChildrenMap,
     } = postCommentsMap.get(post.postId) || {
       roots: undefined,
@@ -153,12 +165,19 @@ export const extractAnswersSequence = (
       if (candidate.isNew) {
         newAnswersSequence.push({ commentId: candidate.commentId });
       }
-      const replies = commentsChildrenMap.get(candidate.commentId);
+      let replyToId = candidate.commentId;
+      // If the post is part of a chain, the reply will be to the last
+      // post in the chain.
+      while (commentsChainMap?.has(replyToId)) {
+        replyToId = (commentsChainMap.get(replyToId) as CommentType).commentId;
+      }
+      const replies = commentsChildrenMap.get(replyToId);
       if (replies) {
         newCandidates = [...replies, ...newCandidates];
       }
     }
   });
+
   return newAnswersSequence;
 };
 
