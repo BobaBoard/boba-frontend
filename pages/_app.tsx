@@ -77,9 +77,12 @@ setTumblrEmbedFetcher((url: string) => {
 
 const embedsAxios = axios.create();
 setOEmbedFetcher((url: string) => {
+  // We add a random number to the embed load to get around https://github.com/itteco/iframely/issues/281
   return embedsAxios
     .get(
-      `https://embeds-dot-bobaboard.uc.r.appspot.com/iframely?uri=${url}&iframe=0`
+      `https://embeds-dot-bobaboard.uc.r.appspot.com/iframely?uri=${url}&iframe=0&test=${Math.floor(
+        Math.random() * 100000
+      )}`
     )
     .then((res) => {
       return res.data;
