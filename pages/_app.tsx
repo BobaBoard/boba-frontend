@@ -35,6 +35,9 @@ if (typeof localStorage !== "undefined") {
     devServer = data;
   }
 }
+if (process.env.NEXT_PUBLIC_DEFAULT_BACKEND) {
+  devServer = process.env.NEXT_PUBLIC_DEFAULT_BACKEND;
+}
 
 axios.defaults.baseURL =
   process.env.NODE_ENV == "production"

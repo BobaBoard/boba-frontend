@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "DEBUG=bobafrontend:* next",
+    "dev:stage": "NEXT_PUBLIC_DEFAULT_BACKEND=https://staging-dot-backend-dot-bobaboard.uc.r.appspot.com/ DEBUG=bobafrontend:* next",
     "dev:debug": "NODE_OPTIONS='--inspect' DEBUG=bobafrontend:* next dev",
     "build": "next build",
     "start": "next start -p 8080",
