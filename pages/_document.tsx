@@ -3,6 +3,10 @@ import Document, { Html, Head, Main, NextScript } from "next/document";
 // @ts-ignore
 import { flush as componentsFlush } from "@bobaboard/ui-components";
 
+import debug from "debug";
+const log = debug("bobafrontend:Document-info");
+log.enabled = false;
+
 const bodyCss = `
   body {
     font-family: "Inter", sans-serif;
@@ -31,6 +35,7 @@ const bodyCss = `
 
 class MyDocument extends Document {
   static async getInitialProps(ctx: any) {
+    log(ctx);
     const initialProps = await Document.getInitialProps(ctx);
     const externalStyles = componentsFlush() as any;
     return { ...initialProps, externalStyles };

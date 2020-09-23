@@ -4,6 +4,8 @@ import {
   PostSizes,
   FeedWithMenu,
   BoardSidebar,
+  BoardDescription as LayoutBoardDescription,
+  EditableBoardDescription,
   PostingActionButton,
   toast,
   // @ts-ignore
@@ -14,16 +16,26 @@ import { useInfiniteQuery, queryCache, useMutation } from "react-query";
 import { useAuth } from "../../components/Auth";
 import { useBoardTheme } from "../../components/BoardTheme";
 import {
+  Button,
+  // @ts-ignore
+} from "@bobaboard/ui-components";
+import {
   getBoardActivityData,
   markThreadAsRead,
   muteThread,
   hideThread,
 } from "../../utils/queries";
+import { updateBardSettings } from "../../utils/queries/admin";
 import { useRouter } from "next/router";
 import axios from "axios";
 import debug from "debug";
 import moment from "moment";
-import { BoardActivityResponse, ThreadType } from "../../types/Types";
+import {
+  BoardActivityResponse,
+  BoardData,
+  BoardDescription,
+  ThreadType,
+} from "../../types/Types";
 
 const error = debug("bobafrontend:boardPage-error");
 const log = debug("bobafrontend:boardPage-log");
@@ -128,6 +140,14 @@ const setThreadHiddenInCache = ({
   );
 };
 
+const setBoardDataInCache = (slug: string, data: BoardData) => {
+  // const boardActivityData = queryCache.getQueryData<{
+  //   [key: string]: BoardData;
+  // }>(["boardThemeData", { slug }]);
+
+  queryCache.setQueryData(["boardThemeData", { slug }], () => data);
+};
+
 function BoardPage() {
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
   const [showSidebar, setShowSidebar] = React.useState(false);
@@ -136,6 +156,7 @@ function BoardPage() {
   const { isPending, isLoggedIn, user } = useAuth();
   const { [slug]: boardData } = useBoardTheme();
   const threadRedirectMethod = React.useRef(new Map<string, () => void>());
+  const [editingSidebar, setEditingSidebar] = React.useState(false);
 
   const {
     data: boardActivityData,
@@ -230,6 +251,28 @@ function BoardPage() {
     }
   );
 
+  const [updateBoardDescription] = useMutation(
+    ({
+      slug,
+      descriptions,
+    }: {
+      slug: string;
+      descriptions: BoardDescription[];
+    }) => updateBardSettings({ slug, descriptions }),
+    {
+      onError: (serverError: Error, { descriptions }) => {
+        toast.error("Error while updating the board sidebar.");
+        error(serverError);
+      },
+      onSuccess: (data: BoardData) => {
+        log(`Received comment data after save:`);
+        log(data);
+        setEditingSidebar(false);
+        setBoardDataInCache(slug, data);
+      },
+    }
+  );
+
   React.useEffect(() => {
     if (!isPending && isLoggedIn) {
       log(`Marking board ${slug} as visited`);
@@ -294,6 +337,7 @@ function BoardPage() {
                       avatarUrl: "/",
                       tagline: "loading...",
                       accentColor: "#f96680",
+                      descriptions: [],
                     }
                   }
                 />
@@ -301,6 +345,31 @@ function BoardPage() {
                   className="under-construction"
                   src="/under_construction_icon.png"
                 />
+                {editingSidebar ? (
+                  <EditableBoardDescription
+                    descriptions={boardData?.descriptions || []}
+                    onCancel={() => {
+                      setEditingSidebar(false);
+                    }}
+                    onSave={(newDescriptions: any) => {
+                      log(newDescriptions);
+                      updateBoardDescription({
+                        slug,
+                        descriptions: newDescriptions,
+                      });
+                    }}
+                  />
+                ) : (
+                  <>
+                    <Button onClick={() => setEditingSidebar(true)}>
+                      Edit
+                    </Button>
+                    <LayoutBoardDescription
+                      descriptions={boardData?.descriptions || []}
+                      onCategoriesStateChange={() => {}}
+                    />
+                  </>
+                )}
               </>
             }
             feedContent={

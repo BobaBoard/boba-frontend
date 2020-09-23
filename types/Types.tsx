@@ -66,11 +66,21 @@ export interface BoardActivityResponse {
   activity: ThreadType[];
 }
 
+export interface BoardDescription {
+  id?: number;
+  index: number;
+  title: string;
+  type: "text" | "category_filter";
+  description?: string;
+  categories?: string[];
+}
+
 export interface BoardData {
   slug: string;
   avatarUrl: string;
   tagline: string;
   accentColor: string;
+  descriptions: BoardDescription[];
 }
 
 export interface PostData {
