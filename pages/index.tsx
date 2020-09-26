@@ -2,11 +2,11 @@ import React from "react";
 import Layout from "../components/Layout";
 import { getAllBoardsData, ALL_BOARDS_KEY } from "./../utils/queries";
 import { useQuery } from "react-query";
-import { useRouter } from "next/router";
 // @ts-ignore
 import { BoardsDisplay, useCompact } from "@bobaboard/ui-components";
 import Link from "next/link";
 import debug from "debug";
+import { BOARD_URL_PATTERN, createLinkTo } from "utils/link-utils";
 
 const info = debug("bobafrontend:index-info");
 
@@ -27,7 +27,6 @@ function HomePage() {
     },
     initialStale: true,
   });
-  const router = useRouter();
 
   info(`Rerendering index with data:`);
   info(allBoards);
@@ -83,13 +82,11 @@ function HomePage() {
                   description: board.tagline,
                   color: board.settings?.accentColor,
                   updates: board.has_updates,
+                  link: createLinkTo({
+                    urlPattern: BOARD_URL_PATTERN,
+                    url: `/!${board.slug.replace(" ", "_")}`,
+                  }),
                 }))}
-                onBoardClick={(slug: string) => {
-                  router.push(`/[boardId]`, `/!${slug.replace(" ", "_")}`, {
-                    shallow: true,
-                  });
-                }}
-                getBoardHref={(slug: string) => `/!${slug.replace(" ", "_")}`}
                 minSizePx={180}
               />
             </div>

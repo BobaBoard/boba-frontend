@@ -10,6 +10,7 @@ import {
   dismissAllNotifications,
   ALL_BOARDS_KEY,
 } from "./../utils/queries";
+import { BOARD_URL_PATTERN, createLinkTo } from "./../utils/link-utils";
 import { useAuth } from "./Auth";
 import { useRouter } from "next/router";
 import { useQuery, useMutation, queryCache } from "react-query";
@@ -77,18 +78,18 @@ const Layout = (props: LayoutProps) => {
       ),
     [pinnedBoards]
   );
-  const goToBoard = React.useCallback((slug: string) => {
-    router
-      .push(`/[boardId]`, `/!${slug.replace(" ", "_")}`, {
-        shallow: true,
-      })
-      .then(() => {
-        window.scrollTo(0, 0);
-        refetch();
-      });
-    // @ts-ignore
-    layoutRef.current?.closeSideMenu();
-  }, []);
+  const goToBoard = React.useCallback(
+    (slug: string) =>
+      createLinkTo({
+        urlPattern: BOARD_URL_PATTERN,
+        url: `/!${slug.replace(" ", "_")}`,
+        onLoad: () => {
+          layoutRef.current?.closeSideMenu();
+          refetch();
+        },
+      }),
+    []
+  );
   const pinnedBoardsData = React.useMemo(() => {
     return (pinnedBoards || []).map((board: any) => ({
       slug: board.slug.replace("_", " "),
@@ -96,8 +97,7 @@ const Layout = (props: LayoutProps) => {
       description: board.tagline,
       color: board.settings?.accentColor,
       updates: !!(isLoggedIn && board.has_updates),
-      onClick: goToBoard,
-      href: `/!${board.slug.replace(" ", "_")}`,
+      link: goToBoard(board.slug),
     }));
   }, [pinnedBoards]);
 
@@ -129,17 +129,13 @@ const Layout = (props: LayoutProps) => {
           isLoggedIn && [
             {
               name: "Logs Archive",
-              onClick: () => {
-                router.push("/update-logs").then(() => window.scrollTo(0, 0));
-              },
+              link: createLinkTo({ url: "/update-logs" }),
             },
             {
               name: "User Settings",
-              onClick: () => {
-                router.push("/users/me").then(() => window.scrollTo(0, 0));
-              },
+              link: createLinkTo({ url: "/users/me" }),
             },
-            { name: "Logout", onClick: () => setLoginOpen(true) },
+            { name: "Logout", link: { onClick: () => setLoginOpen(true) } },
           ]
         }
         user={user}
@@ -147,9 +143,10 @@ const Layout = (props: LayoutProps) => {
         onTitleClick={props.onTitleClick}
         forceHideTitle={props.forceHideTitle}
         loading={props.loading || fetching || isUserPending}
-        onLogoClick={() => router.push("/").then(() => window.scrollTo(0, 0))}
         updates={isLoggedIn && hasUpdates}
         onSideMenuButtonClick={refetch}
+        logoLink={createLinkTo({ url: "/" })}
+        titleLink={slug ? goToBoard(slug) : createLinkTo({ url: "/" })}
       />
       <ReactQueryDevtools initialIsOpen={false} />
     </div>

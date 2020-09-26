@@ -24,6 +24,7 @@ import axios from "axios";
 import debug from "debug";
 import moment from "moment";
 import { BoardActivityResponse, ThreadType } from "../../types/Types";
+import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
 
 const error = debug("bobafrontend:boardPage-error");
 const log = debug("bobafrontend:boardPage-log");
@@ -135,7 +136,15 @@ function BoardPage() {
   const slug: string = router.query.boardId?.slice(1) as string;
   const { isPending, isLoggedIn, user } = useAuth();
   const { [slug]: boardData } = useBoardTheme();
-  const threadRedirectMethod = React.useRef(new Map<string, () => void>());
+  const threadRedirectMethod = React.useRef(
+    new Map<
+      string,
+      {
+        href: string;
+        onClick: () => void;
+      }
+    >()
+  );
 
   const {
     data: boardActivityData,
@@ -240,18 +249,12 @@ function BoardPage() {
   const getMemoizedRedirectMethod = (threadId: string) => {
     if (!threadRedirectMethod.current?.has(threadId)) {
       info(`Creating new handler for thread id: ${threadId}`);
-      threadRedirectMethod.current?.set(threadId, () =>
-        router
-          .push(
-            `/[boardId]/thread/[...threadId]`,
-            `/${router.query.boardId}/thread/${threadId}`,
-            {
-              shallow: true,
-            }
-          )
-          .then(() => {
-            window.scrollTo(0, 0);
-          })
+      threadRedirectMethod.current?.set(
+        threadId,
+        createLinkTo({
+          urlPattern: THREAD_URL_PATTERN,
+          url: `/${router.query.boardId}/thread/${threadId}`,
+        })
       );
     }
     info(`Returning handler for thread id: ${threadId}`);
@@ -326,11 +329,12 @@ function BoardPage() {
                             This thread was hidden{" "}
                             <a
                               href="#"
-                              onClick={() => {
+                              onClick={(e) => {
                                 setThreadHidden({
                                   threadId: thread.threadId,
                                   hide: !thread.hidden,
                                 });
+                                e.preventDefault();
                               }}
                             >
                               [unhide]
@@ -352,22 +356,10 @@ function BoardPage() {
                                     .fromNow()}]`
                                 : ""
                             }`}
-                            createdTimeLink={{
-                              href: `${threadUrl}`,
-                              onClick: () => {
-                                router
-                                  .push(
-                                    `/[boardId]/thread/[...threadId]`,
-                                    `${threadUrl}`,
-                                    {
-                                      shallow: true,
-                                    }
-                                  )
-                                  .then(() => {
-                                    window.scrollTo(0, 0);
-                                  });
-                              },
-                            }}
+                            createdTimeLink={createLinkTo({
+                              urlPattern: THREAD_URL_PATTERN,
+                              url: threadUrl,
+                            })}
                             text={post.content}
                             tags={post.tags}
                             secretIdentity={post.secretIdentity}
@@ -397,25 +389,26 @@ function BoardPage() {
                             // including the head one.-
                             totalContributions={thread.totalPostsAmount - 1}
                             directContributions={thread.directThreadsAmount}
-                            onNotesClick={redirectMethod}
-                            notesUrl={threadUrl}
+                            notesLink={redirectMethod}
                             muted={isLoggedIn && thread.muted}
                             menuOptions={[
                               {
                                 name: "Copy Link",
-                                onClick: () => {
-                                  const tempInput = document.createElement(
-                                    "input"
-                                  );
-                                  tempInput.value = new URL(
-                                    threadUrl,
-                                    window.location.origin
-                                  ).toString();
-                                  document.body.appendChild(tempInput);
-                                  tempInput.select();
-                                  document.execCommand("copy");
-                                  document.body.removeChild(tempInput);
-                                  toast.success("Link copied!");
+                                link: {
+                                  onClick: () => {
+                                    const tempInput = document.createElement(
+                                      "input"
+                                    );
+                                    tempInput.value = new URL(
+                                      threadUrl,
+                                      window.location.origin
+                                    ).toString();
+                                    document.body.appendChild(tempInput);
+                                    tempInput.select();
+                                    document.execCommand("copy");
+                                    document.body.removeChild(tempInput);
+                                    toast.success("Link copied!");
+                                  },
                                 },
                               },
                               // Add options just for logged in users
@@ -423,26 +416,32 @@ function BoardPage() {
                                 ? [
                                     {
                                       name: "Mark Visited",
-                                      onClick: () => {
-                                        readThread(thread.threadId);
+                                      link: {
+                                        onClick: () => {
+                                          readThread(thread.threadId);
+                                        },
                                       },
                                     },
                                     {
                                       name: thread.muted ? "Unmute" : "Mute",
-                                      onClick: () => {
-                                        setThreadMuted({
-                                          threadId: thread.threadId,
-                                          mute: !thread.muted,
-                                        });
+                                      link: {
+                                        onClick: () => {
+                                          setThreadMuted({
+                                            threadId: thread.threadId,
+                                            mute: !thread.muted,
+                                          });
+                                        },
                                       },
                                     },
                                     {
                                       name: thread.hidden ? "Unhide" : "Hide",
-                                      onClick: () => {
-                                        setThreadHidden({
-                                          threadId: thread.threadId,
-                                          hide: !thread.hidden,
-                                        });
+                                      link: {
+                                        onClick: () => {
+                                          setThreadHidden({
+                                            threadId: thread.threadId,
+                                            hide: !thread.hidden,
+                                          });
+                                        },
                                       },
                                     },
                                   ]
