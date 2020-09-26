@@ -159,7 +159,6 @@ function UserPage() {
           </div>
         }
         title={`User Settings`}
-        onTitleClick={() => {}}
       />
     </div>
   );

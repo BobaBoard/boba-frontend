@@ -364,8 +364,8 @@ function BoardPage() {
                             tags={post.tags}
                             secretIdentity={post.secretIdentity}
                             userIdentity={post.userIdentity}
-                            onNewContribution={redirectMethod}
-                            onNewComment={redirectMethod}
+                            onNewContribution={() => {}}
+                            onNewComment={() => {}}
                             size={
                               post?.options?.wide
                                 ? PostSizes.WIDE

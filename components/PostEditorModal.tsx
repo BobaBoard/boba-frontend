@@ -8,7 +8,6 @@ import firebase from "firebase/app";
 import { v4 as uuidv4 } from "uuid";
 import { createPost, createThread } from "../utils/queries";
 import { PostData, PostType, ThreadType } from "../types/Types";
-import { request } from "https";
 
 const log = debug("bobafrontend:postEditor-log");
 const error = debug("bobafrontend:postEditor-error");

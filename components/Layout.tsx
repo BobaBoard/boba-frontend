@@ -140,13 +140,21 @@ const Layout = (props: LayoutProps) => {
         }
         user={user}
         title={props.title}
-        onTitleClick={props.onTitleClick}
         forceHideTitle={props.forceHideTitle}
         loading={props.loading || fetching || isUserPending}
         updates={isLoggedIn && hasUpdates}
         onSideMenuButtonClick={refetch}
         logoLink={createLinkTo({ url: "/" })}
-        titleLink={slug ? goToBoard(slug) : createLinkTo({ url: "/" })}
+        titleLink={
+          props.onTitleClick
+            ? {
+                href: slug ? goToBoard(slug).href : "/",
+                onClick: props.onTitleClick,
+              }
+            : slug
+            ? goToBoard(slug)
+            : createLinkTo({ url: "/" })
+        }
       />
       <ReactQueryDevtools initialIsOpen={false} />
     </div>

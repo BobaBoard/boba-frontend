@@ -11,6 +11,18 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [9/11/20]
+                  <p>
+                    Still technically on hiatus and working on the volunteers
+                    onboarding, but I couldn't see you all suffer like this.
+                  </p>
+                  <p>
+                    Fixed the * button (I hope), testing a new method to get
+                    around Big Orange, and adding some fixes I had made for the
+                    TTTE gallery preview back into the main website.
+                  </p>
+                </li>
+                <li>
                   [9/4/20]
                   <p>Invites time!</p>
                   <p>
@@ -314,7 +326,6 @@ function HomePage() {
           </div>
         }
         title={`Logs Archive`}
-        onTitleClick={() => {}}
       />
     </div>
   );
