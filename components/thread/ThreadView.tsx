@@ -277,7 +277,7 @@ const ThreadLevel: React.FC<{
                 urlPattern: THREAD_URL_PATTERN,
                 url: `${baseUrl}/${props.post.postId}`,
               })}
-              onNotesClick={createLinkTo({
+              notesLink={createLinkTo({
                 urlPattern: THREAD_URL_PATTERN,
                 url: `${baseUrl}/${props.post.postId}`,
               })}

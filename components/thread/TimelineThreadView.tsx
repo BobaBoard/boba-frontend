@@ -174,7 +174,7 @@ const TimelineView: React.FC<{
                 urlPattern: THREAD_URL_PATTERN,
                 url: `${baseUrl}/${post.postId}${url.search}`,
               })}
-              onNotesClick={createLinkTo({
+              notesLink={createLinkTo({
                 urlPattern: THREAD_URL_PATTERN,
                 url: `${baseUrl}/${post.postId}${url.search}`,
               })}
