@@ -28,6 +28,7 @@ import {
 import Link from "next/link";
 import { useBoardTheme } from "../BoardTheme";
 import classnames from "classnames";
+import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 const log = debug("bobafrontend:threadLevel-log");
@@ -272,22 +273,14 @@ const ThreadLevel: React.FC<{
                 props.post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR
               }
               createdTime={moment.utc(props.post.created).fromNow()}
-              createdTimeLink={{
-                href: `${baseUrl}/${props.post.postId}/`,
-                onClick: () => {
-                  router
-                    .push(
-                      `/[boardId]/thread/[...threadId]`,
-                      `${baseUrl}/${props.post.postId}`,
-                      {
-                        shallow: true,
-                      }
-                    )
-                    .then(() => {
-                      window.scrollTo(0, 0);
-                    });
-                },
-              }}
+              createdTimeLink={createLinkTo({
+                urlPattern: THREAD_URL_PATTERN,
+                url: `${baseUrl}/${props.post.postId}`,
+              })}
+              notesLink={createLinkTo({
+                urlPattern: THREAD_URL_PATTERN,
+                url: `${baseUrl}/${props.post.postId}`,
+              })}
               text={props.post.content}
               secretIdentity={props.post.secretIdentity}
               userIdentity={props.post.userIdentity}
@@ -312,20 +305,6 @@ const ThreadLevel: React.FC<{
               }
               centered={props.postsMap.size == 0}
               answerable={props.isLoggedIn}
-              onNotesClick={() => {
-                router
-                  .push(
-                    `/[boardId]/thread/[...threadId]`,
-                    `${baseUrl}/${props.post.postId}`,
-                    {
-                      shallow: true,
-                    }
-                  )
-                  .then(() => {
-                    window.scrollTo(0, 0);
-                  });
-              }}
-              notesUrl={`${baseUrl}/${props.post.postId}/`}
               tags={props.post.tags}
               muted={props.isLoggedIn && !props.post.isNew && props.level > 0}
             />

@@ -65,7 +65,7 @@ function InvitesPage() {
                 </p>
               </div>
               <p>
-                In order to protect your precious invite, it's been bethroted to
+                In order to protect your precious invite, it's been betrothed to
                 your precious email. Make sure what you enter matches what was
                 given.
               </p>

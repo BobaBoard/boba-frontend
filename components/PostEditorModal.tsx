@@ -13,6 +13,7 @@ const log = debug("bobafrontend:postEditor-log");
 const error = debug("bobafrontend:postEditor-error");
 
 const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
+  const editorRef = React.createRef<{ focus: () => void }>();
   const [isPostLoading, setPostLoading] = React.useState(false);
   const { isLoggedIn } = useAuth();
 
@@ -82,6 +83,16 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
     }
   );
 
+  React.useEffect(() => {
+    if (props.isOpen) {
+      // TODO: this request animation frame here is a bit hackish, but it won't
+      // work without it.
+      requestAnimationFrame(() => {
+        editorRef.current?.focus();
+      });
+    }
+  }, [props.isOpen]);
+
   if (!isLoggedIn) {
     return <div />;
   }
@@ -89,6 +100,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
   return (
     <Modal isOpen={props.isOpen}>
       <PostEditor
+        ref={editorRef}
         // @ts-ignore
         secretIdentity={props.secretIdentity}
         userIdentity={props.userIdentity}
@@ -128,6 +140,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
           });
         }}
         onSubmit={(textPromise: Promise<{ text: string; large: boolean }>) => {
+          debugger;
           setPostLoading(true);
           textPromise.then(
             ({

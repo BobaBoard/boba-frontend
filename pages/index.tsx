@@ -2,11 +2,11 @@ import React from "react";
 import Layout from "../components/Layout";
 import { getAllBoardsData, ALL_BOARDS_KEY } from "./../utils/queries";
 import { useQuery } from "react-query";
-import { useRouter } from "next/router";
 // @ts-ignore
 import { BoardsDisplay, useCompact } from "@bobaboard/ui-components";
 import Link from "next/link";
 import debug from "debug";
+import { BOARD_URL_PATTERN, createLinkTo } from "utils/link-utils";
 
 const info = debug("bobafrontend:index-info");
 
@@ -27,7 +27,6 @@ function HomePage() {
     },
     initialStale: true,
   });
-  const router = useRouter();
 
   info(`Rerendering index with data:`);
   info(allBoards);
@@ -58,19 +57,35 @@ function HomePage() {
               <div className="updates">
                 <h2>New Stuff </h2>
                 <div className="last">
-                  [Last Updated: 9/11/20.{" "}
+                  [Last Updated: 9/25/20.{" "}
                   <Link href="/update-logs">
                     <a>Older logs.</a>
                   </Link>
                   ]
                   <p>
-                    Still technically on hiatus and working on the volunteers
-                    onboarding, but I couldn't see you all suffer like this.
-                  </p>
-                  <p>
-                    Fixed the * button (I hope), testing a new method to get
-                    around Big Orange, and adding some fixes I had made for the
-                    TTTE gallery preview back into the main website.
+                    A bigger update shall come in the following days (once the
+                    first contracted job comes in 🤞), but in the meantime enjoy
+                    a bunch of well-deserved bug fixes:
+                    <ul>
+                      <li>
+                        <strong>Added more formatting options for text</strong>.
+                        Just go see. (Also links are pink now).
+                      </li>
+                      <li>
+                        More things can be clicked open in another tab:
+                        everything in the top header bar, thread links, pages in
+                        the login menu... Let me know if I forgot something!
+                      </li>
+                      <li>
+                        Tags should now go to the next line.... better. No more
+                        splitting in the middle of the word unless necessary.
+                      </li>
+                      <li>
+                        The flickering sidemenu on the new version of iOS has
+                        been fixed. The evil has temporarily been defeated once
+                        again.
+                      </li>
+                    </ul>
                   </p>
                 </div>
               </div>
@@ -83,13 +98,11 @@ function HomePage() {
                   description: board.tagline,
                   color: board.settings?.accentColor,
                   updates: board.has_updates,
+                  link: createLinkTo({
+                    urlPattern: BOARD_URL_PATTERN,
+                    url: `/!${board.slug.replace(" ", "_")}`,
+                  }),
                 }))}
-                onBoardClick={(slug: string) => {
-                  router.push(`/[boardId]`, `/!${slug.replace(" ", "_")}`, {
-                    shallow: true,
-                  });
-                }}
-                getBoardHref={(slug: string) => `/!${slug.replace(" ", "_")}`}
                 minSizePx={180}
               />
             </div>
@@ -155,7 +168,6 @@ function HomePage() {
           </div>
         }
         title={`Hello!`}
-        onTitleClick={() => {}}
       />
     </div>
   );

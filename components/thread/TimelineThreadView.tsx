@@ -15,6 +15,7 @@ import moment from "moment";
 import { useThread } from "components/thread/ThreadContext";
 import { useRouter } from "next/router";
 import classnames from "classnames";
+import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // @ts-ignore
@@ -169,22 +170,14 @@ const TimelineView: React.FC<{
               key={post.postId}
               size={post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}
               createdTime={moment.utc(post.created).fromNow()}
-              createdTimeLink={{
-                href: `${baseUrl}/${post.postId}/${url.search}`,
-                onClick: () => {
-                  router
-                    .push(
-                      `/[boardId]/thread/[...threadId]`,
-                      `${baseUrl}/${post.postId}${url.search}`,
-                      {
-                        shallow: true,
-                      }
-                    )
-                    .then(() => {
-                      window.scrollTo(0, 0);
-                    });
-                },
-              }}
+              createdTimeLink={createLinkTo({
+                urlPattern: THREAD_URL_PATTERN,
+                url: `${baseUrl}/${post.postId}${url.search}`,
+              })}
+              notesLink={createLinkTo({
+                urlPattern: THREAD_URL_PATTERN,
+                url: `${baseUrl}/${post.postId}${url.search}`,
+              })}
               text={post.content}
               secretIdentity={post.secretIdentity}
               userIdentity={post.userIdentity}
@@ -205,20 +198,6 @@ const TimelineView: React.FC<{
                   ? getTotalNewContributions(post, filteredParentChildrenMap)
                   : 0
               }
-              onNotesClick={() => {
-                router
-                  .push(
-                    `/[boardId]/thread/[...threadId]`,
-                    `${baseUrl}/${post.postId}${url.search}`,
-                    {
-                      shallow: true,
-                    }
-                  )
-                  .then(() => {
-                    window.scrollTo(0, 0);
-                  });
-              }}
-              notesUrl={`${baseUrl}/${post.postId}/${url.search}`}
               tags={post.tags}
             />
           </div>

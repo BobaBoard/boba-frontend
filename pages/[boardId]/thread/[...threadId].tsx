@@ -243,15 +243,6 @@ function ThreadPage() {
           />
         }
         title={`!${slug}`}
-        onTitleClick={() => {
-          router
-            .push(`/[boardId]`, `/!${slug}`, {
-              shallow: true,
-            })
-            .then(() => {
-              window.scrollTo(0, 0);
-            });
-        }}
         loading={isFetchingThread}
         actionButton={
           viewMode == THREAD_VIEW_MODES.THREAD &&
