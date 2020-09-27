@@ -52,6 +52,10 @@ interface ThreadContextType {
     React.SetStateAction<{ name: string; active: boolean }[]>
   >;
   baseUrl: string;
+  personalIdentity?: {
+    name: string;
+    avatar: string;
+  };
 }
 
 const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
@@ -203,6 +207,7 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
         setCategoryFilterState,
         postCommentsMap,
         chronologicalPostsSequence,
+        personalIdentity: threadData?.personalIdentity,
       }}
     >
       {children}

@@ -59,22 +59,27 @@ const makeClientPost = (serverPost: any): PostType => ({
   newPostsAmount: serverPost.new_posts_amount,
   newCommentsAmount: serverPost.new_comments_amount,
   isNew: serverPost.is_new,
+  isOwn: serverPost.self,
   commentsAmount: serverPost.comments_amount,
 });
 
-const makeClientThread = (serverThread: any): ThreadType => ({
-  posts: serverThread.posts.map(makeClientPost),
-  isNew: serverThread.posts[0].is_new,
-  threadId: serverThread.thread_id,
-  newPostsAmount: serverThread.thread_new_posts_amount,
-  newCommentsAmount: serverThread.thread_new_comments_amount,
-  totalCommentsAmount: serverThread.thread_total_comments_amount,
-  totalPostsAmount: serverThread.thread_total_posts_amount,
-  directThreadsAmount: serverThread.thread_direct_threads_amount,
-  lastActivity: serverThread.thread_last_activity,
-  muted: serverThread.muted,
-  hidden: serverThread.hidden,
-});
+const makeClientThread = (serverThread: any): ThreadType => {
+  const clientPosts: PostType[] = serverThread.posts.map(makeClientPost);
+  return {
+    posts: clientPosts,
+    isNew: serverThread.posts[0].is_new,
+    threadId: serverThread.thread_id,
+    newPostsAmount: serverThread.thread_new_posts_amount,
+    newCommentsAmount: serverThread.thread_new_comments_amount,
+    totalCommentsAmount: serverThread.thread_total_comments_amount,
+    totalPostsAmount: serverThread.thread_total_posts_amount,
+    directThreadsAmount: serverThread.thread_direct_threads_amount,
+    lastActivity: serverThread.thread_last_activity,
+    muted: serverThread.muted,
+    hidden: serverThread.hidden,
+    personalIdentity: clientPosts.find((post) => post.isOwn)?.secretIdentity,
+  };
+};
 
 export const getBoardData = async (key: string, { slug }: { slug: string }) => {
   log(`Fetching board data for board with slug ${slug}.`);

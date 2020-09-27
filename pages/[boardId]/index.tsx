@@ -273,6 +273,15 @@ function BoardPage() {
             name: user?.username,
             avatar: user?.avatarUrl,
           }}
+          // TODO: this transformation shouldn't be done here.
+          additionalIdentities={
+            boardData?.postingIdentities
+              ? boardData.postingIdentities.map((identity) => ({
+                  ...identity,
+                  avatar: identity.avatarUrl,
+                }))
+              : undefined
+          }
           onPostSaved={(post: any) => {
             queryCache.invalidateQueries(["boardActivityData", { slug }]);
             setPostEditorOpen(false);
