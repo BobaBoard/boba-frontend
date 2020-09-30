@@ -71,6 +71,7 @@ export interface BoardData {
   avatarUrl: string;
   tagline: string;
   accentColor: string;
+  muted: boolean;
 }
 
 export interface PostData {

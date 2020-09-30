@@ -19,11 +19,16 @@ import {
   muteThread,
   hideThread,
 } from "../../utils/queries";
+import { muteBoard } from "../../utils/queries/board";
 import { useRouter } from "next/router";
 import axios from "axios";
 import debug from "debug";
 import moment from "moment";
-import { BoardActivityResponse, ThreadType } from "../../types/Types";
+import {
+  BoardActivityResponse,
+  BoardData,
+  ThreadType,
+} from "../../types/Types";
 import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
 
 const error = debug("bobafrontend:boardPage-error");
@@ -96,6 +101,27 @@ const setThreadMutedInCache = ({
     ["boardActivityData", { slug }],
     () => boardActivityData
   );
+};
+
+const setBoardMutedInCache = ({
+  slug,
+  mute,
+}: {
+  slug: string;
+  mute: boolean;
+}) => {
+  const boardData = queryCache.getQueryData<BoardData>([
+    "boardThemeData",
+    { slug },
+  ]);
+  if (!boardData) {
+    error(`Board wasn't found in data after marking board ${slug} as muted`);
+    return;
+  }
+
+  boardData.muted = mute;
+
+  queryCache.setQueryData(["boardThemeData", { slug }], { ...boardData });
 };
 
 const setThreadHiddenInCache = ({
@@ -209,6 +235,34 @@ function BoardPage() {
     }
   );
 
+  const [setBoardMuted] = useMutation(
+    ({ slug, mute }: { slug: string; mute: boolean }) =>
+      muteBoard({ slug, mute }),
+    {
+      onMutate: ({ slug, mute }) => {
+        log(
+          `Optimistically marking board ${slug} as ${
+            mute ? "muted" : "unmuted"
+          }.`
+        );
+        setBoardMutedInCache({ slug, mute });
+      },
+      onError: (error: Error, { slug, mute }) => {
+        toast.error(
+          `Error while marking board as ${mute ? "muted" : "unmuted"}`
+        );
+        log(`Error while marking board ${slug} as muted:`);
+        log(error);
+      },
+      onSuccess: (data: boolean, { slug, mute }) => {
+        log(
+          `Successfully marked board ${slug} as  ${mute ? "muted" : "unmuted"}.`
+        );
+        queryCache.invalidateQueries("allBoardsData");
+      },
+    }
+  );
+
   const [setThreadHidden] = useMutation(
     ({ threadId, hide }: { threadId: string; hide: boolean }) =>
       hideThread({ threadId, hide }),
@@ -291,13 +345,30 @@ function BoardPage() {
             sidebarContent={
               <>
                 <BoardSidebar
-                  board={
-                    boardData || {
-                      slug: slug,
-                      avatarUrl: "/",
-                      tagline: "loading...",
-                      accentColor: "#f96680",
-                    }
+                  slug={boardData?.slug || slug}
+                  avatarUrl={boardData?.avatarUrl || "/"}
+                  tagline={boardData?.tagline || "loading..."}
+                  accentColor={boardData?.accentColor || "#f96680"}
+                  muted={boardData?.muted}
+                  previewOptions={
+                    isLoggedIn && boardData
+                      ? [
+                          {
+                            name: boardData.muted ? "Unmute" : "Mute",
+                            link: {
+                              onClick: () =>
+                                setBoardMuted({
+                                  slug,
+                                  mute: !boardData.muted,
+                                }),
+                            },
+                          },
+                          {
+                            name: "Dismiss notifications",
+                            link: { onClick: () => {} },
+                          },
+                        ]
+                      : undefined
                   }
                 />
                 <img

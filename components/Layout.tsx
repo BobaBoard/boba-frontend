@@ -97,6 +97,7 @@ const Layout = (props: LayoutProps) => {
       description: board.tagline,
       color: board.settings?.accentColor,
       updates: !!(isLoggedIn && board.has_updates),
+      muted: board.muted,
       link: goToBoard(board.slug),
     }));
   }, [pinnedBoards]);

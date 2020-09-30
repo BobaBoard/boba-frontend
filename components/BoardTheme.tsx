@@ -38,6 +38,7 @@ const BoardThemeProvider: React.FC<{}> = (props) => {
             avatarUrl: value.avatarUrl,
             tagline: value.tagline,
             accentColor: value.settings.accentColor,
+            muted: value.muted || themeData.muted,
           };
           return agg;
         },
@@ -60,6 +61,7 @@ const BoardThemeProvider: React.FC<{}> = (props) => {
         avatarUrl: boardData.avatarUrl,
         tagline: boardData.tagline,
         accentColor: boardData.settings.accentColor,
+        muted: boardData.muted || false,
       };
       setThemeData(newThemeData);
     }

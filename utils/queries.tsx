@@ -167,9 +167,9 @@ export const muteThread = async ({
 }) => {
   log(`Updating thread ${threadId} muted state.`);
   if (mute) {
-    await axios.get(`threads/${threadId}/mute`);
+    await axios.post(`threads/${threadId}/mute`);
   } else {
-    await axios.get(`threads/${threadId}/unmute`);
+    await axios.post(`threads/${threadId}/unmute`);
   }
   return true;
 };
@@ -183,9 +183,9 @@ export const hideThread = async ({
 }) => {
   log(`Updating thread ${threadId} hidden state.`);
   if (hide) {
-    await axios.get(`threads/${threadId}/hide`);
+    await axios.post(`threads/${threadId}/hide`);
   } else {
-    await axios.get(`threads/${threadId}/unhide`);
+    await axios.post(`threads/${threadId}/unhide`);
   }
   return true;
 };
