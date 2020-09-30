@@ -2,7 +2,6 @@ import axios from "axios";
 import debug from "debug";
 
 const log = debug("bobafrontend:queries:board-log");
-const info = debug("bobafrontend:queries:board-info");
 
 export const muteBoard = async ({
   slug,

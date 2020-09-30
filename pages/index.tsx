@@ -63,29 +63,19 @@ function HomePage() {
                   </Link>
                   ]
                   <p>
-                    A bigger update shall come in the following days (once the
-                    first contracted job comes in 🤞), but in the meantime enjoy
-                    a bunch of well-deserved bug fixes:
+                    It's time for two highly-requested features to make their
+                    debut:
                     <ul>
+                      <li>You can now mute boards.</li>
                       <li>
-                        <strong>Added more formatting options for text</strong>.
-                        Just go see. (Also links are pink now).
-                      </li>
-                      <li>
-                        More things can be clicked open in another tab:
-                        everything in the top header bar, thread links, pages in
-                        the login menu... Let me know if I forgot something!
-                      </li>
-                      <li>
-                        Tags should now go to the next line.... better. No more
-                        splitting in the middle of the word unless necessary.
-                      </li>
-                      <li>
-                        The flickering sidemenu on the new version of iOS has
-                        been fixed. The evil has temporarily been defeated once
-                        again.
+                        You can now dismiss notifications for a single board.
                       </li>
                     </ul>
+                    What else there is to say? You're welcome. <br />
+                    <em>
+                      (Oh, right! The login menu has an anonymous feedback form
+                      now. Use it often and liberally!)
+                    </em>
                   </p>
                 </div>
               </div>
