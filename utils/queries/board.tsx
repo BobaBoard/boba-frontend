@@ -19,3 +19,8 @@ export const muteBoard = async ({
   }
   return true;
 };
+
+export const dismissBoardNotifications = async ({ slug }: { slug: string }) => {
+  await axios.post(`boards/${slug}/notifications/dismiss`);
+  return true;
+};

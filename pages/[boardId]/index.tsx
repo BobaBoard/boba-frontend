@@ -19,7 +19,10 @@ import {
   muteThread,
   hideThread,
 } from "../../utils/queries";
-import { muteBoard } from "../../utils/queries/board";
+import {
+  muteBoard,
+  dismissBoardNotifications,
+} from "../../utils/queries/board";
 import { useRouter } from "next/router";
 import axios from "axios";
 import debug from "debug";
@@ -263,6 +266,17 @@ function BoardPage() {
     }
   );
 
+  const [dismissNotifications] = useMutation(
+    ({ slug }: { slug: string }) => dismissBoardNotifications({ slug }),
+    {
+      onSuccess: () => {
+        log(`Successfully dismissed board notifications. Refetching...`);
+        queryCache.invalidateQueries("allBoardsData");
+        queryCache.invalidateQueries(["boardActivityData", { slug }]);
+      },
+    }
+  );
+
   const [setThreadHidden] = useMutation(
     ({ threadId, hide }: { threadId: string; hide: boolean }) =>
       hideThread({ threadId, hide }),
@@ -365,7 +379,9 @@ function BoardPage() {
                           },
                           {
                             name: "Dismiss notifications",
-                            link: { onClick: () => {} },
+                            link: {
+                              onClick: () => dismissNotifications({ slug }),
+                            },
                           },
                         ]
                       : undefined
