@@ -26,7 +26,7 @@ export const dismissBoardNotifications = async ({ slug }: { slug: string }) => {
   return true;
 };
 
-export const updateBoardDescription = async (data: {
+export const updateBoardSettings = async (data: {
   slug: string;
   descriptions: BoardDescription[];
 }): Promise<BoardData> => {

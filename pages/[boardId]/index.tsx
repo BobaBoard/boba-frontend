@@ -346,6 +346,40 @@ function BoardPage() {
     }
   );
 
+  const boardOptions = React.useMemo(() => {
+    if (!isLoggedIn || !boardData) {
+      return undefined;
+    }
+    const options: any = [
+      {
+        name: boardData.muted ? "Unmute" : "Mute",
+        link: {
+          onClick: () =>
+            setBoardMuted({
+              slug,
+              mute: !boardData.muted,
+            }),
+        },
+      },
+      {
+        name: "Dismiss notifications",
+        link: {
+          onClick: () => dismissNotifications({ slug }),
+        },
+      },
+    ];
+    const canEditBoard = true;
+    if (canEditBoard) {
+      options.push({
+        name: "Edit Board",
+        link: {
+          onClick: () => setEditingSidebar(true),
+        },
+      });
+    }
+    return options;
+  }, [isLoggedIn, boardData, slug]);
+
   React.useEffect(() => {
     if (!isPending && isLoggedIn) {
       log(`Marking board ${slug} as visited`);
@@ -403,28 +437,7 @@ function BoardPage() {
                   tagline={boardData?.tagline || "loading..."}
                   accentColor={boardData?.accentColor || "#f96680"}
                   muted={boardData?.muted}
-                  previewOptions={
-                    isLoggedIn && boardData
-                      ? [
-                          {
-                            name: boardData.muted ? "Unmute" : "Mute",
-                            link: {
-                              onClick: () =>
-                                setBoardMuted({
-                                  slug,
-                                  mute: !boardData.muted,
-                                }),
-                            },
-                          },
-                          {
-                            name: "Dismiss notifications",
-                            link: {
-                              onClick: () => dismissNotifications({ slug }),
-                            },
-                          },
-                        ]
-                      : undefined
-                  }
+                  previewOptions={boardOptions}
                   descriptions={boardData?.descriptions}
                 />
                 <img
@@ -446,15 +459,10 @@ function BoardPage() {
                     }}
                   />
                 ) : (
-                  <>
-                    <Button onClick={() => setEditingSidebar(true)}>
-                      Edit
-                    </Button>
-                    <LayoutBoardDescription
-                      descriptions={boardData?.descriptions || []}
-                      onCategoriesStateChange={() => {}}
-                    />
-                  </>
+                  <LayoutBoardDescription
+                    descriptions={boardData?.descriptions || []}
+                    onCategoriesStateChange={() => {}}
+                  />
                 )}
               </>
             }
