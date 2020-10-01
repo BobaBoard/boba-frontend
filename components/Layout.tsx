@@ -97,6 +97,7 @@ const Layout = (props: LayoutProps) => {
       description: board.tagline,
       color: board.settings?.accentColor,
       updates: !!(isLoggedIn && board.has_updates),
+      muted: board.muted,
       link: goToBoard(board.slug),
     }));
   }, [pinnedBoards]);
@@ -134,6 +135,13 @@ const Layout = (props: LayoutProps) => {
             {
               name: "User Settings",
               link: createLinkTo({ url: "/users/me" }),
+            },
+            {
+              name: "Leave Feedback!",
+              link: {
+                href:
+                  "https://docs.google.com/forms/d/e/1FAIpQLSfyMENg9eDNmRj-jIvIG5_ElJFwpGZ_VPvzAskarqu5kf0MSA/viewform",
+              },
             },
             { name: "Logout", link: { onClick: () => setLoginOpen(true) } },
           ]

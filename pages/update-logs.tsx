@@ -11,6 +11,34 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [9/25/20]
+                  <p>
+                    A bigger update shall come in the following days (once the
+                    first contracted job comes in 🤞), but in the meantime enjoy
+                    a bunch of well-deserved bug fixes:
+                    <ul>
+                      <li>
+                        <strong>Added more formatting options for text</strong>.
+                        Just go see. (Also links are pink now).
+                      </li>
+                      <li>
+                        More things can be clicked open in another tab:
+                        everything in the top header bar, thread links, pages in
+                        the login menu... Let me know if I forgot something!
+                      </li>
+                      <li>
+                        Tags should now go to the next line.... better. No more
+                        splitting in the middle of the word unless necessary.
+                      </li>
+                      <li>
+                        The flickering sidemenu on the new version of iOS has
+                        been fixed. The evil has temporarily been defeated once
+                        again.
+                      </li>
+                    </ul>
+                  </p>
+                </li>
+                <li>
                   [9/11/20]
                   <p>
                     Still technically on hiatus and working on the volunteers

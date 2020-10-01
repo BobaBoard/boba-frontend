@@ -81,6 +81,7 @@ export interface BoardData {
   tagline: string;
   accentColor: string;
   descriptions: BoardDescription[];
+  muted: boolean;
 }
 
 export interface PostData {

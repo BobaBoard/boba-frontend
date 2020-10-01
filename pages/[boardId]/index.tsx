@@ -25,7 +25,11 @@ import {
   muteThread,
   hideThread,
 } from "../../utils/queries";
-import { updateBardSettings } from "../../utils/queries/admin";
+import {
+  updateBoardSettings,
+  muteBoard,
+  dismissBoardNotifications,
+} from "../../utils/queries/board";
 import { useRouter } from "next/router";
 import axios from "axios";
 import debug from "debug";
@@ -108,6 +112,27 @@ const setThreadMutedInCache = ({
     ["boardActivityData", { slug }],
     () => boardActivityData
   );
+};
+
+const setBoardMutedInCache = ({
+  slug,
+  mute,
+}: {
+  slug: string;
+  mute: boolean;
+}) => {
+  const boardData = queryCache.getQueryData<BoardData>([
+    "boardThemeData",
+    { slug },
+  ]);
+  if (!boardData) {
+    error(`Board wasn't found in data after marking board ${slug} as muted`);
+    return;
+  }
+
+  boardData.muted = mute;
+
+  queryCache.setQueryData(["boardThemeData", { slug }], { ...boardData });
 };
 
 const setThreadHiddenInCache = ({
@@ -230,6 +255,45 @@ function BoardPage() {
     }
   );
 
+  const [setBoardMuted] = useMutation(
+    ({ slug, mute }: { slug: string; mute: boolean }) =>
+      muteBoard({ slug, mute }),
+    {
+      onMutate: ({ slug, mute }) => {
+        log(
+          `Optimistically marking board ${slug} as ${
+            mute ? "muted" : "unmuted"
+          }.`
+        );
+        setBoardMutedInCache({ slug, mute });
+      },
+      onError: (error: Error, { slug, mute }) => {
+        toast.error(
+          `Error while marking board as ${mute ? "muted" : "unmuted"}`
+        );
+        log(`Error while marking board ${slug} as muted:`);
+        log(error);
+      },
+      onSuccess: (data: boolean, { slug, mute }) => {
+        log(
+          `Successfully marked board ${slug} as  ${mute ? "muted" : "unmuted"}.`
+        );
+        queryCache.invalidateQueries("allBoardsData");
+      },
+    }
+  );
+
+  const [dismissNotifications] = useMutation(
+    ({ slug }: { slug: string }) => dismissBoardNotifications({ slug }),
+    {
+      onSuccess: () => {
+        log(`Successfully dismissed board notifications. Refetching...`);
+        queryCache.invalidateQueries("allBoardsData");
+        queryCache.invalidateQueries(["boardActivityData", { slug }]);
+      },
+    }
+  );
+
   const [setThreadHidden] = useMutation(
     ({ threadId, hide }: { threadId: string; hide: boolean }) =>
       hideThread({ threadId, hide }),
@@ -267,7 +331,7 @@ function BoardPage() {
     }: {
       slug: string;
       descriptions: BoardDescription[];
-    }) => updateBardSettings({ slug, descriptions }),
+    }) => updateBoardSettings({ slug, descriptions }),
     {
       onError: (serverError: Error, { descriptions }) => {
         toast.error("Error while updating the board sidebar.");
@@ -334,15 +398,34 @@ function BoardPage() {
             sidebarContent={
               <>
                 <BoardSidebar
-                  board={
-                    boardData || {
-                      slug: slug,
-                      avatarUrl: "/",
-                      tagline: "loading...",
-                      accentColor: "#f96680",
-                      descriptions: [],
-                    }
+                  slug={boardData?.slug || slug}
+                  avatarUrl={boardData?.avatarUrl || "/"}
+                  tagline={boardData?.tagline || "loading..."}
+                  accentColor={boardData?.accentColor || "#f96680"}
+                  muted={boardData?.muted}
+                  previewOptions={
+                    isLoggedIn && boardData
+                      ? [
+                          {
+                            name: boardData.muted ? "Unmute" : "Mute",
+                            link: {
+                              onClick: () =>
+                                setBoardMuted({
+                                  slug,
+                                  mute: !boardData.muted,
+                                }),
+                            },
+                          },
+                          {
+                            name: "Dismiss notifications",
+                            link: {
+                              onClick: () => dismissNotifications({ slug }),
+                            },
+                          },
+                        ]
+                      : undefined
                   }
+                  descriptions={boardData?.descriptions}
                 />
                 <img
                   className="under-construction"
