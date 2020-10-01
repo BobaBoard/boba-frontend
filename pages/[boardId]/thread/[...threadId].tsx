@@ -46,6 +46,7 @@ function ThreadPage() {
     newAnswersSequence,
     isLoading: isFetchingThread,
     baseUrl,
+    personalIdentity,
   } = useThread();
   const { [slug]: boardData } = useBoardTheme();
   const [viewMode, setViewMode] = React.useState(THREAD_VIEW_MODES.THREAD);
@@ -110,10 +111,20 @@ function ThreadPage() {
         <>
           <PostEditorModal
             isOpen={!!postReplyId}
+            secretIdentity={personalIdentity}
             userIdentity={{
               name: user?.username,
               avatar: user?.avatarUrl,
             }}
+            // TODO: this transformation shouldn't be done here.
+            additionalIdentities={
+              !personalIdentity && boardData?.postingIdentities
+                ? boardData.postingIdentities.map((identity) => ({
+                    ...identity,
+                    avatar: identity.avatarUrl,
+                  }))
+                : undefined
+            }
             onPostSaved={(post: PostType) => {
               log(
                 `Saved new prompt to thread ${threadId}, replying to post ${postReplyId}.`
@@ -137,6 +148,7 @@ function ThreadPage() {
               name: user?.username,
               avatar: user?.avatarUrl,
             }}
+            secretIdentity={personalIdentity}
             onCommentsSaved={(comments: CommentType[]) => {
               log(
                 `Saved new comment(s) to thread ${threadId}, replying to post ${commentReplyId}.`

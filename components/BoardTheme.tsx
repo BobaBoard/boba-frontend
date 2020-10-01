@@ -40,6 +40,8 @@ const BoardThemeProvider: React.FC<{}> = (props) => {
             accentColor: value.settings.accentColor,
             descriptions: themeData[value.slug]?.descriptions,
             muted: value.muted || themeData[value.slug]?.muted,
+            permissions: themeData[value.slug]?.permissions,
+            postingIdentities: themeData[value.slug]?.postingIdentities,
           };
           return agg;
         },
@@ -64,6 +66,8 @@ const BoardThemeProvider: React.FC<{}> = (props) => {
         accentColor: boardData.settings.accentColor,
         descriptions: boardData.descriptions,
         muted: boardData.muted || false,
+        permissions: boardData.permissions,
+        postingIdentities: boardData.postingIdentities,
       };
       setThemeData(newThemeData);
     }

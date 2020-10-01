@@ -101,9 +101,9 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
     <Modal isOpen={props.isOpen}>
       <PostEditor
         ref={editorRef}
-        // @ts-ignore
         secretIdentity={props.secretIdentity}
         userIdentity={props.userIdentity}
+        additionalIdentities={props.additionalIdentities}
         loading={isPostLoading}
         onImageUploadRequest={(src: string) => {
           return new Promise<string>((onSuccess, onReject) => {
@@ -140,7 +140,6 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
           });
         }}
         onSubmit={(textPromise: Promise<{ text: string; large: boolean }>) => {
-          debugger;
           setPostLoading(true);
           textPromise.then(
             ({
@@ -203,6 +202,11 @@ export interface PostEditorModalProps {
     avatar: string;
     name: string;
   };
+  additionalIdentities?: {
+    id?: string;
+    avatar: string;
+    name: string;
+  }[];
   onPostSaved: (post: PostType) => void;
   replyToPostId: string | null;
   slug: string;

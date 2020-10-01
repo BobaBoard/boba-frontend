@@ -16,10 +16,6 @@ import { useInfiniteQuery, queryCache, useMutation } from "react-query";
 import { useAuth } from "../../components/Auth";
 import { useBoardTheme } from "../../components/BoardTheme";
 import {
-  Button,
-  // @ts-ignore
-} from "@bobaboard/ui-components";
-import {
   getBoardActivityData,
   markThreadAsRead,
   muteThread,
@@ -414,6 +410,15 @@ function BoardPage() {
             name: user?.username,
             avatar: user?.avatarUrl,
           }}
+          // TODO: this transformation shouldn't be done here.
+          additionalIdentities={
+            boardData?.postingIdentities
+              ? boardData.postingIdentities.map((identity) => ({
+                  ...identity,
+                  avatar: identity.avatarUrl,
+                }))
+              : undefined
+          }
           onPostSaved={(post: any) => {
             queryCache.invalidateQueries(["boardActivityData", { slug }]);
             setPostEditorOpen(false);
