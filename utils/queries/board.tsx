@@ -29,9 +29,13 @@ export const dismissBoardNotifications = async ({ slug }: { slug: string }) => {
 export const updateBoardSettings = async (data: {
   slug: string;
   descriptions: BoardDescription[];
+  accentColor: string;
+  tagline: string;
 }): Promise<BoardData> => {
-  const response = await axios.post(`/boards/${data.slug}/update/`, {
+  const response = await axios.post(`/boards/${data.slug}/metadata/update/`, {
     descriptions: data.descriptions,
+    accentColor: data.accentColor,
+    tagline: data.tagline,
   });
   log(`Updated board settings on server:`);
   log(response.data);

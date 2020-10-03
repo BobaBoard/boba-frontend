@@ -87,7 +87,7 @@ export interface Role {
 }
 
 export interface Permissions {
-  canEdit: boolean;
+  canEditBoardData: boolean;
 }
 
 export interface BoardData {

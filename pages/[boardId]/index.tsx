@@ -4,8 +4,6 @@ import {
   PostSizes,
   FeedWithMenu,
   BoardSidebar,
-  BoardDescription as LayoutBoardDescription,
-  EditableBoardDescription,
   PostingActionButton,
   toast,
   // @ts-ignore
@@ -162,14 +160,6 @@ const setThreadHiddenInCache = ({
   );
 };
 
-const setBoardDataInCache = (slug: string, data: BoardData) => {
-  // const boardActivityData = queryCache.getQueryData<{
-  //   [key: string]: BoardData;
-  // }>(["boardThemeData", { slug }]);
-
-  queryCache.setQueryData(["boardThemeData", { slug }], () => data);
-};
-
 function BoardPage() {
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
   const [showSidebar, setShowSidebar] = React.useState(false);
@@ -320,14 +310,18 @@ function BoardPage() {
     }
   );
 
-  const [updateBoardDescription] = useMutation(
+  const [updateBoardMetadata] = useMutation(
     ({
       slug,
       descriptions,
+      accentColor,
+      tagline,
     }: {
       slug: string;
       descriptions: BoardDescription[];
-    }) => updateBoardSettings({ slug, descriptions }),
+      accentColor: string;
+      tagline: string;
+    }) => updateBoardSettings({ slug, descriptions, accentColor, tagline }),
     {
       onError: (serverError: Error, { descriptions }) => {
         toast.error("Error while updating the board sidebar.");
@@ -337,7 +331,8 @@ function BoardPage() {
         log(`Received comment data after save:`);
         log(data);
         setEditingSidebar(false);
-        setBoardDataInCache(slug, data);
+        queryCache.setQueryData(["boardThemeData", { slug }], data);
+        queryCache.invalidateQueries("allBoardsData");
       },
     }
   );
@@ -364,8 +359,7 @@ function BoardPage() {
         },
       },
     ];
-    const canEditBoard = true;
-    if (canEditBoard) {
+    if (boardData.permissions?.canEditBoardData) {
       options.push({
         name: "Edit Board",
         link: {
@@ -443,30 +437,17 @@ function BoardPage() {
                   accentColor={boardData?.accentColor || "#f96680"}
                   muted={boardData?.muted}
                   previewOptions={boardOptions}
-                  descriptions={boardData?.descriptions}
+                  descriptions={boardData?.descriptions || []}
+                  editing={editingSidebar}
+                  onCancelEditing={() => {
+                    setEditingSidebar(false);
+                  }}
+                  onUpdateMetadata={updateBoardMetadata}
                 />
-                <img
-                  className="under-construction"
-                  src="/under_construction_icon.png"
-                />
-                {editingSidebar ? (
-                  <EditableBoardDescription
-                    descriptions={boardData?.descriptions || []}
-                    onCancel={() => {
-                      setEditingSidebar(false);
-                    }}
-                    onSave={(newDescriptions: any) => {
-                      log(newDescriptions);
-                      updateBoardDescription({
-                        slug,
-                        descriptions: newDescriptions,
-                      });
-                    }}
-                  />
-                ) : (
-                  <LayoutBoardDescription
-                    descriptions={boardData?.descriptions || []}
-                    onCategoriesStateChange={() => {}}
+                {!boardData?.descriptions && !editingSidebar && (
+                  <img
+                    className="under-construction"
+                    src="/under_construction_icon.png"
                   />
                 )}
               </>
@@ -691,7 +672,6 @@ function BoardPage() {
           width: 50px;
           margin: 0 auto;
           display: block;
-          margin-top: -20px;
           opacity: 0.5;
           filter: grayscale(0.4);
         }

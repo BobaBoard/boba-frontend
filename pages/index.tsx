@@ -22,6 +22,10 @@ function HomePage() {
         return undefined;
       }
       const boardData = JSON.parse(data);
+      if (!boardData.forEach) {
+        // Something weird got saved here!
+        return undefined;
+      }
       boardData.forEach((board: any) => (board.has_updates = false));
       return boardData;
     },
