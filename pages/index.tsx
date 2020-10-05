@@ -22,6 +22,10 @@ function HomePage() {
         return undefined;
       }
       const boardData = JSON.parse(data);
+      if (!boardData.forEach) {
+        // Something weird got saved here!
+        return undefined;
+      }
       boardData.forEach((board: any) => (board.has_updates = false));
       return boardData;
     },
@@ -57,25 +61,29 @@ function HomePage() {
               <div className="updates">
                 <h2>New Stuff </h2>
                 <div className="last">
-                  [Last Updated: 9/25/20.{" "}
+                  [Last Updated: 10/04/20.{" "}
                   <Link href="/update-logs">
                     <a>Older logs.</a>
                   </Link>
                   ]
                   <p>
-                    It's time for two highly-requested features to make their
-                    debut:
-                    <ul>
-                      <li>You can now mute boards.</li>
-                      <li>
-                        You can now dismiss notifications for a single board.
-                      </li>
-                    </ul>
-                    What else there is to say? You're welcome. <br />
-                    <em>
-                      (Oh, right! The login menu has an anonymous feedback form
-                      now. Use it often and liberally!)
-                    </em>
+                    Most of you won't be directly influenced by these updates,
+                    but we've just unlocked our first batch of admin tools, and
+                    introduced the concept of Roles.
+                  </p>
+                  <p>
+                    What are Roles? Well, like on Discord, Roles can be assigned
+                    to users, and each of them can have a bunch of associated
+                    permissions. This means that, instead of dividing people in
+                    "moderators/admins" and "everyone else", we can create as
+                    many fine-grained roles as we want, filling many different
+                    purposes.
+                  </p>
+                  <p>
+                    Right now there's only two permissions: edit sidebar (yes,
+                    we're finally going to get sidebar descriptions), and "post
+                    as role". What does post as role do? Head to !bobaland to
+                    find out.
                   </p>
                 </div>
               </div>

@@ -36,6 +36,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
         indexTags,
         categoryTags,
         contentWarnings,
+        identityId,
       },
     }) => {
       // Choose the endpoint according to the provided data.
@@ -50,6 +51,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
           indexTags,
           categoryTags,
           contentWarnings,
+          identityId,
         });
       } else {
         return createPost(replyToPostId, {
@@ -60,6 +62,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
           indexTags,
           categoryTags,
           contentWarnings,
+          identityId,
         });
       }
     },
@@ -101,9 +104,10 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
     <Modal isOpen={props.isOpen}>
       <PostEditor
         ref={editorRef}
-        // @ts-ignore
         secretIdentity={props.secretIdentity}
         userIdentity={props.userIdentity}
+        // @ts-ignore
+        additionalIdentities={props.additionalIdentities}
         loading={isPostLoading}
         onImageUploadRequest={(src: string) => {
           return new Promise<string>((onSuccess, onReject) => {
@@ -140,16 +144,17 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
           });
         }}
         onSubmit={(textPromise: Promise<{ text: string; large: boolean }>) => {
-          debugger;
           setPostLoading(true);
           textPromise.then(
             ({
               text,
               large,
               tags,
+              identityId,
             }: {
               text: string;
               large: boolean;
+              identityId?: string;
               tags: {
                 name: string;
                 indexable: boolean;
@@ -157,7 +162,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
                 contentWarning: boolean;
               }[];
             }) => {
-              log(tags);
+              log(identityId);
               postContribution({
                 slug: props.slug,
                 replyToPostId: props.replyToPostId,
@@ -165,6 +170,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
                   content: text,
                   large,
                   forceAnonymous: false,
+                  identityId,
                   whisperTags: tags
                     .filter(
                       (tag) =>
@@ -203,6 +209,11 @@ export interface PostEditorModalProps {
     avatar: string;
     name: string;
   };
+  additionalIdentities?: {
+    id?: string;
+    avatar: string;
+    name: string;
+  }[];
   onPostSaved: (post: PostType) => void;
   replyToPostId: string | null;
   slug: string;

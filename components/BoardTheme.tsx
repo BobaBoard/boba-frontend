@@ -38,7 +38,10 @@ const BoardThemeProvider: React.FC<{}> = (props) => {
             avatarUrl: value.avatarUrl,
             tagline: value.tagline,
             accentColor: value.settings.accentColor,
-            muted: value.muted || themeData.muted,
+            descriptions: themeData[value.slug]?.descriptions,
+            muted: value.muted || themeData[value.slug]?.muted,
+            permissions: themeData[value.slug]?.permissions,
+            postingIdentities: themeData[value.slug]?.postingIdentities,
           };
           return agg;
         },
@@ -61,7 +64,10 @@ const BoardThemeProvider: React.FC<{}> = (props) => {
         avatarUrl: boardData.avatarUrl,
         tagline: boardData.tagline,
         accentColor: boardData.settings.accentColor,
+        descriptions: boardData.descriptions,
         muted: boardData.muted || false,
+        permissions: boardData.permissions,
+        postingIdentities: boardData.postingIdentities,
       };
       setThemeData(newThemeData);
     }

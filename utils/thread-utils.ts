@@ -372,6 +372,9 @@ export const updatePostCache = ({
     return false;
   }
   threadData.posts = [...threadData.posts, post];
+  if (!threadData.personalIdentity && post.isOwn) {
+    threadData.personalIdentity = post.secretIdentity;
+  }
   queryCache.setQueryData(["threadData", { threadId }], () => ({
     ...threadData,
   }));

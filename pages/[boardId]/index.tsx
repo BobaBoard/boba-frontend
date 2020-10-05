@@ -20,6 +20,7 @@ import {
   hideThread,
 } from "../../utils/queries";
 import {
+  updateBoardSettings,
   muteBoard,
   dismissBoardNotifications,
 } from "../../utils/queries/board";
@@ -30,6 +31,7 @@ import moment from "moment";
 import {
   BoardActivityResponse,
   BoardData,
+  BoardDescription,
   ThreadType,
 } from "../../types/Types";
 import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
@@ -165,6 +167,7 @@ function BoardPage() {
   const slug: string = router.query.boardId?.slice(1) as string;
   const { isPending, isLoggedIn, user } = useAuth();
   const { [slug]: boardData } = useBoardTheme();
+  const [editingSidebar, setEditingSidebar] = React.useState(false);
   const threadRedirectMethod = React.useRef(
     new Map<
       string,
@@ -307,6 +310,66 @@ function BoardPage() {
     }
   );
 
+  const [updateBoardMetadata] = useMutation(
+    ({
+      slug,
+      descriptions,
+      accentColor,
+      tagline,
+    }: {
+      slug: string;
+      descriptions: BoardDescription[];
+      accentColor: string;
+      tagline: string;
+    }) => updateBoardSettings({ slug, descriptions, accentColor, tagline }),
+    {
+      onError: (serverError: Error, { descriptions }) => {
+        toast.error("Error while updating the board sidebar.");
+        error(serverError);
+      },
+      onSuccess: (data: BoardData) => {
+        log(`Received comment data after save:`);
+        log(data);
+        setEditingSidebar(false);
+        queryCache.setQueryData(["boardThemeData", { slug }], data);
+        queryCache.invalidateQueries("allBoardsData");
+      },
+    }
+  );
+
+  const boardOptions = React.useMemo(() => {
+    if (!isLoggedIn || !boardData) {
+      return undefined;
+    }
+    const options: any = [
+      {
+        name: boardData.muted ? "Unmute" : "Mute",
+        link: {
+          onClick: () =>
+            setBoardMuted({
+              slug,
+              mute: !boardData.muted,
+            }),
+        },
+      },
+      {
+        name: "Dismiss notifications",
+        link: {
+          onClick: () => dismissNotifications({ slug }),
+        },
+      },
+    ];
+    if (boardData.permissions?.canEditBoardData) {
+      options.push({
+        name: "Edit Board",
+        link: {
+          onClick: () => setEditingSidebar(true),
+        },
+      });
+    }
+    return options;
+  }, [isLoggedIn, boardData, slug]);
+
   React.useEffect(() => {
     if (!isPending && isLoggedIn) {
       log(`Marking board ${slug} as visited`);
@@ -341,6 +404,15 @@ function BoardPage() {
             name: user?.username,
             avatar: user?.avatarUrl,
           }}
+          // TODO: this transformation shouldn't be done here.
+          additionalIdentities={
+            boardData?.postingIdentities
+              ? boardData.postingIdentities.map((identity) => ({
+                  ...identity,
+                  avatar: identity.avatarUrl,
+                }))
+              : undefined
+          }
           onPostSaved={(post: any) => {
             queryCache.invalidateQueries(["boardActivityData", { slug }]);
             setPostEditorOpen(false);
@@ -359,38 +431,26 @@ function BoardPage() {
             sidebarContent={
               <>
                 <BoardSidebar
+                  // @ts-ignore
                   slug={boardData?.slug || slug}
                   avatarUrl={boardData?.avatarUrl || "/"}
                   tagline={boardData?.tagline || "loading..."}
                   accentColor={boardData?.accentColor || "#f96680"}
                   muted={boardData?.muted}
-                  previewOptions={
-                    isLoggedIn && boardData
-                      ? [
-                          {
-                            name: boardData.muted ? "Unmute" : "Mute",
-                            link: {
-                              onClick: () =>
-                                setBoardMuted({
-                                  slug,
-                                  mute: !boardData.muted,
-                                }),
-                            },
-                          },
-                          {
-                            name: "Dismiss notifications",
-                            link: {
-                              onClick: () => dismissNotifications({ slug }),
-                            },
-                          },
-                        ]
-                      : undefined
-                  }
+                  previewOptions={boardOptions}
+                  descriptions={boardData?.descriptions || []}
+                  editing={editingSidebar}
+                  onCancelEditing={() => {
+                    setEditingSidebar(false);
+                  }}
+                  onUpdateMetadata={updateBoardMetadata}
                 />
-                <img
-                  className="under-construction"
-                  src="/under_construction_icon.png"
-                />
+                {!boardData?.descriptions && !editingSidebar && (
+                  <img
+                    className="under-construction"
+                    src="/under_construction_icon.png"
+                  />
+                )}
               </>
             }
             feedContent={
@@ -613,7 +673,6 @@ function BoardPage() {
           width: 50px;
           margin: 0 auto;
           display: block;
-          margin-top: -20px;
           opacity: 0.5;
           filter: grayscale(0.4);
         }

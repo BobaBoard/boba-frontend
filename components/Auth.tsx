@@ -23,6 +23,7 @@ const AuthContext = React.createContext({} as any);
 
 const useAuth = () => React.useContext(AuthContext);
 const log = debug("bobafrontend:auth-log");
+const logRefresh = debug("bobafrontend:auth-log-refresh");
 
 export const DEFAULT_USER_NAME = "You";
 export const DEFAULT_USER_AVATAR = "/bobatan.png";
@@ -91,14 +92,22 @@ const AuthProvider: React.FC<{}> = (props) => {
         });
       });
     });
+
+    firebase.auth().onIdTokenChanged((user) => {
+      logRefresh("Refresh status change");
+      logRefresh(user);
+      user?.getIdTokenResult().then((token) => logRefresh(token.issuedAtTime));
+    });
   }, []);
 
   const getAuthIdToken: () => Promise<string | undefined> = () => {
     return firebaseUserPromise.then((user) => {
       log(`Firebase is done authenticating! Getting token...`);
-      return user?.getIdToken().then((token) => {
+      return user?.getIdTokenResult().then((token) => {
         log(`Returning token!`);
-        return token;
+        log(`Token was issued at ${new Date(token.issuedAtTime)}`);
+        log(`Token will expire at ${new Date(token.expirationTime)}`);
+        return token.token;
       });
     });
   };

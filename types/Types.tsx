@@ -45,6 +45,7 @@ export interface PostType {
   newPostsAmount: number;
   newCommentsAmount: number;
   isNew: boolean;
+  isOwn: boolean;
 }
 export interface ThreadType {
   posts: PostType[];
@@ -58,6 +59,10 @@ export interface ThreadType {
   lastActivity?: string;
   muted: boolean;
   hidden: boolean;
+  personalIdentity?: {
+    name: string;
+    avatar: string;
+  };
 }
 
 export interface BoardActivityResponse {
@@ -66,12 +71,34 @@ export interface BoardActivityResponse {
   activity: ThreadType[];
 }
 
+export interface BoardDescription {
+  id?: number;
+  index: number;
+  title: string;
+  type: "text" | "category_filter";
+  description?: string;
+  categories?: string[];
+}
+
+export interface Role {
+  id: string;
+  name: string;
+  avatarUrl: string;
+}
+
+export interface Permissions {
+  canEditBoardData: boolean;
+}
+
 export interface BoardData {
   slug: string;
   avatarUrl: string;
   tagline: string;
   accentColor: string;
+  descriptions: BoardDescription[];
   muted: boolean;
+  permissions?: Permissions;
+  postingIdentities?: Role[];
 }
 
 export interface PostData {
@@ -82,6 +109,7 @@ export interface PostData {
   indexTags: string[];
   categoryTags: string[];
   contentWarnings: string[];
+  identityId?: string;
 }
 
 export interface CommentData {
