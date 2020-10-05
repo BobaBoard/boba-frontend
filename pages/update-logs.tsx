@@ -11,6 +11,24 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [9/30/20]
+                  <p>
+                    It's time for two highly-requested features to make their
+                    debut:
+                    <ul>
+                      <li>You can now mute boards.</li>
+                      <li>
+                        You can now dismiss notifications for a single board.
+                      </li>
+                    </ul>
+                    What else there is to say? You're welcome. <br />
+                    <em>
+                      (Oh, right! The login menu has an anonymous feedback form
+                      now. Use it often and liberally!)
+                    </em>
+                  </p>
+                </li>
+                <li>
                   [9/25/20]
                   <p>
                     A bigger update shall come in the following days (once the

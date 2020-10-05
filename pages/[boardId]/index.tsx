@@ -431,6 +431,7 @@ function BoardPage() {
             sidebarContent={
               <>
                 <BoardSidebar
+                  // @ts-ignore
                   slug={boardData?.slug || slug}
                   avatarUrl={boardData?.avatarUrl || "/"}
                   tagline={boardData?.tagline || "loading..."}

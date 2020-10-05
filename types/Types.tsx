@@ -109,6 +109,7 @@ export interface PostData {
   indexTags: string[];
   categoryTags: string[];
   contentWarnings: string[];
+  identityId?: string;
 }
 
 export interface CommentData {
