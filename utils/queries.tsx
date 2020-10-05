@@ -77,6 +77,7 @@ const makeClientThread = (serverThread: any): ThreadType => {
     lastActivity: serverThread.thread_last_activity,
     muted: serverThread.muted,
     hidden: serverThread.hidden,
+    defaultView: serverThread.default_view,
     personalIdentity: clientPosts.find((post) => post.isOwn)?.secretIdentity,
   };
 };

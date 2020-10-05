@@ -59,6 +59,7 @@ export interface ThreadType {
   lastActivity?: string;
   muted: boolean;
   hidden: boolean;
+  defaultView: "thread" | "gallery" | "timeline";
   personalIdentity?: {
     name: string;
     avatar: string;

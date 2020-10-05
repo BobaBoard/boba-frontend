@@ -37,6 +37,7 @@ interface ThreadContextType {
   // then this will be the stringId of the post.
   postId: string | null;
   isLoading: boolean;
+  defaultView: ThreadType["defaultView"] | null;
   // The root of the thread (a.k.a. the first post).
   threadRoot: PostType | null;
   // The current post targeted by the page.
@@ -207,6 +208,7 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
         setCategoryFilterState,
         postCommentsMap,
         chronologicalPostsSequence,
+        defaultView: threadData?.defaultView || null,
         personalIdentity: threadData?.personalIdentity,
       }}
     >

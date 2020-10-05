@@ -11,7 +11,12 @@ import PostEditorModal from "components/PostEditorModal";
 import CommentEditorModal from "components/CommentEditorModal";
 import { ThreadProvider } from "components/thread/ThreadContext";
 import { useAuth } from "components/Auth";
-import { PostType, CommentType, THREAD_VIEW_MODES } from "types/Types";
+import {
+  PostType,
+  CommentType,
+  THREAD_VIEW_MODES,
+  ThreadType,
+} from "types/Types";
 import { updateCommentCache, updatePostCache } from "utils/thread-utils";
 import classnames from "classnames";
 import { useBoardTheme } from "components/BoardTheme";
@@ -30,6 +35,22 @@ import debug from "debug";
 import { NextPage } from "next";
 const log = debug("bobafrontend:threadPage-log");
 
+const getViewTypeFromString = (
+  viewString: ThreadType["defaultView"] | null
+) => {
+  if (!viewString) {
+    return null;
+  }
+  switch (viewString) {
+    case "gallery":
+      return THREAD_VIEW_MODES.MASONRY;
+    case "timeline":
+      return THREAD_VIEW_MODES.TIMELINE;
+    case "thread":
+      return THREAD_VIEW_MODES.THREAD;
+  }
+};
+
 function ThreadPage() {
   const [postReplyId, setPostReplyId] = React.useState<string | null>(null);
   const [commentReplyId, setCommentReplyId] = React.useState<{
@@ -47,9 +68,12 @@ function ThreadPage() {
     isLoading: isFetchingThread,
     baseUrl,
     personalIdentity,
+    defaultView,
   } = useThread();
   const { [slug]: boardData } = useBoardTheme();
-  const [viewMode, setViewMode] = React.useState(THREAD_VIEW_MODES.THREAD);
+  const [viewMode, setViewMode] = React.useState(
+    getViewTypeFromString(defaultView) || THREAD_VIEW_MODES.THREAD
+  );
 
   React.useEffect(() => {
     const url = new URL(`${window.location.origin}${router.asPath}`);
@@ -57,10 +81,14 @@ function ThreadPage() {
       setViewMode(THREAD_VIEW_MODES.MASONRY);
     } else if (url.searchParams.has("timeline")) {
       setViewMode(THREAD_VIEW_MODES.TIMELINE);
-    } else {
+    } else if (url.searchParams.has("thread")) {
       setViewMode(THREAD_VIEW_MODES.THREAD);
+    } else {
+      setViewMode(
+        getViewTypeFromString(defaultView) || THREAD_VIEW_MODES.THREAD
+      );
     }
-  }, [router.asPath]);
+  }, [router.asPath, isFetchingThread]);
   const newAnswersIndex = React.useRef<number>(-1);
 
   // TODO: disable this while post editing and readd
@@ -186,7 +214,7 @@ function ThreadPage() {
                       ? "?gallery"
                       : viewMode == THREAD_VIEW_MODES.TIMELINE
                       ? "?timeline"
-                      : "";
+                      : "?thread";
                   router.push(
                     `/[boardId]/thread/[...threadId]`,
                     `${baseUrl}${queryParam}`,
