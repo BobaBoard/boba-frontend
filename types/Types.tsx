@@ -104,7 +104,6 @@ export interface BoardData {
 
 export interface PostData {
   content: string;
-  large: boolean;
   forceAnonymous: boolean;
   whisperTags: string[];
   indexTags: string[];

@@ -12,6 +12,24 @@ import { PostData, PostType, ThreadType } from "../types/Types";
 const log = debug("bobafrontend:postEditor-log");
 const error = debug("bobafrontend:postEditor-error");
 
+const THREAD_VIEW_OPTIONS = [
+  { name: "Thread", id: "thread" },
+  { name: "Gallery", id: "gallery" },
+  { name: "Timeline", id: "timeline" },
+];
+
+const getViewIdFromName = (viewName?: string) => {
+  switch (viewName) {
+    case "Timeline":
+      return "timeline";
+    case "Gallery":
+      return "gallery";
+    default:
+    case "Thread":
+      return "thread";
+  }
+};
+
 const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
   const editorRef = React.createRef<{ focus: () => void }>();
   const [isPostLoading, setPostLoading] = React.useState(false);
@@ -25,45 +43,14 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
       postData: PostData;
     }
   >(
-    ({
-      slug,
-      replyToPostId,
-      postData: {
-        content,
-        large,
-        forceAnonymous,
-        whisperTags,
-        indexTags,
-        categoryTags,
-        contentWarnings,
-        identityId,
-      },
-    }) => {
+    ({ slug, replyToPostId, postData }) => {
       // Choose the endpoint according to the provided data.
       // If there's no post to reply to, then it's a new thread.
       // Else, it belongs as a contribution to that post.
       if (!replyToPostId) {
-        return createThread(slug, {
-          content,
-          large,
-          forceAnonymous,
-          whisperTags,
-          indexTags,
-          categoryTags,
-          contentWarnings,
-          identityId,
-        });
+        return createThread(slug, postData);
       } else {
-        return createPost(replyToPostId, {
-          content,
-          large,
-          forceAnonymous,
-          whisperTags,
-          indexTags,
-          categoryTags,
-          contentWarnings,
-          identityId,
-        });
+        return createPost(replyToPostId, postData);
       }
     },
     {
@@ -106,8 +93,8 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
         ref={editorRef}
         secretIdentity={props.secretIdentity}
         userIdentity={props.userIdentity}
-        // @ts-ignore
         additionalIdentities={props.additionalIdentities}
+        viewOptions={props.replyToPostId ? undefined : THREAD_VIEW_OPTIONS}
         loading={isPostLoading}
         onImageUploadRequest={(src: string) => {
           return new Promise<string>((onSuccess, onReject) => {
@@ -143,53 +130,37 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
             );
           });
         }}
-        onSubmit={(textPromise: Promise<{ text: string; large: boolean }>) => {
+        onSubmit={(textPromise) => {
           setPostLoading(true);
-          textPromise.then(
-            ({
-              text,
-              large,
-              tags,
-              identityId,
-            }: {
-              text: string;
-              large: boolean;
-              identityId?: string;
-              tags: {
-                name: string;
-                indexable: boolean;
-                category: boolean;
-                contentWarning: boolean;
-              }[];
-            }) => {
-              log(identityId);
-              postContribution({
-                slug: props.slug,
-                replyToPostId: props.replyToPostId,
-                postData: {
-                  content: text,
-                  large,
-                  forceAnonymous: false,
-                  identityId,
-                  whisperTags: tags
-                    .filter(
+          textPromise.then(({ text, tags, identityId, viewOptionName }) => {
+            log(identityId);
+            postContribution({
+              slug: props.slug,
+              replyToPostId: props.replyToPostId,
+              postData: {
+                content: text,
+                forceAnonymous: false,
+                defaultView: getViewIdFromName(viewOptionName),
+                identityId,
+                whisperTags:
+                  tags
+                    ?.filter(
                       (tag) =>
                         !tag.indexable && !tag.category && !tag.contentWarning
                     )
-                    .map((tag) => tag.name),
-                  indexTags: tags
-                    .filter((tag) => tag.indexable)
-                    .map((tag) => tag.name),
-                  contentWarnings: tags
-                    .filter((tag) => tag.contentWarning)
-                    .map((tag) => tag.name),
-                  categoryTags: tags
-                    .filter((tag) => tag.category)
-                    .map((tag) => tag.name),
-                },
-              });
-            }
-          );
+                    .map((tag) => tag.name) || [],
+                indexTags: tags
+                  .filter((tag) => tag.indexable)
+                  .map((tag) => tag.name),
+                contentWarnings: tags
+                  .filter((tag) => tag.contentWarning)
+                  .map((tag) => tag.name),
+                categoryTags: tags
+                  .filter((tag) => tag.category)
+                  .map((tag) => tag.name),
+              },
+            });
+          });
         }}
         onCancel={() => props.onCloseModal()}
         centered
@@ -210,7 +181,7 @@ export interface PostEditorModalProps {
     name: string;
   };
   additionalIdentities?: {
-    id?: string;
+    id: string;
     avatar: string;
     name: string;
   }[];
