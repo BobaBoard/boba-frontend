@@ -96,7 +96,7 @@ export const getBoardData = async (key: string, { slug }: { slug: string }) => {
 
 export const getBoardActivityData = async (
   key: string,
-  { slug }: { slug: string },
+  { slug, categoryFilter }: { slug: string; categoryFilter: string | null },
   cursor?: string
 ): Promise<BoardActivityResponse | undefined> => {
   log(`Fetching board activity for board with slug ${slug}.`);
@@ -106,7 +106,7 @@ export const getBoardActivityData = async (
     throw new Error("Attempted to fetch board activity with no slug");
   }
   const response = await axios.get(`boards/${slug}/activity/latest`, {
-    params: { cursor },
+    params: { cursor, categoryFilter },
   });
   log(
     `Got response for board activity with slug ${slug}. Status: ${response.status}`

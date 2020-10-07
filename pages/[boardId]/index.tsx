@@ -177,6 +177,9 @@ function BoardPage() {
       }
     >()
   );
+  const [categoryFilter, setCategoryFilter] = React.useState<string | null>(
+    null
+  );
 
   const {
     data: boardActivityData,
@@ -184,14 +187,18 @@ function BoardPage() {
     isFetchingMore,
     fetchMore,
     canFetchMore,
-  } = useInfiniteQuery(["boardActivityData", { slug }], getBoardActivityData, {
-    getFetchMore: (lastGroup, allGroups) => {
-      // TODO: if this method fires too often in a row, sometimes there's duplicate
-      // values within allGroups (aka groups fetched with the same cursor).
-      // This seems to be a library problem.
-      return lastGroup?.nextPageCursor;
-    },
-  });
+  } = useInfiniteQuery(
+    ["boardActivityData", { slug, categoryFilter }],
+    getBoardActivityData,
+    {
+      getFetchMore: (lastGroup, allGroups) => {
+        // TODO: if this method fires too often in a row, sometimes there's duplicate
+        // values within allGroups (aka groups fetched with the same cursor).
+        // This seems to be a library problem.
+        return lastGroup?.nextPageCursor;
+      },
+    }
+  );
 
   const [readThread] = useMutation(
     (threadId: string) => markThreadAsRead({ threadId }),
@@ -393,7 +400,8 @@ function BoardPage() {
     return threadRedirectMethod.current?.get(threadId) || (() => {});
   };
 
-  const showEmptyMessage = boardActivityData?.[0]?.activity?.length === 0;
+  const showEmptyMessage =
+    !isFetchingBoardActivity && boardActivityData?.[0]?.activity?.length === 0;
 
   return (
     <div className="main">
@@ -444,6 +452,16 @@ function BoardPage() {
                     setEditingSidebar(false);
                   }}
                   onUpdateMetadata={updateBoardMetadata}
+                  onCategoriesStateChange={(categories) => {
+                    const activeCategories = categories.filter(
+                      (category) => category.active
+                    );
+                    setCategoryFilter(
+                      activeCategories.length == 1
+                        ? activeCategories[0].name
+                        : null
+                    );
+                  }}
                 />
                 {!boardData?.descriptions && !editingSidebar && (
                   <img
