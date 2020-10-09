@@ -94,7 +94,7 @@ const AuthProvider: React.FC<{}> = (props) => {
     });
 
     firebase.auth().onIdTokenChanged((user) => {
-      logRefresh("Refresh status change");
+      logRefresh(`Refresh status change at ${new Date()}`);
       logRefresh(user);
       user?.getIdTokenResult().then((token) => logRefresh(token.issuedAtTime));
     });

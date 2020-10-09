@@ -61,29 +61,33 @@ function HomePage() {
               <div className="updates">
                 <h2>New Stuff </h2>
                 <div className="last">
-                  [Last Updated: 10/04/20.{" "}
+                  [Last Updated: 10/07/20.{" "}
                   <Link href="/update-logs">
                     <a>Older logs.</a>
                   </Link>
                   ]
                   <p>
-                    Most of you won't be directly influenced by these updates,
-                    but we've just unlocked our first batch of admin tools, and
-                    introduced the concept of Roles.
-                  </p>
-                  <p>
-                    What are Roles? Well, like on Discord, Roles can be assigned
-                    to users, and each of them can have a bunch of associated
-                    permissions. This means that, instead of dividing people in
-                    "moderators/admins" and "everyone else", we can create as
-                    many fine-grained roles as we want, filling many different
-                    purposes.
-                  </p>
-                  <p>
-                    Right now there's only two permissions: edit sidebar (yes,
-                    we're finally going to get sidebar descriptions), and "post
-                    as role". What does post as role do? Head to !bobaland to
-                    find out.
+                    Might add more updates later today, but for now:
+                    <ul>
+                      <li>
+                        Added default view mode selection. Want to make a
+                        Gallery? A timeline? You can now choose! Of course, the
+                        other modes aren't as battle-tested as thread. Try them
+                        out, and leave feedback (in the login menu)!
+                      </li>
+                      <li>
+                        Category filtering now works on boards. It's not
+                        automatic, as the board tags need to be added by the
+                        editor. You'll soon see an example in !bobaland.
+                      </li>
+                      <li>
+                        Bunch of CSS fixes, including the tags indentation
+                        and... the iOS sidemenu flicker.... again.....
+                        hopefully.......
+                      </li>
+                    </ul>
+                    (And if you're wondering, "can I change the default view of
+                    older threads/add tags?", the answer is: soon, I swear.)
                   </p>
                 </div>
               </div>

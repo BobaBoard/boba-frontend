@@ -74,16 +74,12 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
             <div>
               <CategoryFilter
                 categories={categoryFilterState}
-                onCategoryStateChange={(name: string, active: boolean) => {
+                onCategoryStateChangeRequest={(name: string) => {
                   setCategoryFilterState(
-                    categoryFilterState.map((category) =>
-                      category.name == name
-                        ? {
-                            name,
-                            active,
-                          }
-                        : { ...category, active: false }
-                    )
+                    categoryFilterState.map((category) => ({
+                      ...category,
+                      active: category.name == name,
+                    }))
                   );
                 }}
               />

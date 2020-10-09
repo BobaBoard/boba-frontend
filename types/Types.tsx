@@ -105,6 +105,7 @@ export interface BoardData {
 export interface PostData {
   content: string;
   forceAnonymous: boolean;
+  defaultView: "thread" | "gallery" | "timeline";
   whisperTags: string[];
   indexTags: string[];
   categoryTags: string[];
