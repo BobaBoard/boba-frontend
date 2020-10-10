@@ -67,27 +67,32 @@ function HomePage() {
                   </Link>
                   ]
                   <p>
-                    Might add more updates later today, but for now:
+                    Small improvements all around:
                     <ul>
                       <li>
-                        Added default view mode selection. Want to make a
-                        Gallery? A timeline? You can now choose! Of course, the
-                        other modes aren't as battle-tested as thread. Try them
-                        out, and leave feedback (in the login menu)!
+                        You can now mark tweets (and only tweets) as spoilers.
+                        That kinda came for free with next update, which is....
                       </li>
                       <li>
-                        Category filtering now works on boards. It's not
-                        automatic, as the board tags need to be added by the
-                        editor. You'll soon see an example in !bobaland.
+                        You can now select whether you want the full tweet
+                        thread or the single tweet when embedding one.
                       </li>
                       <li>
-                        Bunch of CSS fixes, including the tags indentation
-                        and... the iOS sidemenu flicker.... again.....
-                        hopefully.......
+                        Last, if a board has specific categories, these will
+                        appear as suggestions when adding one to your thread.
+                      </li>
+                      <li>
+                        [Bug Fixes] fixed problem where board wouldn't get
+                        updated until refresh when hiding/muting threads; fixed
+                        problems with last bulletpoint of list losing
+                        formatting.
+                      </li>
+                      <li>
+                        [Restyling] the editor formatting options should now
+                        look nicer on really tiny screens; please behold our
+                        new, beautiful tag input & display.
                       </li>
                     </ul>
-                    (And if you're wondering, "can I change the default view of
-                    older threads/add tags?", the answer is: soon, I swear.)
                   </p>
                 </div>
               </div>

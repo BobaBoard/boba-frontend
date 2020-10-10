@@ -98,7 +98,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
         additionalIdentities={props.additionalIdentities}
         viewOptions={props.replyToPostId ? undefined : THREAD_VIEW_OPTIONS}
         loading={isPostLoading}
-        suggestedCategories={boardData.suggestedCategories}
+        suggestedCategories={boardData?.suggestedCategories || []}
         onImageUploadRequest={(src: string) => {
           return new Promise<string>((onSuccess, onReject) => {
             // Do not upload tenor stuff

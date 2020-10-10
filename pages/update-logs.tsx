@@ -11,6 +11,32 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [10/07/20]
+                  <p>
+                    Might add more updates later today, but for now:
+                    <ul>
+                      <li>
+                        Added default view mode selection. Want to make a
+                        Gallery? A timeline? You can now choose! Of course, the
+                        other modes aren't as battle-tested as thread. Try them
+                        out, and leave feedback (in the login menu)!
+                      </li>
+                      <li>
+                        Category filtering now works on boards. It's not
+                        automatic, as the board tags need to be added by the
+                        editor. You'll soon see an example in !bobaland.
+                      </li>
+                      <li>
+                        Bunch of CSS fixes, including the tags indentation
+                        and... the iOS sidemenu flicker.... again.....
+                        hopefully.......
+                      </li>
+                    </ul>
+                    (And if you're wondering, "can I change the default view of
+                    older threads/add tags?", the answer is: soon, I swear.)
+                  </p>
+                </li>
+                <li>
                   [10/04/20]
                   <p>
                     Most of you won't be directly influenced by these updates,
@@ -136,7 +162,6 @@ function HomePage() {
                     </li>
                   </ul>
                 </li>
-
                 <li>
                   [8/19/20]
                   <p>Today..... the editor rises!</p>
