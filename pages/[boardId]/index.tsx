@@ -45,9 +45,11 @@ const MemoizedPost = React.memo(Post);
 
 const removeThreadActivityFromCache = ({
   slug,
+  categoryFilter,
   threadId,
 }: {
   slug: string;
+  categoryFilter: string | null;
   threadId: string;
 }) => {
   const boardActivityData = queryCache.getQueryData<BoardActivityResponse[]>([
@@ -72,23 +74,25 @@ const removeThreadActivityFromCache = ({
   updatedThread.newCommentsAmount = 0;
   updatedThread.newPostsAmount = 0;
   queryCache.setQueryData(
-    ["boardActivityData", { slug }],
+    ["boardActivityData", { slug, categoryFilter }],
     () => boardActivityData
   );
 };
 
 const setThreadMutedInCache = ({
   slug,
+  categoryFilter,
   threadId,
   mute,
 }: {
   slug: string;
+  categoryFilter: string | null;
   threadId: string;
   mute: boolean;
 }) => {
   const boardActivityData = queryCache.getQueryData<BoardActivityResponse[]>([
     "boardActivityData",
-    { slug },
+    { slug, categoryFilter },
   ]);
 
   const updatedThread = boardActivityData
@@ -131,16 +135,18 @@ const setBoardMutedInCache = ({
 
 const setThreadHiddenInCache = ({
   slug,
+  categoryFilter,
   threadId,
   hide,
 }: {
   slug: string;
+  categoryFilter: string | null;
   threadId: string;
   hide: boolean;
 }) => {
   const boardActivityData = queryCache.getQueryData<BoardActivityResponse[]>([
     "boardActivityData",
-    { slug },
+    { slug, categoryFilter },
   ]);
 
   const updatedThread = boardActivityData
@@ -205,7 +211,7 @@ function BoardPage() {
     {
       onMutate: (threadId) => {
         log(`Optimistically marking thread ${threadId} as visited.`);
-        removeThreadActivityFromCache({ slug, threadId });
+        removeThreadActivityFromCache({ slug, categoryFilter, threadId });
       },
       onError: (error: Error, threadId) => {
         toast.error("Error while marking thread as visited");
@@ -228,7 +234,7 @@ function BoardPage() {
             mute ? "muted" : "unmuted"
           }.`
         );
-        setThreadMutedInCache({ slug, threadId, mute });
+        setThreadMutedInCache({ slug, categoryFilter, threadId, mute });
       },
       onError: (error: Error, { threadId, mute }) => {
         toast.error(
@@ -297,7 +303,7 @@ function BoardPage() {
             hide ? "hidden" : "visible"
           }.`
         );
-        setThreadHiddenInCache({ slug, threadId, hide });
+        setThreadHiddenInCache({ slug, categoryFilter, threadId, hide });
       },
       onError: (error: Error, { threadId, hide }) => {
         toast.error(
