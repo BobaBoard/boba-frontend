@@ -19,7 +19,7 @@ import {
 } from "types/Types";
 import { updateCommentCache, updatePostCache } from "utils/thread-utils";
 import classnames from "classnames";
-import { useBoardTheme } from "components/BoardTheme";
+import { useBoardContext } from "components/BoardContext";
 //import { useHotkeys } from "react-hotkeys-hook";
 import ThreadView, {
   scrollToComment,
@@ -70,7 +70,7 @@ function ThreadPage() {
     personalIdentity,
     defaultView,
   } = useThread();
-  const { [slug]: boardData } = useBoardTheme();
+  const { [slug]: boardData } = useBoardContext();
   const [viewMode, setViewMode] = React.useState(
     getViewTypeFromString(defaultView) || THREAD_VIEW_MODES.THREAD
   );

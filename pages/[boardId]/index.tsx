@@ -12,7 +12,7 @@ import Layout from "../../components/Layout";
 import PostEditorModal from "../../components/PostEditorModal";
 import { useInfiniteQuery, queryCache, useMutation } from "react-query";
 import { useAuth } from "../../components/Auth";
-import { useBoardTheme } from "../../components/BoardTheme";
+import { useBoardContext } from "../../components/BoardContext";
 import {
   getBoardActivityData,
   markThreadAsRead,
@@ -172,7 +172,7 @@ function BoardPage() {
   const router = useRouter();
   const slug: string = router.query.boardId?.slice(1) as string;
   const { isPending, isLoggedIn, user } = useAuth();
-  const { [slug]: boardData } = useBoardTheme();
+  const { [slug]: boardData } = useBoardContext();
   const [editingSidebar, setEditingSidebar] = React.useState(false);
   const threadRedirectMethod = React.useRef(
     new Map<

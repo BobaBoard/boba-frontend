@@ -6,7 +6,7 @@ import React from "react";
 import axios from "axios";
 import Head from "next/head";
 import { AuthProvider, useAuth } from "../components/Auth";
-import { BoardThemeProvider } from "../components/BoardTheme";
+import { BoardContextProvider } from "../components/BoardContext";
 import type { AppProps } from "next/app";
 import {
   ToastContainer,
@@ -119,11 +119,11 @@ function MyApp({ Component, pageProps }: AppProps) {
         <link rel="manifest" href="/icons/site.webmanifest"></link>
       </Head>
       <AuthProvider>
-        <BoardThemeProvider>
+        <BoardContextProvider>
           <AxiosInterceptor />
           <ToastContainer />
           <Component {...pageProps} />
-        </BoardThemeProvider>
+        </BoardContextProvider>
       </AuthProvider>
     </>
   );

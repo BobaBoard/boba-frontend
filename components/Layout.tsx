@@ -16,7 +16,7 @@ import { useRouter } from "next/router";
 import { useQuery, useMutation, queryCache } from "react-query";
 // @ts-ignore
 import { ReactQueryDevtools } from "react-query-devtools";
-import { useBoardTheme } from "./BoardTheme";
+import { useBoardContext } from "./BoardContext";
 import debug from "debug";
 
 const log = debug("bobafrontend:queries-log");
@@ -27,7 +27,7 @@ const Layout = (props: LayoutProps) => {
   const [loginOpen, setLoginOpen] = React.useState(false);
   const layoutRef = React.useRef<{ closeSideMenu: () => void }>(null);
   const slug: string = router.query.boardId?.slice(1) as string;
-  const { [slug]: boardData, fetching } = useBoardTheme();
+  const { [slug]: boardData, fetching } = useBoardContext();
   const { data: pinnedBoards, refetch, isLoading } = useQuery(
     "allBoardsData",
     // TODO: fix this typing

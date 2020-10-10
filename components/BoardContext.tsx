@@ -2,19 +2,19 @@ import React from "react";
 import debug from "debug";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
-import { getBoardData, getAllBoardsData } from "./../utils/queries";
+import { getBoardData, getAllBoardsData } from "../utils/queries";
 import { BoardData } from "../types/Types";
 
 const BoardThemeContext = React.createContext({} as any);
 
-const useBoardTheme = () =>
+const useBoardContext = () =>
   React.useContext<{ [key: string]: BoardData } & { fetching: string }>(
     BoardThemeContext
   );
 
 const log = debug("bobafrontend:boardTheme-log");
 
-const BoardThemeProvider: React.FC<{}> = (props) => {
+const BoardContextProvider: React.FC<{}> = (props) => {
   const router = useRouter();
   const [themeData, setThemeData] = React.useState<{
     [key: string]: BoardData;
@@ -76,4 +76,4 @@ const BoardThemeProvider: React.FC<{}> = (props) => {
   return <BoardThemeContext.Provider value={themeData} {...props} />;
 };
 
-export { BoardThemeProvider, useBoardTheme };
+export { BoardContextProvider, useBoardContext };

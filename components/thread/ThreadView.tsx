@@ -26,7 +26,7 @@ import {
   getTotalNewContributions,
 } from "../../utils/thread-utils";
 import Link from "next/link";
-import { useBoardTheme } from "../BoardTheme";
+import { useBoardContext } from "../BoardContext";
 import classnames from "classnames";
 import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
 //import { useHotkeys } from "react-hotkeys-hook";
@@ -224,7 +224,7 @@ const ThreadLevel: React.FC<{
 }> = (props) => {
   const router = useRouter();
   const slug = router.query.boardId?.slice(1) as string;
-  const { [slug]: boardData } = useBoardTheme();
+  const { [slug]: boardData } = useBoardContext();
   info(
     `Rendering subtree at level ${props.level} starting with post with id ${props.post.postId}`
   );
