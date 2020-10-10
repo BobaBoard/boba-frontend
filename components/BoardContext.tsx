@@ -42,6 +42,7 @@ const BoardContextProvider: React.FC<{}> = (props) => {
             muted: value.muted || themeData[value.slug]?.muted,
             permissions: themeData[value.slug]?.permissions,
             postingIdentities: themeData[value.slug]?.postingIdentities,
+            suggestedCategories: themeData[value.slug]?.suggestedCategories,
           };
           return agg;
         },
@@ -68,6 +69,9 @@ const BoardContextProvider: React.FC<{}> = (props) => {
         muted: boardData.muted || false,
         permissions: boardData.permissions,
         postingIdentities: boardData.postingIdentities,
+        suggestedCategories: boardData.descriptions?.flatMap(
+          (description: any) => description.categories || []
+        ),
       };
       setThemeData(newThemeData);
     }

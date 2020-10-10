@@ -100,6 +100,7 @@ export interface BoardData {
   muted: boolean;
   permissions?: Permissions;
   postingIdentities?: Role[];
+  suggestedCategories?: string[];
 }
 
 export interface PostData {

@@ -8,6 +8,7 @@ import firebase from "firebase/app";
 import { v4 as uuidv4 } from "uuid";
 import { createPost, createThread } from "../utils/queries";
 import { PostData, PostType, ThreadType } from "../types/Types";
+import { useBoardContext } from "./BoardContext";
 
 const log = debug("bobafrontend:postEditor-log");
 const error = debug("bobafrontend:postEditor-error");
@@ -32,6 +33,7 @@ const getViewIdFromName = (viewName?: string) => {
 
 const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
   const editorRef = React.createRef<{ focus: () => void }>();
+  const { [props.slug]: boardData } = useBoardContext();
   const [isPostLoading, setPostLoading] = React.useState(false);
   const { isLoggedIn } = useAuth();
 
@@ -96,6 +98,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
         additionalIdentities={props.additionalIdentities}
         viewOptions={props.replyToPostId ? undefined : THREAD_VIEW_OPTIONS}
         loading={isPostLoading}
+        suggestedCategories={boardData.suggestedCategories}
         onImageUploadRequest={(src: string) => {
           return new Promise<string>((onSuccess, onReject) => {
             // Do not upload tenor stuff
