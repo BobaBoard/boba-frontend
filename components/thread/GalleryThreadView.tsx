@@ -18,7 +18,7 @@ import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
 
 const log = debug("bobafrontend:threadLevel-log");
 
-const MasonryThreadView: React.FC<{
+const GalleryThreadView: React.FC<{
   onNewComment: (
     replyToPostId: string,
     replyToCommentId: string | null
@@ -34,9 +34,9 @@ const MasonryThreadView: React.FC<{
   } = useThread();
   const masonryRef = React.createRef<{ reposition: () => void }>();
   const router = useRouter();
+  const [showCover, setShowCover] = React.useState(false);
 
-  // @ts-ignore
-  let [unusedFirstElement, ...unfilteredArray] = chronologicalPostsSequence;
+  let [cover, ...unfilteredArray] = chronologicalPostsSequence;
 
   const activeCategories = categoryFilterState.filter(
     (category) => category.active
@@ -56,18 +56,52 @@ const MasonryThreadView: React.FC<{
         )
     );
   }
-  log(isUntaggedActive);
-  log(orderedPosts);
 
-  if (!orderedPosts.length) {
-    return <div>The gallery is empty :(</div>;
+  if (!showCover && !orderedPosts.length) {
+    return (
+      <div>
+        <div className="image">
+          <img src="/empty_gallery.gif" />
+        </div>
+        <div className="empty">The gallery is empty :(</div>
+        <a
+          onClick={(e) => {
+            setShowCover(true);
+            e.preventDefault();
+          }}
+        >
+          Show Cover Post (
+          {cover.commentsAmount || 0 /*TODO: wtf?? why do we need this??*/}{" "}
+          comments, {cover.newCommentsAmount} new)
+        </a>
+        <style jsx>{`
+          .image img {
+            max-width: 100%;
+          }
+          .empty {
+            color: white;
+            text-align: center;
+            margin-top: 10px;
+            font-size: normal;
+          }
+          a {
+            display: block;
+            color: white;
+            text-align: center;
+            font-size: small;
+            margin-top: 10px;
+          }
+        `}</style>
+      </div>
+    );
   }
 
   const url = new URL(`${window.location.origin}${router.asPath}`);
+  const toDisplay = showCover ? [cover, ...orderedPosts] : orderedPosts;
   return (
     <MasonryView ref={masonryRef}>
       {
-        orderedPosts.map((post) => (
+        toDisplay.map((post) => (
           <div
             className="post"
             key={post.postId}
@@ -130,4 +164,4 @@ const MasonryThreadView: React.FC<{
   );
 };
 
-export default MasonryThreadView;
+export default GalleryThreadView;

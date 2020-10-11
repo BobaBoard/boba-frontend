@@ -57,9 +57,9 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
   const { [props.slug]: boardData } = useBoardContext();
   const [isPostLoading, setPostLoading] = React.useState(false);
   const [askConfirmation, setAskConfirmation] = React.useState(false);
+  const isCurrentlyOpen = React.useRef(props.isOpen);
   const router = useRouter();
   const { isLoggedIn } = useAuth();
-  const isCurrentlyOpen = React.useRef(props.isOpen);
 
   const [postContribution] = useMutation<
     PostType | ThreadType,

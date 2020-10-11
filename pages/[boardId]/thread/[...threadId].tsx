@@ -26,7 +26,7 @@ import ThreadView, {
   scrollToPost,
 } from "components/thread/ThreadView";
 import ThreadSidebar from "components/thread/ThreadSidebar";
-import MasonryThreadView from "components/thread/MasonryThreadView";
+import GalleryThreadView from "components/thread/GalleryThreadView";
 import TimelineThreadView from "components/thread/TimelineThreadView";
 import { useThread } from "components/thread/ThreadContext";
 import { useRouter } from "next/router";
@@ -248,7 +248,7 @@ function ThreadPage() {
                       isLoggedIn={isLoggedIn}
                     />
                   ) : viewMode == THREAD_VIEW_MODES.MASONRY ? (
-                    <MasonryThreadView
+                    <GalleryThreadView
                       onNewComment={(replyToPostId, replyToCommentId) =>
                         setCommentReplyId({
                           postId: replyToPostId,
