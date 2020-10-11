@@ -1,14 +1,19 @@
 import React from "react";
-// @ts-ignore
-import { PostEditor, Modal, toast } from "@bobaboard/ui-components";
+import {
+  PostEditor,
+  Modal,
+  ModalWithButtons,
+  toast,
+} from "@bobaboard/ui-components";
 import { useAuth } from "./Auth";
 import { useMutation } from "react-query";
 import debug from "debug";
-import firebase from "firebase/app";
-import { v4 as uuidv4 } from "uuid";
 import { createPost, createThread } from "../utils/queries";
+import { createImageUploadPromise } from "../utils/image-upload";
 import { PostData, PostType, ThreadType } from "../types/Types";
 import { useBoardContext } from "./BoardContext";
+import { TagsType } from "@bobaboard/ui-components/dist/types";
+import { useRouter } from "next/router";
 
 const log = debug("bobafrontend:postEditor-log");
 const error = debug("bobafrontend:postEditor-error");
@@ -31,11 +36,30 @@ const getViewIdFromName = (viewName?: string) => {
   }
 };
 
+const processTags = (tags: TagsType[]) => {
+  return {
+    whisperTags:
+      tags
+        ?.filter(
+          (tag) => !tag.indexable && !tag.category && !tag.contentWarning
+        )
+        .map((tag) => tag.name) || [],
+    indexTags: tags.filter((tag) => tag.indexable).map((tag) => tag.name),
+    contentWarnings: tags
+      .filter((tag) => tag.contentWarning)
+      .map((tag) => tag.name),
+    categoryTags: tags.filter((tag) => tag.category).map((tag) => tag.name),
+  };
+};
+
 const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
   const editorRef = React.createRef<{ focus: () => void }>();
   const { [props.slug]: boardData } = useBoardContext();
   const [isPostLoading, setPostLoading] = React.useState(false);
+  const [askConfirmation, setAskConfirmation] = React.useState(false);
+  const router = useRouter();
   const { isLoggedIn } = useAuth();
+  const isCurrentlyOpen = React.useRef(props.isOpen);
 
   const [postContribution] = useMutation<
     PostType | ThreadType,
@@ -85,90 +109,95 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
     }
   }, [props.isOpen]);
 
+  React.useEffect(() => {
+    isCurrentlyOpen.current = props.isOpen;
+  }, [props.isOpen]);
+
+  React.useEffect(() => {
+    const unloadListener = (e: BeforeUnloadEvent) => {
+      if (isCurrentlyOpen.current) {
+        e.preventDefault();
+        e.returnValue = true;
+      }
+    };
+    router.beforePopState((state: any) => {
+      console.log("pop");
+      console.log(state);
+      console.log(router);
+      if (
+        state.as == router.asPath ||
+        !isCurrentlyOpen.current ||
+        confirm("Do you want to go back?")
+      ) {
+        return true;
+      }
+      history.forward();
+      return false;
+    });
+    window.addEventListener("beforeunload", unloadListener);
+    return () => {
+      window.removeEventListener("beforeunload", unloadListener);
+    };
+  }, []);
+
   if (!isLoggedIn) {
     return <div />;
   }
 
   return (
-    <Modal isOpen={props.isOpen}>
-      <PostEditor
-        ref={editorRef}
-        secretIdentity={props.secretIdentity}
-        userIdentity={props.userIdentity}
-        additionalIdentities={props.additionalIdentities}
-        viewOptions={props.replyToPostId ? undefined : THREAD_VIEW_OPTIONS}
-        loading={isPostLoading}
-        suggestedCategories={boardData?.suggestedCategories || []}
-        onImageUploadRequest={(src: string) => {
-          return new Promise<string>((onSuccess, onReject) => {
-            // Do not upload tenor stuff
-            if (src.startsWith("https://media.tenor.com/")) {
-              onSuccess(src);
-              return;
-            }
-            // Upload base 64 images
-            if (src.startsWith("data:image")) {
-              const ref = firebase
-                .storage()
-                .ref(props.uploadBaseUrl)
-                .child(uuidv4());
-
-              ref
-                .putString(src, "data_url")
-                .on(firebase.storage.TaskEvent.STATE_CHANGED, {
-                  complete: () => {
-                    ref.getDownloadURL().then((url) => onSuccess(url));
-                  },
-                  next: () => {},
-                  error: (e) => {
-                    console.log(e);
-                    onReject(e);
-                  },
-                });
-              return;
-            }
-            // else, for now, let's just swap it with the Onceler.
-            onSuccess(
-              "https://pbs.twimg.com/media/EY-RqiyUwAAfgzd?format=png&name=small"
-            );
-          });
-        }}
-        onSubmit={(textPromise) => {
-          setPostLoading(true);
-          textPromise.then(({ text, tags, identityId, viewOptionName }) => {
-            log(identityId);
-            postContribution({
-              slug: props.slug,
-              replyToPostId: props.replyToPostId,
-              postData: {
-                content: text,
-                forceAnonymous: false,
-                defaultView: getViewIdFromName(viewOptionName),
-                identityId,
-                whisperTags:
-                  tags
-                    ?.filter(
-                      (tag) =>
-                        !tag.indexable && !tag.category && !tag.contentWarning
-                    )
-                    .map((tag) => tag.name) || [],
-                indexTags: tags
-                  .filter((tag) => tag.indexable)
-                  .map((tag) => tag.name),
-                contentWarnings: tags
-                  .filter((tag) => tag.contentWarning)
-                  .map((tag) => tag.name),
-                categoryTags: tags
-                  .filter((tag) => tag.category)
-                  .map((tag) => tag.name),
-              },
+    <>
+      <Modal isOpen={props.isOpen}>
+        <PostEditor
+          ref={editorRef}
+          secretIdentity={props.secretIdentity}
+          userIdentity={props.userIdentity}
+          additionalIdentities={props.additionalIdentities}
+          viewOptions={props.replyToPostId ? undefined : THREAD_VIEW_OPTIONS}
+          loading={isPostLoading}
+          suggestedCategories={boardData?.suggestedCategories || []}
+          onImageUploadRequest={(src: string) =>
+            createImageUploadPromise({
+              imageData: src,
+              baseUrl: props.uploadBaseUrl,
+            })
+          }
+          onSubmit={(textPromise) => {
+            setPostLoading(true);
+            textPromise.then(({ text, tags, identityId, viewOptionName }) => {
+              log(identityId);
+              postContribution({
+                slug: props.slug,
+                replyToPostId: props.replyToPostId,
+                postData: {
+                  content: text,
+                  forceAnonymous: false,
+                  defaultView: getViewIdFromName(viewOptionName),
+                  identityId,
+                  ...processTags(tags),
+                },
+              });
             });
-          });
+          }}
+          onCancel={(empty) =>
+            empty ? props.onCloseModal() : setAskConfirmation(true)
+          }
+          centered
+        />
+      </Modal>
+      <ModalWithButtons
+        isOpen={askConfirmation}
+        onCloseModal={() => setAskConfirmation(false)}
+        onSubmit={() => {
+          setAskConfirmation(false);
+          props.onCloseModal();
         }}
-        onCancel={() => props.onCloseModal()}
-        centered
-      />
-    </Modal>
+        primaryText={"Exterminate!"}
+        secondaryText={"Nevermind"}
+        shouldCloseOnOverlayClick={false}
+      >
+        Are you sure?
+      </ModalWithButtons>
+    </>
   );
 };
 

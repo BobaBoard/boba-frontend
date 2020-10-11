@@ -1,2 +1,5 @@
 runtime: nodejs10
 service: frontend
+handlers:
+    - url: .*
+        secure: always
