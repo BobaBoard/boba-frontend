@@ -11,6 +11,37 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [10/09/20]
+                  <p>
+                    Small improvements all around:
+                    <ul>
+                      <li>
+                        You can now mark tweets (and only tweets) as spoilers.
+                        That kinda came for free with next update, which is....
+                      </li>
+                      <li>
+                        You can now select whether you want the full tweet
+                        thread or the single tweet when embedding one.
+                      </li>
+                      <li>
+                        Last, if a board has specific categories, these will
+                        appear as suggestions when adding one to your thread.
+                      </li>
+                      <li>
+                        [Bug Fixes] fixed problem where board wouldn't get
+                        updated until refresh when hiding/muting threads; fixed
+                        problems with last bulletpoint of list losing
+                        formatting.
+                      </li>
+                      <li>
+                        [Restyling] the editor formatting options should now
+                        look nicer on really tiny screens; please behold our
+                        new, beautiful tag input & display.
+                      </li>
+                    </ul>
+                  </p>
+                </li>
+                <li>
                   [10/07/20]
                   <p>
                     Might add more updates later today, but for now:

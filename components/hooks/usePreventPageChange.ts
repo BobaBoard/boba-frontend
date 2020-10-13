@@ -2,6 +2,7 @@ import React from "react";
 import Router, { useRouter } from "next/router";
 
 import debug from "debug";
+// @ts-expect-error
 const info = debug("bobafrontend:hooks:preventPageChange-info");
 
 let POP_STATE_CALLBACKS = [] as ((state: any) => boolean)[];

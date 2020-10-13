@@ -61,36 +61,46 @@ function HomePage() {
               <div className="updates">
                 <h2>New Stuff </h2>
                 <div className="last">
-                  [Last Updated: 10/07/20.{" "}
+                  [Last Updated: 10/12/20.{" "}
                   <Link href="/update-logs">
                     <a>Older logs.</a>
                   </Link>
                   ]
                   <p>
-                    Small improvements all around:
+                    More stuff!!! More stuff!!!
                     <ul>
                       <li>
-                        You can now mark tweets (and only tweets) as spoilers.
-                        That kinda came for free with next update, which is....
+                        Reworked mobile (and more) design of galleries +
+                        timeline views. If you try them out, let me know what
+                        you think! These are not as polished as threads, so do
+                        test them out and suggest improvements (and if you want
+                        me to change the default view of a old thread... by all
+                        means, let me know)!
                       </li>
                       <li>
-                        You can now select whether you want the full tweet
-                        thread or the single tweet when embedding one.
+                        A very requested feature that was extremely hard to get
+                        right (and I'm still unsure about its "perfection"). You
+                        will now be asked for confirmation when:
+                        <ul>
+                          <li>
+                            You hit cancel on a post/comment you're in the
+                            middle of writing (easy).
+                          </li>
+                          <li>
+                            You navigate away from a page with the editor open
+                            (I have literally spat blood).
+                          </li>
+                        </ul>
                       </li>
                       <li>
-                        Last, if a board has specific categories, these will
-                        appear as suggestions when adding one to your thread.
+                        [Bug Fixes] Finally.... After months of pain..... The
+                        board name won't overlap the login button on small
+                        screens...... Oh, and also "mark visited" should
+                        immediately clear the notifications without refresh.
                       </li>
                       <li>
-                        [Bug Fixes] fixed problem where board wouldn't get
-                        updated until refresh when hiding/muting threads; fixed
-                        problems with last bulletpoint of list losing
-                        formatting.
-                      </li>
-                      <li>
-                        [Restyling] the editor formatting options should now
-                        look nicer on really tiny screens; please behold our
-                        new, beautiful tag input & display.
+                        [Restyling] Still working on tags, small changes to
+                        columns... blahblahblah. I forget all I did.
                       </li>
                     </ul>
                   </p>

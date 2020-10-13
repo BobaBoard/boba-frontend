@@ -10,7 +10,9 @@ import { CommentType, ThreadCommentInfoType } from "../../types/Types";
 import { useThread } from "./ThreadContext";
 
 import debug from "debug";
+// @ts-expect-error
 const log = debug("bobafrontend:threadLevel-log");
+// @ts-expect-error
 const info = debug("bobafrontend:threadLevel-info");
 
 const CommentsThreadLevel: React.FC<{

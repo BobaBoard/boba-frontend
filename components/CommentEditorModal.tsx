@@ -19,12 +19,7 @@ const error = debug("bobafrontend:commentEditor-error");
 const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
   const [isCommentLoading, setCommentLoading] = React.useState(false);
   const [askConfirmation, setAskConfirmation] = React.useState(false);
-  usePreventPageChange(
-    () => props.isOpen,
-    props.onCloseModal,
-    [props.isOpen],
-    "comment"
-  );
+  usePreventPageChange(() => props.isOpen, props.onCloseModal, [props.isOpen]);
   const { isLoggedIn } = useAuth();
 
   const [postComment] = useMutation(

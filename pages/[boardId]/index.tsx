@@ -54,7 +54,7 @@ const removeThreadActivityFromCache = ({
 }) => {
   const boardActivityData = queryCache.getQueryData<BoardActivityResponse[]>([
     "boardActivityData",
-    { slug },
+    { slug, categoryFilter },
   ]);
 
   const updatedThread = boardActivityData

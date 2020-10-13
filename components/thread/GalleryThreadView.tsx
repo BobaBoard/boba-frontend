@@ -105,7 +105,6 @@ const GalleryThreadView: React.FC<{
     chronologicalPostsSequence,
     parentChildrenMap,
     postCommentsMap,
-    categoryFilterState,
   } = useThread();
   const masonryRef = React.createRef<{ reposition: () => void }>();
   const router = useRouter();
