@@ -38,6 +38,12 @@ function HomePage() {
                         look nicer on really tiny screens; please behold our
                         new, beautiful tag input & display.
                       </li>
+                      <li>
+                        ...and last (but not least), I've finally figured out
+                        how to make ALL traffic be HTTPS on AppEngine! If you
+                        were going to BB only through HTTP, you might have to
+                        log in again!
+                      </li>
                     </ul>
                   </p>
                 </li>
