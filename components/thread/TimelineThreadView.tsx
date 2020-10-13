@@ -2,8 +2,7 @@ import React from "react";
 import {
   Post,
   PostSizes,
-  Button,
-  ButtonStyle,
+  ThreadIndent,
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import debug from "debug";
@@ -16,6 +15,8 @@ import { useThread } from "components/thread/ThreadContext";
 import { useRouter } from "next/router";
 import classnames from "classnames";
 import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
+import TemporarySegmentedButton from "./TemporarySegmentedButton";
+import CommentsThread from "./CommentsThread";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // @ts-ignore
@@ -40,11 +41,13 @@ const TimelineView: React.FC<{
   );
   const {
     chronologicalPostsSequence,
+    postCommentsMap,
     filteredParentChildrenMap,
     baseUrl,
     isLoading,
   } = useThread();
   const router = useRouter();
+  const [showComments, setShowComments] = React.useState<string[]>([]);
 
   React.useEffect(() => {
     const url = new URL(`${window.location.origin}${router.asPath}`);
@@ -60,16 +63,25 @@ const TimelineView: React.FC<{
     }
   }, [router.asPath]);
 
-  const setTimelineViewMode = (viewMode: TIMELINE_VIEW_MODE) => {
+  const setTimelineViewMode = (
+    viewMode: TIMELINE_VIEW_MODE,
+    replace: boolean = false
+  ) => {
     const queryParam =
       viewMode === TIMELINE_VIEW_MODE.ALL
         ? "?timeline&all"
         : viewMode == TIMELINE_VIEW_MODE.UPDATED
         ? "?timeline&updated"
         : "?timeline";
-    router.push(`/[boardId]/thread/[...threadId]`, `${baseUrl}${queryParam}`, {
-      shallow: true,
-    });
+
+    const routingMethod = replace ? router.replace : router.push;
+    routingMethod(
+      `/[boardId]/thread/[...threadId]`,
+      `${baseUrl}${queryParam}`,
+      {
+        shallow: true,
+      }
+    );
   };
 
   React.useEffect(() => {
@@ -77,7 +89,8 @@ const TimelineView: React.FC<{
       setTimelineViewMode(
         chronologicalPostsSequence.some((post) => post.newCommentsAmount > 0)
           ? TIMELINE_VIEW_MODE.UPDATED
-          : TIMELINE_VIEW_MODE.ALL
+          : TIMELINE_VIEW_MODE.ALL,
+        true
       );
     }
   }, [isLoading]);
@@ -95,7 +108,7 @@ const TimelineView: React.FC<{
       newPosts,
       updatedPosts,
     };
-  }, [chronologicalPostsSequence]);
+  }, [chronologicalPostsSequence, postCommentsMap]);
 
   const displayPosts =
     timelineView === TIMELINE_VIEW_MODE.ALL
@@ -106,51 +119,35 @@ const TimelineView: React.FC<{
 
   const url = new URL(`${window.location.origin}${router.asPath}`);
   return (
-    <div className="timeline-container">
-      <div
-        className={classnames("timeline-views", {
-          "logged-in": props.isLoggedIn,
-        })}
-      >
-        <div className="button new">
-          <Button
-            theme={
-              timelineView == TIMELINE_VIEW_MODE.NEW
-                ? ButtonStyle.LIGHT
-                : ButtonStyle.DARK
-            }
-            onClick={() => setTimelineViewMode(TIMELINE_VIEW_MODE.NEW)}
-            updates={newPosts.length > 0 ? newPosts.length : undefined}
-          >
-            New
-          </Button>
-        </div>
-        <div className="button updated">
-          <Button
-            theme={
-              timelineView == TIMELINE_VIEW_MODE.UPDATED
-                ? ButtonStyle.LIGHT
-                : ButtonStyle.DARK
-            }
-            onClick={() => setTimelineViewMode(TIMELINE_VIEW_MODE.UPDATED)}
-            updates={updatedPosts.length > 0 ? updatedPosts.length : undefined}
-          >
-            Updated
-          </Button>
-        </div>
-        <div className="button all">
-          {/* @ts-ignore */}
-          <Button
-            theme={
-              timelineView == TIMELINE_VIEW_MODE.ALL
-                ? ButtonStyle.LIGHT
-                : ButtonStyle.DARK
-            }
-            onClick={() => setTimelineViewMode(TIMELINE_VIEW_MODE.ALL)}
-          >
-            All ({allPosts.length})
-          </Button>
-        </div>
+    <div
+      className={classnames("timeline-container", {
+        "logged-in": props.isLoggedIn,
+      })}
+    >
+      <div className="timeline-views">
+        <TemporarySegmentedButton
+          options={[
+            {
+              id: TIMELINE_VIEW_MODE.NEW,
+              label: "New",
+              updates: newPosts.length > 0 ? newPosts.length : undefined,
+              onClick: () => setTimelineView(TIMELINE_VIEW_MODE.NEW),
+            },
+            {
+              id: TIMELINE_VIEW_MODE.UPDATED,
+              label: "New+Updated",
+              updates:
+                updatedPosts.length > 0 ? updatedPosts.length : undefined,
+              onClick: () => setTimelineView(TIMELINE_VIEW_MODE.UPDATED),
+            },
+            {
+              id: TIMELINE_VIEW_MODE.ALL,
+              label: `All (${allPosts.length})`,
+              onClick: () => setTimelineView(TIMELINE_VIEW_MODE.ALL),
+            },
+          ]}
+          selected={timelineView}
+        />
       </div>
       <div>
         {displayPosts.length == 0 && (
@@ -165,41 +162,63 @@ const TimelineView: React.FC<{
           </div>
         )}
         {displayPosts.map((post) => (
-          <div className="post" key={post.postId}>
-            <Post
-              key={post.postId}
-              size={post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}
-              createdTime={moment.utc(post.created).fromNow()}
-              createdTimeLink={createLinkTo({
-                urlPattern: THREAD_URL_PATTERN,
-                url: `${baseUrl}/${post.postId}${url.search}`,
-              })}
-              notesLink={createLinkTo({
-                urlPattern: THREAD_URL_PATTERN,
-                url: `${baseUrl}/${post.postId}${url.search}`,
-              })}
-              text={post.content}
-              secretIdentity={post.secretIdentity}
-              userIdentity={post.userIdentity}
-              onNewContribution={() => props.onNewContribution(post.postId)}
-              onNewComment={() => props.onNewComment(post.postId, null)}
-              totalComments={post.comments?.length}
-              directContributions={
-                filteredParentChildrenMap.get(post.postId)?.children.length
-              }
-              totalContributions={getTotalContributions(
-                post,
-                filteredParentChildrenMap
-              )}
-              newPost={props.isLoggedIn && post.isNew}
-              newComments={props.isLoggedIn ? post.newCommentsAmount : 0}
-              newContributions={
-                props.isLoggedIn
-                  ? getTotalNewContributions(post, filteredParentChildrenMap)
-                  : 0
-              }
-              tags={post.tags}
-            />
+          <div className="thread" key={post.postId}>
+            <div className="post" key={post.postId}>
+              <Post
+                key={post.postId}
+                size={post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}
+                createdTime={moment.utc(post.created).fromNow()}
+                createdTimeLink={createLinkTo({
+                  urlPattern: THREAD_URL_PATTERN,
+                  url: `${baseUrl}/${post.postId}${url.search}`,
+                })}
+                notesLink={{
+                  href: `${baseUrl}/${post.postId}${url.search}`,
+                  onClick: () => {
+                    setShowComments(
+                      showComments.includes(post.postId)
+                        ? showComments.filter((id) => post.postId != id)
+                        : [...showComments, post.postId]
+                    );
+                  },
+                }}
+                text={post.content}
+                secretIdentity={post.secretIdentity}
+                userIdentity={post.userIdentity}
+                onNewContribution={() => props.onNewContribution(post.postId)}
+                onNewComment={() => props.onNewComment(post.postId, null)}
+                totalComments={post.comments?.length}
+                directContributions={
+                  filteredParentChildrenMap.get(post.postId)?.children.length
+                }
+                totalContributions={getTotalContributions(
+                  post,
+                  filteredParentChildrenMap
+                )}
+                newPost={props.isLoggedIn && post.isNew}
+                newComments={props.isLoggedIn ? post.newCommentsAmount : 0}
+                newContributions={
+                  props.isLoggedIn
+                    ? getTotalNewContributions(post, filteredParentChildrenMap)
+                    : 0
+                }
+                tags={post.tags}
+                answerable={props.isLoggedIn}
+              />
+            </div>
+            {post.comments && showComments.includes(post.postId) && (
+              <ThreadIndent level={1} key={`0_${post.postId}`} ends={[]}>
+                <CommentsThread
+                  isLoggedIn={props.isLoggedIn}
+                  parentPostId={post.postId}
+                  parentCommentId={null}
+                  level={0}
+                  onReplyTo={(replyToCommentId: string) =>
+                    props.onNewComment(post.postId, replyToCommentId)
+                  }
+                />
+              </ThreadIndent>
+            )}
           </div>
         ))}
       </div>
@@ -211,6 +230,10 @@ const TimelineView: React.FC<{
           margin: 0 auto;
         }
         .post {
+          position: relative;
+          z-index: 1;
+        }
+        .thread {
           margin-bottom: 20px;
         }
         .empty {
@@ -219,8 +242,6 @@ const TimelineView: React.FC<{
         }
         .timeline-views {
           margin: 20px 30px;
-          display: flex;
-          justify-content: space-evenly;
         }
         .button {
           display: none;

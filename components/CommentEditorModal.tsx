@@ -10,7 +10,7 @@ import { useAuth } from "./Auth";
 import { useMutation } from "react-query";
 import { CommentType, CommentData } from "../types/Types";
 import { createComment, createCommentChain } from "../utils/queries";
-import { useRouter } from "next/router";
+import { usePreventPageChange } from "./hooks/usePreventPageChange";
 import debug from "debug";
 
 const log = debug("bobafrontend:commentEditor-log");
@@ -19,8 +19,12 @@ const error = debug("bobafrontend:commentEditor-error");
 const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
   const [isCommentLoading, setCommentLoading] = React.useState(false);
   const [askConfirmation, setAskConfirmation] = React.useState(false);
-  const isCurrentlyOpen = React.useRef(props.isOpen);
-  const router = useRouter();
+  usePreventPageChange(
+    () => props.isOpen,
+    props.onCloseModal,
+    [props.isOpen],
+    "comment"
+  );
   const { isLoggedIn } = useAuth();
 
   const [postComment] = useMutation(
@@ -70,36 +74,6 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
     }
   );
 
-  React.useEffect(() => {
-    isCurrentlyOpen.current = props.isOpen;
-  }, [props.isOpen]);
-
-  React.useEffect(() => {
-    const unloadListener = (e: BeforeUnloadEvent) => {
-      if (isCurrentlyOpen.current) {
-        e.preventDefault();
-        e.returnValue = true;
-      }
-    };
-    router.beforePopState((state: any) => {
-      console.log("pop");
-      console.log(state);
-      console.log(router);
-      if (
-        state.as == router.asPath ||
-        !isCurrentlyOpen.current ||
-        confirm("Do you want to go back?")
-      ) {
-        return true;
-      }
-      history.forward();
-      return false;
-    });
-    window.addEventListener("beforeunload", unloadListener);
-    return () => {
-      window.removeEventListener("beforeunload", unloadListener);
-    };
-  }, []);
   if (!isLoggedIn) {
     return <div />;
   }

@@ -7,14 +7,14 @@ import {
 } from "@bobaboard/ui-components";
 import { useAuth } from "./Auth";
 import { useMutation } from "react-query";
-import debug from "debug";
 import { createPost, createThread } from "../utils/queries";
 import { createImageUploadPromise } from "../utils/image-upload";
 import { PostData, PostType, ThreadType } from "../types/Types";
 import { useBoardContext } from "./BoardContext";
 import { TagsType } from "@bobaboard/ui-components/dist/types";
-import { useRouter } from "next/router";
+import { usePreventPageChange } from "./hooks/usePreventPageChange";
 
+import debug from "debug";
 const log = debug("bobafrontend:postEditor-log");
 const error = debug("bobafrontend:postEditor-error");
 
@@ -57,9 +57,8 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
   const { [props.slug]: boardData } = useBoardContext();
   const [isPostLoading, setPostLoading] = React.useState(false);
   const [askConfirmation, setAskConfirmation] = React.useState(false);
-  const isCurrentlyOpen = React.useRef(props.isOpen);
-  const router = useRouter();
   const { isLoggedIn } = useAuth();
+  usePreventPageChange(() => props.isOpen, props.onCloseModal, [props.isOpen]);
 
   const [postContribution] = useMutation<
     PostType | ThreadType,
@@ -108,37 +107,6 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
       });
     }
   }, [props.isOpen]);
-
-  React.useEffect(() => {
-    isCurrentlyOpen.current = props.isOpen;
-  }, [props.isOpen]);
-
-  React.useEffect(() => {
-    const unloadListener = (e: BeforeUnloadEvent) => {
-      if (isCurrentlyOpen.current) {
-        e.preventDefault();
-        e.returnValue = true;
-      }
-    };
-    router.beforePopState((state: any) => {
-      console.log("pop");
-      console.log(state);
-      console.log(router);
-      if (
-        state.as == router.asPath ||
-        !isCurrentlyOpen.current ||
-        confirm("Do you want to go back?")
-      ) {
-        return true;
-      }
-      history.forward();
-      return false;
-    });
-    window.addEventListener("beforeunload", unloadListener);
-    return () => {
-      window.removeEventListener("beforeunload", unloadListener);
-    };
-  }, []);
 
   if (!isLoggedIn) {
     return <div />;

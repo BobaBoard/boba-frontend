@@ -3,26 +3,19 @@ import {
   Post,
   PostSizes,
   MasonryView,
-  Button,
-  ButtonStyle,
   ThreadIndent,
   // @ts-ignore
 } from "@bobaboard/ui-components";
-import debug from "debug";
 import {
   getTotalContributions,
   getTotalNewContributions,
-  UNCATEGORIZED_LABEL,
 } from "../../utils/thread-utils";
-import classnames from "classnames";
 import moment from "moment";
 import TemporarySegmentedButton from "./TemporarySegmentedButton";
 import { useThread } from "components/thread/ThreadContext";
 import { useRouter } from "next/router";
 import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
 import CommentsThread from "./CommentsThread";
-
-const log = debug("bobafrontend:threadLevel-log");
 
 enum TIMELINE_VIEW_MODE {
   UPDATED,
@@ -301,7 +294,7 @@ const GalleryThreadView: React.FC<{
           margin-bottom: 15px;
         }
         .post {
-          z-index: 1000;
+          z-index: 1;
           position: relative;
         }
         .thread {
