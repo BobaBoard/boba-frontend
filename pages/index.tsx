@@ -10,6 +10,165 @@ import { BOARD_URL_PATTERN, createLinkTo } from "utils/link-utils";
 
 const info = debug("bobafrontend:index-info");
 
+import css from "styled-jsx/css";
+
+const GHOST_SIZE = 50;
+const BOUNDARY = 69;
+const { className, styles } = css.resolve`
+  div {
+    position: absolute;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    background-image: url("/boo_awake.png");
+    width: ${GHOST_SIZE}px;
+    height: ${GHOST_SIZE}px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    transform-origin: top left;
+  }
+  div:hover {
+    cursor: pointer;
+  }
+  .left {
+    background-image: url("/boo_awake_flipped.png");
+  }
+  .right {
+  }
+  .popout {
+    animation: popout 0.4s ease;
+    animation-name: popout;
+    animation-duration: 0.4s;
+    animation-timing-function: ease;
+    transform-origin: 50% 50%;
+  }
+  @keyframes popout {
+    from {
+      opacity: 1;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 0;
+      transform: scale(1.2);
+    }
+  }
+  @-webkit-keyframes popout {
+    0% {
+      opacity: 1;
+      transform: scale(0.8);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.2);
+    }
+  }
+`;
+
+function getRandomInt(max: number) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+let MAX_GHOSTS = 5;
+let currentGhosts = 0;
+const newGhost = (callback: () => void) => {
+  info("Hello");
+  const newGhost = document.createElement("div");
+  newGhost.classList.add(className);
+  document.body.appendChild(newGhost);
+  newGhost.style.transform = `translate(${getRandomInt(
+    innerWidth - GHOST_SIZE
+  )}px, ${pageYOffset + getRandomInt(innerHeight - GHOST_SIZE)}px)`;
+  newGhost.dataset.lifespan = "" + (4 + getRandomInt(4));
+  info(`New ghost at ${newGhost.style.transform}`);
+
+  const moveGhost = (ghost: HTMLDivElement) => {
+    if (ghost.classList.contains("popout")) {
+      return;
+    }
+    if (!ghost.parentNode) {
+      return;
+    }
+    if (ghost.style.opacity === "0" && ghost.parentNode) {
+      ghost.parentNode?.removeChild(ghost);
+      // info(`removing ghost ${ghost.dataset.index}`);
+      // info(currentGhosts);
+      callback();
+      return;
+    }
+    if (
+      parseInt(ghost.dataset.moves || "0") >
+      parseInt(newGhost.dataset.lifespan || "0")
+    ) {
+      ghost.style.opacity = "0";
+    }
+    const deltaX = getRandomInt(2) % 2 ? 100 : -100;
+    const deltaY = getRandomInt(2) % 2 ? 100 : -100;
+    let currentX = ghost.getBoundingClientRect().x;
+    let currentY =
+      ghost.getBoundingClientRect().y -
+      (ghost.offsetParent?.getBoundingClientRect().y || 0);
+    let nextX = currentX + deltaX;
+    let nextY = currentY + deltaY;
+    if (nextX < 0 || nextX + GHOST_SIZE > innerWidth) {
+      nextX = currentX - deltaX;
+    }
+    if (
+      nextY < BOUNDARY ||
+      nextY + GHOST_SIZE > pageYOffset + innerHeight - BOUNDARY
+    ) {
+      nextY = currentY - deltaY;
+    }
+    ghost.classList.toggle("left", nextX < currentX);
+    ghost.classList.toggle("right", nextX > currentX);
+    // info(`${currentX} ${currentY}`);
+    // info(`${deltaX} ${deltaY}`);
+    // info(`translate(${nextX}px, ${nextY}px)`);
+    ghost.style.transform = `translate(${nextX}px, ${nextY}px)`;
+    ghost.dataset.moves = "" + (parseInt(ghost.dataset.moves || "0") + 1);
+  };
+  newGhost.addEventListener("transitionend", () => {
+    // let currentX = newGhost.getBoundingClientRect().x;
+    // let currentY = newGhost.getBoundingClientRect().y;
+    // // info(`${currentX} ${currentY}`);
+    moveGhost(newGhost);
+  });
+  newGhost.addEventListener("click", (e) => {
+    let currentX = newGhost.getBoundingClientRect().x;
+    let currentY =
+      newGhost.getBoundingClientRect().y -
+      (newGhost.offsetParent?.getBoundingClientRect().y || 0);
+    requestAnimationFrame(() => {
+      newGhost.classList.toggle("popout");
+    });
+    // Remove all styles tied up to transition since the animation
+    // will override them. Given that we can't then use
+    //
+    // If you don't remove the timing of transition
+    // safari will do the (for once) right thing and the element will just
+    // slowly translate to its new (0, 0) position, which means its position
+    // overall will be wrong.
+    newGhost.style.top = `${currentY}px`;
+    newGhost.style.left = `${currentX}px`;
+    newGhost.style.transition = ``;
+    newGhost.style.transform = `translate(0, 0)`;
+    setTimeout(() => {
+      newGhost.parentNode?.removeChild(newGhost);
+      callback();
+    }, 300);
+    e.stopPropagation();
+  });
+  requestAnimationFrame(() => {
+    // Add transform here after you have set the starting position so it
+    // won't just gradually move there
+    newGhost.style.transition = `transform 2.5s linear, opacity 2.5s linear`;
+    newGhost.style.opacity = "1";
+    newGhost.dataset.index = "" + currentGhosts;
+    moveGhost(newGhost);
+  });
+
+  return newGhost;
+};
+
 function HomePage() {
   const { data: allBoards } = useQuery("allBoardsData", getAllBoardsData, {
     initialData: () => {
@@ -32,6 +191,38 @@ function HomePage() {
     initialStale: true,
   });
 
+  const ghosts = React.useRef<any[]>([]);
+  const timeout = React.useRef<any>(null);
+  React.useEffect(() => {
+    MAX_GHOSTS = Math.ceil(innerWidth / 300);
+    currentGhosts = 0;
+    const maybeCreateGhost = () => {
+      // info(currentGhosts);
+      if (currentGhosts < MAX_GHOSTS && getRandomInt(3) % 3 == 0) {
+        currentGhosts = currentGhosts + 1;
+        const spawned = newGhost(() => {
+          // info(currentGhosts);
+          ghosts.current = ghosts.current.filter((ghost) => ghost != spawned);
+          currentGhosts = currentGhosts - 1;
+        });
+        ghosts.current.push(spawned);
+      }
+      timeout.current = setTimeout(() => {
+        maybeCreateGhost();
+      }, 1000);
+    };
+    timeout.current = setTimeout(() => {
+      maybeCreateGhost();
+    }, 1000);
+    return () => {
+      ghosts.current.forEach((ghost: HTMLDivElement) => {
+        ghost.parentElement?.removeChild(ghost);
+      });
+      currentGhosts = 0;
+      clearTimeout(timeout.current);
+    };
+  }, []);
+
   info(`Rerendering index with data:`);
   info(allBoards);
   return (
@@ -40,12 +231,17 @@ function HomePage() {
         mainContent={
           <div className="content">
             <div className="intro">
-              <h1>Welcome to BobaBoard!</h1>
+              <div className="title">
+                <img src="/pacman1.gif" />
+                <h1>Welcome to BOObaBoard!</h1>
+                <img src="/pacman2.gif" />
+              </div>
               <div className="tagline">
                 "Where the bugs are funny and the people are cool" — Outdated
                 Meme
               </div>
-              <img src="/under_construction.gif" />
+              <img className="left web" src="/web.png" />
+              <img className="right web" src="/web.png" />
               <p>
                 Remember: this is the experimental version of an experimental
                 website. If you experience a problem, then stuff is likely to be{" "}
@@ -123,6 +319,7 @@ function HomePage() {
                 minSizePx={180}
               />
             </div>
+            {styles}
             <style jsx>{`
               .intro {
                 max-width: 600px;
@@ -180,6 +377,43 @@ function HomePage() {
                 max-width: 800px;
                 width: 90%;
                 margin: 0 auto;
+              }
+              .title {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-top: 20px;
+                margin-bottom: 10px;
+              }
+              .title h1 {
+                margin: 0px 5px;
+                line-height: 30px;
+              }
+              .title img:first-child {
+                width: 45px;
+                height: 45px;
+              }
+              .title img {
+                width: 50px;
+                height: 50px;
+                z-index: 5;
+              }
+              .web {
+                position: absolute;
+                max-width: 30%;
+                top: 69px;
+              }
+              .web.left {
+                left: 0;
+              }
+              .web.right {
+                right: 0;
+                transform: scaleX(-1);
+              }
+              @media only screen and (max-width: 400px) {
+                h1 {
+                  font-size: 25px;
+                }
               }
             `}</style>
           </div>
