@@ -11,6 +11,47 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [10/12/20]
+                  <p>
+                    More stuff!!! More stuff!!!
+                    <ul>
+                      <li>
+                        Reworked mobile (and more) design of galleries +
+                        timeline views. If you try them out, let me know what
+                        you think! These are not as polished as threads, so do
+                        test them out and suggest improvements (and if you want
+                        me to change the default view of a old thread... by all
+                        means, let me know)!
+                      </li>
+                      <li>
+                        A very requested feature that was extremely hard to get
+                        right (and I'm still unsure about its "perfection"). You
+                        will now be asked for confirmation when:
+                        <ul>
+                          <li>
+                            You hit cancel on a post/comment you're in the
+                            middle of writing (easy).
+                          </li>
+                          <li>
+                            You navigate away from a page with the editor open
+                            (I have literally spat blood).
+                          </li>
+                        </ul>
+                      </li>
+                      <li>
+                        [Bug Fixes] Finally.... After months of pain..... The
+                        board name won't overlap the login button on small
+                        screens...... Oh, and also "mark visited" should
+                        immediately clear the notifications without refresh.
+                      </li>
+                      <li>
+                        [Restyling] Still working on tags, small changes to
+                        columns... blahblahblah. I forget all I did.
+                      </li>
+                    </ul>
+                  </p>
+                </li>
+                <li>
                   [10/09/20]
                   <p>
                     Small improvements all around:

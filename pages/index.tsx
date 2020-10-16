@@ -103,10 +103,10 @@ const newGhost = (callback: () => void) => {
     }
     const deltaX = getRandomInt(2) % 2 ? 100 : -100;
     const deltaY = getRandomInt(2) % 2 ? 100 : -100;
-    let currentX = ghost.getBoundingClientRect().x;
+    let currentX = ghost.getBoundingClientRect().left;
     let currentY =
-      ghost.getBoundingClientRect().y -
-      (ghost.offsetParent?.getBoundingClientRect().y || 0);
+      ghost.getBoundingClientRect().top -
+      (ghost.offsetParent?.getBoundingClientRect().top || 0);
     let nextX = currentX + deltaX;
     let nextY = currentY + deltaY;
     if (nextX < 0 || nextX + GHOST_SIZE > innerWidth) {
@@ -133,10 +133,10 @@ const newGhost = (callback: () => void) => {
     moveGhost(newGhost);
   });
   newGhost.addEventListener("click", (e) => {
-    let currentX = newGhost.getBoundingClientRect().x;
+    let currentX = newGhost.getBoundingClientRect().left;
     let currentY =
-      newGhost.getBoundingClientRect().y -
-      (newGhost.offsetParent?.getBoundingClientRect().y || 0);
+      newGhost.getBoundingClientRect().top -
+      (newGhost.offsetParent?.getBoundingClientRect().top || 0);
     requestAnimationFrame(() => {
       newGhost.classList.toggle("popout");
     });
@@ -257,49 +257,11 @@ function HomePage() {
               <div className="updates">
                 <h2>New Stuff </h2>
                 <div className="last">
-                  [Last Updated: 10/12/20.{" "}
+                  [Last Updated: 10/14/20.{" "}
                   <Link href="/update-logs">
                     <a>Older logs.</a>
                   </Link>
-                  ]
-                  <p>
-                    More stuff!!! More stuff!!!
-                    <ul>
-                      <li>
-                        Reworked mobile (and more) design of galleries +
-                        timeline views. If you try them out, let me know what
-                        you think! These are not as polished as threads, so do
-                        test them out and suggest improvements (and if you want
-                        me to change the default view of a old thread... by all
-                        means, let me know)!
-                      </li>
-                      <li>
-                        A very requested feature that was extremely hard to get
-                        right (and I'm still unsure about its "perfection"). You
-                        will now be asked for confirmation when:
-                        <ul>
-                          <li>
-                            You hit cancel on a post/comment you're in the
-                            middle of writing (easy).
-                          </li>
-                          <li>
-                            You navigate away from a page with the editor open
-                            (I have literally spat blood).
-                          </li>
-                        </ul>
-                      </li>
-                      <li>
-                        [Bug Fixes] Finally.... After months of pain..... The
-                        board name won't overlap the login button on small
-                        screens...... Oh, and also "mark visited" should
-                        immediately clear the notifications without refresh.
-                      </li>
-                      <li>
-                        [Restyling] Still working on tags, small changes to
-                        columns... blahblahblah. I forget all I did.
-                      </li>
-                    </ul>
-                  </p>
+                  ]<p>Happy Spoopy Season!</p>
                 </div>
               </div>
             </div>
