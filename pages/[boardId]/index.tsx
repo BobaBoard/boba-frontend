@@ -6,7 +6,6 @@ import {
   BoardSidebar,
   PostingActionButton,
   toast,
-  // @ts-ignore
 } from "@bobaboard/ui-components";
 import Layout from "../../components/Layout";
 import PostEditorModal from "../../components/PostEditorModal";

@@ -103,6 +103,14 @@ const TimelineView: React.FC<{
       (post) => post.isNew || post.newCommentsAmount > 0
     );
 
+    // We always automatically show all the posts when something posted there
+    // is new.
+    setShowComments(
+      updatedPosts
+        .filter((post) => post.newCommentsAmount > 0)
+        .map((post) => post.postId)
+    );
+
     return {
       allPosts: chronologicalPostsSequence,
       newPosts,

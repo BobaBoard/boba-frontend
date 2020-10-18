@@ -11,6 +11,9 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [10/14/20] ]<p>Happy Spoopy Season!</p>
+                </li>
+                <li>
                   [10/12/20]
                   <p>
                     More stuff!!! More stuff!!!
