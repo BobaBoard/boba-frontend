@@ -69,6 +69,7 @@ function ThreadPage() {
     baseUrl,
     personalIdentity,
     defaultView,
+    categories,
   } = useThread();
   const { [slug]: boardData } = useBoardContext();
   const [viewMode, setViewMode] = React.useState(
@@ -169,6 +170,7 @@ function ThreadPage() {
             slug={slug}
             replyToPostId={postReplyId}
             uploadBaseUrl={`images/${slug}/${router.query.id}/`}
+            suggestedCategories={categories}
           />
           <CommentEditorModal
             isOpen={!!commentReplyId}

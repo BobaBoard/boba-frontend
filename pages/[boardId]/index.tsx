@@ -312,6 +312,7 @@ function BoardPage() {
           slug={slug}
           replyToPostId={null}
           uploadBaseUrl={`images/${slug}/`}
+          suggestedCategories={boardData?.suggestedCategories}
         />
       )}
       <Layout

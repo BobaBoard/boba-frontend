@@ -48,6 +48,7 @@ interface ThreadContextType {
   parentChildrenMap: Map<string, ThreadPostInfoType>;
   postCommentsMap: Map<string, ThreadCommentInfoType>;
   filteredParentChildrenMap: Map<string, ThreadPostInfoType>;
+  categories: string[];
   categoryFilterState: { name: string; active: boolean }[];
   setCategoryFilterState: React.Dispatch<
     React.SetStateAction<{ name: string; active: boolean }[]>
@@ -204,6 +205,7 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
         filteredRoot,
         parentChildrenMap,
         filteredParentChildrenMap,
+        categories: extractCategories(threadData?.posts),
         categoryFilterState,
         setCategoryFilterState,
         postCommentsMap,

@@ -54,7 +54,6 @@ const processTags = (tags: TagsType[]) => {
 
 const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
   const editorRef = React.createRef<{ focus: () => void }>();
-  const { [props.slug]: boardData } = useBoardContext();
   const [isPostLoading, setPostLoading] = React.useState(false);
   const [askConfirmation, setAskConfirmation] = React.useState(false);
   const { isLoggedIn } = useAuth();
@@ -122,7 +121,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
           additionalIdentities={props.additionalIdentities}
           viewOptions={props.replyToPostId ? undefined : THREAD_VIEW_OPTIONS}
           loading={isPostLoading}
-          suggestedCategories={boardData?.suggestedCategories || []}
+          suggestedCategories={props?.suggestedCategories || []}
           onImageUploadRequest={(src: string) =>
             createImageUploadPromise({
               imageData: src,
@@ -189,6 +188,7 @@ export interface PostEditorModalProps {
   replyToPostId: string | null;
   slug: string;
   uploadBaseUrl: string;
+  suggestedCategories?: string[];
 }
 
 export default PostEditorModal;

@@ -18,7 +18,7 @@ import { useQuery, useMutation, queryCache } from "react-query";
 import { ReactQueryDevtools } from "react-query-devtools";
 import { useBoardContext } from "./BoardContext";
 import debug from "debug";
-import { faInbox, faSearch, faTh } from "@fortawesome/free-solid-svg-icons";
+import { faInbox } from "@fortawesome/free-solid-svg-icons";
 
 const log = debug("bobafrontend:queries-log");
 
