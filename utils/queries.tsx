@@ -63,12 +63,13 @@ const makeClientPost = (serverPost: any): PostType => ({
   commentsAmount: serverPost.comments_amount,
 });
 
-const makeClientThread = (serverThread: any): ThreadType => {
+export const makeClientThread = (serverThread: any): ThreadType => {
   const clientPosts: PostType[] = serverThread.posts.map(makeClientPost);
   return {
     posts: clientPosts,
     isNew: serverThread.posts[0].is_new,
     threadId: serverThread.thread_id,
+    boardSlug: serverThread.board_slug,
     newPostsAmount: serverThread.thread_new_posts_amount,
     newCommentsAmount: serverThread.thread_new_comments_amount,
     totalCommentsAmount: serverThread.thread_total_comments_amount,

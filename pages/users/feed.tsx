@@ -1,56 +1,32 @@
 import React from "react";
-import {
-  Post,
-  PostSizes,
-  FeedWithMenu,
-  BoardSidebar,
-  PostingActionButton,
-  toast,
-} from "@bobaboard/ui-components";
+import { Post, PostSizes, FeedWithMenu, toast } from "@bobaboard/ui-components";
 import Layout from "../../components/Layout";
-import PostEditorModal from "../../components/PostEditorModal";
 import { useInfiniteQuery, queryCache, useMutation } from "react-query";
 import { useAuth } from "../../components/Auth";
 import { useBoardContext } from "../../components/BoardContext";
-import {
-  getBoardActivityData,
-  markThreadAsRead,
-  muteThread,
-  hideThread,
-} from "../../utils/queries";
-import {
-  updateBoardSettings,
-  muteBoard,
-  dismissBoardNotifications,
-} from "../../utils/queries/board";
+import { markThreadAsRead, muteThread, hideThread } from "../../utils/queries";
+import { getUserActivityData } from "../../utils/queries/user";
+import debug from "debug";
+import moment from "moment";
+import { ThreadType } from "../../types/Types";
+
 import {
   removeThreadActivityFromCache,
-  setBoardMutedInCache,
   setThreadHiddenInCache,
   setThreadMutedInCache,
 } from "../../utils/queries/cache";
-import { useRouter } from "next/router";
-import axios from "axios";
-import debug from "debug";
-import moment from "moment";
-import { BoardData, BoardDescription, ThreadType } from "../../types/Types";
 import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
 
-const error = debug("bobafrontend:boardPage-error");
 const log = debug("bobafrontend:boardPage-log");
 const info = debug("bobafrontend:boardPage-info");
 info.log = console.info.bind(console);
 
 const MemoizedPost = React.memo(Post);
 
-function BoardPage() {
-  const [postEditorOpen, setPostEditorOpen] = React.useState(false);
+function UserFeedPage() {
   const [showSidebar, setShowSidebar] = React.useState(false);
-  const router = useRouter();
-  const slug: string = router.query.boardId?.slice(1) as string;
-  const { isPending, isLoggedIn, user } = useAuth();
-  const { [slug]: boardData } = useBoardContext();
-  const [editingSidebar, setEditingSidebar] = React.useState(false);
+  const { isLoggedIn } = useAuth();
+  const boardsData = useBoardContext();
   const threadRedirectMethod = React.useRef(
     new Map<
       string,
@@ -60,35 +36,29 @@ function BoardPage() {
       }
     >()
   );
-  const [categoryFilter, setCategoryFilter] = React.useState<string | null>(
-    null
-  );
 
   const {
-    data: boardActivityData,
-    isFetching: isFetchingBoardActivity,
+    data: userActivityData,
+    isFetching: isFetchingUserActivity,
     isFetchingMore,
     fetchMore,
     canFetchMore,
-  } = useInfiniteQuery(
-    ["boardActivityData", { slug, categoryFilter }],
-    getBoardActivityData,
-    {
-      getFetchMore: (lastGroup, allGroups) => {
-        // TODO: if this method fires too often in a row, sometimes there's duplicate
-        // values within allGroups (aka groups fetched with the same cursor).
-        // This seems to be a library problem.
-        return lastGroup?.nextPageCursor;
-      },
-    }
-  );
+  } = useInfiniteQuery(["userActivityData"], getUserActivityData, {
+    getFetchMore: (lastGroup, allGroups) => {
+      // TODO: if this method     bfires too often in a row, sometimes there's duplicate
+      // values within allGroups (aka groups fetched with the same cursor).
+      // This seems to be a library problem.
+      return lastGroup?.nextPageCursor;
+    },
+  });
 
   const [readThread] = useMutation(
-    (threadId: string) => markThreadAsRead({ threadId }),
+    ({ threadId }: { threadId: string; slug: string }) =>
+      markThreadAsRead({ threadId }),
     {
-      onMutate: (threadId) => {
+      onMutate: ({ threadId, slug }) => {
         log(`Optimistically marking thread ${threadId} as visited.`);
-        removeThreadActivityFromCache({ slug, categoryFilter, threadId });
+        removeThreadActivityFromCache({ slug, categoryFilter: null, threadId });
       },
       onError: (error: Error, threadId) => {
         toast.error("Error while marking thread as visited");
@@ -102,16 +72,21 @@ function BoardPage() {
   );
 
   const [setThreadMuted] = useMutation(
-    ({ threadId, mute }: { threadId: string; mute: boolean }) =>
+    ({ threadId, mute }: { threadId: string; mute: boolean; slug: string }) =>
       muteThread({ threadId, mute }),
     {
-      onMutate: ({ threadId, mute }) => {
+      onMutate: ({ threadId, mute, slug }) => {
         log(
           `Optimistically marking thread ${threadId} as ${
             mute ? "muted" : "unmuted"
           }.`
         );
-        setThreadMutedInCache({ slug, categoryFilter, threadId, mute });
+        setThreadMutedInCache({
+          slug,
+          categoryFilter: null,
+          threadId,
+          mute,
+        });
       },
       onError: (error: Error, { threadId, mute }) => {
         toast.error(
@@ -131,56 +106,22 @@ function BoardPage() {
     }
   );
 
-  const [setBoardMuted] = useMutation(
-    ({ slug, mute }: { slug: string; mute: boolean }) =>
-      muteBoard({ slug, mute }),
-    {
-      onMutate: ({ slug, mute }) => {
-        log(
-          `Optimistically marking board ${slug} as ${
-            mute ? "muted" : "unmuted"
-          }.`
-        );
-        setBoardMutedInCache({ slug, mute });
-      },
-      onError: (error: Error, { slug, mute }) => {
-        toast.error(
-          `Error while marking board as ${mute ? "muted" : "unmuted"}`
-        );
-        log(`Error while marking board ${slug} as muted:`);
-        log(error);
-      },
-      onSuccess: (data: boolean, { slug, mute }) => {
-        log(
-          `Successfully marked board ${slug} as  ${mute ? "muted" : "unmuted"}.`
-        );
-        queryCache.invalidateQueries("allBoardsData");
-      },
-    }
-  );
-
-  const [dismissNotifications] = useMutation(
-    ({ slug }: { slug: string }) => dismissBoardNotifications({ slug }),
-    {
-      onSuccess: () => {
-        log(`Successfully dismissed board notifications. Refetching...`);
-        queryCache.invalidateQueries("allBoardsData");
-        queryCache.invalidateQueries(["boardActivityData", { slug }]);
-      },
-    }
-  );
-
   const [setThreadHidden] = useMutation(
-    ({ threadId, hide }: { threadId: string; hide: boolean }) =>
+    ({ threadId, hide }: { threadId: string; slug: string; hide: boolean }) =>
       hideThread({ threadId, hide }),
     {
-      onMutate: ({ threadId, hide }) => {
+      onMutate: ({ threadId, hide, slug }) => {
         log(
           `Optimistically marking thread ${threadId} as ${
             hide ? "hidden" : "visible"
           }.`
         );
-        setThreadHiddenInCache({ slug, categoryFilter, threadId, hide });
+        setThreadHiddenInCache({
+          slug,
+          categoryFilter: null,
+          threadId,
+          hide,
+        });
       },
       onError: (error: Error, { threadId, hide }) => {
         toast.error(
@@ -200,177 +141,53 @@ function BoardPage() {
     }
   );
 
-  const [updateBoardMetadata] = useMutation(
-    ({
-      slug,
-      descriptions,
-      accentColor,
-      tagline,
-    }: {
-      slug: string;
-      descriptions: BoardDescription[];
-      accentColor: string;
-      tagline: string;
-    }) => updateBoardSettings({ slug, descriptions, accentColor, tagline }),
-    {
-      onError: (serverError: Error, { descriptions }) => {
-        toast.error("Error while updating the board sidebar.");
-        error(serverError);
-      },
-      onSuccess: (data: BoardData) => {
-        log(`Received comment data after save:`);
-        log(data);
-        setEditingSidebar(false);
-        queryCache.setQueryData(["boardThemeData", { slug }], data);
-        queryCache.invalidateQueries("allBoardsData");
-      },
-    }
-  );
-
-  const boardOptions = React.useMemo(() => {
-    if (!isLoggedIn || !boardData) {
-      return undefined;
-    }
-    const options: any = [
-      {
-        name: boardData.muted ? "Unmute" : "Mute",
-        link: {
-          onClick: () =>
-            setBoardMuted({
-              slug,
-              mute: !boardData.muted,
-            }),
-        },
-      },
-      {
-        name: "Dismiss notifications",
-        link: {
-          onClick: () => dismissNotifications({ slug }),
-        },
-      },
-    ];
-    if (boardData.permissions?.canEditBoardData) {
-      options.push({
-        name: "Edit Board",
-        link: {
-          onClick: () => setEditingSidebar(true),
-        },
-      });
-    }
-    return options;
-  }, [isLoggedIn, boardData, slug]);
-
-  React.useEffect(() => {
-    if (!isPending && isLoggedIn) {
-      log(`Marking board ${slug} as visited`);
-      axios.get(`boards/${slug}/visit`);
-    }
-  }, [isPending, isLoggedIn, slug]);
-
-  const getMemoizedRedirectMethod = (threadId: string) => {
-    if (!threadRedirectMethod.current?.has(threadId)) {
-      info(`Creating new handler for thread id: ${threadId}`);
+  const getMemoizedRedirectMethod = (data: {
+    slug: string;
+    threadId: string;
+  }) => {
+    if (!threadRedirectMethod.current?.has(data.threadId)) {
+      info(`Creating new handler for thread id: ${data.threadId}`);
       threadRedirectMethod.current?.set(
-        threadId,
+        data.threadId,
         createLinkTo({
           urlPattern: THREAD_URL_PATTERN,
-          url: `/${router.query.boardId}/thread/${threadId}`,
+          url: `/!${data.slug}/thread/${data.threadId}`,
         })
       );
     }
-    info(`Returning handler for thread id: ${threadId}`);
+    info(`Returning handler for thread id: ${data.threadId}`);
     // This should never be null
-    return threadRedirectMethod.current?.get(threadId) || (() => {});
+    return threadRedirectMethod.current?.get(data.threadId) || (() => {});
   };
 
   const showEmptyMessage =
-    !isFetchingBoardActivity && boardActivityData?.[0]?.activity?.length === 0;
+    !isFetchingUserActivity && userActivityData?.[0]?.activity?.length === 0;
 
   return (
     <div className="main">
-      {isLoggedIn && (
-        <PostEditorModal
-          isOpen={postEditorOpen}
-          userIdentity={{
-            name: user?.username,
-            avatar: user?.avatarUrl,
-          }}
-          // TODO: this transformation shouldn't be done here.
-          additionalIdentities={
-            boardData?.postingIdentities
-              ? boardData.postingIdentities.map((identity) => ({
-                  ...identity,
-                  avatar: identity.avatarUrl,
-                }))
-              : undefined
-          }
-          onPostSaved={(post: any) => {
-            queryCache.invalidateQueries(["boardActivityData", { slug }]);
-            setPostEditorOpen(false);
-          }}
-          onCloseModal={() => setPostEditorOpen(false)}
-          slug={slug}
-          replyToPostId={null}
-          uploadBaseUrl={`images/${slug}/`}
-        />
-      )}
       <Layout
         mainContent={
           <FeedWithMenu
             onCloseSidebar={() => setShowSidebar(false)}
             showSidebar={showSidebar}
-            sidebarContent={
-              <>
-                <BoardSidebar
-                  // @ts-ignore
-                  slug={boardData?.slug || slug}
-                  avatarUrl={boardData?.avatarUrl || "/"}
-                  tagline={boardData?.tagline || "loading..."}
-                  accentColor={boardData?.accentColor || "#f96680"}
-                  muted={boardData?.muted}
-                  previewOptions={boardOptions}
-                  descriptions={boardData?.descriptions || []}
-                  editing={editingSidebar}
-                  onCancelEditing={() => {
-                    setEditingSidebar(false);
-                  }}
-                  onUpdateMetadata={updateBoardMetadata}
-                  onCategoriesStateChange={(categories) => {
-                    const activeCategories = categories.filter(
-                      (category) => category.active
-                    );
-                    setCategoryFilter(
-                      activeCategories.length == 1
-                        ? activeCategories[0].name
-                        : null
-                    );
-                  }}
-                />
-                {!boardData?.descriptions && !editingSidebar && (
-                  <img
-                    className="under-construction"
-                    src="/under_construction_icon.png"
-                  />
-                )}
-              </>
-            }
+            sidebarContent={<></>}
             feedContent={
               <div className="main">
                 {showEmptyMessage && (
                   <img className="empty" src={"/nothing.jpg"} />
                 )}
-                {boardActivityData &&
-                  boardActivityData
+                {userActivityData &&
+                  userActivityData
                     .flatMap((activityData) => activityData?.activity)
                     .map((thread: ThreadType) => {
                       const post = thread.posts[0];
                       const hasReplies =
                         thread.totalPostsAmount > 1 ||
                         thread.totalCommentsAmount > 0;
-                      const redirectMethod = getMemoizedRedirectMethod(
-                        thread.threadId
-                      );
-                      const threadUrl = `/${router.query.boardId}/thread/${thread.threadId}`;
+                      const redirectMethod = getMemoizedRedirectMethod({
+                        slug: thread.boardSlug,
+                        threadId: thread.threadId,
+                      });
                       if (thread.hidden) {
                         return (
                           <div className="post hidden" key={thread.threadId}>
@@ -380,6 +197,7 @@ function BoardPage() {
                               onClick={(e) => {
                                 setThreadHidden({
                                   threadId: thread.threadId,
+                                  slug: thread.boardSlug,
                                   hide: !thread.hidden,
                                 });
                                 e.preventDefault();
@@ -404,10 +222,7 @@ function BoardPage() {
                                     .fromNow()}]`
                                 : ""
                             }`}
-                            createdTimeLink={createLinkTo({
-                              urlPattern: THREAD_URL_PATTERN,
-                              url: threadUrl,
-                            })}
+                            createdTimeLink={redirectMethod}
                             text={post.content}
                             tags={post.tags}
                             secretIdentity={post.secretIdentity}
@@ -426,6 +241,11 @@ function BoardPage() {
                                 ? undefined
                                 : thread.newCommentsAmount)
                             }
+                            board={{
+                              slug: `!${thread.boardSlug}`,
+                              accentColor:
+                                boardsData[thread.boardSlug]?.accentColor,
+                            }}
                             newContributions={
                               isLoggedIn &&
                               (thread.muted
@@ -448,7 +268,7 @@ function BoardPage() {
                                       "input"
                                     );
                                     tempInput.value = new URL(
-                                      threadUrl,
+                                      (redirectMethod as any)?.href,
                                       window.location.origin
                                     ).toString();
                                     document.body.appendChild(tempInput);
@@ -466,7 +286,10 @@ function BoardPage() {
                                       name: "Mark Visited",
                                       link: {
                                         onClick: () => {
-                                          readThread(thread.threadId);
+                                          readThread({
+                                            threadId: thread.threadId,
+                                            slug: thread.boardSlug,
+                                          });
                                         },
                                       },
                                     },
@@ -476,6 +299,7 @@ function BoardPage() {
                                         onClick: () => {
                                           setThreadMuted({
                                             threadId: thread.threadId,
+                                            slug: thread.boardSlug,
                                             mute: !thread.muted,
                                           });
                                         },
@@ -487,6 +311,7 @@ function BoardPage() {
                                         onClick: () => {
                                           setThreadHidden({
                                             threadId: thread.threadId,
+                                            slug: thread.boardSlug,
                                             hide: !thread.hidden,
                                           });
                                         },
@@ -501,7 +326,7 @@ function BoardPage() {
                     })}
                 <div className="loading">
                   {!showEmptyMessage &&
-                    boardActivityData?.length &&
+                    userActivityData?.length &&
                     (isFetchingMore
                       ? "Loading more..."
                       : canFetchMore
@@ -526,18 +351,10 @@ function BoardPage() {
             }}
           />
         }
-        actionButton={
-          isLoggedIn && (
-            <PostingActionButton
-              accentColor={boardData?.accentColor || "#f96680"}
-              onNewPost={() => setPostEditorOpen(true)}
-            />
-          )
-        }
-        title={`!${slug}`}
-        onTitleClick={() => setShowSidebar(!showSidebar)}
+        title={`Your Stuff`}
+        onTitleClick={createLinkTo({ url: "/users/feed" })?.onClick}
         forceHideTitle={true}
-        loading={isFetchingBoardActivity}
+        loading={isFetchingUserActivity}
       />
       <style jsx>{`
         .main {
@@ -553,6 +370,7 @@ function BoardPage() {
         }
         .post {
           margin: 20px auto;
+          margin-bottom: 30px;
           width: 100%;
         }
         .post > :global(div) {
@@ -582,4 +400,4 @@ function BoardPage() {
   );
 }
 
-export default BoardPage;
+export default UserFeedPage;

@@ -12,14 +12,24 @@ import {
 } from "./../utils/queries";
 import { BOARD_URL_PATTERN, createLinkTo } from "./../utils/link-utils";
 import { useAuth } from "./Auth";
-import { useRouter } from "next/router";
+import { NextRouter, useRouter } from "next/router";
 import { useQuery, useMutation, queryCache } from "react-query";
 // @ts-ignore
 import { ReactQueryDevtools } from "react-query-devtools";
 import { useBoardContext } from "./BoardContext";
 import debug from "debug";
+import { faInbox, faSearch, faTh } from "@fortawesome/free-solid-svg-icons";
 
 const log = debug("bobafrontend:queries-log");
+
+const FEED_URL = "/users/feed";
+
+const getSelectedMenuOptionFromPath = (router: NextRouter) => {
+  if (router.asPath == FEED_URL) {
+    return "feed";
+  }
+  return "";
+};
 
 const Layout = (props: LayoutProps) => {
   const router = useRouter();
@@ -153,6 +163,17 @@ const Layout = (props: LayoutProps) => {
         updates={isLoggedIn && hasUpdates}
         onSideMenuButtonClick={refetch}
         logoLink={createLinkTo({ url: "/" })}
+        menuOptions={[
+          {
+            id: "feed",
+            // TODO: figure out why this has a type error
+            // @ts-ignore
+            icon: faInbox,
+            link: createLinkTo({ url: FEED_URL }),
+          },
+        ]}
+        selectedMenuOption={getSelectedMenuOptionFromPath(router)}
+        // TODO: add feed here
         titleLink={
           props.onTitleClick
             ? {

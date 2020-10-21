@@ -50,6 +50,7 @@ export interface PostType {
 export interface ThreadType {
   posts: PostType[];
   threadId: string;
+  boardSlug: string;
   isNew: boolean;
   newPostsAmount: number;
   newCommentsAmount: number;
