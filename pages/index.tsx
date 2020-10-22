@@ -2,8 +2,8 @@ import React from "react";
 import Layout from "../components/Layout";
 import { getAllBoardsData, ALL_BOARDS_KEY } from "./../utils/queries";
 import { useQuery } from "react-query";
-// @ts-ignore
-import { BoardsDisplay, useCompact } from "@bobaboard/ui-components";
+import { useKonamiCode } from "components/hooks/useKonamiCode";
+import { BoardsDisplay } from "@bobaboard/ui-components";
 import Link from "next/link";
 import debug from "debug";
 import { BOARD_URL_PATTERN, createLinkTo } from "utils/link-utils";
@@ -69,6 +69,8 @@ function getRandomInt(max: number) {
   return Math.floor(Math.random() * Math.floor(max));
 }
 let MAX_GHOSTS = 5;
+let GHOST_CHANCE = 3;
+let GHOST_INTERVAL = 1000;
 let currentGhosts = 0;
 const newGhost = (callback: () => void) => {
   info("Hello");
@@ -190,6 +192,11 @@ function HomePage() {
     },
     initialStale: true,
   });
+  useKonamiCode(() => {
+    GHOST_CHANCE = 1;
+    MAX_GHOSTS = 1000000000;
+    GHOST_INTERVAL = 500;
+  });
 
   const ghosts = React.useRef<any[]>([]);
   const timeout = React.useRef<any>(null);
@@ -198,7 +205,10 @@ function HomePage() {
     currentGhosts = 0;
     const maybeCreateGhost = () => {
       // info(currentGhosts);
-      if (currentGhosts < MAX_GHOSTS && getRandomInt(3) % 3 == 0) {
+      if (
+        currentGhosts < MAX_GHOSTS &&
+        getRandomInt(GHOST_CHANCE) % GHOST_CHANCE == 0
+      ) {
         currentGhosts = currentGhosts + 1;
         const spawned = newGhost(() => {
           // info(currentGhosts);
@@ -209,11 +219,11 @@ function HomePage() {
       }
       timeout.current = setTimeout(() => {
         maybeCreateGhost();
-      }, 1000);
+      }, GHOST_INTERVAL);
     };
     timeout.current = setTimeout(() => {
       maybeCreateGhost();
-    }, 1000);
+    }, GHOST_INTERVAL);
     return () => {
       ghosts.current.forEach((ghost: HTMLDivElement) => {
         ghost.parentElement?.removeChild(ghost);
@@ -258,34 +268,31 @@ function HomePage() {
               <div className="updates">
                 <h2>New Stuff </h2>
                 <div className="last">
-                  [Last Updated: 10/16/20.{" "}
+                  [Last Updated: 10/20/20.{" "}
                   <Link href="/update-logs">
                     <a>Older logs.</a>
                   </Link>
-                  ]<p>It's time for... more editor shenanigans!</p>
+                  ]<p>Quick & Dirty, late at night:</p>
                   <ul>
                     <li>
-                      New format types: <strong>inline code</strong>,{" "}
-                      <strong>code block</strong> and{" "}
-                      <strong>block quote</strong>! Also, there's a new size of
-                      heading (H3) for even more fine-grained control, and
-                      bolding one works correctly again.
+                      Look at your top right (or, if on mobile, to your side
+                      menu)... We now have a feed of everything you've
+                      participated in! Extremely basic functionality for now,
+                      but expect more and more things there (and feel free to
+                      suggest ideas)!
                     </li>
                     <li>
-                      Images now retain their extension upon upload. There's
-                      even an actual loading indicator as they're being added to
-                      the editor.
+                      I have indeed moved CWs up before the post. We'll see how
+                      that goes.
                     </li>
                     <li>
-                      Fixed bugs with adding links to comments. Add away, and
-                      let me know if problems persist!
+                      If you've been using category tags in a thread, you'll now
+                      get them as suggestion in new posts!
                     </li>
                     <li>
-                      <strong>Random Fixes:</strong> tags CSS has hopefully been
-                      FINALLY conquered, timeline view should display updated
-                      comment threads automatically, Boos are now moving around
-                      even on older iOS versions, and the board highlight should
-                      resize correctly as you move across them.
+                      And last... because people asked... and because this
+                      website didn't yet have a konami code easter egg..... just
+                      remember: ↑ ↑ ↓ ↓ ← → ← → B A, index page only.
                     </li>
                   </ul>
                 </div>

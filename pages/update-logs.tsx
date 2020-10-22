@@ -10,6 +10,32 @@ function HomePage() {
             <div className="intro updates">
               <h1>Update Logs!</h1>
               <ul>
+                <li>[10/16/20]</li>
+                <p>It's time for... more editor shenanigans!</p>
+                <ul>
+                  <li>
+                    New format types: <strong>inline code</strong>,{" "}
+                    <strong>code block</strong> and <strong>block quote</strong>
+                    ! Also, there's a new size of heading (H3) for even more
+                    fine-grained control, and bolding one works correctly again.
+                  </li>
+                  <li>
+                    Images now retain their extension upon upload. There's even
+                    an actual loading indicator as they're being added to the
+                    editor.
+                  </li>
+                  <li>
+                    Fixed bugs with adding links to comments. Add away, and let
+                    me know if problems persist!
+                  </li>
+                  <li>
+                    <strong>Random Fixes:</strong> tags CSS has hopefully been
+                    FINALLY conquered, timeline view should display updated
+                    comment threads automatically, Boos are now moving around
+                    even on older iOS versions, and the board highlight should
+                    resize correctly as you move across them.
+                  </li>
+                </ul>
                 <li>
                   [10/14/20] ]<p>Happy Spoopy Season!</p>
                 </li>

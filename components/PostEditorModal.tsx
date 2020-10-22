@@ -10,7 +10,6 @@ import { useMutation } from "react-query";
 import { createPost, createThread } from "../utils/queries";
 import { createImageUploadPromise } from "../utils/image-upload";
 import { PostData, PostType, ThreadType } from "../types/Types";
-import { useBoardContext } from "./BoardContext";
 import { TagsType } from "@bobaboard/ui-components/dist/types";
 import { usePreventPageChange } from "./hooks/usePreventPageChange";
 
