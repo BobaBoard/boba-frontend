@@ -306,6 +306,7 @@ function HomePage() {
                   description: board.tagline,
                   color: board.settings?.accentColor,
                   updates: board.has_updates,
+                  muted: board.muted,
                   link: createLinkTo({
                     urlPattern: BOARD_URL_PATTERN,
                     url: `/!${board.slug.replace(" ", "_")}`,

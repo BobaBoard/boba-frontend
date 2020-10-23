@@ -6,6 +6,8 @@ import {
   BoardSidebar,
   PostingActionButton,
   toast,
+  TagsType,
+  TagType,
 } from "@bobaboard/ui-components";
 import Layout from "../../components/Layout";
 import PostEditorModal from "../../components/PostEditorModal";
@@ -63,6 +65,9 @@ function BoardPage() {
   const [categoryFilter, setCategoryFilter] = React.useState<string | null>(
     null
   );
+  React.useEffect(() => {
+    setCategoryFilter(null);
+  }, [slug]);
 
   const {
     data: boardActivityData,
@@ -336,6 +341,7 @@ function BoardPage() {
                     setEditingSidebar(false);
                   }}
                   onUpdateMetadata={updateBoardMetadata}
+                  activeCategory={categoryFilter}
                   onCategoriesStateChange={(categories) => {
                     const activeCategories = categories.filter(
                       (category) => category.active
@@ -496,6 +502,21 @@ function BoardPage() {
                                   ]
                                 : []),
                             ]}
+                            getOptionsForTag={(tag: TagsType) => {
+                              if (tag.type == TagType.CATEGORY) {
+                                return [
+                                  {
+                                    name: "Filter",
+                                    link: {
+                                      onClick: () => {
+                                        setCategoryFilter(tag.name);
+                                      },
+                                    },
+                                  },
+                                ];
+                              }
+                              return undefined;
+                            }}
                           />
                         </div>
                       );
