@@ -278,30 +278,42 @@ function HomePage() {
                   </Link>
                   ]
                   <p>
-                    Mostly cosmetic changes
+                    Bug fixes & Announcements!
                     <ul>
                       <li>
-                        Changed look & feel of dropdown, especially on mobile
-                        (say thanks to the contractor!).
+                        <strong>
+                          Join us for our Boba Horror Picture Show watch
+                          together
+                        </strong>{" "}
+                        on October 31st at 1PM and 3PM PST!{" "}
+                        <a href="https://v0.boba.social/!bobaland/thread/eb77813b-5f59-47e1-ae72-4e6ff705ccd6">
+                          Details on !bobaland.
+                        </a>
                       </li>
                       <li>
-                        You can now click on category tags to filter by them on
-                        boards. This works even when that category is not
-                        "showcased" in the sidebar.
+                        Our userbase is increasing and the database is dying.{" "}
+                        Sorry for our slower-than-usual loading times! I'll be
+                        doing some performance work in the following days.
+                        🤞🤞🤞
                       </li>
                       <li>
-                        Added "welcome guide link" on dropdown and invite page.
-                        Oops!
+                        <strong>LIMITED TIME SPECIAL:</strong> I improved the
+                        "popping" boos animation.
                       </li>
                       <li>
-                        Muted boards will now appear muted also on main page.
-                        Better mute indicator upcoming.
+                        Editor spacing has been improved again. It's a bit
+                        workaround-y in that I'm trying to simulate "line break"
+                        on one new line, "paragraph break" on two consecutive
+                        new lines without that being supported by our editor.
+                        Boba girls make do.
                       </li>
                       <li>
-                        Personal feed link is now hidden for non-logged in
-                        users.......
+                        <strong>Small fixes:</strong> Backdrop overlapping board
+                        description on mobile, changed look of login text
+                        fields, avatars "cutouts" are now actually transparent,
+                        and I added some extra padding at the bottom of threads
+                        so the "new comment" button won't overlap the reply one.
                       </li>
-                      <li>Fixed paragraph spacing for posts on boards.</li>
                     </ul>
                   </p>
                 </div>

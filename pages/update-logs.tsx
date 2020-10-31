@@ -11,6 +11,36 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [10/22/20]
+                  <p>
+                    Mostly cosmetic changes
+                    <ul>
+                      <li>
+                        Changed look & feel of dropdown, especially on mobile
+                        (say thanks to the contractor!).
+                      </li>
+                      <li>
+                        You can now click on category tags to filter by them on
+                        boards. This works even when that category is not
+                        "showcased" in the sidebar.
+                      </li>
+                      <li>
+                        Added "welcome guide link" on dropdown and invite page.
+                        Oops!
+                      </li>
+                      <li>
+                        Muted boards will now appear muted also on main page.
+                        Better mute indicator upcoming.
+                      </li>
+                      <li>
+                        Personal feed link is now hidden for non-logged in
+                        users.......
+                      </li>
+                      <li>Fixed paragraph spacing for posts on boards.</li>
+                    </ul>
+                  </p>
+                </li>
+                <li>
                   [10/20/20]
                   <p>Quick & Dirty, late at night:</p>
                   <ul>

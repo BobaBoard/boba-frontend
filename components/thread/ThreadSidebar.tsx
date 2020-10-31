@@ -4,8 +4,6 @@ import {
   Button,
   ButtonStyle,
   PostQuote,
-  DefaultTheme,
-  // @ts-ignore
 } from "@bobaboard/ui-components";
 import { useThread } from "components/thread/ThreadContext";
 import { THREAD_VIEW_MODES } from "types/Types";
@@ -29,7 +27,6 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
           text={threadRoot.content}
           secretIdentity={threadRoot.secretIdentity}
           userIdentity={threadRoot.userIdentity}
-          backgroundColor={DefaultTheme.LAYOUT_BOARD_SIDEBAR_BACKGROUND_COLOR}
         />
       </div>
       <div className="views">
