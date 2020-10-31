@@ -18,7 +18,14 @@ import { useQuery, useMutation, queryCache } from "react-query";
 import { ReactQueryDevtools } from "react-query-devtools";
 import { useBoardContext } from "./BoardContext";
 import debug from "debug";
-import { faInbox } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArchive,
+  faBook,
+  faCogs,
+  faComments,
+  faInbox,
+  faSignOutAlt,
+} from "@fortawesome/free-solid-svg-icons";
 
 const log = debug("bobafrontend:queries-log");
 
@@ -139,21 +146,36 @@ const Layout = (props: LayoutProps) => {
         loggedInMenuOptions={
           isLoggedIn && [
             {
+              icon: faArchive,
               name: "Logs Archive",
               link: createLinkTo({ url: "/update-logs" }),
             },
             {
+              icon: faCogs,
               name: "User Settings",
               link: createLinkTo({ url: "/users/me" }),
             },
             {
+              icon: faBook,
+              name: "Welcome Guide",
+              link: {
+                href:
+                  "https://www.notion.so/BobaBoard-s-Welcome-Packet-b0641466bfdf4a1cab8575083459d6a2",
+              },
+            },
+            {
+              icon: faComments,
               name: "Leave Feedback!",
               link: {
                 href:
                   "https://docs.google.com/forms/d/e/1FAIpQLSfyMENg9eDNmRj-jIvIG5_ElJFwpGZ_VPvzAskarqu5kf0MSA/viewform",
               },
             },
-            { name: "Logout", link: { onClick: () => setLoginOpen(true) } },
+            {
+              icon: faSignOutAlt,
+              name: "Logout",
+              link: { onClick: () => setLoginOpen(true) },
+            },
           ]
         }
         user={user}
@@ -163,15 +185,21 @@ const Layout = (props: LayoutProps) => {
         updates={isLoggedIn && hasUpdates}
         onSideMenuButtonClick={refetch}
         logoLink={createLinkTo({ url: "/" })}
-        menuOptions={[
-          {
-            id: "feed",
-            // TODO: figure out why this has a type error
-            // @ts-ignore
-            icon: faInbox,
-            link: createLinkTo({ url: FEED_URL }),
-          },
-        ]}
+        // TODO: figure out why this has a type error
+        // @ts-ignore
+        menuOptions={
+          isLoggedIn
+            ? [
+                {
+                  id: "feed",
+                  // TODO: figure out why this has a type error
+                  // @ts-ignore
+                  icon: faInbox,
+                  link: createLinkTo({ url: FEED_URL }),
+                },
+              ]
+            : []
+        }
         selectedMenuOption={getSelectedMenuOptionFromPath(router)}
         // TODO: add feed here
         titleLink={

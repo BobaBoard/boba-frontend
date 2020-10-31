@@ -16,6 +16,14 @@ import {
   setThreadMutedInCache,
 } from "../../utils/queries/cache";
 import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
+import {
+  faBookOpen,
+  faEye,
+  faEyeSlash,
+  faLink,
+  faVolumeMute,
+  faVolumeUp,
+} from "@fortawesome/free-solid-svg-icons";
 
 const log = debug("bobafrontend:boardPage-log");
 const info = debug("bobafrontend:boardPage-info");
@@ -261,6 +269,7 @@ function UserFeedPage() {
                             muted={isLoggedIn && thread.muted}
                             menuOptions={[
                               {
+                                icon: faLink,
                                 name: "Copy Link",
                                 link: {
                                   onClick: () => {
@@ -283,7 +292,8 @@ function UserFeedPage() {
                               ...(isLoggedIn
                                 ? [
                                     {
-                                      name: "Mark Visited",
+                                      icon: faBookOpen,
+                                      name: "Mark Read",
                                       link: {
                                         onClick: () => {
                                           readThread({
@@ -294,6 +304,9 @@ function UserFeedPage() {
                                       },
                                     },
                                     {
+                                      icon: thread.muted
+                                        ? faVolumeUp
+                                        : faVolumeMute,
                                       name: thread.muted ? "Unmute" : "Mute",
                                       link: {
                                         onClick: () => {
@@ -306,6 +319,7 @@ function UserFeedPage() {
                                       },
                                     },
                                     {
+                                      icon: thread.hidden ? faEye : faEyeSlash,
                                       name: thread.hidden ? "Unhide" : "Hide",
                                       link: {
                                         onClick: () => {

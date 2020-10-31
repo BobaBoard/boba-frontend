@@ -21,7 +21,6 @@ export const createImageUploadPromise = ({
     if (imageData.startsWith("data:image")) {
       const dataType = imageData.match(/[^:/]\w+(?=;|,)/)?.[0];
       const extension = dataType ? `.${dataType}` : "";
-      debugger;
       const ref = firebase
         .storage()
         .ref(baseUrl)

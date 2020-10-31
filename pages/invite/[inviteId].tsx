@@ -84,7 +84,11 @@ function InvitesPage() {
               </p>
               <p>
                 If you have concerns, no matter how small, the webmaster's door
-                is always open.
+                is always open. In doubt, consult our{" "}
+                <a href="https://www.notion.so/BobaBoard-s-Welcome-Packet-b0641466bfdf4a1cab8575083459d6a2">
+                  Welcome Guide
+                </a>{" "}
+                or ask your questions on the boards!
               </p>
               <div className={classnames("inputs", { pending: isUserPending })}>
                 <div>
@@ -135,6 +139,9 @@ function InvitesPage() {
                 margin: 0 auto;
                 font-weight: normal;
                 line-height: 1.4em;
+              }
+              a {
+                color: #f96680;
               }
               .invite-signup {
                 max-width: 500px;

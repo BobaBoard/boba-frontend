@@ -302,7 +302,8 @@ function ThreadPage() {
         {`
           .feed {
             max-width: 100%;
-            padding-bottom: 40px;
+            padding-bottom: 70px;
+            position: relative;
           }
           .feed.loading .view-modes {
             display: none;
@@ -324,6 +325,19 @@ function ThreadPage() {
           }
           .loading-indicator.loading {
             display: block;
+          }
+          @media only screen and (max-width: 600px) {
+            .feed:not(.loading)::after {
+              content: "";
+              background-image: url("/bobadab.png");
+              background-size: contain;
+              position: absolute;
+              width: 50px;
+              height: 50px;
+              bottom: 0;
+              left: 50%;
+              transform: translateX(-50%);
+            }
           }
         `}
       </style>

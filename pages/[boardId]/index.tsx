@@ -37,6 +37,18 @@ import debug from "debug";
 import moment from "moment";
 import { BoardData, BoardDescription, ThreadType } from "../../types/Types";
 import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
+import {
+  faBan,
+  faBookOpen,
+  faCommentSlash,
+  faEdit,
+  faEye,
+  faEyeSlash,
+  faFilter,
+  faLink,
+  faVolumeMute,
+  faVolumeUp,
+} from "@fortawesome/free-solid-svg-icons";
 
 const error = debug("bobafrontend:boardPage-error");
 const log = debug("bobafrontend:boardPage-log");
@@ -238,6 +250,7 @@ function BoardPage() {
     }
     const options: any = [
       {
+        icon: boardData.muted ? faVolumeUp : faVolumeMute,
         name: boardData.muted ? "Unmute" : "Mute",
         link: {
           onClick: () =>
@@ -248,6 +261,7 @@ function BoardPage() {
         },
       },
       {
+        icon: faCommentSlash,
         name: "Dismiss notifications",
         link: {
           onClick: () => dismissNotifications({ slug }),
@@ -256,6 +270,7 @@ function BoardPage() {
     ];
     if (boardData.permissions?.canEditBoardData) {
       options.push({
+        icon: faEdit,
         name: "Edit Board",
         link: {
           onClick: () => setEditingSidebar(true),
@@ -448,6 +463,7 @@ function BoardPage() {
                             muted={isLoggedIn && thread.muted}
                             menuOptions={[
                               {
+                                icon: faLink,
                                 name: "Copy Link",
                                 link: {
                                   onClick: () => {
@@ -470,7 +486,8 @@ function BoardPage() {
                               ...(isLoggedIn
                                 ? [
                                     {
-                                      name: "Mark Visited",
+                                      icon: faBookOpen,
+                                      name: "Mark Read",
                                       link: {
                                         onClick: () => {
                                           readThread(thread.threadId);
@@ -478,6 +495,9 @@ function BoardPage() {
                                       },
                                     },
                                     {
+                                      icon: thread.muted
+                                        ? faVolumeUp
+                                        : faVolumeMute,
                                       name: thread.muted ? "Unmute" : "Mute",
                                       link: {
                                         onClick: () => {
@@ -489,6 +509,7 @@ function BoardPage() {
                                       },
                                     },
                                     {
+                                      icon: thread.hidden ? faEye : faEyeSlash,
                                       name: thread.hidden ? "Unhide" : "Hide",
                                       link: {
                                         onClick: () => {
@@ -503,9 +524,41 @@ function BoardPage() {
                                 : []),
                             ]}
                             getOptionsForTag={(tag: TagsType) => {
+                              if (tag.type == TagType.CONTENT_WARNING) {
+                                return [
+                                  {
+                                    icon: faEyeSlash,
+                                    name: "Spoiler posts with notice",
+                                    link: {
+                                      onClick: () => {
+                                        setCategoryFilter(tag.name);
+                                      },
+                                    },
+                                  },
+                                  {
+                                    icon: faBan,
+                                    name: "Hide posts with notice",
+                                    link: {
+                                      onClick: () => {
+                                        setCategoryFilter(tag.name);
+                                      },
+                                    },
+                                  },
+                                  {
+                                    icon: faEyeSlash,
+                                    name: "Hide notice",
+                                    link: {
+                                      onClick: () => {
+                                        setCategoryFilter(tag.name);
+                                      },
+                                    },
+                                  },
+                                ];
+                              }
                               if (tag.type == TagType.CATEGORY) {
                                 return [
                                   {
+                                    icon: faFilter,
                                     name: "Filter",
                                     link: {
                                       onClick: () => {

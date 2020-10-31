@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "cross-env DEBUG=bobafrontend:* next",
+    "dev": "cross-env DEBUG=bobafrontend:* NODE_OPTIONS='--inspect' next",
     "dev:stage": "cross-env NEXT_PUBLIC_DEFAULT_BACKEND=https://staging-dot-backend-dot-bobaboard.uc.r.appspot.com/ DEBUG=bobafrontend:* next",
     "dev:debug": "cross-env NODE_OPTIONS='--inspect' DEBUG=bobafrontend:* next dev",
     "build": "next build",

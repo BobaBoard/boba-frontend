@@ -42,6 +42,10 @@ const { className, styles } = css.resolve`
     animation-duration: 0.4s;
     animation-timing-function: ease;
     transform-origin: 50% 50%;
+    background-image: url("/boo_shy.png");
+  }
+  .popout.left {
+    background-image: url("/boo_shy_flipped.png");
   }
   @keyframes popout {
     from {
@@ -268,33 +272,38 @@ function HomePage() {
               <div className="updates">
                 <h2>New Stuff </h2>
                 <div className="last">
-                  [Last Updated: 10/20/20.{" "}
+                  [Last Updated: 10/22/20.{" "}
                   <Link href="/update-logs">
                     <a>Older logs.</a>
                   </Link>
-                  ]<p>Quick & Dirty, late at night:</p>
-                  <ul>
-                    <li>
-                      Look at your top right (or, if on mobile, to your side
-                      menu)... We now have a feed of everything you've
-                      participated in! Extremely basic functionality for now,
-                      but expect more and more things there (and feel free to
-                      suggest ideas)!
-                    </li>
-                    <li>
-                      I have indeed moved CWs up before the post. We'll see how
-                      that goes.
-                    </li>
-                    <li>
-                      If you've been using category tags in a thread, you'll now
-                      get them as suggestion in new posts!
-                    </li>
-                    <li>
-                      And last... because people asked... and because this
-                      website didn't yet have a konami code easter egg..... just
-                      remember: ↑ ↑ ↓ ↓ ← → ← → B A, index page only.
-                    </li>
-                  </ul>
+                  ]
+                  <p>
+                    Mostly cosmetic changes
+                    <ul>
+                      <li>
+                        Changed look & feel of dropdown, especially on mobile
+                        (say thanks to the contractor!).
+                      </li>
+                      <li>
+                        You can now click on category tags to filter by them on
+                        boards. This works even when that category is not
+                        "showcased" in the sidebar.
+                      </li>
+                      <li>
+                        Added "welcome guide link" on dropdown and invite page.
+                        Oops!
+                      </li>
+                      <li>
+                        Muted boards will now appear muted also on main page.
+                        Better mute indicator upcoming.
+                      </li>
+                      <li>
+                        Personal feed link is now hidden for non-logged in
+                        users.......
+                      </li>
+                      <li>Fixed paragraph spacing for posts on boards.</li>
+                    </ul>
+                  </p>
                 </div>
               </div>
             </div>

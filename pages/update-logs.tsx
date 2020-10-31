@@ -10,34 +10,63 @@ function HomePage() {
             <div className="intro updates">
               <h1>Update Logs!</h1>
               <ul>
-                <li>[10/16/20]</li>
-                <p>It's time for... more editor shenanigans!</p>
-                <ul>
-                  <li>
-                    New format types: <strong>inline code</strong>,{" "}
-                    <strong>code block</strong> and <strong>block quote</strong>
-                    ! Also, there's a new size of heading (H3) for even more
-                    fine-grained control, and bolding one works correctly again.
-                  </li>
-                  <li>
-                    Images now retain their extension upon upload. There's even
-                    an actual loading indicator as they're being added to the
-                    editor.
-                  </li>
-                  <li>
-                    Fixed bugs with adding links to comments. Add away, and let
-                    me know if problems persist!
-                  </li>
-                  <li>
-                    <strong>Random Fixes:</strong> tags CSS has hopefully been
-                    FINALLY conquered, timeline view should display updated
-                    comment threads automatically, Boos are now moving around
-                    even on older iOS versions, and the board highlight should
-                    resize correctly as you move across them.
-                  </li>
-                </ul>
                 <li>
-                  [10/14/20] ]<p>Happy Spoopy Season!</p>
+                  [10/20/20]
+                  <p>Quick & Dirty, late at night:</p>
+                  <ul>
+                    <li>
+                      Look at your top right (or, if on mobile, to your side
+                      menu)... We now have a feed of everything you've
+                      participated in! Extremely basic functionality for now,
+                      but expect more and more things there (and feel free to
+                      suggest ideas)!
+                    </li>
+                    <li>
+                      I have indeed moved CWs up before the post. We'll see how
+                      that goes.
+                    </li>
+                    <li>
+                      If you've been using category tags in a thread, you'll now
+                      get them as suggestion in new posts!
+                    </li>
+                    <li>
+                      And last... because people asked... and because this
+                      website didn't yet have a konami code easter egg..... just
+                      remember: ↑ ↑ ↓ ↓ ← → ← → B A, index page only.
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  [10/16/20]
+                  <p>It's time for... more editor shenanigans!</p>
+                  <ul>
+                    <li>
+                      New format types: <strong>inline code</strong>,{" "}
+                      <strong>code block</strong> and{" "}
+                      <strong>block quote</strong>! Also, there's a new size of
+                      heading (H3) for even more fine-grained control, and
+                      bolding one works correctly again.
+                    </li>
+                    <li>
+                      Images now retain their extension upon upload. There's
+                      even an actual loading indicator as they're being added to
+                      the editor.
+                    </li>
+                    <li>
+                      Fixed bugs with adding links to comments. Add away, and
+                      let me know if problems persist!
+                    </li>
+                    <li>
+                      <strong>Random Fixes:</strong> tags CSS has hopefully been
+                      FINALLY conquered, timeline view should display updated
+                      comment threads automatically, Boos are now moving around
+                      even on older iOS versions, and the board highlight should
+                      resize correctly as you move across them.
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  [10/14/20] <p>Happy Spoopy Season!</p>
                 </li>
                 <li>
                   [10/12/20]
