@@ -1,7 +1,5 @@
 import React from "react";
 import Layout from "../components/Layout";
-import { getAllBoardsData, ALL_BOARDS_KEY } from "./../utils/queries";
-import { useQuery } from "react-query";
 import { useKonamiCode } from "components/hooks/useKonamiCode";
 import { BoardsDisplay } from "@bobaboard/ui-components";
 import Link from "next/link";
@@ -11,6 +9,7 @@ import { BOARD_URL_PATTERN, createLinkTo } from "utils/link-utils";
 const info = debug("bobafrontend:index-info");
 
 import css from "styled-jsx/css";
+import { useBoardContext } from "components/BoardContext";
 
 const GHOST_SIZE = 50;
 const BOUNDARY = 69;
@@ -72,7 +71,7 @@ const { className, styles } = css.resolve`
 function getRandomInt(max: number) {
   return Math.floor(Math.random() * Math.floor(max));
 }
-let MAX_GHOSTS = 5;
+let MAX_GHOSTS = 0;
 let GHOST_CHANCE = 3;
 let GHOST_INTERVAL = 1000;
 let currentGhosts = 0;
@@ -176,26 +175,7 @@ const newGhost = (callback: () => void) => {
 };
 
 function HomePage() {
-  const { data: allBoards } = useQuery("allBoardsData", getAllBoardsData, {
-    initialData: () => {
-      if (typeof localStorage === "undefined") {
-        return undefined;
-      }
-      // Localstorage is a client-only feature
-      const data = localStorage.getItem(ALL_BOARDS_KEY);
-      if (!data) {
-        return undefined;
-      }
-      const boardData = JSON.parse(data);
-      if (!boardData.forEach) {
-        // Something weird got saved here!
-        return undefined;
-      }
-      boardData.forEach((board: any) => (board.has_updates = false));
-      return boardData;
-    },
-    initialStale: true,
-  });
+  const { boardsData } = useBoardContext();
   useKonamiCode(() => {
     GHOST_CHANCE = 1;
     MAX_GHOSTS = 1000000000;
@@ -205,7 +185,6 @@ function HomePage() {
   const ghosts = React.useRef<any[]>([]);
   const timeout = React.useRef<any>(null);
   React.useEffect(() => {
-    MAX_GHOSTS = Math.ceil(innerWidth / 300);
     currentGhosts = 0;
     const maybeCreateGhost = () => {
       // info(currentGhosts);
@@ -237,8 +216,6 @@ function HomePage() {
     };
   }, []);
 
-  info(`Rerendering index with data:`);
-  info(allBoards);
   return (
     <div className="main">
       <Layout
@@ -246,16 +223,12 @@ function HomePage() {
           <div className="content">
             <div className="intro">
               <div className="title">
-                <img src="/pacman1.gif" />
-                <h1>Welcome to BOObaBoard!</h1>
-                <img src="/pacman2.gif" />
+                <h1>Welcome to BobaBoard!</h1>
               </div>
               <div className="tagline">
                 "Where the bugs are funny and the people are cool" — Outdated
                 Meme
               </div>
-              <img className="left web" src="/web.png" />
-              <img className="right web" src="/web.png" />
               <p>
                 Remember: this is the experimental version of an experimental
                 website. If you experience a problem, then stuff is likely to be{" "}
@@ -272,47 +245,50 @@ function HomePage() {
               <div className="updates">
                 <h2>New Stuff </h2>
                 <div className="last">
-                  [Last Updated: 10/22/20.{" "}
+                  [Last Updated: 11/04/20.{" "}
                   <Link href="/update-logs">
                     <a>Older logs.</a>
                   </Link>
                   ]
                   <p>
-                    Bug fixes & Announcements!
+                    The Halloween decorations are gone... so dry your tears with
+                    these cool updates!
                     <ul>
                       <li>
                         <strong>
-                          Join us for our Boba Horror Picture Show watch
-                          together
+                          New side menu! New side menu! New side menu!
                         </strong>{" "}
-                        on October 31st at 1PM and 3PM PST!{" "}
-                        <a href="https://v0.boba.social/!bobaland/thread/eb77813b-5f59-47e1-ae72-4e6ff705ccd6">
-                          Details on !bobaland.
-                        </a>
+                        We're officially in a glorious and radiant future in
+                        which our sidemenu is actually decent. Thank you for
+                        putting up with my previous "hastily-thrown together"
+                        one for so long.
                       </li>
                       <li>
-                        Our userbase is increasing and the database is dying.{" "}
-                        Sorry for our slower-than-usual loading times! I'll be
-                        doing some performance work in the following days.
-                        🤞🤞🤞
+                        <strong>Board pinning!</strong> See that empty space on
+                        the left of your shiny new menu? Pinned boards go there.
+                        You can find the option in the boards' sidebar dropdown.
                       </li>
                       <li>
-                        <strong>LIMITED TIME SPECIAL:</strong> I improved the
-                        "popping" boos animation.
+                        <strong>Server Side Rendering</strong> I've begun taking
+                        the first step into pre-rendering pages on the server.
+                        What this will mean in the future is improved loading
+                        times for all of us (plus some cool bonuses you'll learn
+                        about with time). But what this means for now is that
+                        you won't see the board color flash from pink to the
+                        actual one on first load ever again.
                       </li>
                       <li>
-                        Editor spacing has been improved again. It's a bit
-                        workaround-y in that I'm trying to simulate "line break"
-                        on one new line, "paragraph break" on two consecutive
-                        new lines without that being supported by our editor.
-                        Boba girls make do.
+                        <strong>Server Cache</strong> I'm now caching the
+                        results of some database queries, which means I won't
+                        recalculate them every single time. This should lead,
+                        with time, to better and better load times. And also,
+                        very likely, to a bunch of bugs along the way (caching
+                        is hard).
                       </li>
                       <li>
-                        <strong>Small fixes:</strong> Backdrop overlapping board
-                        description on mobile, changed look of login text
-                        fields, avatars "cutouts" are now actually transparent,
-                        and I added some extra padding at the bottom of threads
-                        so the "new comment" button won't overlap the reply one.
+                        <strong>Small fixes:</strong> Fixed YouTube embeds from
+                        youtu.be. You should now be able to add from any YouTube
+                        url.
                       </li>
                     </ul>
                   </p>
@@ -321,12 +297,12 @@ function HomePage() {
             </div>
             <div className="display">
               <BoardsDisplay
-                boards={(allBoards || []).map((board: any) => ({
+                boards={Object.values(boardsData).map((board) => ({
                   slug: board.slug.replace("_", " "),
                   avatar: board.avatarUrl,
                   description: board.tagline,
-                  color: board.settings?.accentColor,
-                  updates: board.has_updates,
+                  color: board.accentColor,
+                  updates: board.hasUpdates,
                   muted: board.muted,
                   link: createLinkTo({
                     urlPattern: BOARD_URL_PATTERN,
@@ -414,18 +390,6 @@ function HomePage() {
                 width: 50px;
                 height: 50px;
                 z-index: 5;
-              }
-              .web {
-                position: absolute;
-                max-width: 30%;
-                top: 69px;
-              }
-              .web.left {
-                left: 0;
-              }
-              .web.right {
-                right: 0;
-                transform: scaleX(-1);
               }
               @media only screen and (max-width: 400px) {
                 h1 {

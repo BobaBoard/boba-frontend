@@ -8,92 +8,13 @@ import {
   PostData,
   ThreadType,
 } from "../types/Types";
-import { DEFAULT_USER_NAME, DEFAULT_USER_AVATAR } from "../components/Auth";
+import {
+  makeClientComment,
+  makeClientPost,
+  makeClientThread,
+} from "./server-utils";
 
 const log = debug("bobafrontend:queries-log");
-const info = debug("bobafrontend:queries-info");
-
-const makeClientComment = (serverComment: any): CommentType => ({
-  commentId: serverComment.comment_id,
-  chainParentId: serverComment.chain_parent_id,
-  parentCommentId: serverComment.parent_comment,
-  secretIdentity: {
-    name: serverComment.secret_identity.name,
-    avatar: serverComment.secret_identity.avatar,
-  },
-  userIdentity: serverComment.user_identity && {
-    name: serverComment.user_identity.name || DEFAULT_USER_NAME,
-    avatar: serverComment.user_identity.avatar || DEFAULT_USER_AVATAR,
-  },
-  created: serverComment.created,
-  content: serverComment.content,
-  isNew: serverComment.is_new,
-});
-
-const makeClientPost = (serverPost: any): PostType => ({
-  postId: serverPost.post_id,
-  threadId: serverPost.thread_id,
-  parentPostId: serverPost.parent_post_id,
-  secretIdentity: {
-    name: serverPost.secret_identity.name,
-    avatar: serverPost.secret_identity.avatar,
-  },
-  userIdentity: serverPost.user_identity && {
-    name: serverPost.user_identity.name || DEFAULT_USER_NAME,
-    avatar: serverPost.user_identity.avatar || DEFAULT_USER_AVATAR,
-  },
-  created: serverPost.created,
-  content: serverPost.content,
-  options: {
-    wide: serverPost.options?.wide,
-  },
-  tags: {
-    whisperTags: serverPost.tags.whisper_tags,
-    indexTags: serverPost.tags.index_tags,
-    categoryTags: serverPost.tags.category_tags,
-    contentWarnings: serverPost.tags.content_warnings,
-  },
-  comments: serverPost.comments?.map(makeClientComment),
-  postsAmount: serverPost.posts_amount,
-  threadsAmount: serverPost.threads_amount,
-  newPostsAmount: serverPost.new_posts_amount,
-  newCommentsAmount: serverPost.new_comments_amount,
-  isNew: serverPost.is_new,
-  isOwn: serverPost.self,
-  commentsAmount: serverPost.comments_amount,
-});
-
-export const makeClientThread = (serverThread: any): ThreadType => {
-  const clientPosts: PostType[] = serverThread.posts.map(makeClientPost);
-  return {
-    posts: clientPosts,
-    isNew: serverThread.posts[0].is_new,
-    threadId: serverThread.thread_id,
-    boardSlug: serverThread.board_slug,
-    newPostsAmount: serverThread.thread_new_posts_amount,
-    newCommentsAmount: serverThread.thread_new_comments_amount,
-    totalCommentsAmount: serverThread.thread_total_comments_amount,
-    totalPostsAmount: serverThread.thread_total_posts_amount,
-    directThreadsAmount: serverThread.thread_direct_threads_amount,
-    lastActivity: serverThread.thread_last_activity,
-    muted: serverThread.muted,
-    hidden: serverThread.hidden,
-    defaultView: serverThread.default_view,
-    personalIdentity: clientPosts.find((post) => post.isOwn)?.secretIdentity,
-  };
-};
-
-export const getBoardData = async (key: string, { slug }: { slug: string }) => {
-  log(`Fetching board data for board with slug ${slug}.`);
-  if (!slug) {
-    log(`...can't fetch board data for board with no slug.`);
-    return;
-  }
-  const response = await axios.get(`boards/${slug}`);
-  log(`Got response for board data with slug ${slug}.`);
-  info(response.data);
-  return response.data;
-};
 
 export const getBoardActivityData = async (
   key: string,
@@ -135,23 +56,6 @@ export const getThreadData = async (
   const response = await axios.get(`threads/${threadId}/`);
   log(`Fetched data for thread with id ${threadId}`);
   return makeClientThread(response.data);
-};
-
-export const ALL_BOARDS_KEY = "allBoardsData";
-export const getAllBoardsData = async (key: string) => {
-  log(`Fetching all boards data.`);
-  const response = await axios.get(`boards`);
-  log(`Got response for all boards data.`);
-  info(response.data);
-
-  try {
-    // Save response to localstorage to speed up loading
-    localStorage.setItem("allBoardsData", JSON.stringify(response.data));
-  } catch (e) {
-    log("Error while saving boards to local storage.");
-  }
-
-  return response.data;
 };
 
 export const dismissAllNotifications = async () => {

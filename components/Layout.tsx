@@ -5,15 +5,11 @@ import {
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import LoginModal from "./LoginModal";
-import {
-  getAllBoardsData,
-  dismissAllNotifications,
-  ALL_BOARDS_KEY,
-} from "./../utils/queries";
+import { dismissAllNotifications } from "../utils/queries";
 import { BOARD_URL_PATTERN, createLinkTo } from "./../utils/link-utils";
 import { useAuth } from "./Auth";
 import { NextRouter, useRouter } from "next/router";
-import { useQuery, useMutation, queryCache } from "react-query";
+import { useMutation, queryCache } from "react-query";
 // @ts-ignore
 import { ReactQueryDevtools } from "react-query-devtools";
 import { useBoardContext } from "./BoardContext";
@@ -21,11 +17,13 @@ import debug from "debug";
 import {
   faArchive,
   faBook,
+  faCommentSlash,
   faCogs,
   faComments,
   faInbox,
   faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
+import moment from "moment";
 
 const log = debug("bobafrontend:queries-log");
 
@@ -44,33 +42,8 @@ const Layout = (props: LayoutProps) => {
   const [loginOpen, setLoginOpen] = React.useState(false);
   const layoutRef = React.useRef<{ closeSideMenu: () => void }>(null);
   const slug: string = router.query.boardId?.slice(1) as string;
-  const { [slug]: boardData, fetching } = useBoardContext();
-  const { data: pinnedBoards, refetch, isLoading } = useQuery(
-    "allBoardsData",
-    // TODO: fix this typing
-    // @ts-ignore
-    getAllBoardsData,
-    {
-      initialData: () => {
-        if (typeof localStorage === "undefined") {
-          return undefined;
-        }
-        // Localstorage is a client-only feature
-        const data = localStorage.getItem(ALL_BOARDS_KEY);
-        log(`Loaded boards data from localstorage: ${data}`);
-        if (!data) {
-          return undefined;
-        }
-        const boardData = JSON.parse(data);
-        boardData.forEach((board: any) => (board.has_updates = false));
-        return boardData;
-      },
-      initialStale: true,
-      staleTime: 1000 * 30, // Make stale after 30s
-      refetchInterval: 1000 * 60 * 1, // Refetch automatically every minute
-      refetchOnWindowFocus: true,
-    }
-  );
+  const { boardsData, refetch } = useBoardContext();
+  const [boardFilter, setBoardFilter] = React.useState("");
   const [dismissNotifications] = useMutation(dismissAllNotifications, {
     onSuccess: () => {
       log(`Successfully dismissed all notifications. Refetching...`);
@@ -87,14 +60,6 @@ const Layout = (props: LayoutProps) => {
     },
   });
 
-  const hasUpdates = React.useMemo(
-    () =>
-      (pinnedBoards || []).reduce(
-        (current: boolean, board: any) => current || board.has_updates,
-        false
-      ),
-    [pinnedBoards]
-  );
   const goToBoard = React.useCallback(
     (slug: string) =>
       createLinkTo({
@@ -107,18 +72,71 @@ const Layout = (props: LayoutProps) => {
       }),
     []
   );
-  const pinnedBoardsData = React.useMemo(() => {
-    return (pinnedBoards || []).map((board: any) => ({
-      slug: board.slug.replace("_", " "),
-      avatar: `${board.avatarUrl}`,
-      description: board.tagline,
-      color: board.settings?.accentColor,
-      updates: !!(isLoggedIn && board.has_updates),
-      muted: board.muted,
-      link: goToBoard(board.slug),
-    }));
-  }, [pinnedBoards]);
+  const {
+    pinnedBoards,
+    recentBoards,
+    allBoards,
+    hasUpdates,
+  } = React.useMemo(() => {
+    let recentBoards: any[] = [];
+    let pinnedBoards: any[] = [];
+    let allBoards: any[] = [];
+    let hasUpdates = false;
+    const availableBoards = Object.values(boardsData);
+    if (!availableBoards.length) {
+      return { recentBoards, pinnedBoards, allBoards, hasUpdates };
+    }
 
+    allBoards = availableBoards
+      .map((board, index) => ({
+        slug: board.slug.replace("_", " "),
+        avatar: `${board.avatarUrl}`,
+        description: board.tagline,
+        color: board.accentColor,
+        lastUpdate: board.lastUpdate,
+        updates: !!(isLoggedIn && board.hasUpdates),
+        muted: board.muted,
+        link: goToBoard(board.slug),
+        pinned: !!board.pinnedOrder,
+      }))
+      .sort((b1, b2) => b1.slug.localeCompare(b2.slug));
+
+    recentBoards = allBoards
+      .filter((board) => board.updates)
+      .sort((b1, b2) => {
+        if (moment.utc(b1.lastUpdate).isBefore(moment.utc(b2.lastUpdate))) {
+          return -1;
+        }
+        if (moment.utc(b1.lastUpdate).isAfter(moment.utc(b2.lastUpdate))) {
+          return 1;
+        }
+        return 0;
+      })
+      .filter((board, index) => index < 4);
+
+    pinnedBoards = allBoards
+      .filter((board) => board.pinned)
+      .sort(
+        (b1, b2) =>
+          (boardsData[b1.slug]?.pinnedOrder as number) -
+          (boardsData[b2.slug]?.pinnedOrder as number)
+      );
+
+    return {
+      recentBoards: recentBoards.filter(
+        ({ slug }) => boardFilter == "" || slug.includes(boardFilter)
+      ),
+      pinnedBoards: pinnedBoards.filter(
+        ({ slug }) => boardFilter == "" || slug.includes(boardFilter)
+      ),
+      allBoards: allBoards.filter(
+        ({ slug }) => boardFilter == "" || slug.includes(boardFilter)
+      ),
+      hasUpdates: recentBoards.length > 0,
+    };
+  }, [boardFilter, boardsData]);
+
+  const boardData = boardsData[slug];
   return (
     <div>
       {loginOpen && (
@@ -133,11 +151,23 @@ const Layout = (props: LayoutProps) => {
         mainContent={props.mainContent}
         sideMenuContent={
           <SideMenu
-            pinnedBoards={pinnedBoardsData}
-            showSearch={false}
-            showDismissNotifications={isLoggedIn}
-            onNotificationsDismissRequest={dismissNotifications}
-            loading={isLoading}
+            pinnedBoards={pinnedBoards}
+            recentBoards={recentBoards}
+            allBoards={allBoards}
+            menuOptions={
+              isLoggedIn
+                ? [
+                    {
+                      icon: faCommentSlash,
+                      name: "Dismiss Notifications",
+                      link: { onClick: dismissNotifications },
+                    },
+                  ]
+                : []
+            }
+            showRecent={isLoggedIn}
+            showPinned={isLoggedIn}
+            onFilterChange={setBoardFilter}
           />
         }
         actionButton={props.actionButton}
@@ -181,7 +211,7 @@ const Layout = (props: LayoutProps) => {
         user={user}
         title={props.title}
         forceHideTitle={props.forceHideTitle}
-        loading={props.loading || fetching || isUserPending}
+        loading={props.loading || isUserPending}
         updates={isLoggedIn && hasUpdates}
         onSideMenuButtonClick={refetch}
         logoLink={createLinkTo({ url: "/" })}

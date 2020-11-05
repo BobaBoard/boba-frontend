@@ -24,10 +24,12 @@ import {
   updateBoardSettings,
   muteBoard,
   dismissBoardNotifications,
+  pinBoard,
 } from "../../utils/queries/board";
 import {
   removeThreadActivityFromCache,
   setBoardMutedInCache,
+  setBoardPinnedInCache,
   setThreadHiddenInCache,
   setThreadMutedInCache,
 } from "../../utils/queries/cache";
@@ -46,6 +48,7 @@ import {
   faEyeSlash,
   faFilter,
   faLink,
+  faThumbtack,
   faVolumeMute,
   faVolumeUp,
 } from "@fortawesome/free-solid-svg-icons";
@@ -63,7 +66,7 @@ function BoardPage() {
   const router = useRouter();
   const slug: string = router.query.boardId?.slice(1) as string;
   const { isPending, isLoggedIn, user } = useAuth();
-  const { [slug]: boardData } = useBoardContext();
+  const { boardsData, nextPinnedOrder } = useBoardContext();
   const [editingSidebar, setEditingSidebar] = React.useState(false);
   const threadRedirectMethod = React.useRef(
     new Map<
@@ -176,6 +179,35 @@ function BoardPage() {
     }
   );
 
+  const [setBoardPinned] = useMutation(
+    ({ slug, pin }: { slug: string; pin: boolean }) => pinBoard({ slug, pin }),
+    {
+      onMutate: ({ slug, pin }) => {
+        log(
+          `Optimistically marking board ${slug} as ${
+            pin ? "pinned" : "unpinned"
+          }.`
+        );
+        setBoardPinnedInCache({ slug, pin, nextPinnedOrder });
+      },
+      onError: (error: Error, { slug, pin }) => {
+        toast.error(
+          `Error while marking board as ${pin ? "pinned" : "unpinned"}`
+        );
+        log(
+          `Error while marking board ${slug} as ${pin ? "pinned" : "unpinned"}:`
+        );
+        log(error);
+      },
+      onSuccess: (data: boolean, { slug, pin }) => {
+        log(
+          `Successfully marked board ${slug} as ${pin ? "pinned" : "unpinned"}.`
+        );
+        queryCache.invalidateQueries("allBoardsData");
+      },
+    }
+  );
+
   const [dismissNotifications] = useMutation(
     ({ slug }: { slug: string }) => dismissBoardNotifications({ slug }),
     {
@@ -245,18 +277,29 @@ function BoardPage() {
   );
 
   const boardOptions = React.useMemo(() => {
-    if (!isLoggedIn || !boardData) {
+    if (!isLoggedIn || !boardsData || !boardsData[slug]) {
       return undefined;
     }
     const options: any = [
       {
-        icon: boardData.muted ? faVolumeUp : faVolumeMute,
-        name: boardData.muted ? "Unmute" : "Mute",
+        icon: boardsData[slug].muted ? faVolumeUp : faVolumeMute,
+        name: boardsData[slug].muted ? "Unmute" : "Mute",
         link: {
           onClick: () =>
             setBoardMuted({
               slug,
-              mute: !boardData.muted,
+              mute: !boardsData[slug].muted,
+            }),
+        },
+      },
+      {
+        icon: faThumbtack,
+        name: !!boardsData[slug].pinnedOrder ? "Unpin" : "Pin",
+        link: {
+          onClick: () =>
+            setBoardPinned({
+              slug,
+              pin: !boardsData[slug].pinnedOrder,
             }),
         },
       },
@@ -268,7 +311,7 @@ function BoardPage() {
         },
       },
     ];
-    if (boardData.permissions?.canEditBoardData) {
+    if (boardsData[slug].permissions?.canEditBoardData) {
       options.push({
         icon: faEdit,
         name: "Edit Board",
@@ -278,7 +321,7 @@ function BoardPage() {
       });
     }
     return options;
-  }, [isLoggedIn, boardData, slug]);
+  }, [isLoggedIn, boardsData[slug], slug]);
 
   React.useEffect(() => {
     if (!isPending && isLoggedIn) {
@@ -317,8 +360,8 @@ function BoardPage() {
           }}
           // TODO: this transformation shouldn't be done here.
           additionalIdentities={
-            boardData?.postingIdentities
-              ? boardData.postingIdentities.map((identity) => ({
+            boardsData[slug]?.postingIdentities
+              ? boardsData[slug].postingIdentities?.map((identity) => ({
                   ...identity,
                   avatar: identity.avatarUrl,
                 }))
@@ -332,7 +375,7 @@ function BoardPage() {
           slug={slug}
           replyToPostId={null}
           uploadBaseUrl={`images/${slug}/`}
-          suggestedCategories={boardData?.suggestedCategories}
+          suggestedCategories={boardsData[slug]?.suggestedCategories}
         />
       )}
       <Layout
@@ -344,13 +387,13 @@ function BoardPage() {
               <>
                 <BoardSidebar
                   // @ts-ignore
-                  slug={boardData?.slug || slug}
-                  avatarUrl={boardData?.avatarUrl || "/"}
-                  tagline={boardData?.tagline || "loading..."}
-                  accentColor={boardData?.accentColor || "#f96680"}
-                  muted={boardData?.muted}
+                  slug={boardsData[slug]?.slug || slug}
+                  avatarUrl={boardsData[slug]?.avatarUrl || "/"}
+                  tagline={boardsData[slug]?.tagline || "loading..."}
+                  accentColor={boardsData[slug]?.accentColor || "#f96680"}
+                  muted={boardsData[slug]?.muted}
                   previewOptions={boardOptions}
-                  descriptions={boardData?.descriptions || []}
+                  descriptions={boardsData[slug]?.descriptions || []}
                   editing={editingSidebar}
                   onCancelEditing={() => {
                     setEditingSidebar(false);
@@ -368,7 +411,7 @@ function BoardPage() {
                     );
                   }}
                 />
-                {!boardData?.descriptions && !editingSidebar && (
+                {!boardsData[slug]?.descriptions && !editingSidebar && (
                   <img
                     className="under-construction"
                     src="/under_construction_icon.png"
@@ -604,7 +647,7 @@ function BoardPage() {
         actionButton={
           isLoggedIn && (
             <PostingActionButton
-              accentColor={boardData?.accentColor || "#f96680"}
+              accentColor={boardsData[slug]?.accentColor || "#f96680"}
               onNewPost={() => setPostEditorOpen(true)}
             />
           )

@@ -15,14 +15,20 @@ import {
   setOEmbedFetcher,
   // @ts-ignore
 } from "@bobaboard/ui-components";
+import { NextPageContext } from "next";
+import { BoardData } from "types/Types";
+import { makeClientBoardData } from "utils/server-utils";
 
 // import debug from "debug";
 // const logging = debug("bobafrontend:app-log");
 
+if (typeof window !== "undefined") {
+  smoothscroll.polyfill();
+}
+
 let location;
 let isStaging = false;
 if (typeof window !== "undefined") {
-  smoothscroll.polyfill();
   location = window.location.hostname;
   isStaging = new URL(window.location.href).hostname.startsWith("staging");
 }
@@ -92,7 +98,12 @@ setOEmbedFetcher((url: string) => {
     });
 });
 
-function MyApp({ Component, pageProps }: AppProps) {
+function MyApp({
+  Component,
+  pageProps,
+  // @ts-ignore
+  props,
+}: AppProps<{ [key: string]: BoardData }>) {
   return (
     <>
       <Head>
@@ -119,8 +130,10 @@ function MyApp({ Component, pageProps }: AppProps) {
         <link rel="manifest" href="/icons/site.webmanifest"></link>
       </Head>
       <AuthProvider>
-        <BoardContextProvider>
-          <AxiosInterceptor />
+        <AxiosInterceptor />
+        <BoardContextProvider
+          initialData={props?.boardData.map(makeClientBoardData) || []}
+        >
           <ToastContainer />
           <Component {...pageProps} />
         </BoardContextProvider>
@@ -130,3 +143,18 @@ function MyApp({ Component, pageProps }: AppProps) {
 }
 
 export default MyApp;
+
+MyApp.getInitialProps = async ({ ctx }: { ctx: NextPageContext }) => {
+  const currentHost = ctx.req?.headers.host;
+  let serverUrl;
+  if (currentHost?.startsWith("localhost")) {
+    serverUrl = `http://localhost:4200/`;
+  } else {
+    serverUrl = `https://backend-dot-bobaboard.uc.r.appspot.com/`;
+  }
+  const body = await fetch(`${serverUrl}boards`);
+  const boardData = await body.json();
+  return {
+    props: { boardData },
+  };
+};

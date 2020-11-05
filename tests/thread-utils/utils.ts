@@ -30,6 +30,7 @@ export const makePost = ({
     newPostsAmount: 0,
     newCommentsAmount: 0,
     isNew: !!isNew,
+    isOwn: false,
   };
 };
 

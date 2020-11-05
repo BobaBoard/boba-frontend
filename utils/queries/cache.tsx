@@ -112,6 +112,29 @@ export const setBoardMutedInCache = ({
   queryCache.setQueryData(["boardThemeData", { slug }], { ...boardData });
 };
 
+export const setBoardPinnedInCache = ({
+  slug,
+  pin,
+  nextPinnedOrder,
+}: {
+  slug: string;
+  pin: boolean;
+  nextPinnedOrder: number;
+}) => {
+  const boardData = queryCache.getQueryData<BoardData>([
+    "boardThemeData",
+    { slug },
+  ]);
+  if (!boardData) {
+    error(`Board wasn't found in data after marking board ${slug} as muted`);
+    return;
+  }
+
+  boardData.pinnedOrder = nextPinnedOrder;
+
+  queryCache.setQueryData(["boardThemeData", { slug }], { ...boardData });
+};
+
 export const setThreadHiddenInCache = ({
   slug,
   categoryFilter,

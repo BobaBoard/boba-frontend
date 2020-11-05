@@ -99,6 +99,9 @@ export interface BoardData {
   accentColor: string;
   descriptions: BoardDescription[];
   muted: boolean;
+  pinnedOrder: number | null;
+  hasUpdates?: boolean;
+  lastUpdate?: Date;
   permissions?: Permissions;
   postingIdentities?: Role[];
   suggestedCategories?: string[];

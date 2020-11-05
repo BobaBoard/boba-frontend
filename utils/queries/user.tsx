@@ -1,7 +1,7 @@
 import axios from "axios";
 import debug from "debug";
 import { BoardActivityResponse } from "types/Types";
-import { makeClientThread } from "../../utils/queries";
+import { makeClientThread } from "../../utils/server-utils";
 
 const log = debug("bobafrontend:queries:user-log");
 
