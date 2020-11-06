@@ -91,7 +91,7 @@ const ThreadLevel: React.FC<{
 }> = (props) => {
   const router = useRouter();
   const slug = router.query.boardId?.slice(1) as string;
-  const { [slug]: boardData } = useBoardContext();
+  const { boardsData } = useBoardContext();
   info(
     `Rendering subtree at level ${props.level} starting with post with id ${props.post.postId}`
   );
@@ -101,7 +101,7 @@ const ThreadLevel: React.FC<{
     ? props.lastOf.map((ends) => ({
         level: ends.level,
         onBeamUpClick: () => {
-          scrollToPost(ends.postId, boardData.accentColor);
+          scrollToPost(ends.postId, boardsData[slug].accentColor);
         },
         showAddContribution: props.isLoggedIn,
         onAddContributionClick: () => {
@@ -187,7 +187,10 @@ const ThreadLevel: React.FC<{
                     {
                       level: props.level,
                       onBeamUpClick: () =>
-                        scrollToPost(props.post.postId, boardData.accentColor),
+                        scrollToPost(
+                          props.post.postId,
+                          boardsData[slug].accentColor
+                        ),
                       showAddContribution: props.isLoggedIn,
                       onAddContributionClick: () => {
                         props.onNewContribution(props.post.postId);

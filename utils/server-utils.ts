@@ -1,6 +1,7 @@
 import { PostType, CommentType, ThreadType, BoardData } from "../types/Types";
 
 import { DEFAULT_USER_NAME, DEFAULT_USER_AVATAR } from "../components/Auth";
+import { NextPageContext } from "next/dist/next-server/lib/utils";
 import moment from "moment";
 
 export const makeClientComment = (serverComment: any): CommentType => ({
@@ -92,4 +93,51 @@ export const makeClientBoardData = (serverBoardData: any): BoardData => {
       ? parseInt(serverBoardData.pinned_order)
       : null,
   };
+};
+
+export const getServerBaseUrl = (context?: NextPageContext) => {
+  let location = "";
+  let isStaging = false;
+  let isLocalhost = false;
+
+  const currentHost =
+    typeof window !== "undefined"
+      ? window.location.hostname
+      : context?.req?.headers.host;
+  if (currentHost?.startsWith("localhost") || currentHost?.startsWith("192.")) {
+    location = currentHost;
+    isLocalhost = true;
+  } else if (currentHost?.startsWith("staging")) {
+    location = `staging-dot-backend-dot-bobaboard.uc.r.appspot.com`;
+    isStaging = true;
+  } else {
+    location = "backend-dot-bobaboard.uc.r.appspot.com";
+  }
+
+  // Remove the port if there is currently one
+  if (location.indexOf(":") != -1) {
+    location = location.substring(0, location.indexOf(":"));
+  }
+
+  const DEV_SERVER_KEY = "devServer";
+  let devServer = isLocalhost
+    ? `http://${location}:4200/`
+    : `https://${location}/`;
+  // TODO: this might cause problems with SSR now. A better way of doing this
+  // would be to set it as a cookie so that it can be sent to the server as a
+  // setting.
+  if (typeof localStorage !== "undefined") {
+    const data = localStorage.getItem(DEV_SERVER_KEY);
+    if (data) {
+      devServer = data;
+    }
+  }
+  if (process.env.NEXT_PUBLIC_DEFAULT_BACKEND) {
+    devServer = process.env.NEXT_PUBLIC_DEFAULT_BACKEND;
+  }
+  return process.env.NODE_ENV == "production"
+    ? isStaging
+      ? "https://staging-dot-backend-dot-bobaboard.uc.r.appspot.com/"
+      : "https://backend-dot-bobaboard.uc.r.appspot.com/"
+    : devServer;
 };

@@ -17,8 +17,7 @@ import {
 } from "@bobaboard/ui-components";
 import { NextPageContext } from "next";
 import { BoardData } from "types/Types";
-import { makeClientBoardData } from "utils/server-utils";
-
+import { makeClientBoardData, getServerBaseUrl } from "utils/server-utils";
 // import debug from "debug";
 // const logging = debug("bobafrontend:app-log");
 
@@ -26,32 +25,7 @@ if (typeof window !== "undefined") {
   smoothscroll.polyfill();
 }
 
-let location;
-let isStaging = false;
-if (typeof window !== "undefined") {
-  location = window.location.hostname;
-  isStaging = new URL(window.location.href).hostname.startsWith("staging");
-}
-
-const DEV_SERVER_KEY = "devServer";
-let devServer = `http://${location}:4200/`;
-if (typeof localStorage !== "undefined") {
-  const data = localStorage.getItem(DEV_SERVER_KEY);
-  if (data) {
-    devServer = data;
-  }
-}
-if (process.env.NEXT_PUBLIC_DEFAULT_BACKEND) {
-  devServer = process.env.NEXT_PUBLIC_DEFAULT_BACKEND;
-}
-
-axios.defaults.baseURL =
-  process.env.NODE_ENV == "production"
-    ? isStaging
-      ? "https://staging-dot-backend-dot-bobaboard.uc.r.appspot.com/"
-      : "https://backend-dot-bobaboard.uc.r.appspot.com/"
-    : devServer;
-
+axios.defaults.baseURL = getServerBaseUrl();
 // We make the axios interceptor be a component so we can have auth
 // provided within.
 const AxiosInterceptor = () => {
@@ -78,13 +52,12 @@ const AxiosInterceptor = () => {
   return null;
 };
 
+const embedsAxios = axios.create();
 setTumblrEmbedFetcher((url: string) => {
-  return axios.get(`posts/embed/tumblr?url=${url}`).then((res) => {
+  return embedsAxios.get(`posts/embed/tumblr?url=${url}`).then((res) => {
     return res.data;
   });
 });
-
-const embedsAxios = axios.create();
 setOEmbedFetcher((url: string) => {
   // We add a random number to the embed load to get around https://github.com/itteco/iframely/issues/281
   return embedsAxios
@@ -145,15 +118,8 @@ function MyApp({
 export default MyApp;
 
 MyApp.getInitialProps = async ({ ctx }: { ctx: NextPageContext }) => {
-  const currentHost = ctx.req?.headers.host;
-  let serverUrl;
-  if (currentHost?.startsWith("localhost")) {
-    serverUrl = `http://localhost:4200/`;
-  } else {
-    serverUrl = `https://backend-dot-bobaboard.uc.r.appspot.com/`;
-  }
-  const body = await fetch(`${serverUrl}boards`);
-  const boardData = await body.json();
+  const body = await axios.get(`${getServerBaseUrl(ctx)}boards`);
+  const boardData = await body.data;
   return {
     props: { boardData },
   };

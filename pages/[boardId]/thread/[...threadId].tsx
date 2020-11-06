@@ -71,7 +71,7 @@ function ThreadPage() {
     defaultView,
     categories,
   } = useThread();
-  const { [slug]: boardData } = useBoardContext();
+  const { currentBoardData } = useBoardContext();
   const [viewMode, setViewMode] = React.useState(
     getViewTypeFromString(defaultView) || THREAD_VIEW_MODES.THREAD
   );
@@ -122,10 +122,10 @@ function ThreadPage() {
     const nextPost = newAnswersSequence[newAnswersIndex.current].postId;
     const nextComment = newAnswersSequence[newAnswersIndex.current].commentId;
     if (nextPost) {
-      scrollToPost(nextPost, boardData.accentColor);
+      scrollToPost(nextPost, currentBoardData?.accentColor || "#f96680");
     }
     if (nextComment) {
-      scrollToComment(nextComment, boardData.accentColor);
+      scrollToComment(nextComment, currentBoardData?.accentColor || "#f96680");
     }
   };
 
@@ -147,8 +147,8 @@ function ThreadPage() {
             }}
             // TODO: this transformation shouldn't be done here.
             additionalIdentities={
-              !personalIdentity && boardData?.postingIdentities
-                ? boardData.postingIdentities.map((identity) => ({
+              !personalIdentity && currentBoardData?.postingIdentities
+                ? currentBoardData.postingIdentities.map((identity) => ({
                     ...identity,
                     avatar: identity.avatarUrl,
                   }))
@@ -292,7 +292,7 @@ function ThreadPage() {
             <CycleNewButton text="Next New" onNext={onNewAnswersButtonClick} />
           ) : canTopLevelPost ? (
             <PostingActionButton
-              accentColor={boardData?.accentColor || "#f96680"}
+              accentColor={currentBoardData?.accentColor || "#f96680"}
               onNewPost={() => threadRoot && setPostReplyId(threadRoot.postId)}
             />
           ) : undefined
