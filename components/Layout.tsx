@@ -13,6 +13,7 @@ import { useMutation, queryCache } from "react-query";
 // @ts-ignore
 import { ReactQueryDevtools } from "react-query-devtools";
 import { useBoardContext } from "./BoardContext";
+import { processBoardsUpdates } from "../utils/boards-utils";
 import debug from "debug";
 import {
   faArchive,
@@ -23,7 +24,6 @@ import {
   faInbox,
   faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
-import moment from "moment";
 
 const log = debug("bobafrontend:queries-log");
 
@@ -72,69 +72,28 @@ const Layout = (props: LayoutProps) => {
       }),
     []
   );
-  const {
-    pinnedBoards,
-    recentBoards,
-    allBoards,
-    hasUpdates,
-  } = React.useMemo(() => {
-    let recentBoards: any[] = [];
-    let pinnedBoards: any[] = [];
-    let allBoards: any[] = [];
-    let hasUpdates = false;
-    const availableBoards = Object.values(boardsData);
-    if (!availableBoards.length) {
-      return { recentBoards, pinnedBoards, allBoards, hasUpdates };
-    }
-
-    allBoards = availableBoards
-      .map((board, index) => ({
-        slug: board.slug.replace("_", " "),
-        avatar: `${board.avatarUrl}`,
-        description: board.tagline,
-        color: board.accentColor,
-        lastUpdate: board.lastUpdate,
-        updates: !!(isLoggedIn && board.hasUpdates),
-        muted: board.muted,
-        link: goToBoard(board.slug),
-        pinned: !!board.pinnedOrder,
-      }))
-      .sort((b1, b2) => b1.slug.localeCompare(b2.slug));
-
-    recentBoards = allBoards
-      .filter((board) => board.updates)
-      .sort((b1, b2) => {
-        if (moment.utc(b1.lastUpdate).isBefore(moment.utc(b2.lastUpdate))) {
-          return -1;
-        }
-        if (moment.utc(b1.lastUpdate).isAfter(moment.utc(b2.lastUpdate))) {
-          return 1;
-        }
-        return 0;
-      })
-      .filter((board, index) => index < 4);
-
-    pinnedBoards = allBoards
-      .filter((board) => board.pinned)
-      .sort(
-        (b1, b2) =>
-          (boardsData[b1.slug]?.pinnedOrder as number) -
-          (boardsData[b2.slug]?.pinnedOrder as number)
-      );
-
-    return {
-      recentBoards: recentBoards.filter(
-        ({ slug }) => boardFilter == "" || slug.includes(boardFilter)
+  const { pinnedBoards, recentBoards, allBoards, hasUpdates } = React.useMemo(
+    () =>
+      processBoardsUpdates(
+        Object.values(boardsData).reduce((agg, board) => {
+          agg[board.slug] = {
+            slug: board.slug.replace("_", " "),
+            avatar: `${board.avatarUrl}`,
+            description: board.tagline,
+            color: board.accentColor,
+            lastUpdate: board.lastUpdate,
+            updates: !!(isLoggedIn && board.hasUpdates),
+            muted: board.muted,
+            link: goToBoard(board.slug),
+            pinned: !!board.pinnedOrder,
+            pinnedOrder: board.pinnedOrder,
+          };
+          return agg;
+        }, {}),
+        boardFilter
       ),
-      pinnedBoards: pinnedBoards.filter(
-        ({ slug }) => boardFilter == "" || slug.includes(boardFilter)
-      ),
-      allBoards: allBoards.filter(
-        ({ slug }) => boardFilter == "" || slug.includes(boardFilter)
-      ),
-      hasUpdates: recentBoards.length > 0,
-    };
-  }, [boardFilter, boardsData]);
+    [boardFilter, boardsData]
+  );
 
   const boardData = boardsData[slug];
   return (
@@ -152,7 +111,14 @@ const Layout = (props: LayoutProps) => {
         sideMenuContent={
           <SideMenu
             pinnedBoards={pinnedBoards}
-            recentBoards={recentBoards}
+            recentBoards={
+              React.useMemo(
+                () =>
+                  // @ts-ignore
+                  recentBoards.filter((board, index) => index < 4),
+                [recentBoards]
+              ) as any[]
+            }
             allBoards={allBoards}
             menuOptions={
               isLoggedIn
