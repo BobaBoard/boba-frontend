@@ -31,8 +31,14 @@ const updateBoardData = (
     avatarUrl: newBoardData.avatarUrl,
     tagline: newBoardData.tagline,
     accentColor: newBoardData.accentColor,
-    descriptions: newBoardData.descriptions,
+    descriptions:
+      newBoardData.descriptions.length > 0
+        ? newBoardData.descriptions
+        : oldBoardData?.descriptions || [],
     muted: newBoardData.muted,
+    hasUpdates: !!(typeof newBoardData.hasUpdates !== "undefined"
+      ? newBoardData.hasUpdates
+      : oldBoardData?.hasUpdates),
     pinnedOrder: newBoardData.pinnedOrder,
     permissions:
       newBoardData.permissions || oldBoardData?.permissions || ([] as any),
@@ -76,12 +82,14 @@ const BoardContextProvider: React.FC<{
 
   // This handler takes care of transforming the board result returned from a query
   // to the /boards endpoint (i.e. the one returning details for ALL boards).
+  // Note that, at least for now, this handler returns ALL the board, so boards that were there but
+  // aren't anymore can be safely removed.
   const { data: allBoardsData, refetch } = useQuery(
     "allBoardsData",
     getAllBoardsData,
     {
       initialData: () => Object.values(boardsData),
-      initialStale: false,
+      initialStale: true,
       staleTime: 1000 * 30, // Make stale after 30s
       refetchInterval: 1000 * 60 * 1, // Refetch automatically every minute
       refetchOnWindowFocus: true,
@@ -98,12 +106,8 @@ const BoardContextProvider: React.FC<{
       },
       {} as BoardContextType["boardsData"]
     );
-    const updatedBoardsData = {
-      ...boardsData,
-      ...newBoardsData,
-    };
-    setBoardsData(updatedBoardsData);
-    setNextPinnedOrder(getNextPinnedOrder(Object.values(updatedBoardsData)));
+    setBoardsData(newBoardsData);
+    setNextPinnedOrder(getNextPinnedOrder(Object.values(newBoardsData)));
   }, [allBoardsData]);
 
   // This handler takes care of transforming the board result returned from a query

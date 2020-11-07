@@ -92,6 +92,8 @@ export const makeClientBoardData = (serverBoardData: any): BoardData => {
     pinnedOrder: serverBoardData.pinned_order
       ? parseInt(serverBoardData.pinned_order)
       : null,
+    postingIdentities: serverBoardData.postingIdentities,
+    permissions: serverBoardData.permissions,
   };
 };
 
