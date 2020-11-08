@@ -1,9 +1,6 @@
 import React from "react";
-import {
-  SideMenu,
-  Layout as InnerLayout,
-  // @ts-ignore
-} from "@bobaboard/ui-components";
+import { SideMenu, Layout as InnerLayout } from "@bobaboard/ui-components";
+import { BoardType } from "@bobaboard/ui-components/dist/types";
 import LoginModal from "./LoginModal";
 import { dismissAllNotifications } from "../utils/queries";
 import { BOARD_URL_PATTERN, createLinkTo } from "./../utils/link-utils";
@@ -85,11 +82,10 @@ const Layout = (props: LayoutProps) => {
             updates: !!(isLoggedIn && board.hasUpdates),
             muted: board.muted,
             link: goToBoard(board.slug),
-            pinned: !!board.pinnedOrder,
             pinnedOrder: board.pinnedOrder,
           };
           return agg;
-        }, {}),
+        }, {} as Parameters<typeof processBoardsUpdates>[0]),
         boardFilter
       ),
     [boardFilter, boardsData]
