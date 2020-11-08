@@ -25,30 +25,33 @@ const updateBoardData = (
   newBoardData: BoardData,
   oldBoardData: BoardData | null
 ): BoardData => {
+  const descriptions =
+    newBoardData.descriptions.length > 0
+      ? newBoardData.descriptions
+      : oldBoardData?.descriptions || [];
   return {
     ...oldBoardData,
     slug: newBoardData.slug,
     avatarUrl: newBoardData.avatarUrl,
     tagline: newBoardData.tagline,
     accentColor: newBoardData.accentColor,
-    descriptions:
-      newBoardData.descriptions.length > 0
-        ? newBoardData.descriptions
-        : oldBoardData?.descriptions || [],
+    descriptions,
     muted: newBoardData.muted,
     hasUpdates: !!(typeof newBoardData.hasUpdates !== "undefined"
       ? newBoardData.hasUpdates
       : oldBoardData?.hasUpdates),
+    lastUpdate:
+      typeof newBoardData.lastUpdate !== "undefined"
+        ? newBoardData.lastUpdate
+        : oldBoardData?.lastUpdate,
     pinnedOrder: newBoardData.pinnedOrder,
     permissions:
       newBoardData.permissions || oldBoardData?.permissions || ([] as any),
     postingIdentities:
       newBoardData.postingIdentities || oldBoardData?.postingIdentities || [],
-    suggestedCategories: (
-      newBoardData.descriptions ||
-      oldBoardData?.descriptions ||
-      []
-    )?.flatMap((description) => description.categories || []),
+    suggestedCategories: descriptions.flatMap(
+      (description) => description.categories || []
+    ),
   };
 };
 
