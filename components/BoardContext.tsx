@@ -4,6 +4,7 @@ import { useQuery } from "react-query";
 import { getBoardData, getAllBoardsData } from "../utils/queries/board";
 import { BoardData } from "../types/Types";
 import noop from "noop-ts";
+import { useAuth } from "./Auth";
 
 interface BoardContextType {
   boardsData: { [key: string]: BoardData };
@@ -62,6 +63,7 @@ const BoardContextProvider: React.FC<{
   initialData?: BoardData[];
 }> = (props) => {
   const router = useRouter();
+  const { isLoggedIn } = useAuth();
   const slug = router.query.boardId?.slice(1) as string;
   const [boardsData, setBoardsData] = React.useState<
     BoardContextType["boardsData"]
@@ -87,7 +89,7 @@ const BoardContextProvider: React.FC<{
   // to the /boards endpoint (i.e. the one returning details for ALL boards).
   // Note that, at least for now, this handler returns ALL the board, so boards that were there but
   // aren't anymore can be safely removed.
-  const { data: allBoardsData, refetch } = useQuery(
+  const { data: allBoardsData, refetch: refetchAllBoards } = useQuery(
     "allBoardsData",
     getAllBoardsData,
     {
@@ -113,9 +115,15 @@ const BoardContextProvider: React.FC<{
     setNextPinnedOrder(getNextPinnedOrder(Object.values(newBoardsData)));
   }, [allBoardsData]);
 
+  React.useEffect(() => {
+    if (isLoggedIn) {
+      refetchAllBoards();
+    }
+  }, [isLoggedIn]);
+
   // This handler takes care of transforming the board result returned from a query
   // to the /boards/:slug endpoint (i.e. the one returning details for the "slug" board).
-  const { data: boardData } = useQuery(
+  const { data: boardData, refetch: refetchCurrentBoard } = useQuery(
     ["boardThemeData", { slug }],
     getBoardData,
     { staleTime: Infinity }
@@ -139,9 +147,20 @@ const BoardContextProvider: React.FC<{
     setCurrentBoardData(boardData?.[slug] || null);
   }, [boardData, slug]);
 
+  React.useEffect(() => {
+    if (isLoggedIn) {
+      refetchCurrentBoard();
+    }
+  }, [isLoggedIn]);
+
   return (
     <BoardContext.Provider
-      value={{ boardsData, nextPinnedOrder, refetch, currentBoardData }}
+      value={{
+        boardsData,
+        nextPinnedOrder,
+        refetch: refetchAllBoards,
+        currentBoardData,
+      }}
       {
         ...props /* this is here for props.children */
       }
