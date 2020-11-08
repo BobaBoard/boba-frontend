@@ -71,18 +71,52 @@ setOEmbedFetcher((url: string) => {
     });
 });
 
+const getTitle = (currentBoardData: BoardData | undefined) => {
+  return currentBoardData
+    ? `BobaBoard v0 — !${currentBoardData.slug} — Where the bugs are funny and the people are cool!`
+    : "BobaBoard v0 — Where the bugs are funny and the people are cool!";
+};
+
+const getImage = (currentBoardData: BoardData | undefined) => {
+  return currentBoardData
+    ? currentBoardData.avatarUrl
+    : "https://v0.boba.social/bobatan.png";
+};
+
+const getDescription = (currentBoardData: BoardData | undefined) => {
+  return currentBoardData
+    ? currentBoardData.tagline
+    : `BobaBoard is an upcoming commmunity (and platform) aiming to balance the freedom and wonder of the early 00s web with a modern user experience and ethos. Feel free to look around, but remember: what you see is Work in Progress! Read more (and get involved) at www.bobaboard.com.`;
+};
+
 function MyApp({
   Component,
   pageProps,
   // @ts-ignore
   props,
 }: AppProps<{ [key: string]: BoardData }>) {
+  const boardData: BoardData[] =
+    props?.boardData.map(makeClientBoardData) || [];
+  const currentBoardData = boardData.find((board) => board.slug == props.slug);
   return (
     <>
       <Head>
-        <title>
-          BobaBoard v0 — Where the bugs are funny and the people are cool!
-        </title>
+        <title>{getTitle(currentBoardData)}</title>
+        <meta property="og:title" content={getTitle(currentBoardData)} />
+        <meta property="og:type" content="website" />
+        <meta
+          property="og:description"
+          content={getDescription(currentBoardData)}
+        />
+        <meta property="og:image" content={getImage(currentBoardData)} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@BobaBoard" />
+        <meta name="twitter:title" content={getTitle(currentBoardData)} />
+        <meta
+          name="twitter:description"
+          content={getDescription(currentBoardData)}
+        />
+        <meta name="twitter:image" content={getImage(currentBoardData)} />
         <link
           rel="apple-touch-icon"
           sizes="180x180"
@@ -104,9 +138,7 @@ function MyApp({
       </Head>
       <AuthProvider>
         <AxiosInterceptor />
-        <BoardContextProvider
-          initialData={props?.boardData.map(makeClientBoardData) || []}
-        >
+        <BoardContextProvider initialData={boardData}>
           <ToastContainer />
           <Component {...pageProps} />
         </BoardContextProvider>
@@ -121,6 +153,6 @@ MyApp.getInitialProps = async ({ ctx }: { ctx: NextPageContext }) => {
   const body = await axios.get(`${getServerBaseUrl(ctx)}boards`);
   const boardData = await body.data;
   return {
-    props: { boardData },
+    props: { boardData, slug: ctx.query.boardId?.slice(1) },
   };
 };

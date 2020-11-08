@@ -1,6 +1,5 @@
 import React from "react";
 import { SideMenu, Layout as InnerLayout } from "@bobaboard/ui-components";
-import { BoardType } from "@bobaboard/ui-components/dist/types";
 import LoginModal from "./LoginModal";
 import { dismissAllNotifications } from "../utils/queries";
 import { BOARD_URL_PATTERN, createLinkTo } from "./../utils/link-utils";

@@ -26,13 +26,13 @@ export const processBoardsUpdates = (
   allBoards = availableBoards.sort((b1, b2) => b1.slug.localeCompare(b2.slug));
 
   recentBoards = allBoards
-    .filter((board) => board.lastUpdate !== null)
+    .filter((board) => board.lastUpdate !== null && !!board.updates)
     .sort((b1, b2) => {
       if (moment.utc(b1.lastUpdate).isBefore(moment.utc(b2.lastUpdate))) {
-        return -1;
+        return 1;
       }
       if (moment.utc(b1.lastUpdate).isAfter(moment.utc(b2.lastUpdate))) {
-        return 1;
+        return -1;
       }
       return 0;
     });

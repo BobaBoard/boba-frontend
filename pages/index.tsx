@@ -39,50 +39,52 @@ function HomePage() {
               <div className="updates">
                 <h2>New Stuff </h2>
                 <div className="last">
-                  [Last Updated: 11/04/20.{" "}
+                  [Last Updated: 11/07/20.{" "}
                   <Link href="/update-logs">
                     <a>Older logs.</a>
                   </Link>
                   ]
                   <p>
-                    The Halloween decorations are gone... so dry your tears with
-                    these cool updates!
+                    🇺🇸 🇺🇸 I can't make you happier than the news, but I can give
+                    you some updates! 🇺🇸 🇺🇸{" "}
                     <ul>
                       <li>
+                        <strong>Tons of fixes on the sidemenu:</strong> I had
+                        gotten it to work, but CLEARLY not well enough. What you
+                        get now: recent unreads are in the right order (with the
+                        most recently updated displaying first), pinned boards
+                        are also in the right order (by pinning time), and board
+                        filtering is now case insensitive!
+                      </li>
+                      <li>
+                        <strong>Better display for muted boards:</strong> people
+                        have rightfully complained that the UI state for muted
+                        boards wasn't clear enough. Well, not anymore
+                        (hopefully)!
+                      </li>
+                      <li>
                         <strong>
-                          New side menu! New side menu! New side menu!
+                          (A Personal Fave) Board Preview on Linking:
                         </strong>{" "}
-                        We're officially in a glorious and radiant future in
-                        which our sidemenu is actually decent. Thank you for
-                        putting up with my previous "hastily-thrown together"
-                        one for so long.
+                        if you link a BobaBoard board or thread to a friend,
+                        they'll now get the board image and description as part
+                        of the preview. Fancy!
                       </li>
                       <li>
-                        <strong>Board pinning!</strong> See that empty space on
-                        the left of your shiny new menu? Pinned boards go there.
-                        You can find the option in the boards' sidebar dropdown.
+                        <strong>Fixed Special Roles:</strong> my work on
+                        "improving" our board updates handling had messed up our
+                        permission settings. While almost no one but me has
+                        special permissions at this moment, just trust me that
+                        it's working now.
                       </li>
                       <li>
-                        <strong>Server Side Rendering</strong> I've begun taking
-                        the first step into pre-rendering pages on the server.
-                        What this will mean in the future is improved loading
-                        times for all of us (plus some cool bonuses you'll learn
-                        about with time). But what this means for now is that
-                        you won't see the board color flash from pink to the
-                        actual one on first load ever again.
-                      </li>
-                      <li>
-                        <strong>Server Cache</strong> I'm now caching the
-                        results of some database queries, which means I won't
-                        recalculate them every single time. This should lead,
-                        with time, to better and better load times. And also,
-                        very likely, to a bunch of bugs along the way (caching
-                        is hard).
-                      </li>
-                      <li>
-                        <strong>Small fixes:</strong> Fixed YouTube embeds from
-                        youtu.be. You should now be able to add from any YouTube
-                        url.
+                        <strong>Other bug fixes:</strong> setting a new username
+                        should now be fixed. If you hadn't been able to change
+                        it, please go ahead! CWs left alone on their own row are
+                        now pushed to the topmost row. Improved spacing on
+                        dropdown (but overlay is still not disappearing when
+                        hiding posts... I've been temporarily bested, but I'll
+                        try again tomorrow).
                       </li>
                     </ul>
                   </p>

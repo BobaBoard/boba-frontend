@@ -11,6 +11,51 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [11/04/20]
+                  <p>
+                    The Halloween decorations are gone... so dry your tears with
+                    these cool updates!
+                    <ul>
+                      <li>
+                        <strong>
+                          New side menu! New side menu! New side menu!
+                        </strong>{" "}
+                        We're officially in a glorious and radiant future in
+                        which our sidemenu is actually decent. Thank you for
+                        putting up with my previous "hastily-thrown together"
+                        one for so long.
+                      </li>
+                      <li>
+                        <strong>Board pinning!</strong> See that empty space on
+                        the left of your shiny new menu? Pinned boards go there.
+                        You can find the option in the boards' sidebar dropdown.
+                      </li>
+                      <li>
+                        <strong>Server Side Rendering</strong> I've begun taking
+                        the first step into pre-rendering pages on the server.
+                        What this will mean in the future is improved loading
+                        times for all of us (plus some cool bonuses you'll learn
+                        about with time). But what this means for now is that
+                        you won't see the board color flash from pink to the
+                        actual one on first load ever again.
+                      </li>
+                      <li>
+                        <strong>Server Cache</strong> I'm now caching the
+                        results of some database queries, which means I won't
+                        recalculate them every single time. This should lead,
+                        with time, to better and better load times. And also,
+                        very likely, to a bunch of bugs along the way (caching
+                        is hard).
+                      </li>
+                      <li>
+                        <strong>Small fixes:</strong> Fixed YouTube embeds from
+                        youtu.be. You should now be able to add from any YouTube
+                        url.
+                      </li>
+                    </ul>
+                  </p>
+                </li>
+                <li>
                   [10/30/20]
                   <p>
                     Bug fixes & Announcements!
