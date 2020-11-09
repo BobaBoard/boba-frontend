@@ -8,25 +8,65 @@ import {
 import debug from "debug";
 const error = debug("bobafrontend:boardPage-error");
 
+interface ThreadInActivityData {
+  thread: ThreadType;
+  activityDataIndex: number;
+  threadIndex: number;
+}
 const getThreadInActivityData = (
   activityData: BoardActivityResponse[] | undefined,
   threadId: string
-) => {
-  return activityData
-    ?.flatMap((data) => data.activity)
-    .find((thread) => thread.threadId == threadId);
+): ThreadInActivityData | undefined => {
+  if (!activityData) {
+    return undefined;
+  }
+  for (let i = 0; i < activityData?.length; i++) {
+    const threadIndex = activityData[i].activity.findIndex(
+      (thread) => thread.threadId == threadId
+    );
+    if (threadIndex != -1) {
+      return {
+        thread: activityData[i].activity[threadIndex],
+        activityDataIndex: i,
+        threadIndex,
+      };
+    }
+  }
+  return undefined;
 };
 
-const removeThreadActivity = (thread: ThreadType | undefined) => {
-  if (!thread) {
+const updateThreadInActivity = (
+  activityData: BoardActivityResponse[] | undefined,
+  threadId: string,
+  updateThread: (thread: ThreadType) => void
+) => {
+  const threadData = getThreadInActivityData(activityData, threadId);
+  if (!threadData || !activityData) {
     return;
   }
-  thread.posts[0].isNew = false;
-  thread.posts[0].newCommentsAmount = 0;
-  thread.posts[0].newPostsAmount = 0;
-  thread.isNew = false;
-  thread.newCommentsAmount = 0;
-  thread.newPostsAmount = 0;
+  const newThread = {
+    ...threadData.thread,
+  };
+
+  updateThread(newThread);
+
+  activityData[threadData.activityDataIndex].activity[
+    threadData.threadIndex
+  ] = newThread;
+};
+
+const removeThreadActivity = (
+  activityData: BoardActivityResponse[] | undefined,
+  threadId: string
+) => {
+  updateThreadInActivity(activityData, threadId, (thread) => {
+    thread.posts[0].isNew = false;
+    thread.posts[0].newCommentsAmount = 0;
+    thread.posts[0].newPostsAmount = 0;
+    thread.isNew = false;
+    thread.newCommentsAmount = 0;
+    thread.newPostsAmount = 0;
+  });
 };
 
 export const removeThreadActivityFromCache = ({
@@ -46,8 +86,8 @@ export const removeThreadActivityFromCache = ({
     "userActivityData",
   ]);
 
-  removeThreadActivity(getThreadInActivityData(boardActivityData, threadId));
-  removeThreadActivity(getThreadInActivityData(userActivityData, threadId));
+  removeThreadActivity(boardActivityData, threadId);
+  removeThreadActivity(userActivityData, threadId);
 
   queryCache.setQueryData(
     ["boardActivityData", { slug, categoryFilter }],
@@ -74,15 +114,17 @@ export const setThreadMutedInCache = ({
   const userActivityData = queryCache.getQueryData<BoardActivityResponse[]>([
     "userActivityData",
   ]);
-  const boardThread = getThreadInActivityData(boardActivityData, threadId);
-  const userThread = getThreadInActivityData(userActivityData, threadId);
 
-  if (boardThread) {
-    boardThread.muted = mute;
-  }
-  if (userThread) {
-    userThread.muted = mute;
-  }
+  updateThreadInActivity(
+    boardActivityData,
+    threadId,
+    (thread) => (thread.muted = mute)
+  );
+  updateThreadInActivity(
+    userActivityData,
+    threadId,
+    (thread) => (thread.muted = mute)
+  );
 
   queryCache.setQueryData(
     ["boardActivityData", { slug }],
@@ -153,15 +195,16 @@ export const setThreadHiddenInCache = ({
   const userActivityData = queryCache.getQueryData<BoardActivityResponse[]>([
     "userActivityData",
   ]);
-  const boardThread = getThreadInActivityData(boardActivityData, threadId);
-  const userThread = getThreadInActivityData(userActivityData, threadId);
-
-  if (boardThread) {
-    boardThread.hidden = hide;
-  }
-  if (userThread) {
-    userThread.hidden = hide;
-  }
+  updateThreadInActivity(
+    boardActivityData,
+    threadId,
+    (thread) => (thread.hidden = hide)
+  );
+  updateThreadInActivity(
+    userActivityData,
+    threadId,
+    (thread) => (thread.hidden = hide)
+  );
 
   queryCache.setQueryData(
     ["boardActivityData", { slug }],

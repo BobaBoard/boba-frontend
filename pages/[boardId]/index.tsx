@@ -185,7 +185,7 @@ const BoardPost: React.FC<{
               ]
             : []),
         ],
-        [isLoggedIn]
+        [isLoggedIn, thread]
       )}
       getOptionsForTag={React.useCallback((tag: TagsType) => {
         if (tag.type == TagType.CATEGORY) {
