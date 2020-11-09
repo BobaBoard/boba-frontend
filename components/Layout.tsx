@@ -2,7 +2,6 @@ import React from "react";
 import { SideMenu, Layout as InnerLayout } from "@bobaboard/ui-components";
 import LoginModal from "./LoginModal";
 import { dismissAllNotifications } from "../utils/queries";
-import { BOARD_URL_PATTERN, createLinkTo } from "./../utils/link-utils";
 import { useAuth } from "./Auth";
 import { NextRouter, useRouter } from "next/router";
 import { useMutation, queryCache } from "react-query";
@@ -10,6 +9,7 @@ import { useMutation, queryCache } from "react-query";
 import { ReactQueryDevtools } from "react-query-devtools";
 import { useBoardContext } from "./BoardContext";
 import { processBoardsUpdates } from "../utils/boards-utils";
+import { useCachedLinks, FEED_URL } from "./hooks/useCachedLinks";
 import debug from "debug";
 import {
   faArchive,
@@ -23,8 +23,6 @@ import {
 
 const log = debug("bobafrontend:queries-log");
 
-const FEED_URL = "/users/feed";
-
 const getSelectedMenuOptionFromPath = (router: NextRouter) => {
   if (router.asPath == FEED_URL) {
     return "feed";
@@ -32,8 +30,16 @@ const getSelectedMenuOptionFromPath = (router: NextRouter) => {
   return "";
 };
 
+const MemoizedSideMenu = React.memo(SideMenu);
 const Layout = (props: LayoutProps) => {
   const router = useRouter();
+  const {
+    linkToHome,
+    linkToFeed,
+    getLinkToBoard,
+    linkToPersonalSettings,
+    linkToLogs,
+  } = useCachedLinks();
   const { isPending: isUserPending, user, isLoggedIn } = useAuth();
   const [loginOpen, setLoginOpen] = React.useState(false);
   const layoutRef = React.useRef<{ closeSideMenu: () => void }>(null);
@@ -55,19 +61,11 @@ const Layout = (props: LayoutProps) => {
       }
     },
   });
+  const onBoardChange = React.useCallback(() => {
+    layoutRef.current?.closeSideMenu();
+    refetch();
+  }, [layoutRef.current?.closeSideMenu, refetch]);
 
-  const goToBoard = React.useCallback(
-    (slug: string) =>
-      createLinkTo({
-        urlPattern: BOARD_URL_PATTERN,
-        url: `/!${slug.replace(" ", "_")}`,
-        onLoad: () => {
-          layoutRef.current?.closeSideMenu();
-          refetch();
-        },
-      }),
-    []
-  );
   const { pinnedBoards, recentBoards, allBoards, hasUpdates } = React.useMemo(
     () =>
       processBoardsUpdates(
@@ -80,7 +78,7 @@ const Layout = (props: LayoutProps) => {
             lastUpdate: board.lastUpdate,
             updates: !!(isLoggedIn && board.hasUpdates),
             muted: board.muted,
-            link: goToBoard(board.slug),
+            link: getLinkToBoard(board.slug, onBoardChange),
             pinnedOrder: board.pinnedOrder,
           };
           return agg;
@@ -104,28 +102,28 @@ const Layout = (props: LayoutProps) => {
         ref={layoutRef}
         mainContent={props.mainContent}
         sideMenuContent={
-          <SideMenu
+          <MemoizedSideMenu
             pinnedBoards={pinnedBoards}
             recentBoards={
               React.useMemo(
-                () =>
-                  // @ts-ignore
-                  recentBoards.filter((board, index) => index < 4),
+                () => recentBoards.filter((board, index) => index < 4),
                 [recentBoards]
               ) as any[]
             }
             allBoards={allBoards}
-            menuOptions={
-              isLoggedIn
-                ? [
-                    {
-                      icon: faCommentSlash,
-                      name: "Dismiss Notifications",
-                      link: { onClick: dismissNotifications },
-                    },
-                  ]
-                : []
-            }
+            menuOptions={React.useMemo(
+              () =>
+                isLoggedIn
+                  ? [
+                      {
+                        icon: faCommentSlash,
+                        name: "Dismiss Notifications",
+                        link: { onClick: dismissNotifications },
+                      },
+                    ]
+                  : [],
+              [isLoggedIn, dismissNotifications]
+            )}
             showRecent={isLoggedIn}
             showPinned={isLoggedIn}
             onFilterChange={setBoardFilter}
@@ -134,74 +132,77 @@ const Layout = (props: LayoutProps) => {
         actionButton={props.actionButton}
         headerAccent={boardData?.accentColor || "#f96680"}
         onUserBarClick={() => setLoginOpen(!isUserPending && !isLoggedIn)}
-        loggedInMenuOptions={
-          isLoggedIn && [
-            {
-              icon: faArchive,
-              name: "Logs Archive",
-              link: createLinkTo({ url: "/update-logs" }),
-            },
-            {
-              icon: faCogs,
-              name: "User Settings",
-              link: createLinkTo({ url: "/users/me" }),
-            },
-            {
-              icon: faBook,
-              name: "Welcome Guide",
-              link: {
-                href:
-                  "https://www.notion.so/BobaBoard-s-Welcome-Packet-b0641466bfdf4a1cab8575083459d6a2",
+        loggedInMenuOptions={React.useMemo(
+          () =>
+            isLoggedIn && [
+              {
+                icon: faArchive,
+                name: "Logs Archive",
+                link: linkToLogs,
               },
-            },
-            {
-              icon: faComments,
-              name: "Leave Feedback!",
-              link: {
-                href:
-                  "https://docs.google.com/forms/d/e/1FAIpQLSfyMENg9eDNmRj-jIvIG5_ElJFwpGZ_VPvzAskarqu5kf0MSA/viewform",
+              {
+                icon: faCogs,
+                name: "User Settings",
+                link: linkToPersonalSettings,
               },
-            },
-            {
-              icon: faSignOutAlt,
-              name: "Logout",
-              link: { onClick: () => setLoginOpen(true) },
-            },
-          ]
-        }
+              {
+                icon: faBook,
+                name: "Welcome Guide",
+                link: {
+                  href:
+                    "https://www.notion.so/BobaBoard-s-Welcome-Packet-b0641466bfdf4a1cab8575083459d6a2",
+                },
+              },
+              {
+                icon: faComments,
+                name: "Leave Feedback!",
+                link: {
+                  href:
+                    "https://docs.google.com/forms/d/e/1FAIpQLSfyMENg9eDNmRj-jIvIG5_ElJFwpGZ_VPvzAskarqu5kf0MSA/viewform",
+                },
+              },
+              {
+                icon: faSignOutAlt,
+                name: "Logout",
+                link: { onClick: () => setLoginOpen(true) },
+              },
+            ],
+          [isLoggedIn]
+        )}
         user={user}
         title={props.title}
         forceHideTitle={props.forceHideTitle}
         loading={props.loading || isUserPending}
         updates={isLoggedIn && hasUpdates}
         onSideMenuButtonClick={refetch}
-        logoLink={createLinkTo({ url: "/" })}
-        // TODO: figure out why this has a type error
-        // @ts-ignore
-        menuOptions={
-          isLoggedIn
-            ? [
-                {
-                  id: "feed",
-                  // TODO: figure out why this has a type error
-                  // @ts-ignore
-                  icon: faInbox,
-                  link: createLinkTo({ url: FEED_URL }),
-                },
-              ]
-            : []
-        }
+        logoLink={linkToHome}
+        menuOptions={React.useMemo(
+          () =>
+            isLoggedIn
+              ? [
+                  {
+                    id: "feed",
+                    icon: faInbox,
+                    link: linkToFeed,
+                  },
+                ]
+              : [],
+          [isLoggedIn]
+        )}
         selectedMenuOption={getSelectedMenuOptionFromPath(router)}
         // TODO: add feed here
         titleLink={
           props.onTitleClick
-            ? {
-                href: slug ? goToBoard(slug).href : "/",
-                onClick: props.onTitleClick,
-              }
+            ? React.useMemo(
+                () => ({
+                  href: slug ? getLinkToBoard(slug).href : "/",
+                  onClick: props.onTitleClick,
+                }),
+                [slug, props.onTitleClick]
+              )
             : slug
-            ? goToBoard(slug)
-            : createLinkTo({ url: "/" })
+            ? getLinkToBoard(slug)
+            : linkToHome
         }
       />
       <ReactQueryDevtools initialIsOpen={false} />

@@ -37,10 +37,13 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import debug from "debug";
 import moment from "moment";
-import { BoardData, BoardDescription, ThreadType } from "../../types/Types";
-import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
 import {
-  faBan,
+  BoardData,
+  BoardDescription,
+  PostType,
+  ThreadType,
+} from "../../types/Types";
+import {
   faBookOpen,
   faCommentSlash,
   faEdit,
@@ -52,31 +55,175 @@ import {
   faVolumeMute,
   faVolumeUp,
 } from "@fortawesome/free-solid-svg-icons";
+import { useCachedLinks } from "components/hooks/useCachedLinks";
+import noop from "noop-ts";
 
 const error = debug("bobafrontend:boardPage-error");
 const log = debug("bobafrontend:boardPage-log");
 const info = debug("bobafrontend:boardPage-info");
 info.log = console.info.bind(console);
 
-const MemoizedPost = React.memo(Post);
+const BoardPost: React.FC<{
+  thread: ThreadType;
+  post: PostType;
+  isLoggedIn: boolean;
+  onReadThread: (threadId: string) => void;
+  onSetCategoryFilter: (filter: string) => void;
+  onHideThread: (data: { threadId: string; hide: boolean }) => void;
+  onMuteThread: (data: { threadId: string; mute: boolean }) => void;
+}> = ({
+  post,
+  thread,
+  isLoggedIn,
+  onHideThread,
+  onMuteThread,
+  onReadThread,
+  onSetCategoryFilter,
+}) => {
+  const router = useRouter();
+  const slug: string = router.query.boardId?.slice(1) as string;
+  const { getLinkToThread } = useCachedLinks();
+  const hasReplies =
+    thread.totalPostsAmount > 1 || thread.totalCommentsAmount > 0;
+  const threadUrl = `/${router.query.boardId}/thread/${thread.threadId}`;
+  return (
+    <Post
+      key={post.postId}
+      createdTime={`${moment.utc(post.created).fromNow()}${
+        hasReplies
+          ? ` [updated: ${moment.utc(thread.lastActivity).fromNow()}]`
+          : ""
+      }`}
+      createdTimeLink={getLinkToThread({
+        slug,
+        threadId: thread.threadId,
+      })}
+      text={post.content}
+      tags={post.tags}
+      secretIdentity={post.secretIdentity}
+      userIdentity={post.userIdentity}
+      onNewContribution={noop}
+      onNewComment={noop}
+      size={post?.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}
+      newPost={isLoggedIn && !thread.muted && post.isNew}
+      newComments={
+        isLoggedIn ? (thread.muted ? undefined : thread.newCommentsAmount) : 0
+      }
+      newContributions={
+        isLoggedIn
+          ? thread.muted
+            ? undefined
+            : thread.newPostsAmount - (post.isNew ? 1 : 0)
+          : 0
+      }
+      totalComments={thread.totalCommentsAmount}
+      // subtract 1 since posts_amount is the amount of posts total in the thread
+      // including the head one.-
+      totalContributions={thread.totalPostsAmount - 1}
+      directContributions={thread.directThreadsAmount}
+      notesLink={getLinkToThread({
+        slug,
+        threadId: thread.threadId,
+      })}
+      muted={isLoggedIn && thread.muted}
+      menuOptions={React.useMemo(
+        () => [
+          {
+            icon: faLink,
+            name: "Copy Link",
+            link: {
+              onClick: () => {
+                const tempInput = document.createElement("input");
+                tempInput.value = new URL(
+                  threadUrl,
+                  window.location.origin
+                ).toString();
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand("copy");
+                document.body.removeChild(tempInput);
+                toast.success("Link copied!");
+              },
+            },
+          },
+          // Add options just for logged in users
+          ...(isLoggedIn
+            ? [
+                {
+                  icon: faBookOpen,
+                  name: "Mark Read",
+                  link: {
+                    onClick: () => {
+                      onReadThread(thread.threadId);
+                    },
+                  },
+                },
+                {
+                  icon: thread.muted ? faVolumeUp : faVolumeMute,
+                  name: thread.muted ? "Unmute" : "Mute",
+                  link: {
+                    onClick: () => {
+                      onMuteThread({
+                        threadId: thread.threadId,
+                        mute: !thread.muted,
+                      });
+                    },
+                  },
+                },
+                {
+                  icon: thread.hidden ? faEye : faEyeSlash,
+                  name: thread.hidden ? "Unhide" : "Hide",
+                  link: {
+                    onClick: () => {
+                      onHideThread({
+                        threadId: thread.threadId,
+                        hide: !thread.hidden,
+                      });
+                    },
+                  },
+                },
+              ]
+            : []),
+        ],
+        [isLoggedIn]
+      )}
+      getOptionsForTag={React.useCallback((tag: TagsType) => {
+        if (tag.type == TagType.CATEGORY) {
+          return [
+            {
+              icon: faFilter,
+              name: "Filter",
+              link: {
+                onClick: () => {
+                  onSetCategoryFilter(tag.name);
+                },
+              },
+            },
+          ];
+        }
+        return undefined;
+      }, [])}
+    />
+  );
+};
 
+const MemoizedBoardPost = React.memo(BoardPost);
+const MemoizedActionButton = React.memo(PostingActionButton);
+const MemoizedBoardSidebar = React.memo(BoardSidebar);
 function BoardPage() {
   const [postEditorOpen, setPostEditorOpen] = React.useState(false);
+  const openPostEditor = React.useCallback(() => setPostEditorOpen(true), []);
   const [showSidebar, setShowSidebar] = React.useState(false);
+  const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
   const router = useRouter();
   const slug: string = router.query.boardId?.slice(1) as string;
   const { isPending, isLoggedIn, user } = useAuth();
   const { boardsData, nextPinnedOrder } = useBoardContext();
+  const onTitleClick = React.useCallback(() => setShowSidebar(!showSidebar), [
+    showSidebar,
+  ]);
   const [editingSidebar, setEditingSidebar] = React.useState(false);
-  const threadRedirectMethod = React.useRef(
-    new Map<
-      string,
-      {
-        href: string;
-        onClick: () => void;
-      }
-    >()
-  );
+  const stopEditing = React.useCallback(() => setEditingSidebar(false), []);
   const [categoryFilter, setCategoryFilter] = React.useState<string | null>(
     null
   );
@@ -330,22 +477,6 @@ function BoardPage() {
     }
   }, [isPending, isLoggedIn, slug]);
 
-  const getMemoizedRedirectMethod = (threadId: string) => {
-    if (!threadRedirectMethod.current?.has(threadId)) {
-      info(`Creating new handler for thread id: ${threadId}`);
-      threadRedirectMethod.current?.set(
-        threadId,
-        createLinkTo({
-          urlPattern: THREAD_URL_PATTERN,
-          url: `/${router.query.boardId}/thread/${threadId}`,
-        })
-      );
-    }
-    info(`Returning handler for thread id: ${threadId}`);
-    // This should never be null
-    return threadRedirectMethod.current?.get(threadId) || (() => {});
-  };
-
   const showEmptyMessage =
     !isFetchingBoardActivity && boardActivityData?.[0]?.activity?.length === 0;
 
@@ -381,11 +512,11 @@ function BoardPage() {
       <Layout
         mainContent={
           <FeedWithMenu
-            onCloseSidebar={() => setShowSidebar(false)}
+            onCloseSidebar={closeSidebar}
             showSidebar={showSidebar}
             sidebarContent={
               <>
-                <BoardSidebar
+                <MemoizedBoardSidebar
                   // @ts-ignore
                   slug={boardsData[slug]?.slug || slug}
                   avatarUrl={boardsData[slug]?.avatarUrl || "/"}
@@ -395,12 +526,10 @@ function BoardPage() {
                   previewOptions={boardOptions}
                   descriptions={boardsData[slug]?.descriptions || []}
                   editing={editingSidebar}
-                  onCancelEditing={() => {
-                    setEditingSidebar(false);
-                  }}
+                  onCancelEditing={stopEditing}
                   onUpdateMetadata={updateBoardMetadata}
                   activeCategory={categoryFilter}
-                  onCategoriesStateChange={(categories) => {
+                  onCategoriesStateChange={React.useCallback((categories) => {
                     const activeCategories = categories.filter(
                       (category) => category.active
                     );
@@ -409,7 +538,7 @@ function BoardPage() {
                         ? activeCategories[0].name
                         : null
                     );
-                  }}
+                  }, [])}
                 />
                 {!boardsData[slug]?.descriptions && !editingSidebar && (
                   <img
@@ -429,13 +558,6 @@ function BoardPage() {
                     .flatMap((activityData) => activityData?.activity)
                     .map((thread: ThreadType) => {
                       const post = thread.posts[0];
-                      const hasReplies =
-                        thread.totalPostsAmount > 1 ||
-                        thread.totalCommentsAmount > 0;
-                      const redirectMethod = getMemoizedRedirectMethod(
-                        thread.threadId
-                      );
-                      const threadUrl = `/${router.query.boardId}/thread/${thread.threadId}`;
                       if (thread.hidden) {
                         return (
                           <div className="post hidden" key={thread.threadId}>
@@ -455,164 +577,16 @@ function BoardPage() {
                           </div>
                         );
                       }
-                      // TODO: memoize whole div
                       return (
                         <div className="post" key={`${post.postId}_container`}>
-                          <MemoizedPost
-                            key={post.postId}
-                            createdTime={`${moment
-                              .utc(post.created)
-                              .fromNow()}${
-                              hasReplies
-                                ? ` [updated: ${moment
-                                    .utc(thread.lastActivity)
-                                    .fromNow()}]`
-                                : ""
-                            }`}
-                            createdTimeLink={createLinkTo({
-                              urlPattern: THREAD_URL_PATTERN,
-                              url: threadUrl,
-                            })}
-                            text={post.content}
-                            tags={post.tags}
-                            secretIdentity={post.secretIdentity}
-                            userIdentity={post.userIdentity}
-                            onNewContribution={() => {}}
-                            onNewComment={() => {}}
-                            size={
-                              post?.options?.wide
-                                ? PostSizes.WIDE
-                                : PostSizes.REGULAR
-                            }
-                            newPost={isLoggedIn && !thread.muted && post.isNew}
-                            newComments={
-                              isLoggedIn &&
-                              (thread.muted
-                                ? undefined
-                                : thread.newCommentsAmount)
-                            }
-                            newContributions={
-                              isLoggedIn &&
-                              (thread.muted
-                                ? undefined
-                                : thread.newPostsAmount - (post.isNew ? 1 : 0))
-                            }
-                            totalComments={thread.totalCommentsAmount}
-                            // subtract 1 since posts_amount is the amount of posts total in the thread
-                            // including the head one.-
-                            totalContributions={thread.totalPostsAmount - 1}
-                            directContributions={thread.directThreadsAmount}
-                            notesLink={redirectMethod}
-                            muted={isLoggedIn && thread.muted}
-                            menuOptions={[
-                              {
-                                icon: faLink,
-                                name: "Copy Link",
-                                link: {
-                                  onClick: () => {
-                                    const tempInput = document.createElement(
-                                      "input"
-                                    );
-                                    tempInput.value = new URL(
-                                      threadUrl,
-                                      window.location.origin
-                                    ).toString();
-                                    document.body.appendChild(tempInput);
-                                    tempInput.select();
-                                    document.execCommand("copy");
-                                    document.body.removeChild(tempInput);
-                                    toast.success("Link copied!");
-                                  },
-                                },
-                              },
-                              // Add options just for logged in users
-                              ...(isLoggedIn
-                                ? [
-                                    {
-                                      icon: faBookOpen,
-                                      name: "Mark Read",
-                                      link: {
-                                        onClick: () => {
-                                          readThread(thread.threadId);
-                                        },
-                                      },
-                                    },
-                                    {
-                                      icon: thread.muted
-                                        ? faVolumeUp
-                                        : faVolumeMute,
-                                      name: thread.muted ? "Unmute" : "Mute",
-                                      link: {
-                                        onClick: () => {
-                                          setThreadMuted({
-                                            threadId: thread.threadId,
-                                            mute: !thread.muted,
-                                          });
-                                        },
-                                      },
-                                    },
-                                    {
-                                      icon: thread.hidden ? faEye : faEyeSlash,
-                                      name: thread.hidden ? "Unhide" : "Hide",
-                                      link: {
-                                        onClick: () => {
-                                          setThreadHidden({
-                                            threadId: thread.threadId,
-                                            hide: !thread.hidden,
-                                          });
-                                        },
-                                      },
-                                    },
-                                  ]
-                                : []),
-                            ]}
-                            getOptionsForTag={(tag: TagsType) => {
-                              if (tag.type == TagType.CONTENT_WARNING) {
-                                return [
-                                  {
-                                    icon: faEyeSlash,
-                                    name: "Spoiler posts with notice",
-                                    link: {
-                                      onClick: () => {
-                                        setCategoryFilter(tag.name);
-                                      },
-                                    },
-                                  },
-                                  {
-                                    icon: faBan,
-                                    name: "Hide posts with notice",
-                                    link: {
-                                      onClick: () => {
-                                        setCategoryFilter(tag.name);
-                                      },
-                                    },
-                                  },
-                                  {
-                                    icon: faEyeSlash,
-                                    name: "Hide notice",
-                                    link: {
-                                      onClick: () => {
-                                        setCategoryFilter(tag.name);
-                                      },
-                                    },
-                                  },
-                                ];
-                              }
-                              if (tag.type == TagType.CATEGORY) {
-                                return [
-                                  {
-                                    icon: faFilter,
-                                    name: "Filter",
-                                    link: {
-                                      onClick: () => {
-                                        setCategoryFilter(tag.name);
-                                      },
-                                    },
-                                  },
-                                ];
-                              }
-                              return undefined;
-                            }}
+                          <MemoizedBoardPost
+                            post={post}
+                            thread={thread}
+                            isLoggedIn={isLoggedIn}
+                            onHideThread={setThreadHidden}
+                            onMuteThread={setThreadMuted}
+                            onReadThread={readThread}
+                            onSetCategoryFilter={setCategoryFilter}
                           />
                         </div>
                       );
@@ -628,7 +602,7 @@ function BoardPage() {
                 </div>
               </div>
             }
-            onReachEnd={() => {
+            onReachEnd={React.useCallback(() => {
               info(`Attempting to fetch more...`);
               info(canFetchMore);
               if (canFetchMore && !isFetchingMore) {
@@ -641,21 +615,20 @@ function BoardPage() {
                   ? `...but we're already fetching`
                   : `...but there's nothing!`
               );
-            }}
+            }, [canFetchMore, isFetchingMore, fetchMore])}
           />
         }
         actionButton={
           isLoggedIn && (
-            <PostingActionButton
+            <MemoizedActionButton
               accentColor={boardsData[slug]?.accentColor || "#f96680"}
-              onNewPost={() => setPostEditorOpen(true)}
+              onNewPost={openPostEditor}
             />
           )
         }
         title={`!${slug}`}
-        onTitleClick={() => setShowSidebar(!showSidebar)}
+        onTitleClick={onTitleClick}
         forceHideTitle={true}
-        loading={isFetchingBoardActivity}
       />
       <style jsx>{`
         .main {
