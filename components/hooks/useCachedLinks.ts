@@ -43,7 +43,7 @@ const getLinkToThread = ({
   threadId: string;
 }) => {
   if (THREADS_CACHE.has(threadId)) {
-    THREADS_CACHE.get(threadId);
+    return THREADS_CACHE.get(threadId);
   }
   THREADS_CACHE.set(
     threadId,
@@ -54,6 +54,30 @@ const getLinkToThread = ({
   );
 
   return THREADS_CACHE.get(threadId);
+};
+
+const POSTS_CACHE = new Map<string, LinkWithAction>();
+const getLinkToPost = ({
+  slug,
+  threadId,
+  postId,
+}: {
+  slug: string;
+  threadId: string;
+  postId: string;
+}) => {
+  if (POSTS_CACHE.has(postId)) {
+    return POSTS_CACHE.get(postId);
+  }
+  POSTS_CACHE.set(
+    postId,
+    createLinkTo({
+      urlPattern: THREAD_URL_PATTERN,
+      url: `/!${slug}/thread/${threadId}/${postId}`,
+    })
+  );
+
+  return POSTS_CACHE.get(postId);
 };
 const linkToHome = createLinkTo({ url: "/" });
 const linkToFeed = createLinkTo({ url: FEED_URL });
@@ -67,5 +91,6 @@ export const useCachedLinks = () => {
     linkToPersonalSettings,
     getLinkToBoard,
     getLinkToThread,
+    getLinkToPost,
   };
 };

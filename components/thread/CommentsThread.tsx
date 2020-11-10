@@ -44,12 +44,12 @@ const CommentsThreadLevel: React.FC<{
       <div className="comment" data-comment-id={props.comment.commentId}>
         {chain.length > 1 ? (
           <CommentChain
-            ref={(handler: CommentHandler) => {
+            ref={(handler: CommentHandler | null) => {
+              if (handler == null) {
+                return;
+              }
               chain.forEach((el) => commentHandlers.set(el.commentId, handler));
-              // Typescript marks this as a read-only property but there seems to be no
-              // other way to do this. TODO: investigate.
-              // @ts-ignore
-              indent.handler.current = handler;
+              indent.setHandler(handler);
             }}
             key={props.comment.commentId}
             secretIdentity={props.comment.secretIdentity}
@@ -67,12 +67,12 @@ const CommentsThreadLevel: React.FC<{
           />
         ) : (
           <Comment
-            ref={(handler: CommentHandler) => {
+            ref={(handler: CommentHandler | null) => {
+              if (handler == null) {
+                return;
+              }
               commentHandlers.set(props.comment.commentId, handler);
-              // Typescript marks this as a read-only property but there seems to be no
-              // other way to do this. TODO: investigate.
-              // @ts-ignore
-              indent.handler.current = handler;
+              indent.setHandler(handler);
             }}
             key={props.comment.commentId}
             id={props.comment.commentId}

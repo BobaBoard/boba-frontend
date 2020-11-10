@@ -131,7 +131,10 @@ const Layout = (props: LayoutProps) => {
         }
         actionButton={props.actionButton}
         headerAccent={boardData?.accentColor || "#f96680"}
-        onUserBarClick={() => setLoginOpen(!isUserPending && !isLoggedIn)}
+        onUserBarClick={React.useCallback(
+          () => setLoginOpen(!isUserPending && !isLoggedIn),
+          [isUserPending, isLoggedIn]
+        )}
         loggedInMenuOptions={React.useMemo(
           () =>
             isLoggedIn && [

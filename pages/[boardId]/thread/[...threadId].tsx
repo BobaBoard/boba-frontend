@@ -51,6 +51,10 @@ const getViewTypeFromString = (
   }
 };
 
+const MemoizedThreadSidebar = React.memo(ThreadSidebar);
+const MemoizedThreadView = React.memo(ThreadView);
+const MemoizedGalleryThreadView = React.memo(GalleryThreadView);
+const MemoizedTimelineThreadView = React.memo(TimelineThreadView);
 function ThreadPage() {
   const [postReplyId, setPostReplyId] = React.useState<string | null>(null);
   const [commentReplyId, setCommentReplyId] = React.useState<{
@@ -128,6 +132,15 @@ function ThreadPage() {
       scrollToComment(nextComment, currentBoardData?.accentColor || "#f96680");
     }
   };
+
+  const replyToComment = React.useCallback(
+    (replyToPostId, replyToCommentId) =>
+      setCommentReplyId({
+        postId: replyToPostId,
+        commentId: replyToCommentId,
+      }),
+    []
+  );
 
   const canTopLevelPost =
     isLoggedIn &&
@@ -208,24 +221,27 @@ function ThreadPage() {
           <FeedWithMenu
             forceHideSidebar={router.query.hideSidebar !== undefined}
             sidebarContent={
-              <ThreadSidebar
+              <MemoizedThreadSidebar
                 viewMode={viewMode}
-                onViewChange={(viewMode) => {
-                  const queryParam =
-                    viewMode === THREAD_VIEW_MODES.MASONRY
-                      ? "?gallery"
-                      : viewMode == THREAD_VIEW_MODES.TIMELINE
-                      ? "?timeline"
-                      : "?thread";
-                  router.push(
-                    `/[boardId]/thread/[...threadId]`,
-                    `${baseUrl}${queryParam}`,
-                    {
-                      shallow: true,
-                    }
-                  );
-                  setViewMode(viewMode);
-                }}
+                onViewChange={React.useCallback(
+                  (viewMode) => {
+                    const queryParam =
+                      viewMode === THREAD_VIEW_MODES.MASONRY
+                        ? "?gallery"
+                        : viewMode == THREAD_VIEW_MODES.TIMELINE
+                        ? "?timeline"
+                        : "?thread";
+                    router.push(
+                      `/[boardId]/thread/[...threadId]`,
+                      `${baseUrl}${queryParam}`,
+                      {
+                        shallow: true,
+                      }
+                    );
+                    setViewMode(viewMode);
+                  },
+                  [baseUrl]
+                )}
               />
             }
             feedContent={
@@ -239,35 +255,20 @@ function ThreadPage() {
               >
                 <div className="view-modes">
                   {viewMode == THREAD_VIEW_MODES.THREAD || postId ? (
-                    <ThreadView
-                      onNewComment={(replyToPostId, replyToCommentId) =>
-                        setCommentReplyId({
-                          postId: replyToPostId,
-                          commentId: replyToCommentId,
-                        })
-                      }
+                    <MemoizedThreadView
+                      onNewComment={replyToComment}
                       onNewContribution={setPostReplyId}
                       isLoggedIn={isLoggedIn}
                     />
                   ) : viewMode == THREAD_VIEW_MODES.MASONRY ? (
-                    <GalleryThreadView
-                      onNewComment={(replyToPostId, replyToCommentId) =>
-                        setCommentReplyId({
-                          postId: replyToPostId,
-                          commentId: replyToCommentId,
-                        })
-                      }
+                    <MemoizedGalleryThreadView
+                      onNewComment={replyToComment}
                       onNewContribution={setPostReplyId}
                       isLoggedIn={isLoggedIn}
                     />
                   ) : (
-                    <TimelineThreadView
-                      onNewComment={(replyToPostId, replyToCommentId) =>
-                        setCommentReplyId({
-                          postId: replyToPostId,
-                          commentId: replyToCommentId,
-                        })
-                      }
+                    <MemoizedTimelineThreadView
+                      onNewComment={replyToComment}
                       onNewContribution={setPostReplyId}
                       isLoggedIn={isLoggedIn}
                     />
