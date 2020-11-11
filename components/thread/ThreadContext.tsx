@@ -21,6 +21,7 @@ import {
   UNCATEGORIZED_LABEL,
 } from "utils/thread-utils";
 import moment from "moment";
+import { unstable_trace as trace } from "scheduler/tracing";
 
 import debug from "debug";
 import { ThreadPageSSRContext } from "pages/[boardId]/thread/[...threadId]";
@@ -118,40 +119,51 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
     postCommentsMap,
     chronologicalPostsSequence,
   } = React.useMemo(() => {
-    info("Building posts tree from data:");
-    info(threadData);
-    const { root, parentChildrenMap, postsDisplaySequence } = makePostsTree(
-      threadData?.posts,
-      threadId
-    );
-    const postCommentsMap = new Map<string, ThreadCommentInfoType>();
-    threadData?.posts?.forEach((post) => {
-      log(`Creating comments tree for post ${postId}`);
-      if (post.comments) {
-        postCommentsMap.set(post.postId, makeCommentsTree(post.comments));
-      }
-    });
-
-    const chronologicalPostsSequence =
-      threadData?.posts.sort((post1, post2) => {
-        if (moment.utc(post1.created).isBefore(moment.utc(post2.created))) {
-          return -1;
-        }
-        if (moment.utc(post1.created).isAfter(moment.utc(post2.created))) {
-          return 1;
+    return trace(
+      "Updating current thread data",
+      (() => {
+        if (typeof window !== "undefined") {
+          return performance.now();
         }
         return 0;
-      }) || [];
+      })(),
+      () => {
+        info("Building posts tree from data:");
+        info(threadData);
+        const { root, parentChildrenMap, postsDisplaySequence } = makePostsTree(
+          threadData?.posts,
+          threadId
+        );
+        const postCommentsMap = new Map<string, ThreadCommentInfoType>();
+        threadData?.posts?.forEach((post) => {
+          log(`Creating comments tree for post ${postId}`);
+          if (post.comments) {
+            postCommentsMap.set(post.postId, makeCommentsTree(post.comments));
+          }
+        });
 
-    return {
-      root,
-      parentChildrenMap,
-      postCommentsMap,
-      chronologicalPostsSequence,
-      newAnswersSequence: postsDisplaySequence
-        ? extractAnswersSequence(postsDisplaySequence, postCommentsMap)
-        : [],
-    };
+        const chronologicalPostsSequence =
+          threadData?.posts.sort((post1, post2) => {
+            if (moment.utc(post1.created).isBefore(moment.utc(post2.created))) {
+              return -1;
+            }
+            if (moment.utc(post1.created).isAfter(moment.utc(post2.created))) {
+              return 1;
+            }
+            return 0;
+          }) || [];
+
+        return {
+          root,
+          parentChildrenMap,
+          postCommentsMap,
+          chronologicalPostsSequence,
+          newAnswersSequence: postsDisplaySequence
+            ? extractAnswersSequence(postsDisplaySequence, postCommentsMap)
+            : [],
+        };
+      }
+    );
   }, [threadData, threadId]);
 
   // Listen to category filter changes and update data accordingly.
@@ -188,31 +200,34 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
 
   return (
     <ThreadContext.Provider
-      value={{
-        threadId,
-        postId,
-        slug,
-        baseUrl,
-        isLoading: isFetchingThread,
-        threadRoot: root,
-        currentRoot:
-          !!postId && threadData
-            ? (threadData.posts.find(
-                (post) => post.postId == postId
-              ) as PostType)
-            : root,
-        newAnswersSequence,
-        filteredRoot,
-        parentChildrenMap,
-        filteredParentChildrenMap,
-        categories: extractCategories(threadData?.posts),
-        categoryFilterState,
-        setCategoryFilterState,
-        postCommentsMap,
-        chronologicalPostsSequence,
-        defaultView: threadData?.defaultView || null,
-        personalIdentity: threadData?.personalIdentity,
-      }}
+      value={React.useMemo(
+        () => ({
+          threadId,
+          postId,
+          slug,
+          baseUrl,
+          isLoading: isFetchingThread,
+          threadRoot: root,
+          currentRoot:
+            !!postId && threadData
+              ? (threadData.posts.find(
+                  (post) => post.postId == postId
+                ) as PostType)
+              : root,
+          newAnswersSequence,
+          filteredRoot,
+          parentChildrenMap,
+          filteredParentChildrenMap,
+          categories: extractCategories(threadData?.posts),
+          categoryFilterState,
+          setCategoryFilterState,
+          postCommentsMap,
+          chronologicalPostsSequence,
+          defaultView: threadData?.defaultView || null,
+          personalIdentity: threadData?.personalIdentity,
+        }),
+        [isFetchingThread, threadId]
+      )}
     >
       {children}
     </ThreadContext.Provider>

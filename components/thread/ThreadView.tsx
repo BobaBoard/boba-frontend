@@ -76,6 +76,7 @@ export const scrollToComment = (commentId: string, color: string) => {
 
 const MemoizedThreadIndent = React.memo(ThreadIndent);
 const MemoizedPost = React.memo(Post);
+const MemoizedCommentsThread = React.memo(CommentsThread);
 const postHandlers = new Map<string, PostHandler>();
 const ThreadLevel: React.FC<{
   post: PostType;
@@ -149,6 +150,11 @@ const ThreadLevel: React.FC<{
       scrollToPost,
     ]
   );
+  const replyToComment = React.useCallback(
+    (replyToCommentId: string) =>
+      props.onNewComment(props.post.postId, replyToCommentId),
+    [props.post.postId]
+  );
 
   return (
     <>
@@ -204,14 +210,13 @@ const ThreadLevel: React.FC<{
       </MemoizedThreadIndent>
       {props.post.comments && (
         <MemoizedThreadIndent level={props.level + 1} ends={commentsEnds}>
-          <CommentsThread
+          <MemoizedCommentsThread
             isLoggedIn={props.isLoggedIn}
             parentPostId={props.post.postId}
+            comments={props.post.comments}
             parentCommentId={null}
             level={0}
-            onReplyTo={(replyToCommentId: string) =>
-              props.onNewComment(props.post.postId, replyToCommentId)
-            }
+            onReplyTo={replyToComment}
           />
         </MemoizedThreadIndent>
       )}

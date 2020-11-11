@@ -35,6 +35,9 @@ const CommentsThreadLevel: React.FC<{
   }
   const lastCommentId = chain[chain.length - 1].commentId;
   const children = props.parentChildrenMap.get(lastCommentId);
+  const replyToLast = React.useCallback(() => props.onReplyTo(lastCommentId), [
+    lastCommentId,
+  ]);
   return (
     <CompactThreadIndent
       level={props.level}
@@ -59,11 +62,7 @@ const CommentsThreadLevel: React.FC<{
               text: el.content,
             }))}
             muted={props.isLoggedIn && !props.comment.isNew}
-            onExtraAction={
-              props.isLoggedIn
-                ? () => props.onReplyTo(lastCommentId)
-                : undefined
-            }
+            onExtraAction={props.isLoggedIn ? replyToLast : undefined}
           />
         ) : (
           <Comment
@@ -80,11 +79,7 @@ const CommentsThreadLevel: React.FC<{
             userIdentity={props.comment.userIdentity}
             initialText={props.comment.content}
             muted={props.isLoggedIn && !props.comment.isNew}
-            onExtraAction={
-              props.isLoggedIn
-                ? () => props.onReplyTo(props.comment.commentId)
-                : undefined
-            }
+            onExtraAction={props.isLoggedIn ? replyToLast : undefined}
           />
         )}
       </div>
@@ -108,6 +103,7 @@ export const commentHandlers = new Map<string, CommentHandler>();
 const CommentsThread: React.FC<{
   parentPostId: string;
   parentCommentId: string | null;
+  comments: CommentType[];
   isLoggedIn: boolean;
   level: number;
   onReplyTo: (replyTo: string) => void;

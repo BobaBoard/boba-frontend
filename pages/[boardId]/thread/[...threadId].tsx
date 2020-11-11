@@ -52,9 +52,6 @@ const getViewTypeFromString = (
 };
 
 const MemoizedThreadSidebar = React.memo(ThreadSidebar);
-const MemoizedThreadView = React.memo(ThreadView);
-const MemoizedGalleryThreadView = React.memo(GalleryThreadView);
-const MemoizedTimelineThreadView = React.memo(TimelineThreadView);
 function ThreadPage() {
   const [postReplyId, setPostReplyId] = React.useState<string | null>(null);
   const [commentReplyId, setCommentReplyId] = React.useState<{
@@ -255,19 +252,19 @@ function ThreadPage() {
               >
                 <div className="view-modes">
                   {viewMode == THREAD_VIEW_MODES.THREAD || postId ? (
-                    <MemoizedThreadView
+                    <ThreadView
                       onNewComment={replyToComment}
                       onNewContribution={setPostReplyId}
                       isLoggedIn={isLoggedIn}
                     />
                   ) : viewMode == THREAD_VIEW_MODES.MASONRY ? (
-                    <MemoizedGalleryThreadView
+                    <GalleryThreadView
                       onNewComment={replyToComment}
                       onNewContribution={setPostReplyId}
                       isLoggedIn={isLoggedIn}
                     />
                   ) : (
-                    <MemoizedTimelineThreadView
+                    <TimelineThreadView
                       onNewComment={replyToComment}
                       onNewContribution={setPostReplyId}
                       isLoggedIn={isLoggedIn}

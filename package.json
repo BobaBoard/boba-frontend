@@ -20,6 +20,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.15.1",
     "@types/classnames": "^2.2.10",
     "@types/debug": "^4.1.5",
+    "@types/scheduler": "^0.16.1",
     "@types/uuid": "^8.0.0",
     "axios": "^0.19.2",
     "cross-env": "^7.0.2",
