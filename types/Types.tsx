@@ -15,6 +15,13 @@ export interface CommentType {
   isNew: boolean;
 }
 
+export interface TagsType {
+  whisperTags: string[];
+  indexTags: string[];
+  categoryTags: string[];
+  contentWarnings: string[];
+}
+
 export interface PostType {
   postId: string;
   threadId: string;
@@ -32,12 +39,7 @@ export interface PostType {
   options: {
     wide?: boolean;
   };
-  tags: {
-    whisperTags: string[];
-    indexTags: string[];
-    categoryTags: string[];
-    contentWarnings: string[];
-  };
+  tags: TagsType;
   comments?: CommentType[];
   postsAmount: number;
   commentsAmount: number;

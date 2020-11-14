@@ -5,6 +5,7 @@ import {
   PostSizes,
   PostHandler,
   DefaultTheme,
+  toast,
 } from "@bobaboard/ui-components";
 import { useRouter } from "next/router";
 import moment from "moment";
@@ -20,6 +21,7 @@ import { useBoardContext } from "../BoardContext";
 import classnames from "classnames";
 import CommentsThread, { commentHandlers } from "./CommentsThread";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
+import { faBookOpen, faEdit, faLink } from "@fortawesome/free-solid-svg-icons";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 const log = debug("bobafrontend:threadLevel-log");
@@ -86,6 +88,7 @@ const ThreadLevel: React.FC<{
     replyToCommentId: string | null
   ) => void;
   onNewContribution: (id: string) => void;
+  onEditPost: (post: PostType) => void;
   isLoggedIn: boolean;
   lastOf?: { level: number; postId: string }[];
 }> = (props) => {
@@ -199,6 +202,43 @@ const ThreadLevel: React.FC<{
             answerable={props.isLoggedIn}
             tags={props.post.tags}
             muted={props.isLoggedIn && !props.post.isNew && props.level > 0}
+            menuOptions={React.useMemo(
+              () => [
+                {
+                  icon: faLink,
+                  name: "Copy Link",
+                  link: {
+                    onClick: () => {
+                      const tempInput = document.createElement("input");
+                      tempInput.value = new URL(
+                        linkToPost?.href as string,
+                        window.location.origin
+                      ).toString();
+                      document.body.appendChild(tempInput);
+                      tempInput.select();
+                      document.execCommand("copy");
+                      document.body.removeChild(tempInput);
+                      toast.success("Link copied!");
+                    },
+                  },
+                },
+                // Add options just for logged in users
+                ...(props.isLoggedIn
+                  ? [
+                      {
+                        icon: faEdit,
+                        name: "Edit tags",
+                        link: {
+                          onClick: () => {
+                            props.onEditPost(props.post);
+                          },
+                        },
+                      },
+                    ]
+                  : []),
+              ],
+              [props.isLoggedIn, props.post, props.onEditPost, linkToPost]
+            )}
           />
         </div>
       </MemoizedThreadIndent>
@@ -227,6 +267,7 @@ const ThreadLevel: React.FC<{
             onNewContribution={props.onNewContribution}
             isLoggedIn={props.isLoggedIn}
             lastOf={index == array.length - 1 ? ends : props.lastOf}
+            onEditPost={props.onEditPost}
           />
         ))}
       <style jsx>
@@ -252,6 +293,7 @@ const ThreadView: React.FC<{
     replyToCommentId: string | null
   ) => void;
   onNewContribution: (id: string) => void;
+  onEditPost: (post: PostType) => void;
   isLoggedIn: boolean;
 }> = (props) => {
   const { currentRoot, parentChildrenMap, postId, baseUrl } = useThread();
@@ -283,6 +325,7 @@ const ThreadView: React.FC<{
         onNewComment={props.onNewComment}
         onNewContribution={props.onNewContribution}
         isLoggedIn={props.isLoggedIn}
+        onEditPost={props.onEditPost}
       />
       <style jsx>{`
         .whole-thread {

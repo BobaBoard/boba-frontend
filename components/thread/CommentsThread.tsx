@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Comment,
   CommentChain,
   CommentHandler,
   CompactThreadIndent,
@@ -35,6 +34,9 @@ const CommentsThreadLevel: React.FC<{
   }
   const lastCommentId = chain[chain.length - 1].commentId;
   const children = props.parentChildrenMap.get(lastCommentId);
+  const replyToLast = React.useCallback(() => props.onReplyTo(lastCommentId), [
+    lastCommentId,
+  ]);
   return (
     <CompactThreadIndent
       level={props.level}
@@ -42,51 +44,24 @@ const CommentsThreadLevel: React.FC<{
       hideLine={!children}
     >
       <div className="comment" data-comment-id={props.comment.commentId}>
-        {chain.length > 1 ? (
-          <CommentChain
-            ref={(handler: CommentHandler | null) => {
-              if (handler == null) {
-                return;
-              }
-              chain.forEach((el) => commentHandlers.set(el.commentId, handler));
-              indent.setHandler(handler);
-            }}
-            key={props.comment.commentId}
-            secretIdentity={props.comment.secretIdentity}
-            userIdentity={props.comment.userIdentity}
-            comments={chain.map((el) => ({
-              id: el.commentId,
-              text: el.content,
-            }))}
-            muted={props.isLoggedIn && !props.comment.isNew}
-            onExtraAction={
-              props.isLoggedIn
-                ? () => props.onReplyTo(lastCommentId)
-                : undefined
+        <CommentChain
+          ref={(handler: CommentHandler | null) => {
+            if (handler == null) {
+              return;
             }
-          />
-        ) : (
-          <Comment
-            ref={(handler: CommentHandler | null) => {
-              if (handler == null) {
-                return;
-              }
-              commentHandlers.set(props.comment.commentId, handler);
-              indent.setHandler(handler);
-            }}
-            key={props.comment.commentId}
-            id={props.comment.commentId}
-            secretIdentity={props.comment.secretIdentity}
-            userIdentity={props.comment.userIdentity}
-            initialText={props.comment.content}
-            muted={props.isLoggedIn && !props.comment.isNew}
-            onExtraAction={
-              props.isLoggedIn
-                ? () => props.onReplyTo(props.comment.commentId)
-                : undefined
-            }
-          />
-        )}
+            chain.forEach((el) => commentHandlers.set(el.commentId, handler));
+            indent.setHandler(handler);
+          }}
+          key={props.comment.commentId}
+          secretIdentity={props.comment.secretIdentity}
+          userIdentity={props.comment.userIdentity}
+          comments={chain.map((el) => ({
+            id: el.commentId,
+            text: el.content,
+          }))}
+          muted={props.isLoggedIn && !props.comment.isNew}
+          onExtraAction={props.isLoggedIn ? replyToLast : undefined}
+        />
       </div>
       {children ? (
         <CommentsThread

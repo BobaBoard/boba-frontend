@@ -8,8 +8,14 @@ import {
 import { useAuth } from "./Auth";
 import { useMutation } from "react-query";
 import { createPost, createThread } from "../utils/queries";
+import { editPost } from "../utils/queries/post";
 import { createImageUploadPromise } from "../utils/image-upload";
-import { PostData, PostType, ThreadType } from "../types/Types";
+import {
+  PostData,
+  PostType,
+  ThreadType,
+  TagsType as ServerTagsType,
+} from "../types/Types";
 import { TagsType } from "@bobaboard/ui-components/dist/types";
 import { usePreventPageChange } from "./hooks/usePreventPageChange";
 
@@ -35,7 +41,7 @@ const getViewIdFromName = (viewName?: string) => {
   }
 };
 
-const processTags = (tags: TagsType[]) => {
+const processTags = (tags: TagsType[]): ServerTagsType => {
   return {
     whisperTags:
       tags
@@ -96,6 +102,36 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
     }
   );
 
+  const [editContribution] = useMutation<
+    PostType,
+    {
+      postId: string;
+      tags: ServerTagsType;
+    }
+  >(
+    ({ postId, tags }) => {
+      return editPost({ postId, tags });
+    },
+    {
+      onError: (serverError: Error, { postId }) => {
+        toast.error("Error while editing post.");
+        error(`Error while editing post ${postId}:`);
+        error(serverError);
+        setPostLoading(false);
+      },
+      onSuccess: (data: PostType | ThreadType, { postId }) => {
+        log(`Received post data after edit:`);
+        log(data);
+        if (!(data as any).posts) {
+          props.onPostSaved(data as PostType);
+        } else {
+          props.onPostSaved((data as ThreadType).posts[0]);
+        }
+        setPostLoading(false);
+      },
+    }
+  );
+
   React.useEffect(() => {
     if (props.isOpen) {
       // TODO: this request animation frame here is a bit hackish, but it won't
@@ -115,10 +151,16 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
       <Modal isOpen={props.isOpen}>
         <PostEditor
           ref={editorRef}
+          initialText={props.editPost?.content}
+          initialTags={props.editPost?.tags}
           secretIdentity={props.secretIdentity}
           userIdentity={props.userIdentity}
           additionalIdentities={props.additionalIdentities}
-          viewOptions={props.replyToPostId ? undefined : THREAD_VIEW_OPTIONS}
+          viewOptions={
+            props.replyToPostId || props.editPost
+              ? undefined
+              : THREAD_VIEW_OPTIONS
+          }
           loading={isPostLoading}
           suggestedCategories={props?.suggestedCategories || []}
           onImageUploadRequest={(src: string) =>
@@ -127,9 +169,25 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
               baseUrl: props.uploadBaseUrl,
             })
           }
+          editableSections={
+            props.editPost
+              ? {
+                  tags: true,
+                }
+              : undefined
+          }
           onSubmit={(textPromise) => {
             setPostLoading(true);
             textPromise.then(({ text, tags, identityId, viewOptionName }) => {
+              const processedTags = processTags(tags);
+
+              if (props.editPost) {
+                editContribution({
+                  postId: props.editPost.postId,
+                  tags: processedTags,
+                });
+                return;
+              }
               log(identityId);
               postContribution({
                 slug: props.slug,
@@ -139,7 +197,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
                   forceAnonymous: false,
                   defaultView: getViewIdFromName(viewOptionName),
                   identityId,
-                  ...processTags(tags),
+                  ...processedTags,
                 },
               });
             });
@@ -185,6 +243,7 @@ export interface PostEditorModalProps {
   }[];
   onPostSaved: (post: PostType) => void;
   replyToPostId: string | null;
+  editPost: PostType | null;
   slug: string;
   uploadBaseUrl: string;
   suggestedCategories?: string[];

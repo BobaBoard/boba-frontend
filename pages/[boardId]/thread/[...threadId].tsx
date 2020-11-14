@@ -57,6 +57,7 @@ const MemoizedGalleryThreadView = React.memo(GalleryThreadView);
 const MemoizedTimelineThreadView = React.memo(TimelineThreadView);
 function ThreadPage() {
   const [postReplyId, setPostReplyId] = React.useState<string | null>(null);
+  const [postEdit, setPostEdit] = React.useState<PostType | null>(null);
   const [commentReplyId, setCommentReplyId] = React.useState<{
     postId: string | null;
     commentId: string | null;
@@ -152,7 +153,7 @@ function ThreadPage() {
       {isLoggedIn && (
         <>
           <PostEditorModal
-            isOpen={!!postReplyId}
+            isOpen={!!postReplyId || !!postEdit}
             secretIdentity={personalIdentity}
             userIdentity={{
               name: user?.username,
@@ -178,9 +179,14 @@ function ThreadPage() {
                 );
               }
               setPostReplyId(null);
+              setPostEdit(null);
             }}
-            onCloseModal={() => setPostReplyId(null)}
+            onCloseModal={() => {
+              setPostReplyId(null);
+              setPostEdit(null);
+            }}
             slug={slug}
+            editPost={postEdit}
             replyToPostId={postReplyId}
             uploadBaseUrl={`images/${slug}/${router.query.id}/`}
             suggestedCategories={categories}
@@ -258,6 +264,7 @@ function ThreadPage() {
                     <MemoizedThreadView
                       onNewComment={replyToComment}
                       onNewContribution={setPostReplyId}
+                      onEditPost={setPostEdit}
                       isLoggedIn={isLoggedIn}
                     />
                   ) : viewMode == THREAD_VIEW_MODES.MASONRY ? (
