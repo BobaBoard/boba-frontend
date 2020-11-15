@@ -26,3 +26,15 @@ export const editPost = async ({
   const post = makeClientPost(response.data);
   return post;
 };
+
+export const updateThreadView = async ({
+  threadId,
+  view,
+}: {
+  threadId: string;
+  view: ThreadType["defaultView"];
+}) => {
+  await axios.post(`/threads/${threadId}/update/view`, {
+    defaultView: view,
+  });
+};

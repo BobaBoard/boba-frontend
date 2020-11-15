@@ -30,6 +30,7 @@ import {
   removeThreadActivityFromCache,
   setBoardMutedInCache,
   setBoardPinnedInCache,
+  setDefaultThreadViewInCache,
   setThreadHiddenInCache,
   setThreadMutedInCache,
 } from "../../utils/queries/cache";
@@ -45,11 +46,14 @@ import {
 } from "../../types/Types";
 import {
   faBookOpen,
+  faCodeBranch,
   faCommentSlash,
   faEdit,
   faEye,
   faEyeSlash,
+  faFilm,
   faFilter,
+  faImages,
   faLink,
   faThumbtack,
   faVolumeMute,
@@ -57,6 +61,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import noop from "noop-ts";
+import { updateThreadView } from "utils/queries/post";
 
 const error = debug("bobafrontend:boardPage-error");
 const log = debug("bobafrontend:boardPage-log");
@@ -71,6 +76,10 @@ const BoardPost: React.FC<{
   onSetCategoryFilter: (filter: string) => void;
   onHideThread: (data: { threadId: string; hide: boolean }) => void;
   onMuteThread: (data: { threadId: string; mute: boolean }) => void;
+  onChangeThreadView: (data: {
+    threadId: string;
+    view: ThreadType["defaultView"];
+  }) => void;
 }> = ({
   post,
   thread,
@@ -79,6 +88,7 @@ const BoardPost: React.FC<{
   onMuteThread,
   onReadThread,
   onSetCategoryFilter,
+  onChangeThreadView,
 }) => {
   const router = useRouter();
   const slug: string = router.query.boardId?.slice(1) as string;
@@ -182,6 +192,55 @@ const BoardPost: React.FC<{
                     },
                   },
                 },
+                ...(thread.posts[0]?.isOwn
+                  ? [
+                      {
+                        icon: faEdit,
+                        name: "Change default view",
+                        options: [
+                          {
+                            icon: faCodeBranch,
+                            name: "Thread",
+                            link: {
+                              onClick: () => {
+                                onChangeThreadView({
+                                  threadId: thread.threadId,
+                                  view: "thread",
+                                });
+                              },
+                            },
+                          },
+                          {
+                            icon: faImages,
+                            name: "Gallery",
+                            link: {
+                              onClick: () => {
+                                onChangeThreadView({
+                                  threadId: thread.threadId,
+                                  view: "gallery",
+                                });
+                              },
+                            },
+                          },
+                          {
+                            icon: faFilm,
+                            name: "Timeline",
+                            link: {
+                              onClick: () => {
+                                onChangeThreadView({
+                                  threadId: thread.threadId,
+                                  view: "timeline",
+                                });
+                              },
+                            },
+                          },
+                        ].filter(
+                          (option) =>
+                            option.name.toLowerCase() != thread.defaultView
+                        ),
+                      },
+                    ]
+                  : []),
               ]
             : []),
         ],
@@ -294,6 +353,36 @@ function BoardPage() {
           }.`
         );
         queryCache.invalidateQueries("allBoardsData");
+      },
+    }
+  );
+
+  const [setThreadView] = useMutation(
+    ({
+      threadId,
+      view,
+    }: {
+      threadId: string;
+      view: ThreadType["defaultView"];
+    }) => updateThreadView({ threadId, view }),
+    {
+      onMutate: ({ threadId, view }) => {
+        log(
+          `Optimistically switched thread ${threadId} to default view ${view}.`
+        );
+        setDefaultThreadViewInCache({ slug, categoryFilter, threadId, view });
+      },
+      onError: (error: Error, { threadId, view }) => {
+        toast.error(
+          `Error while switching thread ${threadId} to default view ${view}.`
+        );
+        log(error);
+      },
+      onSuccess: (_, { threadId, view }) => {
+        log(
+          `Successfully switched thread ${threadId} to default view ${view}.`
+        );
+        toast.success("Successfully updated thread view!");
       },
     }
   );
@@ -587,6 +676,7 @@ function BoardPage() {
                             onMuteThread={setThreadMuted}
                             onReadThread={readThread}
                             onSetCategoryFilter={setCategoryFilter}
+                            onChangeThreadView={setThreadView}
                           />
                         </div>
                       );

@@ -243,7 +243,7 @@ export interface PostEditorModalProps {
   }[];
   onPostSaved: (post: PostType) => void;
   replyToPostId: string | null;
-  editPost: PostType | null;
+  editPost?: PostType | null;
   slug: string;
   uploadBaseUrl: string;
   suggestedCategories?: string[];

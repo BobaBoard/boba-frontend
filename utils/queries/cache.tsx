@@ -212,3 +212,39 @@ export const setThreadHiddenInCache = ({
   );
   queryCache.setQueryData(["userActivityData"], () => userActivityData);
 };
+
+export const setDefaultThreadViewInCache = ({
+  slug,
+  categoryFilter,
+  threadId,
+  view,
+}: {
+  slug: string;
+  categoryFilter: string | null;
+  threadId: string;
+  view: ThreadType["defaultView"];
+}) => {
+  const boardActivityData = queryCache.getQueryData<BoardActivityResponse[]>([
+    "boardActivityData",
+    { slug, categoryFilter },
+  ]);
+  const userActivityData = queryCache.getQueryData<BoardActivityResponse[]>([
+    "userActivityData",
+  ]);
+  updateThreadInActivity(
+    boardActivityData,
+    threadId,
+    (thread) => (thread.defaultView = view)
+  );
+  updateThreadInActivity(
+    userActivityData,
+    threadId,
+    (thread) => (thread.defaultView = view)
+  );
+
+  queryCache.setQueryData(
+    ["boardActivityData", { slug }],
+    () => boardActivityData
+  );
+  queryCache.setQueryData(["userActivityData"], () => userActivityData);
+};
