@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  Post,
-  PostSizes,
-  ThreadIndent,
-  // @ts-ignore
-} from "@bobaboard/ui-components";
+import { Post, PostSizes, ThreadIndent } from "@bobaboard/ui-components";
 import debug from "debug";
 import {
   getTotalContributions,
@@ -17,6 +12,7 @@ import classnames from "classnames";
 import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
 import TemporarySegmentedButton from "./TemporarySegmentedButton";
 import CommentsThread from "./CommentsThread";
+import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // @ts-ignore
@@ -40,11 +36,11 @@ const TimelineView: React.FC<{
   const [timelineView, setTimelineView] = React.useState(
     TIMELINE_VIEW_MODE.ALL
   );
+  const { threadBaseUrl } = usePageDetails<ThreadPageDetails>();
   const {
     chronologicalPostsSequence,
     postCommentsMap,
     filteredParentChildrenMap,
-    baseUrl,
     isLoading,
   } = useThread();
   const router = useRouter();
@@ -78,7 +74,7 @@ const TimelineView: React.FC<{
     const routingMethod = replace ? router.replace : router.push;
     routingMethod(
       `/[boardId]/thread/[...threadId]`,
-      `${baseUrl}${queryParam}`,
+      `${threadBaseUrl}${queryParam}`,
       {
         shallow: true,
       }
@@ -181,10 +177,10 @@ const TimelineView: React.FC<{
                   createdTime={moment.utc(post.created).fromNow()}
                   createdTimeLink={createLinkTo({
                     urlPattern: THREAD_URL_PATTERN,
-                    url: `${baseUrl}/${post.postId}${url.search}`,
+                    url: `${threadBaseUrl}/${post.postId}${url.search}`,
                   })}
                   notesLink={{
-                    href: `${baseUrl}/${post.postId}${url.search}`,
+                    href: `${threadBaseUrl}/${post.postId}${url.search}`,
                     onClick: () => {
                       setShowComments(
                         showComments.includes(post.postId)

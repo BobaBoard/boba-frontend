@@ -22,6 +22,7 @@ import classnames from "classnames";
 import CommentsThread, { commentHandlers } from "./CommentsThread";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { faEdit, faLink } from "@fortawesome/free-solid-svg-icons";
+import { usePageDetails, ThreadPageDetails } from "utils/router-utils";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 const log = debug("bobafrontend:threadLevel-log");
@@ -296,7 +297,8 @@ const ThreadView: React.FC<{
   onEditPost: (post: PostType) => void;
   isLoggedIn: boolean;
 }> = (props) => {
-  const { currentRoot, parentChildrenMap, postId, baseUrl } = useThread();
+  const { postId, threadBaseUrl } = usePageDetails<ThreadPageDetails>();
+  const { currentRoot, parentChildrenMap } = useThread();
   const router = useRouter();
 
   if (!currentRoot) {
@@ -311,7 +313,7 @@ const ThreadView: React.FC<{
         })}
       >
         <Link
-          as={`${baseUrl}${url.search}`}
+          as={`${threadBaseUrl}${url.search}`}
           href={`/[boardId]/thread/[...threadId]`}
           shallow={true}
         >

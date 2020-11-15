@@ -30,12 +30,6 @@ const info = debug("bobafrontend:threadProvider-info");
 const ThreadContext = React.createContext({} as ThreadContextType);
 
 interface ThreadContextType {
-  // These two will never be null on thread paths.
-  threadId: string;
-  slug: string;
-  // If the thread page points to a specific post within the thread,
-  // then this will be the stringId of the post.
-  postId: string | null;
   isLoading: boolean;
   defaultView: ThreadType["defaultView"] | null;
   // The root of the thread (a.k.a. the first post).
@@ -53,7 +47,6 @@ interface ThreadContextType {
   setCategoryFilterState: React.Dispatch<
     React.SetStateAction<{ name: string; active: boolean }[]>
   >;
-  baseUrl: string;
   personalIdentity?: {
     name: string;
     avatar: string;
@@ -67,8 +60,6 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
   children,
 }) => {
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
-  const baseUrl = `/!${slug}/thread/${threadId}`;
-
   const {
     data: threadData,
     isFetching: isFetchingThread,
@@ -189,10 +180,6 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
   return (
     <ThreadContext.Provider
       value={{
-        threadId,
-        postId,
-        slug,
-        baseUrl,
         isLoading: isFetchingThread,
         threadRoot: root,
         currentRoot:
