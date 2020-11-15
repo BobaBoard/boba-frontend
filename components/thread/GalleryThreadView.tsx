@@ -16,6 +16,7 @@ import { useThread } from "components/thread/ThreadContext";
 import { useRouter } from "next/router";
 import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
 import CommentsThread from "./CommentsThread";
+import { usePageDetails, ThreadPageDetails } from "utils/router-utils";
 
 enum TIMELINE_VIEW_MODE {
   UPDATED,
@@ -102,11 +103,11 @@ const GalleryThreadView: React.FC<{
   displayAtMost: number;
 }> = (props) => {
   const {
-    baseUrl,
     chronologicalPostsSequence,
     parentChildrenMap,
     postCommentsMap,
   } = useThread();
+  const { threadBaseUrl } = usePageDetails<ThreadPageDetails>();
   const masonryRef = React.createRef<{ reposition: () => void }>();
   const router = useRouter();
   const [showCover, setShowCover] = React.useState(false);
@@ -230,10 +231,10 @@ const GalleryThreadView: React.FC<{
                     createdTime={moment.utc(post.created).fromNow()}
                     createdTimeLink={createLinkTo({
                       urlPattern: THREAD_URL_PATTERN,
-                      url: `${baseUrl}/${post.postId}${url.search}`,
+                      url: `${threadBaseUrl}/${post.postId}${url.search}`,
                     })}
                     notesLink={{
-                      href: `${baseUrl}/${post.postId}${url.search}`,
+                      href: `${threadBaseUrl}/${post.postId}${url.search}`,
                       onClick: () => {
                         setShowComments(
                           showComments.includes(post.postId)

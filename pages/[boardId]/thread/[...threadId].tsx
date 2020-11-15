@@ -30,6 +30,7 @@ import GalleryThreadView from "components/thread/GalleryThreadView";
 import TimelineThreadView from "components/thread/TimelineThreadView";
 import { useThread } from "components/thread/ThreadContext";
 import { useRouter } from "next/router";
+import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
 
 import debug from "debug";
 import { NextPage } from "next";
@@ -62,16 +63,15 @@ function ThreadPage() {
     postId: string | null;
     commentId: string | null;
   } | null>(null);
+  const { postId, threadBaseUrl, slug, threadId } = usePageDetails<
+    ThreadPageDetails
+  >();
   const { user, isLoggedIn } = useAuth();
   const router = useRouter();
   const {
-    threadId,
-    postId,
-    slug,
     threadRoot,
     newAnswersSequence,
     isLoading: isFetchingThread,
-    baseUrl,
     personalIdentity,
     defaultView,
     categories,
@@ -240,14 +240,14 @@ function ThreadPage() {
                         : "?thread";
                     router.push(
                       `/[boardId]/thread/[...threadId]`,
-                      `${baseUrl}${queryParam}`,
+                      `${threadBaseUrl}${queryParam}`,
                       {
                         shallow: true,
                       }
                     );
                     setViewMode(viewMode);
                   },
-                  [baseUrl]
+                  [threadBaseUrl]
                 )}
               />
             }
@@ -365,13 +365,13 @@ export interface ThreadPageSSRContext {
   slug: string;
 }
 const PageWithProvider: NextPage<{}> = (props) => {
-  const router = useRouter();
+  const { slug, threadId, postId } = usePageDetails();
 
   return (
     <ThreadProvider
-      slug={(router.query.boardId as string).substring(1)}
-      threadId={router.query.threadId?.[0] as string}
-      postId={router.query.threadId?.[1] || null}
+      slug={slug as string}
+      threadId={threadId as string}
+      postId={postId}
     >
       <ThreadPage />
     </ThreadProvider>
