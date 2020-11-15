@@ -21,7 +21,7 @@ import { useBoardContext } from "../BoardContext";
 import classnames from "classnames";
 import CommentsThread, { commentHandlers } from "./CommentsThread";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
-import { faBookOpen, faEdit, faLink } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faLink } from "@fortawesome/free-solid-svg-icons";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 const log = debug("bobafrontend:threadLevel-log");

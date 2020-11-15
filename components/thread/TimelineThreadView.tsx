@@ -35,6 +35,7 @@ const TimelineView: React.FC<{
   ) => void;
   onNewContribution: (id: string) => void;
   isLoggedIn: boolean;
+  displayAtMost: number;
 }> = (props) => {
   const [timelineView, setTimelineView] = React.useState(
     TIMELINE_VIEW_MODE.ALL
@@ -169,66 +170,71 @@ const TimelineView: React.FC<{
             post available.
           </div>
         )}
-        {displayPosts.map((post) => (
-          <div className="thread" key={post.postId}>
-            <div className="post" key={post.postId}>
-              <Post
-                key={post.postId}
-                size={post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}
-                createdTime={moment.utc(post.created).fromNow()}
-                createdTimeLink={createLinkTo({
-                  urlPattern: THREAD_URL_PATTERN,
-                  url: `${baseUrl}/${post.postId}${url.search}`,
-                })}
-                notesLink={{
-                  href: `${baseUrl}/${post.postId}${url.search}`,
-                  onClick: () => {
-                    setShowComments(
-                      showComments.includes(post.postId)
-                        ? showComments.filter((id) => post.postId != id)
-                        : [...showComments, post.postId]
-                    );
-                  },
-                }}
-                text={post.content}
-                secretIdentity={post.secretIdentity}
-                userIdentity={post.userIdentity}
-                onNewContribution={() => props.onNewContribution(post.postId)}
-                onNewComment={() => props.onNewComment(post.postId, null)}
-                totalComments={post.comments?.length}
-                directContributions={
-                  filteredParentChildrenMap.get(post.postId)?.children.length
-                }
-                totalContributions={getTotalContributions(
-                  post,
-                  filteredParentChildrenMap
-                )}
-                newPost={props.isLoggedIn && post.isNew}
-                newComments={props.isLoggedIn ? post.newCommentsAmount : 0}
-                newContributions={
-                  props.isLoggedIn
-                    ? getTotalNewContributions(post, filteredParentChildrenMap)
-                    : 0
-                }
-                tags={post.tags}
-                answerable={props.isLoggedIn}
-              />
-            </div>
-            {post.comments && showComments.includes(post.postId) && (
-              <ThreadIndent level={1} key={`0_${post.postId}`} ends={[]}>
-                <CommentsThread
-                  isLoggedIn={props.isLoggedIn}
-                  parentPostId={post.postId}
-                  parentCommentId={null}
-                  level={0}
-                  onReplyTo={(replyToCommentId: string) =>
-                    props.onNewComment(post.postId, replyToCommentId)
+        {displayPosts
+          .filter((_, index) => index < props.displayAtMost)
+          .map((post) => (
+            <div className="thread" key={post.postId}>
+              <div className="post" key={post.postId}>
+                <Post
+                  key={post.postId}
+                  size={post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}
+                  createdTime={moment.utc(post.created).fromNow()}
+                  createdTimeLink={createLinkTo({
+                    urlPattern: THREAD_URL_PATTERN,
+                    url: `${baseUrl}/${post.postId}${url.search}`,
+                  })}
+                  notesLink={{
+                    href: `${baseUrl}/${post.postId}${url.search}`,
+                    onClick: () => {
+                      setShowComments(
+                        showComments.includes(post.postId)
+                          ? showComments.filter((id) => post.postId != id)
+                          : [...showComments, post.postId]
+                      );
+                    },
+                  }}
+                  text={post.content}
+                  secretIdentity={post.secretIdentity}
+                  userIdentity={post.userIdentity}
+                  onNewContribution={() => props.onNewContribution(post.postId)}
+                  onNewComment={() => props.onNewComment(post.postId, null)}
+                  totalComments={post.comments?.length}
+                  directContributions={
+                    filteredParentChildrenMap.get(post.postId)?.children.length
                   }
+                  totalContributions={getTotalContributions(
+                    post,
+                    filteredParentChildrenMap
+                  )}
+                  newPost={props.isLoggedIn && post.isNew}
+                  newComments={props.isLoggedIn ? post.newCommentsAmount : 0}
+                  newContributions={
+                    props.isLoggedIn
+                      ? getTotalNewContributions(
+                          post,
+                          filteredParentChildrenMap
+                        )
+                      : 0
+                  }
+                  tags={post.tags}
+                  answerable={props.isLoggedIn}
                 />
-              </ThreadIndent>
-            )}
-          </div>
-        ))}
+              </div>
+              {post.comments && showComments.includes(post.postId) && (
+                <ThreadIndent level={1} key={`0_${post.postId}`} ends={[]}>
+                  <CommentsThread
+                    isLoggedIn={props.isLoggedIn}
+                    parentPostId={post.postId}
+                    parentCommentId={null}
+                    level={0}
+                    onReplyTo={(replyToCommentId: string) =>
+                      props.onNewComment(post.postId, replyToCommentId)
+                    }
+                  />
+                </ThreadIndent>
+              )}
+            </div>
+          ))}
       </div>
       <style jsx>{`
         .timeline-container {

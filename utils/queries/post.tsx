@@ -1,19 +1,6 @@
 import axios from "axios";
-import debug from "debug";
-import {
-  PostType,
-  BoardActivityResponse,
-  CommentType,
-  CommentData,
-  PostData,
-  ThreadType,
-  TagsType,
-} from "../../types/Types";
-import {
-  makeClientComment,
-  makeClientPost,
-  makeClientThread,
-} from "../server-utils";
+import { PostType, ThreadType, TagsType } from "../../types/Types";
+import { makeClientPost } from "../server-utils";
 
 export const editPost = async ({
   postId,

@@ -99,6 +99,7 @@ const GalleryThreadView: React.FC<{
   ) => void;
   onNewContribution: (id: string) => void;
   isLoggedIn: boolean;
+  displayAtMost: number;
 }> = (props) => {
   const {
     baseUrl,
@@ -156,14 +157,14 @@ const GalleryThreadView: React.FC<{
       updatedPosts,
     };
   }, [chronologicalPostsSequence, postCommentsMap]);
-  const toDisplay =
-    TIMELINE_VIEW_MODE.ALL == timelineView
-      ? showCover
-        ? [coverPost, ...allGalleryPosts]
-        : allGalleryPosts
-      : showCover && (coverPost.isNew || coverPost.newCommentsAmount > 0)
-      ? [coverPost, ...updatedPosts]
-      : updatedPosts;
+  const toDisplay = (TIMELINE_VIEW_MODE.ALL == timelineView
+    ? showCover
+      ? [coverPost, ...allGalleryPosts]
+      : allGalleryPosts
+    : showCover && (coverPost.isNew || coverPost.newCommentsAmount > 0)
+    ? [coverPost, ...updatedPosts]
+    : updatedPosts
+  ).filter((_, index) => index < props.displayAtMost);
 
   if (!showCover && !allGalleryPosts.length) {
     return (

@@ -80,6 +80,7 @@ function ThreadPage() {
   const [viewMode, setViewMode] = React.useState(
     getViewTypeFromString(defaultView) || THREAD_VIEW_MODES.THREAD
   );
+  const [maxDisplay, setMaxDisplay] = React.useState(2);
 
   React.useEffect(() => {
     const url = new URL(`${window.location.origin}${router.asPath}`);
@@ -272,12 +273,14 @@ function ThreadPage() {
                       onNewComment={replyToComment}
                       onNewContribution={setPostReplyId}
                       isLoggedIn={isLoggedIn}
+                      displayAtMost={maxDisplay}
                     />
                   ) : (
                     <MemoizedTimelineThreadView
                       onNewComment={replyToComment}
                       onNewContribution={setPostReplyId}
                       isLoggedIn={isLoggedIn}
+                      displayAtMost={maxDisplay}
                     />
                   )}
                 </div>
@@ -290,6 +293,9 @@ function ThreadPage() {
                 </div>
               </div>
             }
+            onReachEnd={React.useCallback(() => {
+              setMaxDisplay((maxDisplay) => maxDisplay + 2);
+            }, [])}
           />
         }
         title={`!${slug}`}
