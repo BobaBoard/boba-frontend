@@ -39,52 +39,44 @@ function HomePage() {
               <div className="updates">
                 <h2>New Stuff </h2>
                 <div className="last">
-                  [Last Updated: 11/07/20.{" "}
+                  [Last Updated: 11/14/20.{" "}
                   <Link href="/update-logs">
                     <a>Older logs.</a>
                   </Link>
                   ]
                   <p>
-                    🇺🇸 🇺🇸 I can't make you happier than the news, but I can give
-                    you some updates! 🇺🇸 🇺🇸{" "}
+                    The harbringer of good updates to come.
                     <ul>
                       <li>
-                        <strong>Tons of fixes on the sidemenu:</strong> I had
-                        gotten it to work, but CLEARLY not well enough. What you
-                        get now: recent unreads are in the right order (with the
-                        most recently updated displaying first), pinned boards
-                        are also in the right order (by pinning time), and board
-                        filtering is now case insensitive!
+                        <strong>Edit tags:</strong> yes, you can edit post tags
+                        now! Get hype for this extremely basic piece of
+                        functionality. (If you haven't heard about the reason
+                        we're getting this now... well, I'll let you guess why
+                        this has suddenly become more urgent). Temporarily only
+                        available in thread & single post view.
                       </li>
                       <li>
-                        <strong>Better display for muted boards:</strong> people
-                        have rightfully complained that the UI state for muted
-                        boards wasn't clear enough. Well, not anymore
-                        (hopefully)!
+                        <strong>Edit default thread view:</strong> did you
+                        regret not making a thread be a gallery or a timeline?
+                        Not anymore!
                       </li>
                       <li>
-                        <strong>
-                          (A Personal Fave) Board Preview on Linking:
-                        </strong>{" "}
-                        if you link a BobaBoard board or thread to a friend,
-                        they'll now get the board image and description as part
-                        of the preview. Fancy!
+                        <strong>Partial Load on Galleries & Timelines:</strong>{" "}
+                        gallery and timeline view will now load posts in
+                        batches, loading more as you scroll down. Paired with
+                        the update above, it should make it possible to once
+                        again reopen some really long threads (until I get
+                        performance REALLY under control).
                       </li>
                       <li>
-                        <strong>Fixed Special Roles:</strong> my work on
-                        "improving" our board updates handling had messed up our
-                        permission settings. While almost no one but me has
-                        special permissions at this moment, just trust me that
-                        it's working now.
+                        <strong>Copy link on inner posts:</strong> ever wanted
+                        to link someone to a specific post? Now you can do it
+                        from within the post's menu!
                       </li>
                       <li>
-                        <strong>Other bug fixes:</strong> setting a new username
-                        should now be fixed. If you hadn't been able to change
-                        it, please go ahead! CWs left alone on their own row are
-                        now pushed to the topmost row. Improved spacing on
-                        dropdown (but overlay is still not disappearing when
-                        hiding posts... I've been temporarily bested, but I'll
-                        try again tomorrow).
+                        <strong>Other bug fixes:</strong> the dropdown overlay
+                        should now disappear when hiding threads. If I fixed
+                        anything else, I forgot.
                       </li>
                     </ul>
                   </p>

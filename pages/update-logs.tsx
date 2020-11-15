@@ -11,6 +11,53 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [11/07/20]
+                  <p>
+                    🇺🇸 🇺🇸 I can't make you happier than the news, but I can give
+                    you some updates! 🇺🇸 🇺🇸{" "}
+                    <ul>
+                      <li>
+                        <strong>Tons of fixes on the sidemenu:</strong> I had
+                        gotten it to work, but CLEARLY not well enough. What you
+                        get now: recent unreads are in the right order (with the
+                        most recently updated displaying first), pinned boards
+                        are also in the right order (by pinning time), and board
+                        filtering is now case insensitive!
+                      </li>
+                      <li>
+                        <strong>Better display for muted boards:</strong> people
+                        have rightfully complained that the UI state for muted
+                        boards wasn't clear enough. Well, not anymore
+                        (hopefully)!
+                      </li>
+                      <li>
+                        <strong>
+                          (A Personal Fave) Board Preview on Linking:
+                        </strong>{" "}
+                        if you link a BobaBoard board or thread to a friend,
+                        they'll now get the board image and description as part
+                        of the preview. Fancy!
+                      </li>
+                      <li>
+                        <strong>Fixed Special Roles:</strong> my work on
+                        "improving" our board updates handling had messed up our
+                        permission settings. While almost no one but me has
+                        special permissions at this moment, just trust me that
+                        it's working now.
+                      </li>
+                      <li>
+                        <strong>Other bug fixes:</strong> setting a new username
+                        should now be fixed. If you hadn't been able to change
+                        it, please go ahead! CWs left alone on their own row are
+                        now pushed to the topmost row. Improved spacing on
+                        dropdown (but overlay is still not disappearing when
+                        hiding posts... I've been temporarily bested, but I'll
+                        try again tomorrow).
+                      </li>
+                    </ul>
+                  </p>
+                </li>
+                <li>
                   [11/04/20]
                   <p>
                     The Halloween decorations are gone... so dry your tears with
