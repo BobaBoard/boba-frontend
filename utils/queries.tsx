@@ -53,8 +53,10 @@ export const getThreadData = async (
     // TODO: don't request thread when there's no id.
     throw new Error("Attempted to fetch thread with no id.");
   }
+  console.time(`Request for thread ${threadId}`);
   const response = await axios.get(`threads/${threadId}/`);
   log(`Fetched data for thread with id ${threadId}`);
+  console.timeEnd(`Request for thread ${threadId}`);
   return makeClientThread(response.data);
 };
 

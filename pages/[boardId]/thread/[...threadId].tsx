@@ -9,7 +9,6 @@ import {
 import Layout from "components/Layout";
 import PostEditorModal from "components/PostEditorModal";
 import CommentEditorModal from "components/CommentEditorModal";
-import { ThreadProvider } from "components/thread/ThreadContext";
 import { useAuth } from "components/Auth";
 import {
   PostType,
@@ -19,7 +18,6 @@ import {
 } from "types/Types";
 import { updateCommentCache, updatePostCache } from "utils/thread-utils";
 import classnames from "classnames";
-import { useBoardContext } from "components/BoardContext";
 //import { useHotkeys } from "react-hotkeys-hook";
 import ThreadView, {
   scrollToComment,
@@ -28,12 +26,12 @@ import ThreadView, {
 import ThreadSidebar from "components/thread/ThreadSidebar";
 import GalleryThreadView from "components/thread/GalleryThreadView";
 import TimelineThreadView from "components/thread/TimelineThreadView";
-import { useThread } from "components/thread/ThreadContext";
 import { useRouter } from "next/router";
 import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
 
 import debug from "debug";
-import { NextPage } from "next";
+import useBoardsData from "components/hooks/useBoardsData";
+import { useThreadData } from "components/hooks/useThreadData";
 const log = debug("bobafrontend:threadPage-log");
 
 const getViewTypeFromString = (
@@ -52,10 +50,103 @@ const getViewTypeFromString = (
   }
 };
 
+const replyToComment = () => {};
+const editPost = () => {};
+const replyToPost = () => {};
 const MemoizedThreadSidebar = React.memo(ThreadSidebar);
 const MemoizedThreadView = React.memo(ThreadView);
 const MemoizedGalleryThreadView = React.memo(GalleryThreadView);
 const MemoizedTimelineThreadView = React.memo(TimelineThreadView);
+const ThreadFeedContent: React.FC<{
+  viewMode: THREAD_VIEW_MODES;
+  postId: string | null;
+  loading: boolean;
+  displayAtMost: number;
+}> = React.memo((props) => {
+  return (
+    <div
+      className={classnames("feed", {
+        thread: props.viewMode == THREAD_VIEW_MODES.THREAD || props.postId,
+        masonry: props.viewMode == THREAD_VIEW_MODES.MASONRY && !props.postId,
+        timeline: props.viewMode == THREAD_VIEW_MODES.TIMELINE && !props.postId,
+        loading: props.loading,
+      })}
+    >
+      <div className="view-modes">
+        {props.viewMode == THREAD_VIEW_MODES.THREAD || props.postId ? (
+          <MemoizedThreadView
+            onNewComment={replyToComment}
+            onNewContribution={replyToPost}
+            onEditPost={editPost}
+          />
+        ) : props.viewMode == THREAD_VIEW_MODES.MASONRY ? (
+          <MemoizedGalleryThreadView
+            onNewComment={replyToComment}
+            onNewContribution={replyToPost}
+            displayAtMost={props.displayAtMost}
+          />
+        ) : (
+          <MemoizedTimelineThreadView
+            onNewComment={replyToComment}
+            onNewContribution={replyToPost}
+            displayAtMost={props.displayAtMost}
+          />
+        )}
+      </div>
+      <div
+        className={classnames("loading-indicator", {
+          loading: props.loading,
+        })}
+      >
+        Loading...
+      </div>
+      <style jsx>
+        {`
+          .feed {
+            max-width: 100%;
+            padding-bottom: 70px;
+            position: relative;
+          }
+          .feed.loading .view-modes {
+            display: none;
+          }
+          .feed.timeline {
+            width: 100%;
+          }
+          .feed.masonry {
+            width: 100%;
+            position: relative;
+            margin-top: 20px;
+          }
+          .loading-indicator {
+            color: white;
+            width: 100%;
+            text-align: center;
+            padding: 20px;
+            display: none;
+          }
+          .loading-indicator.loading {
+            display: block;
+          }
+          @media only screen and (max-width: 600px) {
+            .feed:not(.loading)::after {
+              content: "";
+              background-image: url("/bobadab.png");
+              background-size: contain;
+              position: absolute;
+              width: 50px;
+              height: 50px;
+              bottom: 0;
+              left: 50%;
+              transform: translateX(-50%);
+            }
+          }
+        `}
+      </style>
+    </div>
+  );
+});
+
 function ThreadPage() {
   const [postReplyId, setPostReplyId] = React.useState<string | null>(null);
   const [postEdit, setPostEdit] = React.useState<PostType | null>(null);
@@ -66,7 +157,7 @@ function ThreadPage() {
   const { postId, threadBaseUrl, slug, threadId } = usePageDetails<
     ThreadPageDetails
   >();
-  const { user, isLoggedIn } = useAuth();
+  const { user, isLoggedIn, isPending: isAuthPending } = useAuth();
   const router = useRouter();
   const {
     threadRoot,
@@ -75,12 +166,20 @@ function ThreadPage() {
     personalIdentity,
     defaultView,
     categories,
-  } = useThread();
-  const { currentBoardData } = useBoardContext();
+    readThread,
+  } = useThreadData({ threadId, slug });
+  const { currentBoardData } = useBoardsData();
   const [viewMode, setViewMode] = React.useState(
     getViewTypeFromString(defaultView) || THREAD_VIEW_MODES.THREAD
   );
   const [maxDisplay, setMaxDisplay] = React.useState(2);
+
+  React.useEffect(() => {
+    if (!isAuthPending && !isFetchingThread && isLoggedIn) {
+      readThread();
+      return;
+    }
+  }, [isAuthPending, isFetchingThread, isLoggedIn]);
 
   React.useEffect(() => {
     const url = new URL(`${window.location.origin}${router.asPath}`);
@@ -149,6 +248,7 @@ function ThreadPage() {
     (viewMode == THREAD_VIEW_MODES.MASONRY ||
       viewMode == THREAD_VIEW_MODES.TIMELINE);
 
+  log(`Re-rendering ThreadPage`);
   return (
     <div className="main">
       {isLoggedIn && (
@@ -252,46 +352,12 @@ function ThreadPage() {
               />
             }
             feedContent={
-              <div
-                className={classnames("feed", {
-                  thread: viewMode == THREAD_VIEW_MODES.THREAD || postId,
-                  masonry: viewMode == THREAD_VIEW_MODES.MASONRY && !postId,
-                  timeline: viewMode == THREAD_VIEW_MODES.TIMELINE && !postId,
-                  loading: isFetchingThread,
-                })}
-              >
-                <div className="view-modes">
-                  {viewMode == THREAD_VIEW_MODES.THREAD || postId ? (
-                    <MemoizedThreadView
-                      onNewComment={replyToComment}
-                      onNewContribution={setPostReplyId}
-                      onEditPost={setPostEdit}
-                      isLoggedIn={isLoggedIn}
-                    />
-                  ) : viewMode == THREAD_VIEW_MODES.MASONRY ? (
-                    <MemoizedGalleryThreadView
-                      onNewComment={replyToComment}
-                      onNewContribution={setPostReplyId}
-                      isLoggedIn={isLoggedIn}
-                      displayAtMost={maxDisplay}
-                    />
-                  ) : (
-                    <MemoizedTimelineThreadView
-                      onNewComment={replyToComment}
-                      onNewContribution={setPostReplyId}
-                      isLoggedIn={isLoggedIn}
-                      displayAtMost={maxDisplay}
-                    />
-                  )}
-                </div>
-                <div
-                  className={classnames("loading-indicator", {
-                    loading: isFetchingThread,
-                  })}
-                >
-                  Loading...
-                </div>
-              </div>
+              <ThreadFeedContent
+                viewMode={viewMode}
+                postId={postId}
+                loading={isFetchingThread}
+                displayAtMost={maxDisplay}
+              />
             }
             onReachEnd={React.useCallback(() => {
               setMaxDisplay((maxDisplay) => maxDisplay + 2);
@@ -312,75 +378,8 @@ function ThreadPage() {
           ) : undefined
         }
       />
-      <style jsx>
-        {`
-          .feed {
-            max-width: 100%;
-            padding-bottom: 70px;
-            position: relative;
-          }
-          .feed.loading .view-modes {
-            display: none;
-          }
-          .feed.timeline {
-            width: 100%;
-          }
-          .feed.masonry {
-            width: 100%;
-            position: relative;
-            margin-top: 20px;
-          }
-          .loading-indicator {
-            color: white;
-            width: 100%;
-            text-align: center;
-            padding: 20px;
-            display: none;
-          }
-          .loading-indicator.loading {
-            display: block;
-          }
-          @media only screen and (max-width: 600px) {
-            .feed:not(.loading)::after {
-              content: "";
-              background-image: url("/bobadab.png");
-              background-size: contain;
-              position: absolute;
-              width: 50px;
-              height: 50px;
-              bottom: 0;
-              left: 50%;
-              transform: translateX(-50%);
-            }
-          }
-        `}
-      </style>
     </div>
   );
 }
 
-export interface ThreadPageSSRContext {
-  threadId: string;
-  postId: string | null;
-  slug: string;
-}
-const PageWithProvider: NextPage<{}> = (props) => {
-  const { slug, threadId, postId } = usePageDetails();
-
-  return (
-    <ThreadProvider
-      slug={slug as string}
-      threadId={threadId as string}
-      postId={postId}
-    >
-      <ThreadPage />
-    </ThreadProvider>
-  );
-};
-
-// Without getInitialProps the router query will be undefined at first
-PageWithProvider.getInitialProps = async () => {
-  return {};
-};
-
-export default PageWithProvider;
+export default ThreadPage;

@@ -94,3 +94,13 @@ export const useCachedLinks = () => {
     getLinkToPost,
   };
 };
+
+export default {
+  linkToHome,
+  linkToFeed,
+  linkToLogs,
+  linkToPersonalSettings,
+  getLinkToBoard,
+  getLinkToThread,
+  getLinkToPost,
+};

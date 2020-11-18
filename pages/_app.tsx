@@ -6,18 +6,19 @@ import React from "react";
 import axios from "axios";
 import Head from "next/head";
 import { AuthProvider, useAuth } from "../components/Auth";
-import { BoardContextProvider } from "../components/BoardContext";
 import type { AppProps } from "next/app";
 import {
   ToastContainer,
   toast,
   setTumblrEmbedFetcher,
   setOEmbedFetcher,
-  // @ts-ignore
 } from "@bobaboard/ui-components";
 import { NextPageContext } from "next";
 import { BoardData } from "types/Types";
-import { makeClientBoardData, getServerBaseUrl } from "utils/server-utils";
+import { getServerBaseUrl } from "utils/server-utils";
+import { ReactQueryCacheProvider, QueryCache } from "react-query";
+import { dehydrate, Hydrate } from "react-query/hydration";
+import { getAllBoardsData } from "utils/queries/board";
 // import debug from "debug";
 // const logging = debug("bobafrontend:app-log");
 
@@ -51,6 +52,8 @@ const AxiosInterceptor = () => {
   }, []);
   return null;
 };
+
+const queryCache = new QueryCache();
 
 const embedsAxios = axios.create();
 setTumblrEmbedFetcher((url: string) => {
@@ -93,11 +96,8 @@ function MyApp({
   Component,
   pageProps,
   // @ts-ignore
-  props,
+  props: { slug, currentBoardData, dehydratedState },
 }: AppProps<{ [key: string]: BoardData }>) {
-  const boardData: BoardData[] =
-    props?.boardData.map(makeClientBoardData) || [];
-  const currentBoardData = boardData.find((board) => board.slug == props.slug);
   return (
     <>
       <Head>
@@ -138,10 +138,11 @@ function MyApp({
       </Head>
       <AuthProvider>
         <AxiosInterceptor />
-        <BoardContextProvider initialData={boardData}>
-          <ToastContainer />
-          <Component {...pageProps} />
-        </BoardContextProvider>
+        <ReactQueryCacheProvider queryCache={queryCache}>
+          <Hydrate state={dehydratedState}>
+            <ToastContainer /> <Component {...pageProps} />
+          </Hydrate>
+        </ReactQueryCacheProvider>
       </AuthProvider>
     </>
   );
@@ -150,9 +151,35 @@ function MyApp({
 export default MyApp;
 
 MyApp.getInitialProps = async ({ ctx }: { ctx: NextPageContext }) => {
-  const body = await axios.get(`${getServerBaseUrl(ctx)}boards`);
-  const boardData = await body.data;
+  const slug = ctx.query.boardId?.slice(1) as string;
+  axios.defaults.baseURL = getServerBaseUrl(ctx);
+  const queryCache = new QueryCache();
+  const boardData = await queryCache.prefetchQuery(
+    "allBoardsData",
+    async (key: string) => {
+      const allBoardsData = await getAllBoardsData(key);
+      const newBoardsData = allBoardsData?.reduce((agg, value) => {
+        agg[value.slug] = value;
+        return agg;
+      }, {});
+      return newBoardsData;
+    }
+  );
+  let currentBoardData: { [slug: string]: BoardData } | undefined;
+  if (slug) {
+    if (boardData) {
+      currentBoardData = await queryCache.prefetchQuery(
+        ["boardThemeData", { slug }],
+        () => boardData[slug]
+      );
+    }
+  }
+
   return {
-    props: { boardData, slug: ctx.query.boardId?.slice(1) },
+    props: {
+      currentBoardData,
+      slug,
+      dehydratedState: dehydrate(queryCache),
+    },
   };
 };

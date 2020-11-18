@@ -6,23 +6,27 @@ import { BoardData } from "../types/Types";
 import noop from "noop-ts";
 import { useAuth } from "./Auth";
 
+const deepEqual = require("fast-deep-equal");
+
+import debug from "debug";
+
+const log = debug("bobafrontend:BoardContext-log");
+
 interface BoardContextType {
   boardsData: { [key: string]: BoardData };
   nextPinnedOrder: number;
   refetch: () => void;
-  currentBoardData: BoardData | null;
 }
 
 const BoardContext = React.createContext<BoardContextType>({
   boardsData: {},
   nextPinnedOrder: 1,
   refetch: noop,
-  currentBoardData: null,
 });
 
 const useBoardContext = () => React.useContext<BoardContextType>(BoardContext);
 
-const updateBoardData = (
+const maybeGetUpdatedBoardData = (
   newBoardData: BoardData,
   oldBoardData: BoardData | null
 ): BoardData => {
@@ -30,7 +34,7 @@ const updateBoardData = (
     newBoardData.descriptions.length > 0
       ? newBoardData.descriptions
       : oldBoardData?.descriptions || [];
-  return {
+  const newValue = {
     ...oldBoardData,
     slug: newBoardData.slug,
     avatarUrl: newBoardData.avatarUrl,
@@ -54,6 +58,10 @@ const updateBoardData = (
       (description) => description.categories || []
     ),
   };
+
+  return oldBoardData && deepEqual(newValue, oldBoardData)
+    ? oldBoardData
+    : newValue;
 };
 
 const getNextPinnedOrder = (boardData: BoardData[]) =>
@@ -63,33 +71,27 @@ const BoardContextProvider: React.FC<{
   initialData?: BoardData[];
 }> = (props) => {
   const router = useRouter();
-  const { isLoggedIn } = useAuth();
   const slug = router.query.boardId?.slice(1) as string;
+  const { isLoggedIn } = useAuth();
   const [boardsData, setBoardsData] = React.useState<
     BoardContextType["boardsData"]
   >(
-    props.initialData?.reduce((agg, value: any) => {
-      agg[value.slug] = updateBoardData(value, null);
-      return agg;
-    }, {} as BoardContextType["boardsData"]) || {}
+    () =>
+      props.initialData?.reduce((agg, value: any) => {
+        log("!!!!!!!!!Initializing boards data");
+        agg[value.slug] = maybeGetUpdatedBoardData(value, null);
+        return agg;
+      }, {} as BoardContextType["boardsData"]) || {}
   );
   const [nextPinnedOrder, setNextPinnedOrder] = React.useState(
     getNextPinnedOrder(props.initialData || [])
-  );
-  const [
-    currentBoardData,
-    setCurrentBoardData,
-  ] = React.useState<BoardData | null>(
-    slug && props.initialData?.[slug]
-      ? updateBoardData(props.initialData?.[slug], null)
-      : null
   );
 
   // This handler takes care of transforming the board result returned from a query
   // to the /boards endpoint (i.e. the one returning details for ALL boards).
   // Note that, at least for now, this handler returns ALL the board, so boards that were there but
   // aren't anymore can be safely removed.
-  const { data: allBoardsData, refetch: refetchAllBoards } = useQuery(
+  const { refetch: refetchAllBoards } = useQuery(
     "allBoardsData",
     getAllBoardsData,
     {
@@ -98,24 +100,39 @@ const BoardContextProvider: React.FC<{
       staleTime: 1000 * 30, // Make stale after 30s
       refetchInterval: 1000 * 60 * 1, // Refetch automatically every minute
       refetchOnWindowFocus: true,
+      onSuccess: (data) => {
+        log("Fetched new data for boards");
+        if (!data) {
+          return;
+        }
+        const newBoardsData: BoardContextType["boardsData"] = data.reduce(
+          (agg, value) => {
+            agg[value.slug] = maybeGetUpdatedBoardData(
+              value,
+              boardsData[value.slug]
+            );
+            return agg;
+          },
+          {} as BoardContextType["boardsData"]
+        );
+        const updated = Object.keys(newBoardsData).some(
+          (slug) => newBoardsData[slug] != boardsData[slug]
+        );
+        if (!updated) {
+          log(
+            "Fetched new value for all boards data, but no update was found."
+          );
+          return;
+        }
+        log("Found updated values in new boards data.");
+        setBoardsData(newBoardsData);
+        setNextPinnedOrder(getNextPinnedOrder(Object.values(newBoardsData)));
+      },
     }
   );
-  React.useEffect(() => {
-    if (!allBoardsData) {
-      return;
-    }
-    const newBoardsData: BoardContextType["boardsData"] = allBoardsData.reduce(
-      (agg, value) => {
-        agg[value.slug] = updateBoardData(value, boardsData[value.slug]);
-        return agg;
-      },
-      {} as BoardContextType["boardsData"]
-    );
-    setBoardsData(newBoardsData);
-    setNextPinnedOrder(getNextPinnedOrder(Object.values(newBoardsData)));
-  }, [allBoardsData]);
 
   React.useEffect(() => {
+    log(`Logged in changed ${slug} \ ${isLoggedIn}`);
     if (isLoggedIn) {
       refetchAllBoards();
     }
@@ -123,48 +140,60 @@ const BoardContextProvider: React.FC<{
 
   // This handler takes care of transforming the board result returned from a query
   // to the /boards/:slug endpoint (i.e. the one returning details for the "slug" board).
-  const { data: boardData, refetch: refetchCurrentBoard } = useQuery(
+  const { refetch: refetchCurrentBoard } = useQuery(
     ["boardThemeData", { slug }],
     getBoardData,
-    { staleTime: Infinity }
+    {
+      staleTime: Infinity,
+      onSuccess: (data) => {
+        if (data) {
+          log(`Fetched new data for board ${slug}`);
+          // Update the value of the board whose value we just requested.
+          const newBoardData = maybeGetUpdatedBoardData(
+            data,
+            boardsData[data.slug]
+          );
+          const updated = newBoardData != boardsData[data.slug];
+          if (!updated) {
+            log(
+              `Fetched new value for board ${slug}, but no update was found.`
+            );
+            return;
+          }
+          const updatedBoardsData = {
+            ...boardsData,
+            [data.slug]: newBoardData,
+          };
+          log(`Found updated values for board with slug ${slug}.`);
+          setBoardsData(updatedBoardsData);
+          setNextPinnedOrder(
+            getNextPinnedOrder(Object.values(updatedBoardsData))
+          );
+        }
+      },
+    }
   );
   React.useEffect(() => {
-    if (boardData) {
-      const updatedBoardsData = {
-        ...boardsData,
-      };
-      // Update the value of the board whose value we just requested.
-      updatedBoardsData[boardData.slug] = updateBoardData(
-        boardData,
-        boardsData[boardData.slug]
-      );
-      setBoardsData(updatedBoardsData);
-      setNextPinnedOrder(getNextPinnedOrder(Object.values(updatedBoardsData)));
-    }
-  }, [boardData]);
-
-  React.useEffect(() => {
-    setCurrentBoardData(boardData?.[slug] || null);
-  }, [boardData, slug]);
-
-  React.useEffect(() => {
+    log(`Slug or logged in changed ${slug} \ ${isLoggedIn}`);
     if (isLoggedIn) {
       refetchCurrentBoard();
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, slug]);
 
+  log("Re-rendering context");
   return (
     <BoardContext.Provider
-      value={{
-        boardsData,
-        nextPinnedOrder,
-        refetch: refetchAllBoards,
-        currentBoardData,
-      }}
-      {
-        ...props /* this is here for props.children */
-      }
-    />
+      value={React.useMemo(() => {
+        log("Getting new value for provider");
+        return {
+          boardsData,
+          nextPinnedOrder,
+          refetch: refetchAllBoards,
+        };
+      }, [boardsData, nextPinnedOrder, refetchAllBoards])}
+    >
+      {props.children}
+    </BoardContext.Provider>
   );
 };
 

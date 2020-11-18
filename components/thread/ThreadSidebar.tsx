@@ -5,16 +5,15 @@ import {
   ButtonStyle,
   PostQuote,
 } from "@bobaboard/ui-components";
-import { useThread } from "components/thread/ThreadContext";
 import { THREAD_VIEW_MODES } from "types/Types";
 import moment from "moment";
+import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
+import { useThreadData } from "components/hooks/useThreadData";
 
+const MemoizedPostQuote = React.memo(PostQuote);
 const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
-  const {
-    threadRoot,
-    categoryFilterState,
-    setCategoryFilterState,
-  } = useThread();
+  const { slug, threadId } = usePageDetails<ThreadPageDetails>();
+  const { threadRoot, categoryFilterState } = useThreadData({ threadId, slug });
 
   if (!threadRoot) {
     return <div />;
@@ -22,7 +21,7 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
   return (
     <div className="thread-sidebar">
       <div className="post-header">
-        <PostQuote
+        <MemoizedPostQuote
           createdTime={moment.utc(threadRoot.created).fromNow()}
           text={threadRoot.content}
           secretIdentity={threadRoot.secretIdentity}
@@ -74,12 +73,12 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
                 <CategoryFilter
                   categories={categoryFilterState}
                   onCategoryStateChangeRequest={(name: string) => {
-                    setCategoryFilterState(
-                      categoryFilterState.map((category) => ({
-                        ...category,
-                        active: category.name == name,
-                      }))
-                    );
+                    // setCategoryFilterState(
+                    //   categoryFilterState.map((category) => ({
+                    //     ...category,
+                    //     active: category.name == name,
+                    //   }))
+                    // );
                   }}
                 />
                 {categoryFilterState.some((category) => !category.active) && (
@@ -87,12 +86,12 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
                     className="clear-filters"
                     href="#"
                     onClick={() => {
-                      setCategoryFilterState(
-                        categoryFilterState.map((category) => ({
-                          ...category,
-                          active: true,
-                        }))
-                      );
+                      // setCategoryFilterState(
+                      //   categoryFilterState.map((category) => ({
+                      //     ...category,
+                      //     active: true,
+                      //   }))
+                      // );
                     }}
                   >
                     Clear filters

@@ -6,9 +6,10 @@ import {
   useIndent,
 } from "@bobaboard/ui-components";
 import { CommentType, ThreadCommentInfoType } from "../../types/Types";
-import { useThread } from "./ThreadContext";
 
 import debug from "debug";
+import { useThreadData } from "components/hooks/useThreadData";
+import { usePageDetails, ThreadPageDetails } from "utils/router-utils";
 // @ts-expect-error
 const log = debug("bobafrontend:threadLevel-log");
 // @ts-expect-error
@@ -37,49 +38,60 @@ const CommentsThreadLevel: React.FC<{
   const replyToLast = React.useCallback(() => props.onReplyTo(lastCommentId), [
     lastCommentId,
   ]);
+
+  const threadIndent = React.useMemo(() => {
+    return (
+      <>
+        <div className="comment" data-comment-id={props.comment.commentId}>
+          <CommentChain
+            ref={(handler: CommentHandler | null) => {
+              if (handler == null) {
+                return;
+              }
+              chain.forEach((el) => commentHandlers.set(el.commentId, handler));
+              indent.setHandler(handler);
+            }}
+            key={props.comment.commentId}
+            secretIdentity={props.comment.secretIdentity}
+            userIdentity={props.comment.userIdentity}
+            comments={chain.map((el) => ({
+              id: el.commentId,
+              text: el.content,
+            }))}
+            muted={props.isLoggedIn && !props.comment.isNew}
+            onExtraAction={props.isLoggedIn ? replyToLast : undefined}
+          />
+        </div>
+        {children ? (
+          <MemoizedCommentsThread
+            level={props.level + 1}
+            parentCommentId={lastCommentId}
+            parentPostId={props.parentPostId}
+            isLoggedIn={props.isLoggedIn}
+            onReplyTo={props.onReplyTo}
+          />
+        ) : (
+          <></>
+        )}
+      </>
+    );
+  }, [props, lastCommentId]);
   return (
     <CompactThreadIndent
       level={props.level}
       startsFromViewport={indent.bounds}
       hideLine={!children}
     >
-      <div className="comment" data-comment-id={props.comment.commentId}>
-        <CommentChain
-          ref={(handler: CommentHandler | null) => {
-            if (handler == null) {
-              return;
-            }
-            chain.forEach((el) => commentHandlers.set(el.commentId, handler));
-            indent.setHandler(handler);
-          }}
-          key={props.comment.commentId}
-          secretIdentity={props.comment.secretIdentity}
-          userIdentity={props.comment.userIdentity}
-          comments={chain.map((el) => ({
-            id: el.commentId,
-            text: el.content,
-          }))}
-          muted={props.isLoggedIn && !props.comment.isNew}
-          onExtraAction={props.isLoggedIn ? replyToLast : undefined}
-        />
-      </div>
-      {children ? (
-        <CommentsThread
-          level={props.level + 1}
-          parentCommentId={lastCommentId}
-          parentPostId={props.parentPostId}
-          isLoggedIn={props.isLoggedIn}
-          onReplyTo={props.onReplyTo}
-        />
-      ) : (
-        <></>
-      )}
+      {threadIndent}
     </CompactThreadIndent>
   );
 };
 
 // TODO: clear commentHandlers when changing thread
 export const commentHandlers = new Map<string, CommentHandler>();
+const Profiler = React.Profiler;
+
+const MemoizedCommentsThreadLevel = React.memo(CommentsThreadLevel);
 const CommentsThread: React.FC<{
   parentPostId: string;
   parentCommentId: string | null;
@@ -87,7 +99,8 @@ const CommentsThread: React.FC<{
   level: number;
   onReplyTo: (replyTo: string) => void;
 }> = (props) => {
-  const { postCommentsMap } = useThread();
+  const { slug, threadId } = usePageDetails<ThreadPageDetails>();
+  const { postCommentsMap } = useThreadData({ threadId, slug });
 
   if (!postCommentsMap.has(props.parentPostId)) {
     return <div />;
@@ -100,10 +113,31 @@ const CommentsThread: React.FC<{
     ? parentChildrenMap.get(props.parentCommentId) || []
     : roots;
   return (
-    <>
+    <Profiler
+      id={`commentThread ${props.parentPostId}`}
+      onRender={(
+        ProfilerId,
+        Phase,
+        ActualDuration,
+        BaseDuration,
+        StartTime,
+        CommitTime,
+        Interactions
+      ) =>
+        console.log({
+          ProfilerId,
+          Phase,
+          ActualDuration,
+          BaseDuration, //time taken by react
+          StartTime, //time at which render starts
+          CommitTime,
+          Interactions, // this is gotten from the rapping API
+        })
+      }
+    >
       {actualRoots.map((comment: CommentType, i: number) => {
         return (
-          <CommentsThreadLevel
+          <MemoizedCommentsThreadLevel
             key={comment.commentId}
             comment={comment}
             parentChainMap={parentChainMap}
@@ -112,8 +146,9 @@ const CommentsThread: React.FC<{
           />
         );
       })}
-    </>
+    </Profiler>
   );
 };
+const MemoizedCommentsThread = React.memo(CommentsThread);
 
 export default CommentsThread;

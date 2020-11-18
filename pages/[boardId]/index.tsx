@@ -13,7 +13,6 @@ import Layout from "../../components/Layout";
 import PostEditorModal from "../../components/PostEditorModal";
 import { useInfiniteQuery, queryCache, useMutation } from "react-query";
 import { useAuth } from "../../components/Auth";
-import { useBoardContext } from "../../components/BoardContext";
 import {
   getBoardActivityData,
   markThreadAsRead,
@@ -62,6 +61,7 @@ import {
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import noop from "noop-ts";
 import { updateThreadView } from "utils/queries/post";
+import useBoardsData from "components/hooks/useBoardsData";
 
 const error = debug("bobafrontend:boardPage-error");
 const log = debug("bobafrontend:boardPage-log");
@@ -277,7 +277,8 @@ function BoardPage() {
   const router = useRouter();
   const slug: string = router.query.boardId?.slice(1) as string;
   const { isPending, isLoggedIn, user } = useAuth();
-  const { boardsData, nextPinnedOrder } = useBoardContext();
+  let nextPinnedOrder = 5;
+  const { currentBoardData } = useBoardsData();
   const onTitleClick = React.useCallback(() => setShowSidebar(!showSidebar), [
     showSidebar,
   ]);
@@ -513,29 +514,29 @@ function BoardPage() {
   );
 
   const boardOptions = React.useMemo(() => {
-    if (!isLoggedIn || !boardsData || !boardsData[slug]) {
+    if (!isLoggedIn || !currentBoardData) {
       return undefined;
     }
     const options: any = [
       {
-        icon: boardsData[slug].muted ? faVolumeUp : faVolumeMute,
-        name: boardsData[slug].muted ? "Unmute" : "Mute",
+        icon: currentBoardData.muted ? faVolumeUp : faVolumeMute,
+        name: currentBoardData.muted ? "Unmute" : "Mute",
         link: {
           onClick: () =>
             setBoardMuted({
               slug,
-              mute: !boardsData[slug].muted,
+              mute: !currentBoardData.muted,
             }),
         },
       },
       {
         icon: faThumbtack,
-        name: !!boardsData[slug].pinnedOrder ? "Unpin" : "Pin",
+        name: !!currentBoardData.pinnedOrder ? "Unpin" : "Pin",
         link: {
           onClick: () =>
             setBoardPinned({
               slug,
-              pin: !boardsData[slug].pinnedOrder,
+              pin: !currentBoardData.pinnedOrder,
             }),
         },
       },
@@ -547,7 +548,7 @@ function BoardPage() {
         },
       },
     ];
-    if (boardsData[slug].permissions?.canEditBoardData) {
+    if (currentBoardData.permissions?.canEditBoardData) {
       options.push({
         icon: faEdit,
         name: "Edit Board",
@@ -557,7 +558,7 @@ function BoardPage() {
       });
     }
     return options;
-  }, [isLoggedIn, boardsData[slug], slug]);
+  }, [isLoggedIn, currentBoardData, slug]);
 
   React.useEffect(() => {
     if (!isPending && isLoggedIn) {
@@ -580,8 +581,8 @@ function BoardPage() {
           }}
           // TODO: this transformation shouldn't be done here.
           additionalIdentities={
-            boardsData[slug]?.postingIdentities
-              ? boardsData[slug].postingIdentities?.map((identity) => ({
+            currentBoardData?.postingIdentities
+              ? currentBoardData.postingIdentities?.map((identity) => ({
                   ...identity,
                   avatar: identity.avatarUrl,
                 }))
@@ -595,7 +596,7 @@ function BoardPage() {
           slug={slug}
           replyToPostId={null}
           uploadBaseUrl={`images/${slug}/`}
-          suggestedCategories={boardsData[slug]?.suggestedCategories}
+          suggestedCategories={currentBoardData?.suggestedCategories}
         />
       )}
       <Layout
@@ -607,13 +608,13 @@ function BoardPage() {
               <>
                 <MemoizedBoardSidebar
                   // @ts-ignore
-                  slug={boardsData[slug]?.slug || slug}
-                  avatarUrl={boardsData[slug]?.avatarUrl || "/"}
-                  tagline={boardsData[slug]?.tagline || "loading..."}
-                  accentColor={boardsData[slug]?.accentColor || "#f96680"}
-                  muted={boardsData[slug]?.muted}
+                  slug={currentBoardData?.slug || slug}
+                  avatarUrl={currentBoardData?.avatarUrl || "/"}
+                  tagline={currentBoardData?.tagline || "loading..."}
+                  accentColor={currentBoardData?.accentColor || "#f96680"}
+                  muted={currentBoardData?.muted}
                   previewOptions={boardOptions}
-                  descriptions={boardsData[slug]?.descriptions || []}
+                  descriptions={currentBoardData?.descriptions || []}
                   editing={editingSidebar}
                   onCancelEditing={stopEditing}
                   onUpdateMetadata={updateBoardMetadata}
@@ -629,7 +630,7 @@ function BoardPage() {
                     );
                   }, [])}
                 />
-                {!boardsData[slug]?.descriptions && !editingSidebar && (
+                {!currentBoardData?.descriptions && !editingSidebar && (
                   <img
                     className="under-construction"
                     src="/under_construction_icon.png"
@@ -711,7 +712,7 @@ function BoardPage() {
         actionButton={
           isLoggedIn && (
             <MemoizedActionButton
-              accentColor={boardsData[slug]?.accentColor || "#f96680"}
+              accentColor={currentBoardData?.accentColor || "#f96680"}
               onNewPost={openPostEditor}
             />
           )

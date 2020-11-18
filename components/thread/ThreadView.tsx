@@ -10,19 +10,20 @@ import {
 import { useRouter } from "next/router";
 import moment from "moment";
 import debug from "debug";
-import { useThread } from "components/thread/ThreadContext";
-import { PostType } from "../../types/Types";
+import { BoardData, PostType } from "../../types/Types";
 import {
   getTotalContributions,
   getTotalNewContributions,
 } from "../../utils/thread-utils";
 import Link from "next/link";
-import { useBoardContext } from "../BoardContext";
 import classnames from "classnames";
 import CommentsThread, { commentHandlers } from "./CommentsThread";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { faEdit, faLink } from "@fortawesome/free-solid-svg-icons";
 import { usePageDetails, ThreadPageDetails } from "utils/router-utils";
+import useBoardsData from "components/hooks/useBoardsData";
+import { useThreadData } from "components/hooks/useThreadData";
+import { useAuth } from "components/Auth";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 const log = debug("bobafrontend:threadLevel-log");
@@ -78,6 +79,7 @@ export const scrollToComment = (commentId: string, color: string) => {
 };
 
 const MemoizedThreadIndent = React.memo(ThreadIndent);
+const MemoizedCommentsThread = React.memo(CommentsThread);
 const MemoizedPost = React.memo(Post);
 const postHandlers = new Map<string, PostHandler>();
 const ThreadLevel: React.FC<{
@@ -93,11 +95,11 @@ const ThreadLevel: React.FC<{
   isLoggedIn: boolean;
   lastOf?: { level: number; postId: string }[];
 }> = (props) => {
-  const router = useRouter();
-  const slug = router.query.boardId?.slice(1) as string;
-  const threadId = router.query.threadId?.[0] as string;
+  const { slug, threadId } = usePageDetails<ThreadPageDetails>();
   const { getLinkToPost } = useCachedLinks();
-  const { boardsData } = useBoardContext();
+  const { currentBoardData } = useBoardsData() as {
+    currentBoardData: BoardData;
+  };
   info(
     `Rendering subtree at level ${props.level} starting with post with id ${props.post.postId}`
   );
@@ -108,7 +110,7 @@ const ThreadLevel: React.FC<{
       ? props.lastOf.map((ends) => ({
           level: ends.level,
           onBeamUpClick: () => {
-            scrollToPost(ends.postId, boardsData[slug].accentColor);
+            scrollToPost(ends.postId, currentBoardData.accentColor);
           },
           showAddContribution: props.isLoggedIn,
           onAddContributionClick: () => {
@@ -137,7 +139,7 @@ const ThreadLevel: React.FC<{
             {
               level: props.level,
               onBeamUpClick: () =>
-                scrollToPost(props.post.postId, boardsData[slug].accentColor),
+                scrollToPost(props.post.postId, currentBoardData.accentColor),
               showAddContribution: props.isLoggedIn,
               onAddContributionClick: () => {
                 props.onNewContribution(props.post.postId);
@@ -152,6 +154,12 @@ const ThreadLevel: React.FC<{
       props.onNewContribution,
       scrollToPost,
     ]
+  );
+
+  const onReplyTo = React.useMemo(
+    () => (replyToCommentId: string) =>
+      props.onNewComment(props.post.postId, replyToCommentId),
+    [props.onNewComment, props.post.postId]
   );
 
   return (
@@ -245,14 +253,12 @@ const ThreadLevel: React.FC<{
       </MemoizedThreadIndent>
       {props.post.comments && (
         <MemoizedThreadIndent level={props.level + 1} ends={commentsEnds}>
-          <CommentsThread
+          <MemoizedCommentsThread
             isLoggedIn={props.isLoggedIn}
             parentPostId={props.post.postId}
             parentCommentId={null}
             level={0}
-            onReplyTo={(replyToCommentId: string) =>
-              props.onNewComment(props.post.postId, replyToCommentId)
-            }
+            onReplyTo={onReplyTo}
           />
         </MemoizedThreadIndent>
       )}
@@ -295,10 +301,16 @@ const ThreadView: React.FC<{
   ) => void;
   onNewContribution: (id: string) => void;
   onEditPost: (post: PostType) => void;
-  isLoggedIn: boolean;
 }> = (props) => {
-  const { postId, threadBaseUrl } = usePageDetails<ThreadPageDetails>();
-  const { currentRoot, parentChildrenMap } = useThread();
+  const { isLoggedIn } = useAuth();
+  const { threadId, slug, postId, threadBaseUrl } = usePageDetails<
+    ThreadPageDetails
+  >();
+  const { currentRoot, parentChildrenMap } = useThreadData({
+    threadId,
+    slug,
+    postId,
+  });
   const router = useRouter();
 
   if (!currentRoot) {
@@ -326,7 +338,7 @@ const ThreadView: React.FC<{
         level={0}
         onNewComment={props.onNewComment}
         onNewContribution={props.onNewContribution}
-        isLoggedIn={props.isLoggedIn}
+        isLoggedIn={isLoggedIn}
         onEditPost={props.onEditPost}
       />
       <style jsx>{`
@@ -347,4 +359,4 @@ const ThreadView: React.FC<{
   );
 };
 
-export default ThreadView;
+export default React.memo(ThreadView);

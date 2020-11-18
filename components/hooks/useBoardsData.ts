@@ -3,7 +3,6 @@ import { useRouter } from "next/router";
 import { useQuery, useQueryCache } from "react-query";
 import { getBoardData, getAllBoardsData } from "../../utils/queries/board";
 import { BoardData } from "../../types/Types";
-import noop from "noop-ts";
 import { useAuth } from "../Auth";
 
 const deepEqual = require("fast-deep-equal");
@@ -49,8 +48,19 @@ interface BoardsData {
   [key: string]: BoardData;
 }
 
-const getNextPinnedOrder = (boardData: BoardData[]) =>
-  Math.max(...boardData.map((boardData) => boardData.pinnedOrder || 0), 0) + 1;
+const getNextPinnedOrder = (boardsData: BoardsData | undefined) => {
+  if (!boardsData) {
+    return 1;
+  }
+  return (
+    Math.max(
+      ...Object.values(boardsData).map(
+        ({ slug }) => boardsData[slug]?.pinnedOrder || 0
+      ),
+      0
+    ) + 1
+  );
+};
 
 export default () => {
   const router = useRouter();
@@ -184,5 +194,6 @@ export default () => {
     hasUpdates: Object.keys(allBoardsData || {}).some(
       (slug) => allBoardsData![slug].hasUpdates
     ),
+    nextPinnedOrder: getNextPinnedOrder(allBoardsData),
   };
 };

@@ -1,15 +1,17 @@
 import React from "react";
-import { SideMenu, Layout as InnerLayout } from "@bobaboard/ui-components";
+import {
+  SideMenu as InnerSideMenu,
+  Layout as InnerLayout,
+} from "@bobaboard/ui-components";
 import LoginModal from "./LoginModal";
 import { dismissAllNotifications } from "../utils/queries";
 import { useAuth } from "./Auth";
 import { NextRouter, useRouter } from "next/router";
 import { useMutation, queryCache } from "react-query";
-// @ts-ignore
 import { ReactQueryDevtools } from "react-query-devtools";
-import { useBoardContext } from "./BoardContext";
+import useBoardsData from "./hooks/useBoardsData";
 import { processBoardsUpdates } from "../utils/boards-utils";
-import { useCachedLinks, FEED_URL } from "./hooks/useCachedLinks";
+import CachedLinks, { useCachedLinks, FEED_URL } from "./hooks/useCachedLinks";
 import debug from "debug";
 import {
   faArchive,
@@ -20,6 +22,7 @@ import {
   faInbox,
   faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
+import { usePageDetails } from "utils/router-utils";
 
 const log = debug("bobafrontend:queries-log");
 
@@ -30,22 +33,79 @@ const getSelectedMenuOptionFromPath = (router: NextRouter) => {
   return "";
 };
 
-const MemoizedSideMenu = React.memo(SideMenu);
-const Layout = (props: LayoutProps) => {
-  const router = useRouter();
-  const {
-    linkToHome,
-    linkToFeed,
-    getLinkToBoard,
-    linkToPersonalSettings,
-    linkToLogs,
-  } = useCachedLinks();
-  const { isPending: isUserPending, user, isLoggedIn } = useAuth();
-  const [loginOpen, setLoginOpen] = React.useState(false);
-  const layoutRef = React.useRef<{ closeSideMenu: () => void }>(null);
-  const slug: string = router.query.boardId?.slice(1) as string;
-  const { boardsData, refetch } = useBoardContext();
+// TODO: add feed here
+const getTitleLinkFromPath = ({
+  onTitleClick,
+  slug,
+}: {
+  onTitleClick?: () => void;
+  slug: string | null;
+}) => {
+  return onTitleClick
+    ? {
+        href: slug ? CachedLinks.getLinkToBoard(slug).href : "/",
+        onClick: onTitleClick,
+      }
+    : slug
+    ? CachedLinks.getLinkToBoard(slug).href
+    : CachedLinks.linkToHome;
+};
+
+// TODO: useCachedLinks is not a hook, and it should be renamed
+const getLoginMenuOption = ({ onLogout }: { onLogout: () => void }) => [
+  {
+    icon: faArchive,
+    name: "Logs Archive",
+    link: CachedLinks.linkToLogs,
+  },
+  {
+    icon: faCogs,
+    name: "User Settings",
+    link: CachedLinks.linkToPersonalSettings,
+  },
+  {
+    icon: faBook,
+    name: "Welcome Guide",
+    link: {
+      href:
+        "https://www.notion.so/BobaBoard-s-Welcome-Packet-b0641466bfdf4a1cab8575083459d6a2",
+    },
+  },
+  {
+    icon: faComments,
+    name: "Leave Feedback!",
+    link: {
+      href:
+        "https://docs.google.com/forms/d/e/1FAIpQLSfyMENg9eDNmRj-jIvIG5_ElJFwpGZ_VPvzAskarqu5kf0MSA/viewform",
+    },
+  },
+  {
+    icon: faSignOutAlt,
+    name: "Logout",
+    link: { onClick: onLogout },
+  },
+];
+
+const LOGGED_IN_MENU_BAR_OPTIONS = [
+  {
+    id: "feed",
+    icon: faInbox,
+    link: CachedLinks.linkToFeed,
+  },
+];
+
+const EMPTY_OPTIONS = [] as any[];
+
+const MemoizedInnerSideMenu = React.memo(InnerSideMenu);
+const SideMenu: React.FC<{
+  onBoardChange?: (slug: string) => void;
+}> = (props) => {
+  const { slug, threadId } = usePageDetails();
+  const { isPending: isUserPending, isLoggedIn } = useAuth();
   const [boardFilter, setBoardFilter] = React.useState("");
+  const { getLinkToBoard } = useCachedLinks();
+  const { allBoardsData } = useBoardsData();
+
   const [dismissNotifications] = useMutation(dismissAllNotifications, {
     onSuccess: () => {
       log(`Successfully dismissed all notifications. Refetching...`);
@@ -53,23 +113,19 @@ const Layout = (props: LayoutProps) => {
       if (slug) {
         queryCache.invalidateQueries(["boardActivityData", { slug }]);
       }
-      if (router.query.id) {
-        queryCache.invalidateQueries([
-          "threadData",
-          { threadId: router.query.id },
-        ]);
+      if (threadId) {
+        queryCache.invalidateQueries(["threadData", { threadId }]);
       }
     },
   });
-  const onBoardChange = React.useCallback(() => {
-    layoutRef.current?.closeSideMenu();
-    refetch();
-  }, [layoutRef.current?.closeSideMenu, refetch]);
-
-  const { pinnedBoards, recentBoards, allBoards, hasUpdates } = React.useMemo(
+  const { pinnedBoards, recentBoards, allBoards } = React.useMemo(
     () =>
       processBoardsUpdates(
-        Object.values(boardsData).reduce((agg, board) => {
+        Object.values(allBoardsData!).reduce((agg, board) => {
+          // TODO: figure out why this is happening
+          if (!board) {
+            return agg;
+          }
           agg[board.slug] = {
             slug: board.slug.replace("_", " "),
             avatar: `${board.avatarUrl}`,
@@ -78,98 +134,86 @@ const Layout = (props: LayoutProps) => {
             lastUpdate: board.lastUpdate,
             updates: !!(isLoggedIn && board.hasUpdates),
             muted: board.muted,
-            link: getLinkToBoard(board.slug, onBoardChange),
+            link: getLinkToBoard(board.slug, () =>
+              props.onBoardChange?.(board.slug)
+            ),
             pinnedOrder: board.pinnedOrder,
           };
           return agg;
         }, {} as Parameters<typeof processBoardsUpdates>[0]),
         boardFilter
       ),
-    [boardFilter, boardsData]
+    [boardFilter, isLoggedIn, allBoardsData]
   );
 
-  const boardData = boardsData[slug];
+  return (
+    <MemoizedInnerSideMenu
+      pinnedBoards={pinnedBoards}
+      recentBoards={
+        React.useMemo(() => recentBoards.filter((board, index) => index < 4), [
+          recentBoards,
+        ]) as any[]
+      }
+      allBoards={allBoards}
+      menuOptions={React.useMemo(
+        () =>
+          isLoggedIn
+            ? [
+                {
+                  icon: faCommentSlash,
+                  name: "Dismiss Notifications",
+                  link: { onClick: dismissNotifications },
+                },
+              ]
+            : [],
+        [isLoggedIn, dismissNotifications]
+      )}
+      showRecent={isUserPending || isLoggedIn}
+      showPinned={isUserPending || isLoggedIn}
+      onFilterChange={setBoardFilter}
+    />
+  );
+};
+
+const Layout = (props: LayoutProps) => {
+  const router = useRouter();
+  const { linkToHome } = useCachedLinks();
+  const { isPending: isUserPending, user, isLoggedIn } = useAuth();
+  const [loginOpen, setLoginOpen] = React.useState(false);
+  const layoutRef = React.useRef<{ closeSideMenu: () => void }>(null);
+  const { currentBoardData, refetchAllBoards, hasUpdates } = useBoardsData();
+  const { slug } = usePageDetails();
+
   return (
     <div>
       {loginOpen && (
         <LoginModal
           isOpen={loginOpen}
           onCloseModal={() => setLoginOpen(false)}
-          color={boardData?.accentColor || "#f96680"}
+          color={currentBoardData?.accentColor || "#f96680"}
         />
       )}
       <InnerLayout
         ref={layoutRef}
         mainContent={props.mainContent}
         sideMenuContent={
-          <MemoizedSideMenu
-            pinnedBoards={pinnedBoards}
-            recentBoards={
-              React.useMemo(
-                () => recentBoards.filter((board, index) => index < 4),
-                [recentBoards]
-              ) as any[]
-            }
-            allBoards={allBoards}
-            menuOptions={React.useMemo(
-              () =>
-                isLoggedIn
-                  ? [
-                      {
-                        icon: faCommentSlash,
-                        name: "Dismiss Notifications",
-                        link: { onClick: dismissNotifications },
-                      },
-                    ]
-                  : [],
-              [isLoggedIn, dismissNotifications]
+          <SideMenu
+            onBoardChange={React.useCallback(
+              () => layoutRef.current?.closeSideMenu,
+              [layoutRef]
             )}
-            showRecent={isLoggedIn}
-            showPinned={isLoggedIn}
-            onFilterChange={setBoardFilter}
           />
         }
         actionButton={props.actionButton}
-        headerAccent={boardData?.accentColor || "#f96680"}
+        headerAccent={currentBoardData?.accentColor || "#f96680"}
         onUserBarClick={React.useCallback(
           () => setLoginOpen(!isUserPending && !isLoggedIn),
           [isUserPending, isLoggedIn]
         )}
         loggedInMenuOptions={React.useMemo(
           () =>
-            isLoggedIn && [
-              {
-                icon: faArchive,
-                name: "Logs Archive",
-                link: linkToLogs,
-              },
-              {
-                icon: faCogs,
-                name: "User Settings",
-                link: linkToPersonalSettings,
-              },
-              {
-                icon: faBook,
-                name: "Welcome Guide",
-                link: {
-                  href:
-                    "https://www.notion.so/BobaBoard-s-Welcome-Packet-b0641466bfdf4a1cab8575083459d6a2",
-                },
-              },
-              {
-                icon: faComments,
-                name: "Leave Feedback!",
-                link: {
-                  href:
-                    "https://docs.google.com/forms/d/e/1FAIpQLSfyMENg9eDNmRj-jIvIG5_ElJFwpGZ_VPvzAskarqu5kf0MSA/viewform",
-                },
-              },
-              {
-                icon: faSignOutAlt,
-                name: "Logout",
-                link: { onClick: () => setLoginOpen(true) },
-              },
-            ],
+            isLoggedIn &&
+            getLoginMenuOption({ onLogout: () => setLoginOpen(true) }),
           [isLoggedIn]
         )}
         user={user}
@@ -177,36 +221,21 @@ const Layout = (props: LayoutProps) => {
         forceHideTitle={props.forceHideTitle}
         loading={props.loading || isUserPending}
         updates={isLoggedIn && hasUpdates}
-        onSideMenuButtonClick={refetch}
+        onSideMenuButtonClick={refetchAllBoards}
         logoLink={linkToHome}
         menuOptions={React.useMemo(
-          () =>
-            isLoggedIn
-              ? [
-                  {
-                    id: "feed",
-                    icon: faInbox,
-                    link: linkToFeed,
-                  },
-                ]
-              : [],
+          () => (isLoggedIn ? LOGGED_IN_MENU_BAR_OPTIONS : EMPTY_OPTIONS),
           [isLoggedIn]
         )}
         selectedMenuOption={getSelectedMenuOptionFromPath(router)}
-        // TODO: add feed here
-        titleLink={
-          props.onTitleClick
-            ? React.useMemo(
-                () => ({
-                  href: slug ? getLinkToBoard(slug).href : "/",
-                  onClick: props.onTitleClick,
-                }),
-                [slug, props.onTitleClick]
-              )
-            : slug
-            ? getLinkToBoard(slug)
-            : linkToHome
-        }
+        titleLink={React.useMemo(
+          () =>
+            getTitleLinkFromPath({
+              onTitleClick: props.onTitleClick,
+              slug,
+            }),
+          [props.onTitleClick, slug]
+        )}
       />
       <ReactQueryDevtools initialIsOpen={false} />
     </div>
