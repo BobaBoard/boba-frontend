@@ -43,7 +43,7 @@ interface ThreadContextType {
   postCommentsMap: Map<string, ThreadCommentInfoType>;
   filteredParentChildrenMap: Map<string, ThreadPostInfoType>;
   categories: string[];
-  categoryFilterState: { name: string; active: boolean }[];
+  categoryFilterState: CategoryFilterType[];
   setCategoryFilterState: React.Dispatch<
     React.SetStateAction<{ name: string; active: boolean }[]>
   >;

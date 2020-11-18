@@ -273,6 +273,7 @@ function ThreadPage() {
                       onNewComment={replyToComment}
                       onNewContribution={setPostReplyId}
                       isLoggedIn={isLoggedIn}
+                      onEditPost={setPostEdit}
                       displayAtMost={maxDisplay}
                     />
                   ) : (
@@ -280,6 +281,7 @@ function ThreadPage() {
                       onNewComment={replyToComment}
                       onNewContribution={setPostReplyId}
                       isLoggedIn={isLoggedIn}
+                      onEditPost={setPostEdit}
                       displayAtMost={maxDisplay}
                     />
                   )}

@@ -1,5 +1,5 @@
 import React from "react";
-import { Post, PostSizes, ThreadIndent } from "@bobaboard/ui-components";
+import { Post, PostSizes, ThreadIndent, toast } from "@bobaboard/ui-components";
 import debug from "debug";
 import {
   getTotalContributions,
@@ -12,7 +12,10 @@ import classnames from "classnames";
 import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
 import TemporarySegmentedButton from "./TemporarySegmentedButton";
 import CommentsThread from "./CommentsThread";
+import { faEdit, faLink } from "@fortawesome/free-solid-svg-icons";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
+import { useCachedLinks } from "components/hooks/useCachedLinks";
+import { PostType } from "types/Types";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // @ts-ignore
@@ -30,13 +33,14 @@ const TimelineView: React.FC<{
     replyToCommentId: string | null
   ) => void;
   onNewContribution: (id: string) => void;
+  onEditPost: (post: PostType) => void;
   isLoggedIn: boolean;
   displayAtMost: number;
 }> = (props) => {
   const [timelineView, setTimelineView] = React.useState(
     TIMELINE_VIEW_MODE.ALL
   );
-  const { threadBaseUrl } = usePageDetails<ThreadPageDetails>();
+  const { slug, threadBaseUrl, threadId } = usePageDetails<ThreadPageDetails>();
   const {
     chronologicalPostsSequence,
     postCommentsMap,
@@ -91,6 +95,7 @@ const TimelineView: React.FC<{
       );
     }
   }, [isLoading]);
+  const { getLinkToPost } = useCachedLinks();
 
   const { newPosts, updatedPosts, allPosts } = React.useMemo(() => {
     // @ts-ignore
@@ -122,6 +127,48 @@ const TimelineView: React.FC<{
       ? updatedPosts
       : newPosts;
 
+  const menuOptions = React.useMemo(
+    () =>
+      displayPosts.map((post) => [
+        {
+          icon: faLink,
+          name: "Copy Link",
+          link: {
+            onClick: () => {
+              const tempInput = document.createElement("input");
+              tempInput.value = new URL(
+                getLinkToPost({
+                  slug,
+                  postId: post.postId,
+                  threadId,
+                })?.href as string,
+                window.location.origin
+              ).toString();
+              document.body.appendChild(tempInput);
+              tempInput.select();
+              document.execCommand("copy");
+              document.body.removeChild(tempInput);
+              toast.success("Link copied!");
+            },
+          },
+        },
+        // Add options just for logged in users
+        ...(props.isLoggedIn && post.isOwn
+          ? [
+              {
+                icon: faEdit,
+                name: "Edit tags",
+                link: {
+                  onClick: () => {
+                    props.onEditPost(post);
+                  },
+                },
+              },
+            ]
+          : []),
+      ]),
+    [props.isLoggedIn, displayPosts, threadId]
+  );
   const url = new URL(`${window.location.origin}${router.asPath}`);
   return (
     <div
@@ -168,7 +215,7 @@ const TimelineView: React.FC<{
         )}
         {displayPosts
           .filter((_, index) => index < props.displayAtMost)
-          .map((post) => (
+          .map((post, index) => (
             <div className="thread" key={post.postId}>
               <div className="post" key={post.postId}>
                 <Post
@@ -214,6 +261,7 @@ const TimelineView: React.FC<{
                   }
                   tags={post.tags}
                   answerable={props.isLoggedIn}
+                  menuOptions={menuOptions[index]}
                 />
               </div>
               {post.comments && showComments.includes(post.postId) && (

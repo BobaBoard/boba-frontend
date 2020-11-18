@@ -224,7 +224,7 @@ const ThreadLevel: React.FC<{
                   },
                 },
                 // Add options just for logged in users
-                ...(props.isLoggedIn
+                ...(props.isLoggedIn && props.post.isOwn
                   ? [
                       {
                         icon: faEdit,

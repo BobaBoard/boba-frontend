@@ -75,17 +75,22 @@ export const makeClientThread = (serverThread: any): ThreadType => {
 };
 
 export const makeClientBoardData = (serverBoardData: any): BoardData => {
+  let lastUpdate = null;
+  if (serverBoardData.last_post) {
+    lastUpdate = moment.utc(serverBoardData.last_post);
+  }
+  if (serverBoardData.last_comment) {
+    const commentUpdate = moment.utc(serverBoardData.last_comment);
+    lastUpdate = lastUpdate
+      ? moment.max(lastUpdate, commentUpdate)
+      : moment.utc(commentUpdate);
+  }
   return {
     slug: serverBoardData.slug,
     avatarUrl: serverBoardData.avatarUrl,
     tagline: serverBoardData.tagline,
     accentColor: serverBoardData.settings?.accentColor,
-    lastUpdate: moment
-      .max(
-        moment.utc(serverBoardData.last_post),
-        moment.utc(serverBoardData.last_comment)
-      )
-      .toDate(),
+    lastUpdate: lastUpdate ? lastUpdate.toDate() : undefined,
     descriptions: serverBoardData.descriptions || [],
     hasUpdates: serverBoardData.has_updates,
     muted: serverBoardData.muted,

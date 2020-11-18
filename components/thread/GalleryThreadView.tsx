@@ -4,7 +4,7 @@ import {
   PostSizes,
   MasonryView,
   ThreadIndent,
-  // @ts-ignore
+  toast,
 } from "@bobaboard/ui-components";
 import {
   getTotalContributions,
@@ -17,6 +17,9 @@ import { useRouter } from "next/router";
 import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
 import CommentsThread from "./CommentsThread";
 import { usePageDetails, ThreadPageDetails } from "utils/router-utils";
+import { faEdit, faLink } from "@fortawesome/free-solid-svg-icons";
+import { PostType } from "types/Types";
+import { useCachedLinks } from "components/hooks/useCachedLinks";
 
 enum TIMELINE_VIEW_MODE {
   UPDATED,
@@ -101,13 +104,14 @@ const GalleryThreadView: React.FC<{
   onNewContribution: (id: string) => void;
   isLoggedIn: boolean;
   displayAtMost: number;
+  onEditPost: (post: PostType) => void;
 }> = (props) => {
   const {
     chronologicalPostsSequence,
     parentChildrenMap,
     postCommentsMap,
   } = useThread();
-  const { threadBaseUrl } = usePageDetails<ThreadPageDetails>();
+  const { slug, threadBaseUrl, threadId } = usePageDetails<ThreadPageDetails>();
   const masonryRef = React.createRef<{ reposition: () => void }>();
   const router = useRouter();
   const [showCover, setShowCover] = React.useState(false);
@@ -115,6 +119,7 @@ const GalleryThreadView: React.FC<{
     TIMELINE_VIEW_MODE.ALL
   );
   const [showComments, setShowComments] = React.useState<string[]>([]);
+  const { getLinkToPost } = useCachedLinks();
 
   // const activeCategories = categoryFilterState.filter(
   //   (category) => category.active
@@ -166,6 +171,48 @@ const GalleryThreadView: React.FC<{
     ? [coverPost, ...updatedPosts]
     : updatedPosts
   ).filter((_, index) => index < props.displayAtMost);
+  const menuOptions = React.useMemo(
+    () =>
+      toDisplay.map((post) => [
+        {
+          icon: faLink,
+          name: "Copy Link",
+          link: {
+            onClick: () => {
+              const tempInput = document.createElement("input");
+              tempInput.value = new URL(
+                getLinkToPost({
+                  slug,
+                  postId: post.postId,
+                  threadId,
+                })?.href as string,
+                window.location.origin
+              ).toString();
+              document.body.appendChild(tempInput);
+              tempInput.select();
+              document.execCommand("copy");
+              document.body.removeChild(tempInput);
+              toast.success("Link copied!");
+            },
+          },
+        },
+        // Add options just for logged in users
+        ...(props.isLoggedIn && post.isOwn
+          ? [
+              {
+                icon: faEdit,
+                name: "Edit tags",
+                link: {
+                  onClick: () => {
+                    props.onEditPost(post);
+                  },
+                },
+              },
+            ]
+          : []),
+      ]),
+    [props.isLoggedIn, toDisplay, threadId]
+  );
 
   if (!showCover && !allGalleryPosts.length) {
     return (
@@ -211,7 +258,7 @@ const GalleryThreadView: React.FC<{
       {toDisplay.length > 0 && (
         <MasonryView ref={masonryRef}>
           {
-            toDisplay.map((post) => (
+            toDisplay.map((post, index) => (
               <div
                 className="thread"
                 key={post.postId}
@@ -268,6 +315,7 @@ const GalleryThreadView: React.FC<{
                     tags={post.tags}
                     onEmbedLoaded={() => masonryRef.current?.reposition()}
                     answerable={props.isLoggedIn}
+                    menuOptions={menuOptions[index]}
                   />
                 </div>
                 {post.comments && showComments.includes(post.postId) && (
