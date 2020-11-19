@@ -17,7 +17,11 @@ import {
   THREAD_VIEW_MODES,
   ThreadType,
 } from "types/Types";
-import { updateCommentCache, updatePostCache } from "utils/thread-utils";
+import {
+  updateCommentCache,
+  updatePostCache,
+  updatePostTagsInCache,
+} from "utils/queries/cache";
 import classnames from "classnames";
 import { useBoardContext } from "components/BoardContext";
 //import { useHotkeys } from "react-hotkeys-hook";
@@ -174,9 +178,18 @@ function ThreadPage() {
                 `Saved new prompt to thread ${threadId}, replying to post ${postReplyId}.`
               );
               log(post);
-              if (!updatePostCache({ threadId, post })) {
+              if (
+                postEdit &&
+                !updatePostTagsInCache({
+                  threadId,
+                  postId: post.postId,
+                  tags: post.tags,
+                })
+              ) {
+                toast.error(`Error updating post cache after editing tags.`);
+              } else if (postReplyId && !updatePostCache({ threadId, post })) {
                 toast.error(
-                  `Error updating post cache after posting new comment.`
+                  `Error updating post cache after posting new post.`
                 );
               }
               setPostReplyId(null);

@@ -211,7 +211,7 @@ const GalleryThreadView: React.FC<{
             ]
           : []),
       ]),
-    [props.isLoggedIn, toDisplay, threadId]
+    [props.isLoggedIn, toDisplay, threadId, props.onEditPost]
   );
 
   if (!showCover && !allGalleryPosts.length) {

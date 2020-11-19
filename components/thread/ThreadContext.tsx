@@ -14,12 +14,14 @@ import {
   makePostsTree,
   extractCategories,
   applyCategoriesFilter,
-  getThreadInBoardCache,
-  updateThreadReadState,
   makeCommentsTree,
   extractAnswersSequence,
   UNCATEGORIZED_LABEL,
 } from "utils/thread-utils";
+import {
+  getThreadInBoardCache,
+  removeThreadActivityFromCache,
+} from "utils/queries/cache";
 import moment from "moment";
 
 import debug from "debug";
@@ -78,8 +80,14 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
       log(
         `Searching board activity data for board ${slug} and thread ${threadId}`
       );
-      return getThreadInBoardCache({ slug, threadId })?.thread;
+      return getThreadInBoardCache({
+        slug,
+        threadId,
+        categoryFilter: null,
+      })?.thread;
     },
+    staleTime: 30 * 1000,
+    keepPreviousData: true,
     onSuccess: (data) => {
       log(`Retrieved thread data for thread with id ${threadId}`);
       info(data);
@@ -91,7 +99,7 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
   const [readThread] = useMutation(() => markThreadAsRead({ threadId }), {
     onSuccess: () => {
       log(`Successfully marked thread as read`);
-      updateThreadReadState({ threadId, slug });
+      removeThreadActivityFromCache({ threadId, slug, categoryFilter: null });
     },
   });
   React.useEffect(() => {

@@ -9,7 +9,6 @@ import moment from "moment";
 import { useThread } from "components/thread/ThreadContext";
 import { useRouter } from "next/router";
 import classnames from "classnames";
-import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
 import TemporarySegmentedButton from "./TemporarySegmentedButton";
 import CommentsThread from "./CommentsThread";
 import { faEdit, faLink } from "@fortawesome/free-solid-svg-icons";
@@ -48,7 +47,6 @@ const TimelineView: React.FC<{
     isLoading,
   } = useThread();
   const router = useRouter();
-  const [showComments, setShowComments] = React.useState<string[]>([]);
 
   React.useEffect(() => {
     const url = new URL(`${window.location.origin}${router.asPath}`);
@@ -103,14 +101,6 @@ const TimelineView: React.FC<{
     const newPosts = chronologicalPostsSequence.filter((post) => post.isNew);
     const updatedPosts = chronologicalPostsSequence.filter(
       (post) => post.isNew || post.newCommentsAmount > 0
-    );
-
-    // We always automatically show all the posts when something posted there
-    // is new.
-    setShowComments(
-      updatedPosts
-        .filter((post) => post.newCommentsAmount > 0)
-        .map((post) => post.postId)
     );
 
     return {
@@ -169,7 +159,6 @@ const TimelineView: React.FC<{
       ]),
     [props.isLoggedIn, displayPosts, threadId]
   );
-  const url = new URL(`${window.location.origin}${router.asPath}`);
   return (
     <div
       className={classnames("timeline-container", {
@@ -222,20 +211,16 @@ const TimelineView: React.FC<{
                   key={post.postId}
                   size={post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}
                   createdTime={moment.utc(post.created).fromNow()}
-                  createdTimeLink={createLinkTo({
-                    urlPattern: THREAD_URL_PATTERN,
-                    url: `${threadBaseUrl}/${post.postId}${url.search}`,
+                  createdTimeLink={getLinkToPost({
+                    slug,
+                    threadId,
+                    postId: post.postId,
                   })}
-                  notesLink={{
-                    href: `${threadBaseUrl}/${post.postId}${url.search}`,
-                    onClick: () => {
-                      setShowComments(
-                        showComments.includes(post.postId)
-                          ? showComments.filter((id) => post.postId != id)
-                          : [...showComments, post.postId]
-                      );
-                    },
-                  }}
+                  notesLink={getLinkToPost({
+                    slug,
+                    threadId,
+                    postId: post.postId,
+                  })}
                   text={post.content}
                   secretIdentity={post.secretIdentity}
                   userIdentity={post.userIdentity}
@@ -264,7 +249,7 @@ const TimelineView: React.FC<{
                   menuOptions={menuOptions[index]}
                 />
               </div>
-              {post.comments && showComments.includes(post.postId) && (
+              {post.comments && (
                 <ThreadIndent level={1} key={`0_${post.postId}`} ends={[]}>
                   <CommentsThread
                     isLoggedIn={props.isLoggedIn}

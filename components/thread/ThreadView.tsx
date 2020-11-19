@@ -153,6 +153,53 @@ const ThreadLevel: React.FC<{
       scrollToPost,
     ]
   );
+  const menuOptions = React.useMemo(
+    () => [
+      {
+        icon: faLink,
+        name: "Copy Link",
+        link: {
+          onClick: () => {
+            const tempInput = document.createElement("input");
+            tempInput.value = new URL(
+              getLinkToPost({
+                slug,
+                postId: props.post.postId,
+                threadId,
+              })?.href as string,
+              window.location.origin
+            ).toString();
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            toast.success("Link copied!");
+          },
+        },
+      },
+      // Add options just for logged in users
+      ...(props.isLoggedIn && props.post.isOwn
+        ? [
+            {
+              icon: faEdit,
+              name: "Edit tags",
+              link: {
+                onClick: () => {
+                  props.onEditPost(props.post);
+                },
+              },
+            },
+          ]
+        : []),
+    ],
+    [props.isLoggedIn, props.post, props.onEditPost, threadId]
+  );
+
+  const onReplyToComment = React.useCallback(
+    (replyToCommentId: string) =>
+      props.onNewComment(props.post.postId, replyToCommentId),
+    [props.onNewComment, props.post]
+  );
 
   return (
     <>
@@ -203,43 +250,7 @@ const ThreadLevel: React.FC<{
             answerable={props.isLoggedIn}
             tags={props.post.tags}
             muted={props.isLoggedIn && !props.post.isNew && props.level > 0}
-            menuOptions={React.useMemo(
-              () => [
-                {
-                  icon: faLink,
-                  name: "Copy Link",
-                  link: {
-                    onClick: () => {
-                      const tempInput = document.createElement("input");
-                      tempInput.value = new URL(
-                        linkToPost?.href as string,
-                        window.location.origin
-                      ).toString();
-                      document.body.appendChild(tempInput);
-                      tempInput.select();
-                      document.execCommand("copy");
-                      document.body.removeChild(tempInput);
-                      toast.success("Link copied!");
-                    },
-                  },
-                },
-                // Add options just for logged in users
-                ...(props.isLoggedIn && props.post.isOwn
-                  ? [
-                      {
-                        icon: faEdit,
-                        name: "Edit tags",
-                        link: {
-                          onClick: () => {
-                            props.onEditPost(props.post);
-                          },
-                        },
-                      },
-                    ]
-                  : []),
-              ],
-              [props.isLoggedIn, props.post, props.onEditPost, linkToPost]
-            )}
+            menuOptions={menuOptions}
           />
         </div>
       </MemoizedThreadIndent>
@@ -250,9 +261,7 @@ const ThreadLevel: React.FC<{
             parentPostId={props.post.postId}
             parentCommentId={null}
             level={0}
-            onReplyTo={(replyToCommentId: string) =>
-              props.onNewComment(props.post.postId, replyToCommentId)
-            }
+            onReplyTo={onReplyToComment}
           />
         </MemoizedThreadIndent>
       )}

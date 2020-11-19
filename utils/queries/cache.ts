@@ -2,11 +2,15 @@ import { queryCache } from "react-query";
 import {
   BoardActivityResponse,
   BoardData,
+  CommentType,
+  PostType,
   ThreadType,
+  TagsType,
 } from "../../types/Types";
 
 import debug from "debug";
 const error = debug("bobafrontend:boardPage-error");
+const log = debug("bobafrontend:boardPage-log");
 
 interface ThreadInActivityData {
   thread: ThreadType;
@@ -247,4 +251,146 @@ export const setDefaultThreadViewInCache = ({
     () => boardActivityData
   );
   queryCache.setQueryData(["userActivityData"], () => userActivityData);
+};
+
+export const updateCommentCache = ({
+  threadId,
+  newComments,
+  replyTo,
+}: {
+  threadId: string;
+  newComments: CommentType[];
+  replyTo: {
+    postId: string | null;
+    commentId: string | null;
+  };
+}) => {
+  const threadData = queryCache.getQueryData<ThreadType>([
+    "threadData",
+    { threadId },
+  ]);
+  if (!threadData) {
+    log(
+      `Couldn't read thread data during comment upload for thread id ${threadId}`
+    );
+    return false;
+  }
+  const parentIndex = threadData.posts.findIndex(
+    (post) => post.postId == replyTo?.postId
+  );
+  log(`Found parent post with index ${parentIndex}`);
+  if (parentIndex == -1) {
+    return false;
+  }
+  const newPosts = [...threadData.posts];
+  newPosts[parentIndex] = {
+    ...threadData.posts[parentIndex],
+    newCommentsAmount: threadData.posts[parentIndex].newCommentsAmount + 1,
+    comments: [
+      ...(threadData.posts[parentIndex].comments || []),
+      ...newComments,
+    ],
+  };
+  queryCache.setQueryData(["threadData", { threadId }], () => ({
+    ...threadData,
+    posts: newPosts,
+  }));
+  return true;
+};
+
+export const updatePostCache = ({
+  threadId,
+  post,
+}: {
+  threadId: string;
+  post: PostType;
+}) => {
+  const threadData = queryCache.getQueryData<ThreadType>([
+    "threadData",
+    { threadId },
+  ]);
+  if (!threadData) {
+    log(
+      `Couldn't read thread data during post upload for thread id ${threadId}`
+    );
+    return false;
+  }
+  const oldPostIndex = threadData.posts.findIndex(
+    (oldPost) => oldPost.postId == post.postId
+  );
+  const newThreadData = {
+    ...threadData,
+    posts: [...threadData.posts],
+  };
+  if (oldPostIndex == -1) {
+    newThreadData.posts.push(post);
+  } else {
+    newThreadData.posts[oldPostIndex] = post;
+  }
+  if (!newThreadData.personalIdentity && post.isOwn) {
+    newThreadData.personalIdentity = post.secretIdentity;
+  }
+  queryCache.setQueryData(["threadData", { threadId }], () => newThreadData);
+  return true;
+};
+
+export const updatePostTagsInCache = ({
+  threadId,
+  postId,
+  tags,
+}: {
+  threadId: string;
+  postId: string;
+  tags: TagsType;
+}) => {
+  const threadData = queryCache.getQueryData<ThreadType>([
+    "threadData",
+    { threadId },
+  ]);
+  if (!threadData) {
+    log(
+      `Couldn't read thread data during post upload for thread id ${threadId}`
+    );
+    return false;
+  }
+  const oldPostIndex = threadData.posts.findIndex(
+    (oldPost) => oldPost.postId == postId
+  );
+  if (oldPostIndex == -1) {
+    return;
+  }
+  const newThreadData = {
+    ...threadData,
+    posts: [...threadData.posts],
+  };
+
+  newThreadData.posts[oldPostIndex] = {
+    ...threadData.posts[oldPostIndex],
+    tags,
+  };
+
+  queryCache.setQueryData(["threadData", { threadId }], () => newThreadData);
+
+  if (oldPostIndex == 0) {
+    // This mean this is the displayed post in activities
+    // TODO: do this
+  }
+
+  return true;
+};
+
+export const getThreadInBoardCache = ({
+  slug,
+  threadId,
+  categoryFilter,
+}: {
+  slug: string;
+  threadId: string;
+  categoryFilter: string | null;
+}) => {
+  const boardActivityData = queryCache.getQueryData<BoardActivityResponse[]>([
+    "boardActivityData",
+    { slug, categoryFilter },
+  ]);
+  return getThreadInActivityData(boardActivityData, threadId);
 };
