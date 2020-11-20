@@ -42,7 +42,7 @@ export const createImageUploadPromise = ({
     }
     // else, for now, let's just swap it with the Onceler.
     onSuccess(
-      "https://pbs.twimg.com/media/EY-RqiyUwAAfgzd?format=png&name=small"
+      "https://firebasestorage.googleapis.com/v0/b/bobaboard-fb.appspot.com/o/images%2Fmain_street%2Fe7533caf-c4e4-42c5-a668-21236995156a.jpeg?alt=media&token=c9804eb5-f72e-46a2-8854-0a7b154a7ecd"
     );
   });
 };
