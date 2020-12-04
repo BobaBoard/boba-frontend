@@ -11,6 +11,58 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [11/18/20]
+                  <p>
+                    <strong>Small Announcement 1:</strong> join other Boobies
+                    for a{" "}
+                    <a href="https://v0.boba.social/!animanga/thread/f9f075d5-50c6-4867-82e1-7e810cc28896/f841116e-5ca7-410d-a268-39d2fb042b9e">
+                      Tokyo Babylon Watch Party
+                    </a>{" "}
+                    this Saturday November 21 @8PM <strong>EST</strong>.
+                  </p>
+                  <p>
+                    <strong>Small Announcement 2:</strong> I will likely revert
+                    avatars to their pre-halloween version soon. Say the
+                    goodbyes you want to say.
+                  </p>
+                  <p>
+                    <strong>Actual updates:</strong> After 3 days spent deep
+                    into debugging thread performance I bring you... absolutely
+                    unrelated bug fixes.
+                    <ul>
+                      <li>
+                        <strong>Edit tags:</strong> only show the option to edit
+                        your own tags. Not that you could edit other people's,
+                        anyway, but you sure could have tried.
+                      </li>
+                      <li>
+                        <strong>Sidemenu fixes:</strong> Fix sidescrolling issue
+                        when board name is longer than the space allowed, and
+                        fix bug on recent unreads where the last board you
+                        visited always showed on top.
+                      </li>
+                      <li>
+                        <strong>Post header updates:</strong> Improved
+                        spacing/lettering of post headers. Also, posts in
+                        gallery & timeline mode also have options dropdown now.
+                      </li>
+                      <li>
+                        <strong>
+                          Automatically show comments in timeline mode:
+                        </strong>{" "}
+                        What it says on the tin. Timeline mode will now always
+                        show comments (while gallery only shows updated posts').
+                      </li>
+                      <li>
+                        <strong>Other bug fixes:</strong> fixed "old images
+                        added before a certain bug fix are hidden if they appear
+                        at the end of a thread" (obscure, I know). Plus, a small
+                        hidden change I don't expect you to find for a while :P
+                      </li>
+                    </ul>
+                  </p>
+                </li>
+                <li>
                   [11/14/20]
                   <p>
                     The harbringer of good updates to come.

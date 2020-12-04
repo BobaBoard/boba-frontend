@@ -39,57 +39,64 @@ function HomePage() {
               <div className="updates">
                 <h2>New Stuff </h2>
                 <div className="last">
-                  [Last Updated: 11/18/20.{" "}
+                  [Last Updated: 11/30/20.{" "}
                   <Link href="/update-logs">
                     <a>Older logs.</a>
                   </Link>
                   ]
                   <p>
-                    <strong>Small Announcement 1:</strong> join other Boobies
-                    for a{" "}
-                    <a href="https://v0.boba.social/!animanga/thread/f9f075d5-50c6-4867-82e1-7e810cc28896/f841116e-5ca7-410d-a268-39d2fb042b9e">
-                      Tokyo Babylon Watch Party
+                    <strong>Small Announcement:</strong> If you haven't already
+                    read the{" "}
+                    <a href="https://v0.boba.social/!bobaland/thread/61ba9b68-77e6-47ba-93d4-324702937649">
+                      announcement in !bobaland
                     </a>{" "}
-                    this Saturday November 21 @8PM <strong>EST</strong>.
+                    (heed the content notices), just know I'm temporarily
+                    focusing on some personal issues and updates will be slower
+                    and more "serendipitous" for (hopefully just) a couple
+                    weeks.
                   </p>
                   <p>
-                    <strong>Small Announcement 2:</strong> I will likely revert
-                    avatars to their pre-halloween version soon. Say the
-                    goodbyes you want to say.
-                  </p>
-                  <p>
-                    <strong>Actual updates:</strong> After 3 days spent deep
-                    into debugging thread performance I bring you... absolutely
-                    unrelated bug fixes.
+                    Speaking of serendipitous updates, I've made two changes
+                    I've been thinking about for a while:
                     <ul>
                       <li>
-                        <strong>Edit tags:</strong> only show the option to edit
-                        your own tags. Not that you could edit other people's,
-                        anyway, but you sure could have tried.
-                      </li>
-                      <li>
-                        <strong>Sidemenu fixes:</strong> Fix sidescrolling issue
-                        when board name is longer than the space allowed, and
-                        fix bug on recent unreads where the last board you
-                        visited always showed on top.
-                      </li>
-                      <li>
-                        <strong>Post header updates:</strong> Improved
-                        spacing/lettering of post headers. Also, posts in
-                        gallery & timeline mode also have options dropdown now.
+                        <strong>
+                          <u>NEW TAGS SHORTCUTS:</u>
+                        </strong>{" "}
+                        I know a lot of you had already gotten used to ! for
+                        searchable tags, but I decided to do a switcharoo and
+                        change it to... <strong>#</strong>. There was really no
+                        reason for the whispertags to have that symbol, and this
+                        will curb down confusion for newcomers. Rest assured{" "}
+                        <strong>!</strong> will also find its place: I'm
+                        currently thinking of using it to crosspost between
+                        different boards.{" "}
+                        <u>
+                          All previous posts have automatically had their tags
+                          changed, without you needing to do anything.
+                        </u>
                       </li>
                       <li>
                         <strong>
-                          Automatically show comments in timeline mode:
+                          <u>NEW TAGS SHORTCUTS (2):</u>
                         </strong>{" "}
-                        What it says on the tin. Timeline mode will now always
-                        show comments (while gallery only shows updated posts').
+                        <strong>cw:</strong> has been renamed into{" "}
+                        <strong>cn:</strong>. You can still use{" "}
+                        <strong>cw:</strong>, and even <strong>squick:</strong>{" "}
+                        (or <strong>sq:</strong>), but it will automatically
+                        change to cn as that is the "canonical".
+                      </li>{" "}
+                      <li>
+                        <strong>Tumblr-style full-width images:</strong> I've
+                        changed the way posts display, so now images and embed
+                        span the whole width of the post (kinda like they do on
+                        Tumblr). *clenches fist* *cries* it looks so good...
                       </li>
                       <li>
-                        <strong>Other bug fixes:</strong> fixed "old images
-                        added before a certain bug fix are hidden if they appear
-                        at the end of a thread" (obscure, I know). Plus, a small
-                        hidden change I don't expect you to find for a while :P
+                        <strong>12/2/20 SPECIAL:</strong>We now have realm-wide
+                        roles and you can post as special identities in comments
+                        too! Not doing a separate update because... well, it's
+                        just for me :P
                       </li>
                     </ul>
                   </p>

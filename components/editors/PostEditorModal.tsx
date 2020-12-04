@@ -5,19 +5,19 @@ import {
   ModalWithButtons,
   toast,
 } from "@bobaboard/ui-components";
-import { useAuth } from "./Auth";
+import { useAuth } from "../Auth";
 import { useMutation } from "react-query";
-import { createPost, createThread } from "../utils/queries";
-import { editPost } from "../utils/queries/post";
-import { createImageUploadPromise } from "../utils/image-upload";
+import { createPost, createThread } from "../../utils/queries";
+import { editPost } from "../../utils/queries/post";
+import { createImageUploadPromise } from "../../utils/image-upload";
 import {
   PostData,
   PostType,
   ThreadType,
   TagsType as ServerTagsType,
-} from "../types/Types";
+} from "../../types/Types";
 import { TagsType } from "@bobaboard/ui-components/dist/types";
-import { usePreventPageChange } from "./hooks/usePreventPageChange";
+import { usePreventPageChange } from "../hooks/usePreventPageChange";
 
 import debug from "debug";
 const log = debug("bobafrontend:postEditor-log");

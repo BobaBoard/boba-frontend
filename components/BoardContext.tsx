@@ -10,14 +10,12 @@ interface BoardContextType {
   boardsData: { [key: string]: BoardData };
   nextPinnedOrder: number;
   refetch: () => void;
-  currentBoardData: BoardData | null;
 }
 
 const BoardContext = React.createContext<BoardContextType>({
   boardsData: {},
   nextPinnedOrder: 1,
   refetch: noop,
-  currentBoardData: null,
 });
 
 const useBoardContext = () => React.useContext<BoardContextType>(BoardContext);
@@ -75,14 +73,6 @@ const BoardContextProvider: React.FC<{
   );
   const [nextPinnedOrder, setNextPinnedOrder] = React.useState(
     getNextPinnedOrder(props.initialData || [])
-  );
-  const [
-    currentBoardData,
-    setCurrentBoardData,
-  ] = React.useState<BoardData | null>(
-    slug && props.initialData?.[slug]
-      ? updateBoardData(props.initialData?.[slug], null)
-      : null
   );
 
   // This handler takes care of transforming the board result returned from a query
@@ -144,10 +134,6 @@ const BoardContextProvider: React.FC<{
   }, [boardData]);
 
   React.useEffect(() => {
-    setCurrentBoardData(boardData?.[slug] || null);
-  }, [boardData, slug]);
-
-  React.useEffect(() => {
     if (isLoggedIn) {
       refetchCurrentBoard();
     }
@@ -159,7 +145,6 @@ const BoardContextProvider: React.FC<{
         boardsData,
         nextPinnedOrder,
         refetch: refetchAllBoards,
-        currentBoardData,
       }}
       {
         ...props /* this is here for props.children */

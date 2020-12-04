@@ -153,6 +153,7 @@ export const createCommentChain = async ({
     contentArray: commentData.map((comment) => comment.content),
     forceAnonymous: commentData.some((data) => data.forceAnonymous),
     replyToCommentId: commentData[0].replyToCommentId,
+    identityId: commentData[0].identityId,
   });
   const comments = response.data.comments.map((comment: any) =>
     makeClientComment(comment)

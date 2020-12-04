@@ -6,11 +6,11 @@ import {
   ModalWithButtons,
   toast,
 } from "@bobaboard/ui-components";
-import { useAuth } from "./Auth";
+import { useAuth } from "../Auth";
 import { useMutation } from "react-query";
-import { CommentType, CommentData } from "../types/Types";
-import { createComment, createCommentChain } from "../utils/queries";
-import { usePreventPageChange } from "./hooks/usePreventPageChange";
+import { CommentType, CommentData } from "../../types/Types";
+import { createComment, createCommentChain } from "../../utils/queries";
+import { usePreventPageChange } from "../hooks/usePreventPageChange";
 import debug from "debug";
 
 const log = debug("bobafrontend:commentEditor-log");
@@ -80,18 +80,20 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
           <CommentChainEditor
             secretIdentity={props.secretIdentity}
             userIdentity={props.userIdentity}
+            additionalIdentities={props.additionalIdentities}
             loading={isCommentLoading}
-            onSubmit={(text: string[]) => {
+            onSubmit={({ texts, identityId }) => {
               if (!props.replyTo || !props.replyTo.postId) {
                 return;
               }
               setCommentLoading(true);
-              if (text.length > 1) {
+              if (texts.length > 1) {
                 postCommentChain({
                   replyToPostId: props.replyTo.postId,
-                  commentData: text.map((t) => ({
+                  commentData: texts.map((t) => ({
                     content: t,
                     forceAnonymous: false,
+                    identityId,
                     replyToCommentId: props.replyTo?.commentId || null,
                   })),
                 });
@@ -99,8 +101,9 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
                 postComment({
                   replyToPostId: props.replyTo.postId,
                   commentData: {
-                    content: text[0],
+                    content: texts[0],
                     forceAnonymous: false,
+                    identityId,
                     replyToCommentId: props.replyTo?.commentId || null,
                   },
                 });
@@ -147,6 +150,11 @@ export interface CommentEditorModalProps {
     avatar: string;
     name: string;
   };
+  additionalIdentities?: {
+    id: string;
+    avatar: string;
+    name: string;
+  }[];
   onCommentsSaved: (comments: CommentType[]) => void;
   replyTo: {
     postId: string | null;

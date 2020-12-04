@@ -19,6 +19,7 @@ export const makeClientComment = (serverComment: any): CommentType => ({
   created: serverComment.created,
   content: serverComment.content,
   isNew: serverComment.is_new,
+  isOwn: serverComment.is_own,
 });
 
 export const makeClientPost = (serverPost: any): PostType => ({
@@ -56,6 +57,13 @@ export const makeClientPost = (serverPost: any): PostType => ({
 
 export const makeClientThread = (serverThread: any): ThreadType => {
   const clientPosts: PostType[] = serverThread.posts.map(makeClientPost);
+  let personalIdentity = clientPosts.find((post) => post.isOwn)?.secretIdentity;
+  if (!personalIdentity) {
+    // Look for it within comments.
+    personalIdentity = clientPosts
+      .flatMap((post) => post.comments)
+      .find((comment) => comment?.isOwn)?.secretIdentity;
+  }
   return {
     posts: clientPosts,
     isNew: serverThread.posts[0].is_new,
@@ -70,7 +78,7 @@ export const makeClientThread = (serverThread: any): ThreadType => {
     muted: serverThread.muted,
     hidden: serverThread.hidden,
     defaultView: serverThread.default_view,
-    personalIdentity: clientPosts.find((post) => post.isOwn)?.secretIdentity,
+    personalIdentity: personalIdentity,
   };
 };
 

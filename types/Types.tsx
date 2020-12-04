@@ -13,6 +13,7 @@ export interface CommentType {
   content: string;
   created: string;
   isNew: boolean;
+  isOwn: boolean;
 }
 
 export interface TagsType {
@@ -124,6 +125,7 @@ export interface CommentData {
   content: string;
   forceAnonymous: boolean;
   replyToCommentId: string | null;
+  identityId?: string;
 }
 
 export interface CategoryFilterType {

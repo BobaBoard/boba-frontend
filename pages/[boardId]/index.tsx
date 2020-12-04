@@ -10,7 +10,7 @@ import {
   TagType,
 } from "@bobaboard/ui-components";
 import Layout from "../../components/Layout";
-import PostEditorModal from "../../components/PostEditorModal";
+import PostEditorModal from "../../components/editors/PostEditorModal";
 import { useInfiniteQuery, queryCache, useMutation } from "react-query";
 import { useAuth } from "../../components/Auth";
 import { useBoardContext } from "../../components/BoardContext";

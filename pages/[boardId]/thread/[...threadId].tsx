@@ -7,8 +7,8 @@ import {
   // @ts-ignore
 } from "@bobaboard/ui-components";
 import Layout from "components/Layout";
-import PostEditorModal from "components/PostEditorModal";
-import CommentEditorModal from "components/CommentEditorModal";
+import PostEditorModal from "components/editors/PostEditorModal";
+import CommentEditorModal from "components/editors/CommentEditorModal";
 import { ThreadProvider } from "components/thread/ThreadContext";
 import { useAuth } from "components/Auth";
 import {
@@ -67,9 +67,12 @@ function ThreadPage() {
     postId: string | null;
     commentId: string | null;
   } | null>(null);
-  const { postId, threadBaseUrl, slug, threadId } = usePageDetails<
-    ThreadPageDetails
-  >();
+  const {
+    postId,
+    threadBaseUrl,
+    slug,
+    threadId,
+  } = usePageDetails<ThreadPageDetails>();
   const { user, isLoggedIn } = useAuth();
   const router = useRouter();
   const {
@@ -80,7 +83,8 @@ function ThreadPage() {
     defaultView,
     categories,
   } = useThread();
-  const { currentBoardData } = useBoardContext();
+  const { boardsData } = useBoardContext();
+  const currentBoardData = boardsData?.[slug];
   const [viewMode, setViewMode] = React.useState(
     getViewTypeFromString(defaultView) || THREAD_VIEW_MODES.THREAD
   );
@@ -212,6 +216,14 @@ function ThreadPage() {
               avatar: user?.avatarUrl,
             }}
             secretIdentity={personalIdentity}
+            additionalIdentities={
+              !personalIdentity && currentBoardData?.postingIdentities
+                ? currentBoardData.postingIdentities.map((identity) => ({
+                    ...identity,
+                    avatar: identity.avatarUrl,
+                  }))
+                : undefined
+            }
             onCommentsSaved={(comments: CommentType[]) => {
               log(
                 `Saved new comment(s) to thread ${threadId}, replying to post ${commentReplyId}.`
