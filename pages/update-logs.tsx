@@ -11,6 +11,65 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [11/30/20]
+                  <p>
+                    <strong>Small Announcement:</strong> If you haven't already
+                    read the{" "}
+                    <a href="https://v0.boba.social/!bobaland/thread/61ba9b68-77e6-47ba-93d4-324702937649">
+                      announcement in !bobaland
+                    </a>{" "}
+                    (heed the content notices), just know I'm temporarily
+                    focusing on some personal issues and updates will be slower
+                    and more "serendipitous" for (hopefully just) a couple
+                    weeks.
+                  </p>
+                  <p>
+                    Speaking of serendipitous updates, I've made two changes
+                    I've been thinking about for a while:
+                    <ul>
+                      <li>
+                        <strong>
+                          <u>NEW TAGS SHORTCUTS:</u>
+                        </strong>{" "}
+                        I know a lot of you had already gotten used to ! for
+                        searchable tags, but I decided to do a switcharoo and
+                        change it to... <strong>#</strong>. There was really no
+                        reason for the whispertags to have that symbol, and this
+                        will curb down confusion for newcomers. Rest assured{" "}
+                        <strong>!</strong> will also find its place: I'm
+                        currently thinking of using it to crosspost between
+                        different boards.{" "}
+                        <u>
+                          All previous posts have automatically had their tags
+                          changed, without you needing to do anything.
+                        </u>
+                      </li>
+                      <li>
+                        <strong>
+                          <u>NEW TAGS SHORTCUTS (2):</u>
+                        </strong>{" "}
+                        <strong>cw:</strong> has been renamed into{" "}
+                        <strong>cn:</strong>. You can still use{" "}
+                        <strong>cw:</strong>, and even <strong>squick:</strong>{" "}
+                        (or <strong>sq:</strong>), but it will automatically
+                        change to cn as that is the "canonical".
+                      </li>{" "}
+                      <li>
+                        <strong>Tumblr-style full-width images:</strong> I've
+                        changed the way posts display, so now images and embed
+                        span the whole width of the post (kinda like they do on
+                        Tumblr). *clenches fist* *cries* it looks so good...
+                      </li>
+                      <li>
+                        <strong>12/2/20 SPECIAL:</strong>We now have realm-wide
+                        roles and you can post as special identities in comments
+                        too! Not doing a separate update because... well, it's
+                        just for me :P
+                      </li>
+                    </ul>
+                  </p>
+                </li>
+                <li>
                   [11/18/20]
                   <p>
                     <strong>Small Announcement 1:</strong> join other Boobies

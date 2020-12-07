@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  CategoryFilter,
-  Button,
-  ButtonStyle,
-  PostQuote,
-} from "@bobaboard/ui-components";
 import TemporarySegmentedButton from "../thread/TemporarySegmentedButton";
-import moment from "moment";
 import classnames from "classnames";
 
 const UPDATED_ONLY_DATA = {
