@@ -718,6 +718,7 @@ function BoardPage() {
         }
         title={`!${slug}`}
         onTitleClick={onTitleClick}
+        onCompassClick={onTitleClick}
         forceHideTitle={true}
       />
       <style jsx>{`

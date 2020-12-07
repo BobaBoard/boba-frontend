@@ -8,6 +8,7 @@ import {
 import { useThread } from "components/thread/ThreadContext";
 import { THREAD_VIEW_MODES } from "types/Types";
 import moment from "moment";
+import classnames from "classnames";
 
 const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
   const {
@@ -20,7 +21,7 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
     return <div />;
   }
   return (
-    <div className="thread-sidebar">
+    <div className={classnames("thread-sidebar", { open: !!props.open })}>
       <div className="post-header">
         <PostQuote
           createdTime={moment.utc(threadRoot.created).fromNow()}
@@ -142,7 +143,7 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
           when not needed. (Tweets loaded in the sidebar will have problems with people
           clicking on them even if the sidebar is not displayed.*/
         @media screen and (max-width: 950px) {
-          .thread-sidebar {
+          .thread-sidebar:not(.open) {
             display: none;
           }
         }
@@ -154,5 +155,6 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
 export default ThreadSidebar;
 export interface ThreadSidebarProps {
   viewMode: THREAD_VIEW_MODES;
+  open?: boolean;
   onViewChange: (viewType: THREAD_VIEW_MODES) => void;
 }

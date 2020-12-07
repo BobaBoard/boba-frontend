@@ -90,6 +90,11 @@ function ThreadPage() {
   );
   const [maxDisplay, setMaxDisplay] = React.useState(2);
 
+  const [showSidebar, setShowSidebar] = React.useState(false);
+  const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
+  const onCompassClick = React.useCallback(() => setShowSidebar(!showSidebar), [
+    showSidebar,
+  ]);
   React.useEffect(() => {
     const url = new URL(`${window.location.origin}${router.asPath}`);
     if (url.searchParams.has("gallery")) {
@@ -252,9 +257,12 @@ function ThreadPage() {
         mainContent={
           <FeedWithMenu
             forceHideSidebar={router.query.hideSidebar !== undefined}
+            showSidebar={showSidebar}
+            onCloseSidebar={closeSidebar}
             sidebarContent={
               <MemoizedThreadSidebar
                 viewMode={viewMode}
+                open={showSidebar}
                 onViewChange={React.useCallback(
                   (viewMode) => {
                     const queryParam =
@@ -327,6 +335,7 @@ function ThreadPage() {
         }
         title={`!${slug}`}
         loading={isFetchingThread}
+        onCompassClick={onCompassClick}
         actionButton={
           viewMode == THREAD_VIEW_MODES.THREAD &&
           !!newAnswersSequence.length ? (

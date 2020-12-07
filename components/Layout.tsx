@@ -207,6 +207,7 @@ const Layout = (props: LayoutProps) => {
             ? getLinkToBoard(slug)
             : linkToHome
         }
+        onCompassClick={props.onCompassClick}
       />
       <ReactQueryDevtools initialIsOpen={false} />
     </div>
@@ -220,5 +221,6 @@ export interface LayoutProps {
   title: string;
   forceHideTitle?: boolean;
   onTitleClick?: () => void;
+  onCompassClick?: () => void;
 }
 export default Layout;
