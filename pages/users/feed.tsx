@@ -9,6 +9,7 @@ import { getUserActivityData } from "../../utils/queries/user";
 import debug from "debug";
 import moment from "moment";
 import { ThreadType } from "../../types/Types";
+import FeedSidebar, { FeedOptions } from "../../components/feed/FeedSidebar";
 
 import {
   removeThreadActivityFromCache,
@@ -33,6 +34,10 @@ const MemoizedPost = React.memo(Post);
 
 function UserFeedPage() {
   const [showSidebar, setShowSidebar] = React.useState(false);
+  const [feedOptions, setFeedOptions] = React.useState<FeedOptions>({
+    updatedOnly: true,
+    ownOnly: false,
+  });
   const { isLoggedIn } = useAuth();
   const boardsData = useBoardContext();
   const threadRedirectMethod = React.useRef(
@@ -51,14 +56,18 @@ function UserFeedPage() {
     isFetchingMore,
     fetchMore,
     canFetchMore,
-  } = useInfiniteQuery(["userActivityData"], getUserActivityData, {
-    getFetchMore: (lastGroup, allGroups) => {
-      // TODO: if this method     bfires too often in a row, sometimes there's duplicate
-      // values within allGroups (aka groups fetched with the same cursor).
-      // This seems to be a library problem.
-      return lastGroup?.nextPageCursor;
-    },
-  });
+  } = useInfiniteQuery(
+    ["userActivityData", { ...feedOptions }],
+    getUserActivityData,
+    {
+      getFetchMore: (lastGroup, allGroups) => {
+        // TODO: if this method fires too often in a row, sometimes there's duplicate
+        // values within allGroups (aka groups fetched with the same cursor).
+        // This seems to be a library problem.
+        return lastGroup?.nextPageCursor;
+      },
+    }
+  );
 
   const [readThread] = useMutation(
     ({ threadId }: { threadId: string; slug: string }) =>
@@ -178,7 +187,13 @@ function UserFeedPage() {
           <FeedWithMenu
             onCloseSidebar={() => setShowSidebar(false)}
             showSidebar={showSidebar}
-            sidebarContent={<></>}
+            sidebarContent={
+              <FeedSidebar
+                currentOptions={feedOptions}
+                onOptionsChange={setFeedOptions}
+                open={showSidebar}
+              />
+            }
             feedContent={
               <div className="main">
                 {showEmptyMessage && (
@@ -367,6 +382,7 @@ function UserFeedPage() {
         }
         title={`Your Stuff`}
         onTitleClick={createLinkTo({ url: "/users/feed" })?.onClick}
+        onCompassClick={() => setShowSidebar(true)}
         forceHideTitle={true}
         loading={isFetchingUserActivity}
       />

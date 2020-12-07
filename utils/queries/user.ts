@@ -41,10 +41,14 @@ export const acceptInvite = async (data: {
 };
 export const getUserActivityData = async (
   key: string,
-  cursor?: string
+  params: {
+    ownOnly?: boolean;
+    updatedOnly?: boolean;
+    cursor?: string;
+  }
 ): Promise<BoardActivityResponse | undefined> => {
   const response = await axios.get(`users/me/feed`, {
-    params: { cursor },
+    params: { ...params },
   });
   if (response.status == 204) {
     // No data, let's return empty array
