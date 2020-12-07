@@ -19,6 +19,7 @@ import {
   faComments,
   faInbox,
   faSignOutAlt,
+  faHome,
 } from "@fortawesome/free-solid-svg-icons";
 
 const log = debug("bobafrontend:queries-log");
@@ -117,8 +118,13 @@ const Layout = (props: LayoutProps) => {
                   ? [
                       {
                         icon: faCommentSlash,
-                        name: "Dismiss Notifications",
+                        name: "Dismiss notifications",
                         link: { onClick: dismissNotifications },
+                      },
+                      {
+                        icon: faHome,
+                        name: "Go home",
+                        link: linkToHome,
                       },
                     ]
                   : [],

@@ -39,7 +39,7 @@ function UserFeedPage() {
     ownOnly: false,
   });
   const { isLoggedIn } = useAuth();
-  const boardsData = useBoardContext();
+  const { boardsData } = useBoardContext();
   const threadRedirectMethod = React.useRef(
     new Map<
       string,
