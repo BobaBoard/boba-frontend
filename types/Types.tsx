@@ -10,6 +10,7 @@ export interface CommentType {
     name: string;
     avatar: string;
   };
+  accessory?: string;
   content: string;
   created: string;
   isNew: boolean;
@@ -35,6 +36,7 @@ export interface PostType {
     name: string;
     avatar: string;
   };
+  accessory?: string;
   created: string;
   content: string;
   options: {

@@ -250,6 +250,7 @@ function UserFeedPage() {
                             tags={post.tags}
                             secretIdentity={post.secretIdentity}
                             userIdentity={post.userIdentity}
+                            accessory={post.accessory}
                             onNewContribution={() => {}}
                             onNewComment={() => {}}
                             size={

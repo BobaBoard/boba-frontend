@@ -293,6 +293,7 @@ const GalleryThreadView: React.FC<{
                     text={post.content}
                     secretIdentity={post.secretIdentity}
                     userIdentity={post.userIdentity}
+                    accessory={post.accessory}
                     onNewContribution={() =>
                       props.onNewContribution(post.postId)
                     }

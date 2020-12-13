@@ -55,6 +55,7 @@ const CommentsThreadLevel: React.FC<{
           key={props.comment.commentId}
           secretIdentity={props.comment.secretIdentity}
           userIdentity={props.comment.userIdentity}
+          accessory={props.comment.accessory}
           comments={chain.map((el) => ({
             id: el.commentId,
             text: el.content,

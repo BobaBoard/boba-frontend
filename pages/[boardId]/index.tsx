@@ -112,6 +112,7 @@ const BoardPost: React.FC<{
       tags={post.tags}
       secretIdentity={post.secretIdentity}
       userIdentity={post.userIdentity}
+      accessory={post.accessory}
       onNewContribution={noop}
       onNewComment={noop}
       size={post?.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}

@@ -223,6 +223,7 @@ const ThreadLevel: React.FC<{
             text={props.post.content}
             secretIdentity={props.post.secretIdentity}
             userIdentity={props.post.userIdentity}
+            accessory={props.post.accessory}
             onNewContribution={React.useCallback(
               () => props.onNewContribution(props.post.postId),
               []

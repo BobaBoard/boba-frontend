@@ -16,6 +16,7 @@ export const makeClientComment = (serverComment: any): CommentType => ({
     name: serverComment.user_identity.name || DEFAULT_USER_NAME,
     avatar: serverComment.user_identity.avatar || DEFAULT_USER_AVATAR,
   },
+  accessory: serverComment.accessory_avatar,
   created: serverComment.created,
   content: serverComment.content,
   isNew: serverComment.is_new,
@@ -34,6 +35,7 @@ export const makeClientPost = (serverPost: any): PostType => ({
     name: serverPost.user_identity.name || DEFAULT_USER_NAME,
     avatar: serverPost.user_identity.avatar || DEFAULT_USER_AVATAR,
   },
+  accessory: serverPost.accessory_avatar,
   created: serverPost.created,
   content: serverPost.content,
   options: {
