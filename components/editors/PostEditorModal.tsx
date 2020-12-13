@@ -5,6 +5,7 @@ import {
   ModalWithButtons,
   toast,
 } from "@bobaboard/ui-components";
+import { PostEditorProps } from "@bobaboard/ui-components/dist/post/PostEditor";
 import { useAuth } from "../Auth";
 import { useMutation } from "react-query";
 import { createPost, createThread } from "../../utils/queries";
@@ -90,13 +91,13 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
         error(serverError);
         setPostLoading(false);
       },
-      onSuccess: (data: PostType | ThreadType, { replyToPostId }) => {
+      onSuccess: (data: PostType | ThreadType, { slug }) => {
         log(`Received post data after save:`);
         log(data);
         if (!(data as any).posts) {
-          props.onPostSaved(data as PostType);
+          props.onPostSaved(data as PostType, slug);
         } else {
-          props.onPostSaved((data as ThreadType).posts[0]);
+          props.onPostSaved((data as ThreadType).posts[0], slug);
         }
         setPostLoading(false);
       },
@@ -180,34 +181,38 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
           }
           onSubmit={(textPromise) => {
             setPostLoading(true);
-            textPromise.then(({ text, tags, identityId, viewOptionName }) => {
-              const processedTags = processTags(tags);
+            textPromise.then(
+              ({ text, tags, identityId, viewOptionName, boardSlug }) => {
+                const processedTags = processTags(tags);
 
-              if (props.editPost) {
-                editContribution({
-                  postId: props.editPost.postId,
-                  tags: processedTags,
+                if (props.editPost) {
+                  editContribution({
+                    postId: props.editPost.postId,
+                    tags: processedTags,
+                  });
+                  return;
+                }
+                log(identityId);
+                postContribution({
+                  slug: boardSlug ? boardSlug : props.slug,
+                  replyToPostId: props.replyToPostId,
+                  postData: {
+                    content: text,
+                    forceAnonymous: false,
+                    defaultView: getViewIdFromName(viewOptionName),
+                    identityId,
+                    ...processedTags,
+                  },
                 });
-                return;
               }
-              log(identityId);
-              postContribution({
-                slug: props.slug,
-                replyToPostId: props.replyToPostId,
-                postData: {
-                  content: text,
-                  forceAnonymous: false,
-                  defaultView: getViewIdFromName(viewOptionName),
-                  identityId,
-                  ...processedTags,
-                },
-              });
-            });
+            );
           }}
           onCancel={(empty) =>
             empty ? props.onCloseModal() : setAskConfirmation(true)
           }
           centered
+          initialBoard={props.slug}
+          availableBoards={props.selectableBoards}
         />
       </Modal>
       <ModalWithButtons
@@ -243,12 +248,13 @@ export interface PostEditorModalProps {
     avatar: string;
     name: string;
   }[];
-  onPostSaved: (post: PostType) => void;
+  onPostSaved: (post: PostType, board?: string) => void;
   replyToPostId: string | null;
   editPost?: PostType | null;
   slug: string;
   uploadBaseUrl: string;
   suggestedCategories?: string[];
+  selectableBoards?: PostEditorProps["availableBoards"];
 }
 
 export default PostEditorModal;

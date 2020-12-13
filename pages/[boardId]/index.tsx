@@ -286,6 +286,7 @@ function BoardPage() {
   const [categoryFilter, setCategoryFilter] = React.useState<string | null>(
     null
   );
+  const { getLinkToBoard } = useCachedLinks();
   React.useEffect(() => {
     setCategoryFilter(null);
   }, [slug]);
@@ -568,6 +569,19 @@ function BoardPage() {
 
   const showEmptyMessage =
     !isFetchingBoardActivity && boardActivityData?.[0]?.activity?.length === 0;
+  const allBoards = React.useMemo(
+    () =>
+      Object.values(boardsData)
+        .map((data) => {
+          return {
+            slug: data.slug,
+            avatar: data.avatarUrl,
+            color: data.accentColor,
+          };
+        })
+        .sort((b1, b2) => b1.slug.localeCompare(b2.slug)),
+    [boardsData]
+  );
 
   return (
     <div className="main">
@@ -587,15 +601,19 @@ function BoardPage() {
                 }))
               : undefined
           }
-          onPostSaved={(post: any) => {
+          onPostSaved={(post: any, postedSlug: string) => {
             queryCache.invalidateQueries(["boardActivityData", { slug }]);
             setPostEditorOpen(false);
+            if (postedSlug != slug) {
+              getLinkToBoard(postedSlug).onClick?.();
+            }
           }}
           onCloseModal={() => setPostEditorOpen(false)}
           slug={slug}
           replyToPostId={null}
           uploadBaseUrl={`images/${slug}/`}
           suggestedCategories={boardsData[slug]?.suggestedCategories}
+          selectableBoards={allBoards}
         />
       )}
       <Layout

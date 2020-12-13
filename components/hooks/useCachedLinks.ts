@@ -13,7 +13,7 @@ const BOARDS_CACHE = new Map<
   string,
   Map<(() => void) | undefined, LinkWithAction>
 >();
-const getLinkToBoard = (slug: string, onLoad?: () => void) => {
+const getLinkToBoard = (slug: string, onLoad?: () => void): LinkWithAction => {
   const memoized = BOARDS_CACHE.get(slug)?.get(onLoad);
   if (memoized) {
     return memoized;

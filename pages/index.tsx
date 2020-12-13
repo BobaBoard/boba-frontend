@@ -39,35 +39,29 @@ function HomePage() {
               <div className="updates">
                 <h2>New Stuff </h2>
                 <div className="last">
-                  [Last Updated: 12/06/20.{" "}
+                  [Last Updated: 12/12/20.{" "}
                   <Link href="/update-logs">
                     <a>Older logs.</a>
                   </Link>
                   ]
                   <ul>
                     <li>
-                      <strong>Swipe to open side menu:</strong> we're officially
-                      living in the future. I also reworked how the opening
-                      animation works, so it should be more performant than
-                      before.
+                      <strong>Post from anywhere:</strong> you don't have to
+                      decide where to post something before starting to type!
+                      From now on, you can select the right board *after* the
+                      post is written and done!
                     </li>
                     <li>
-                      <strong>Updated header bar:</strong> the updates indicator
-                      is now single-color, and the buttons and spacing have been
-                      reworked. You'll notice a new "compass" button on mobile
-                      that you can use to... -{">"}
+                      <strong>
+                        Reverted the icons to the pre-Halloween theme:
+                      </strong>{" "}
+                      what it says there. Goodnight, sweet princes & princesses
+                      & other assorted royalty.
                     </li>
                     <li>
-                      <strong>Easily bring up the sidebar on mobile:</strong>{" "}
-                      you can easily open the contextual sidebar while mobile
-                      browsing no matter where you are! Try it on threads or the
-                      personal feed.
-                    </li>
-                    <li>
-                      <strong>Personal feed filters:</strong> you can now select
-                      whether you want to display only the updated threads in
-                      "feed view", or even just the ones you originated. The UX
-                      isn't great yet, so expect (and suggest) improvements.
+                      <strong>Bug fixes:</strong> readded text selection (oops),
+                      personal feed can now go beyond one single page, and the
+                      home/board buttons are present at all sizes.
                     </li>
                   </ul>
                 </div>

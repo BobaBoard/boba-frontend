@@ -11,6 +11,35 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [12/06/20]{" "}
+                  <ul>
+                    <li>
+                      <strong>Swipe to open side menu:</strong> we're officially
+                      living in the future. I also reworked how the opening
+                      animation works, so it should be more performant than
+                      before.
+                    </li>
+                    <li>
+                      <strong>Updated header bar:</strong> the updates indicator
+                      is now single-color, and the buttons and spacing have been
+                      reworked. You'll notice a new "compass" button on mobile
+                      that you can use to... -{">"}
+                    </li>
+                    <li>
+                      <strong>Easily bring up the sidebar on mobile:</strong>{" "}
+                      you can easily open the contextual sidebar while mobile
+                      browsing no matter where you are! Try it on threads or the
+                      personal feed.
+                    </li>
+                    <li>
+                      <strong>Personal feed filters:</strong> you can now select
+                      whether you want to display only the updated threads in
+                      "feed view", or even just the ones you originated. The UX
+                      isn't great yet, so expect (and suggest) improvements.
+                    </li>
+                  </ul>
+                </li>
+                <li>
                   [11/30/20]
                   <p>
                     <strong>Small Announcement:</strong> If you haven't already

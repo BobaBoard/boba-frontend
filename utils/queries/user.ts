@@ -44,11 +44,11 @@ export const getUserActivityData = async (
   params: {
     ownOnly?: boolean;
     updatedOnly?: boolean;
-    cursor?: string;
-  }
+  },
+  cursor: string
 ): Promise<BoardActivityResponse | undefined> => {
   const response = await axios.get(`users/me/feed`, {
-    params: { ...params },
+    params: { ...params, cursor },
   });
   if (response.status == 204) {
     // No data, let's return empty array
