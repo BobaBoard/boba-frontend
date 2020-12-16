@@ -623,7 +623,8 @@ function BoardPage() {
             onCloseSidebar={closeSidebar}
             showSidebar={showSidebar}
             sidebarContent={
-              <>
+              <div>
+                <div className="garland" />
                 <MemoizedBoardSidebar
                   // @ts-ignore
                   slug={boardsData[slug]?.slug || slug}
@@ -654,7 +655,7 @@ function BoardPage() {
                     src="/under_construction_icon.png"
                   />
                 )}
-              </>
+              </div>
             }
             feedContent={
               <div className="main">
@@ -740,6 +741,17 @@ function BoardPage() {
         forceHideTitle={true}
       />
       <style jsx>{`
+        .garland {
+          pointer-events: none;
+          background: url("/garland.png");
+          background-size: contain;
+          width: 300px;
+          height: 90px;
+          position: absolute;
+          left: 26px;
+          top: 73px;
+          z-index: 5;
+        }
         .main {
           width: 100%;
         }
@@ -776,6 +788,11 @@ function BoardPage() {
           display: block;
           opacity: 0.5;
           filter: grayscale(0.4);
+        }
+        @media only screen and (max-width: 950px) {
+          .garland {
+            display: none;
+          }
         }
       `}</style>
     </div>

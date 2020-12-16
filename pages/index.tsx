@@ -15,6 +15,7 @@ function HomePage() {
       <Layout
         mainContent={
           <div className="content">
+            <div className="lights" />
             <div className="intro">
               <div className="title">
                 <h1>Welcome to BobaBoard!</h1>
@@ -39,31 +40,11 @@ function HomePage() {
               <div className="updates">
                 <h2>New Stuff </h2>
                 <div className="last">
-                  [Last Updated: 12/12/20.{" "}
+                  [Last Updated: 13/12/20.{" "}
                   <Link href="/update-logs">
                     <a>Older logs.</a>
                   </Link>
-                  ]
-                  <ul>
-                    <li>
-                      <strong>Post from anywhere:</strong> you don't have to
-                      decide where to post something before starting to type!
-                      From now on, you can select the right board *after* the
-                      post is written and done!
-                    </li>
-                    <li>
-                      <strong>
-                        Reverted the icons to the pre-Halloween theme:
-                      </strong>{" "}
-                      what it says there. Goodnight, sweet princes & princesses
-                      & other assorted royalty.
-                    </li>
-                    <li>
-                      <strong>Bug fixes:</strong> readded text selection (oops),
-                      personal feed can now go beyond one single page, and the
-                      home/board buttons are present at all sizes.
-                    </li>
-                  </ul>
+                  ] <p>Happy holidays!!</p>
                 </div>
               </div>
             </div>
@@ -91,6 +72,17 @@ function HomePage() {
                 margin: 0 auto;
                 margin-bottom: 25px;
                 line-height: 20px;
+              }
+              .lights {
+                position: absolute;
+                top: 70px;
+                right: 0;
+                left: 0;
+                height: 100px;
+                background: url("/lights.gif");
+                background-size: auto 35px;
+                background-repeat-y: no-repeat;
+                background-position-y: -8px;
               }
               a {
                 color: #f96680;

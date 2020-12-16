@@ -11,6 +11,29 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [12/12/20]
+                  <ul>
+                    <li>
+                      <strong>Post from anywhere:</strong> you don't have to
+                      decide where to post something before starting to type!
+                      From now on, you can select the right board *after* the
+                      post is written and done!
+                    </li>
+                    <li>
+                      <strong>
+                        Reverted the icons to the pre-Halloween theme:
+                      </strong>{" "}
+                      what it says there. Goodnight, sweet princes & princesses
+                      & other assorted royalty.
+                    </li>
+                    <li>
+                      <strong>Bug fixes:</strong> readded text selection (oops),
+                      personal feed can now go beyond one single page, and the
+                      home/board buttons are present at all sizes.
+                    </li>
+                  </ul>
+                </li>
+                <li>
                   [12/06/20]{" "}
                   <ul>
                     <li>
