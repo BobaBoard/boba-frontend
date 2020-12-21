@@ -104,6 +104,8 @@ export interface BoardData {
   accentColor: string;
   descriptions: BoardDescription[];
   muted: boolean;
+  loggedInOnly: boolean;
+  delisted: boolean;
   pinnedOrder: number | null;
   hasUpdates?: boolean;
   lastUpdate?: Date;

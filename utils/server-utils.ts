@@ -100,6 +100,8 @@ export const makeClientBoardData = (serverBoardData: any): BoardData => {
     avatarUrl: serverBoardData.avatarUrl,
     tagline: serverBoardData.tagline,
     accentColor: serverBoardData.settings?.accentColor,
+    loggedInOnly: serverBoardData.loggedInOnly,
+    delisted: serverBoardData.delisted,
     lastUpdate: lastUpdate ? lastUpdate.toDate() : undefined,
     descriptions: serverBoardData.descriptions || [],
     hasUpdates: serverBoardData.has_updates,

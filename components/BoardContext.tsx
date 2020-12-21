@@ -28,6 +28,7 @@ const updateBoardData = (
     newBoardData.descriptions.length > 0
       ? newBoardData.descriptions
       : oldBoardData?.descriptions || [];
+
   return {
     ...oldBoardData,
     slug: newBoardData.slug,
@@ -39,6 +40,8 @@ const updateBoardData = (
     hasUpdates: !!(typeof newBoardData.hasUpdates !== "undefined"
       ? newBoardData.hasUpdates
       : oldBoardData?.hasUpdates),
+    loggedInOnly: newBoardData.loggedInOnly,
+    delisted: newBoardData.delisted,
     lastUpdate:
       typeof newBoardData.lastUpdate !== "undefined"
         ? newBoardData.lastUpdate
@@ -101,6 +104,14 @@ const BoardContextProvider: React.FC<{
       },
       {} as BoardContextType["boardsData"]
     );
+    // Readd all data from delisted boards
+    // NOTE: a delisted board can be in the "allBoardsData" result if it's been pinned.
+    Object.values(boardsData).forEach((data) => {
+      if (data.delisted && !newBoardsData[data.slug]) {
+        // We haven't found this data in the "all boards data", so we can't update it here.
+        newBoardsData[data.slug] = data;
+      }
+    });
     setBoardsData(newBoardsData);
     setNextPinnedOrder(getNextPinnedOrder(Object.values(newBoardsData)));
   }, [allBoardsData]);

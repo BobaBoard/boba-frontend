@@ -277,7 +277,7 @@ function BoardPage() {
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
   const router = useRouter();
   const slug: string = router.query.boardId?.slice(1) as string;
-  const { isPending, isLoggedIn, user } = useAuth();
+  const { isPending: isAuthPending, isLoggedIn, user } = useAuth();
   const { boardsData, nextPinnedOrder } = useBoardContext();
   const onTitleClick = React.useCallback(() => setShowSidebar(!showSidebar), [
     showSidebar,
@@ -308,6 +308,9 @@ function BoardPage() {
         // This seems to be a library problem.
         return lastGroup?.nextPageCursor;
       },
+      // Block this query for loggedInOnly boards (unless we're logged in)
+      enabled:
+        !boardsData[slug]?.loggedInOnly || (!isAuthPending && isLoggedIn),
     }
   );
 
@@ -562,14 +565,18 @@ function BoardPage() {
   }, [isLoggedIn, boardsData[slug], slug]);
 
   React.useEffect(() => {
-    if (!isPending && isLoggedIn) {
+    if (!isAuthPending && isLoggedIn) {
       log(`Marking board ${slug} as visited`);
       axios.get(`boards/${slug}/visit`);
     }
-  }, [isPending, isLoggedIn, slug]);
+  }, [isAuthPending, isLoggedIn, slug]);
 
+  const showLockedMessage =
+    !isAuthPending && !isLoggedIn && boardsData[slug].loggedInOnly;
   const showEmptyMessage =
-    !isFetchingBoardActivity && boardActivityData?.[0]?.activity?.length === 0;
+    !showLockedMessage &&
+    !isFetchingBoardActivity &&
+    boardActivityData?.[0]?.activity?.length === 0;
   const allBoards = React.useMemo(
     () =>
       Object.values(boardsData)
@@ -659,6 +666,12 @@ function BoardPage() {
             }
             feedContent={
               <div className="main">
+                {showLockedMessage && (
+                  <div className="locked">
+                    <img src={"/locked.png"} />
+                    <p>This board is restricted to logged-in users.</p>
+                  </div>
+                )}
                 {showEmptyMessage && (
                   <img className="empty" src={"/nothing.jpg"} />
                 )}
@@ -702,7 +715,8 @@ function BoardPage() {
                       );
                     })}
                 <div className="loading">
-                  {!showEmptyMessage &&
+                  {!showLockedMessage &&
+                    !showEmptyMessage &&
                     boardActivityData?.length &&
                     (isFetchingMore
                       ? "Loading more..."
@@ -776,6 +790,21 @@ function BoardPage() {
           margin-top: 30px;
           filter: grayscale(0.4);
           max-width: 100%;
+        }
+        .locked {
+          max-width: 800px;
+          margin: 0 auto;
+          margin-top: 30px;
+        }
+        .locked img {
+          display: block;
+          filter: grayscale(0.4);
+          max-width: 100%;
+          margin: 0 auto;
+        }
+        .locked p {
+          color: white;
+          text-align: center;
         }
         .loading {
           text-align: center;

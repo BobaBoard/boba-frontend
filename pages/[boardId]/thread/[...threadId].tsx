@@ -38,6 +38,7 @@ import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
 
 import debug from "debug";
 import { NextPage } from "next";
+import { useCachedLinks } from "components/hooks/useCachedLinks";
 const log = debug("bobafrontend:threadPage-log");
 
 const getViewTypeFromString = (
@@ -73,7 +74,8 @@ function ThreadPage() {
     slug,
     threadId,
   } = usePageDetails<ThreadPageDetails>();
-  const { user, isLoggedIn } = useAuth();
+  const { user, isLoggedIn, isPending: isAuthPending } = useAuth();
+  const { getLinkToBoard } = useCachedLinks();
   const router = useRouter();
   const {
     threadRoot,
@@ -128,6 +130,13 @@ function ThreadPage() {
   //   },
   //   [postsDisplaySequence]
   // );
+
+  React.useEffect(() => {
+    if (currentBoardData?.loggedInOnly && !isAuthPending && !isLoggedIn) {
+      // TODO: this happens after the thread has already 403'd
+      getLinkToBoard(slug).onClick?.();
+    }
+  }, [currentBoardData, isAuthPending, isLoggedIn]);
 
   const onNewAnswersButtonClick = () => {
     if (!newAnswersSequence) {

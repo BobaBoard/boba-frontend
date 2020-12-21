@@ -50,18 +50,20 @@ function HomePage() {
             </div>
             <div className="display">
               <BoardsDisplay
-                boards={Object.values(boardsData).map((board) => ({
-                  slug: board.slug.replace("_", " "),
-                  avatar: board.avatarUrl,
-                  description: board.tagline,
-                  color: board.accentColor,
-                  updates: board.hasUpdates,
-                  muted: board.muted,
-                  link: createLinkTo({
-                    urlPattern: BOARD_URL_PATTERN,
-                    url: `/!${board.slug.replace(" ", "_")}`,
-                  }),
-                }))}
+                boards={Object.values(boardsData)
+                  .filter((board) => !board.delisted)
+                  .map((board) => ({
+                    slug: board.slug.replace("_", " "),
+                    avatar: board.avatarUrl,
+                    description: board.tagline,
+                    color: board.accentColor,
+                    updates: board.hasUpdates,
+                    muted: board.muted,
+                    link: createLinkTo({
+                      urlPattern: BOARD_URL_PATTERN,
+                      url: `/!${board.slug.replace(" ", "_")}`,
+                    }),
+                  }))}
                 minSizePx={180}
               />
             </div>
@@ -81,7 +83,7 @@ function HomePage() {
                 height: 100px;
                 background: url("/lights.gif");
                 background-size: auto 35px;
-                background-repeat-y: no-repeat;
+                background-repeat: repeat-x;
                 background-position-y: -8px;
               }
               a {
