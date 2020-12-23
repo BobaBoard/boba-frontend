@@ -66,7 +66,13 @@ const Layout = (props: LayoutProps) => {
     refetch();
   }, [layoutRef.current?.closeSideMenu, refetch]);
 
-  const { pinnedBoards, recentBoards, allBoards, hasUpdates } = React.useMemo(
+  const {
+    pinnedBoards,
+    recentBoards,
+    allBoards,
+    hasUpdates,
+    isOutdated,
+  } = React.useMemo(
     () =>
       processBoardsUpdates(
         Object.values(boardsData).reduce((agg, board) => {
@@ -77,6 +83,10 @@ const Layout = (props: LayoutProps) => {
             color: board.accentColor,
             lastUpdate: board.lastUpdate,
             updates: !!(isLoggedIn && board.hasUpdates),
+            outdated:
+              board.lastUpdate &&
+              board.lastVisit &&
+              board.lastUpdate < board.lastVisit,
             muted: board.muted,
             link: getLinkToBoard(board.slug, onBoardChange),
             pinnedOrder: board.pinnedOrder,
@@ -177,6 +187,7 @@ const Layout = (props: LayoutProps) => {
         forceHideTitle={props.forceHideTitle}
         loading={props.loading || isUserPending}
         updates={isLoggedIn && hasUpdates}
+        outdated={isOutdated}
         onSideMenuButtonClick={refetch}
         logoLink={linkToHome}
         menuOptions={React.useMemo(

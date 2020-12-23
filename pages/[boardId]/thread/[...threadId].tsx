@@ -335,6 +335,15 @@ function ThreadPage() {
                 >
                   Loading...
                 </div>
+                <div
+                  className="bobadab"
+                  onClick={() => {
+                    window.scroll({
+                      top: 0,
+                      behavior: "smooth",
+                    });
+                  }}
+                />
               </div>
             }
             onReachEnd={React.useCallback(() => {
@@ -385,18 +394,22 @@ function ThreadPage() {
           .loading-indicator.loading {
             display: block;
           }
-          @media only screen and (max-width: 600px) {
-            .feed:not(.loading)::after {
-              content: "";
-              background-image: url("/bobadab.png");
-              background-size: contain;
-              position: absolute;
-              width: 50px;
-              height: 50px;
-              bottom: 0;
-              left: 50%;
-              transform: translateX(-50%);
-            }
+          .bobadab {
+            display: none;
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background-image: url("/bobadab.png");
+            background-size: contain;
+          }
+          .bobadab:hover {
+            cursor: pointer;
+          }
+          .feed:not(.loading) .bobadab {
+            display: block;
           }
         `}
       </style>

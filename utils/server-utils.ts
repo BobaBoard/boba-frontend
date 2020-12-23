@@ -103,6 +103,9 @@ export const makeClientBoardData = (serverBoardData: any): BoardData => {
     loggedInOnly: serverBoardData.loggedInOnly,
     delisted: serverBoardData.delisted,
     lastUpdate: lastUpdate ? lastUpdate.toDate() : undefined,
+    lastVisit: serverBoardData.last_visit
+      ? moment.utc(serverBoardData.last_visit).toDate()
+      : undefined,
     descriptions: serverBoardData.descriptions || [],
     hasUpdates: serverBoardData.has_updates,
     muted: serverBoardData.muted,

@@ -46,6 +46,10 @@ const updateBoardData = (
       typeof newBoardData.lastUpdate !== "undefined"
         ? newBoardData.lastUpdate
         : oldBoardData?.lastUpdate,
+    lastVisit:
+      typeof newBoardData.lastVisit !== "undefined"
+        ? newBoardData.lastVisit
+        : oldBoardData?.lastVisit,
     pinnedOrder: newBoardData.pinnedOrder,
     permissions:
       newBoardData.permissions || oldBoardData?.permissions || ([] as any),

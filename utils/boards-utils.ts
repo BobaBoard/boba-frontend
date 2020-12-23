@@ -50,5 +50,6 @@ export const processBoardsUpdates = (
     ),
     allBoards: allBoards.filter((b) => maybeApplyBoardsFilter(b, boardsFilter)),
     hasUpdates: allBoards.some((board) => board.updates),
+    isOutdated: allBoards.every((board) => !board.updates || board.outdated),
   };
 };

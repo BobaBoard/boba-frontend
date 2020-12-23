@@ -11,6 +11,10 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [13/12/20]
+                  <p>Happy holidays!</p>
+                </li>
+                <li>
                   [12/12/20]
                   <ul>
                     <li>

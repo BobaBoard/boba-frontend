@@ -109,6 +109,7 @@ export interface BoardData {
   pinnedOrder: number | null;
   hasUpdates?: boolean;
   lastUpdate?: Date;
+  lastVisit?: Date;
   permissions?: Permissions;
   postingIdentities?: Role[];
   suggestedCategories?: string[];
