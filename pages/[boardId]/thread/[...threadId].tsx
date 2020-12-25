@@ -9,7 +9,6 @@ import {
 import Layout from "components/Layout";
 import PostEditorModal from "components/editors/PostEditorModal";
 import CommentEditorModal from "components/editors/CommentEditorModal";
-import { ThreadProvider } from "components/thread/ThreadContext";
 import { useAuth } from "components/Auth";
 import {
   PostType,
@@ -32,12 +31,11 @@ import ThreadView, {
 import ThreadSidebar from "components/thread/ThreadSidebar";
 import GalleryThreadView from "components/thread/GalleryThreadView";
 import TimelineThreadView from "components/thread/TimelineThreadView";
-import { useThread } from "components/thread/ThreadContext";
+import { useThread } from "components/thread/ThreadQueryHook";
 import { useRouter } from "next/router";
 import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
 
 import debug from "debug";
-import { NextPage } from "next";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useQueryParam } from "use-query-params";
 import { ExistanceParam } from "components/QueryParamNextProvider";
@@ -86,7 +84,7 @@ function ThreadPage() {
     personalIdentity,
     defaultView,
     categories,
-  } = useThread();
+  } = useThread({ threadId, postId, slug });
   const { boardsData } = useBoardContext();
   const currentBoardData = boardsData?.[slug];
   const [viewMode, setViewMode] = React.useState(
@@ -410,28 +408,4 @@ function ThreadPage() {
   );
 }
 
-export interface ThreadPageSSRContext {
-  threadId: string;
-  postId: string | null;
-  slug: string;
-}
-const PageWithProvider: NextPage<{}> = (props) => {
-  const { slug, threadId, postId } = usePageDetails();
-
-  return (
-    <ThreadProvider
-      slug={slug as string}
-      threadId={threadId as string}
-      postId={postId}
-    >
-      <ThreadPage />
-    </ThreadProvider>
-  );
-};
-
-// Without getInitialProps the router query will be undefined at first
-PageWithProvider.getInitialProps = async () => {
-  return {};
-};
-
-export default PageWithProvider;
+export default ThreadPage;

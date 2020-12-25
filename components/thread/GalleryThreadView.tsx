@@ -12,7 +12,7 @@ import {
 } from "../../utils/thread-utils";
 import moment from "moment";
 import TemporarySegmentedButton from "./TemporarySegmentedButton";
-import { useThread } from "components/thread/ThreadContext";
+import { useThread } from "components/thread/ThreadQueryHook";
 import { useRouter } from "next/router";
 import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
 import CommentsThread from "./CommentsThread";
@@ -107,11 +107,16 @@ const GalleryThreadView: React.FC<{
   onEditPost: (post: PostType) => void;
 }> = (props) => {
   const {
+    slug,
+    threadBaseUrl,
+    threadId,
+    postId,
+  } = usePageDetails<ThreadPageDetails>();
+  const {
     chronologicalPostsSequence,
     parentChildrenMap,
     postCommentsMap,
-  } = useThread();
-  const { slug, threadBaseUrl, threadId } = usePageDetails<ThreadPageDetails>();
+  } = useThread({ slug, threadId, postId });
   const masonryRef = React.createRef<{ reposition: () => void }>();
   const router = useRouter();
   const [showCover, setShowCover] = React.useState(false);

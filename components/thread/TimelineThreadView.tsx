@@ -6,7 +6,7 @@ import {
   getTotalNewContributions,
 } from "../../utils/thread-utils";
 import moment from "moment";
-import { useThread } from "components/thread/ThreadContext";
+import { useThread } from "components/thread/ThreadQueryHook";
 import { useRouter } from "next/router";
 import classnames from "classnames";
 import TemporarySegmentedButton from "./TemporarySegmentedButton";
@@ -39,13 +39,22 @@ const TimelineView: React.FC<{
   const [timelineView, setTimelineView] = React.useState(
     TIMELINE_VIEW_MODE.ALL
   );
-  const { slug, threadBaseUrl, threadId } = usePageDetails<ThreadPageDetails>();
+  const {
+    slug,
+    threadBaseUrl,
+    postId,
+    threadId,
+  } = usePageDetails<ThreadPageDetails>();
   const {
     chronologicalPostsSequence,
     postCommentsMap,
     filteredParentChildrenMap,
     isLoading,
-  } = useThread();
+  } = useThread({
+    slug,
+    threadId,
+    postId,
+  });
   const router = useRouter();
 
   React.useEffect(() => {

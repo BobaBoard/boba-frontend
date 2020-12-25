@@ -25,11 +25,8 @@ import {
 import moment from "moment";
 
 import debug from "debug";
-import { ThreadPageSSRContext } from "pages/[boardId]/thread/[...threadId]";
 const log = debug("bobafrontend:threadProvider-log");
 const info = debug("bobafrontend:threadProvider-info");
-
-const ThreadContext = React.createContext({} as ThreadContextType);
 
 interface ThreadContextType {
   isLoading: boolean;
@@ -55,12 +52,15 @@ interface ThreadContextType {
   };
 }
 
-const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
+export const useThread = ({
   threadId,
   postId,
   slug,
-  children,
-}) => {
+}: {
+  threadId: string;
+  postId: string | null;
+  slug: string;
+}): ThreadContextType => {
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const {
     data: threadData,
@@ -185,35 +185,23 @@ const ThreadProvider: React.FC<ThreadPageSSRContext> = ({
     [root, parentChildrenMap, categoryFilterState]
   );
 
-  return (
-    <ThreadContext.Provider
-      value={{
-        isLoading: isFetchingThread,
-        threadRoot: root,
-        currentRoot:
-          !!postId && threadData
-            ? (threadData.posts.find(
-                (post) => post.postId == postId
-              ) as PostType)
-            : root,
-        newAnswersSequence,
-        filteredRoot,
-        parentChildrenMap,
-        filteredParentChildrenMap,
-        categories: extractCategories(threadData?.posts),
-        categoryFilterState,
-        setCategoryFilterState,
-        postCommentsMap,
-        chronologicalPostsSequence,
-        defaultView: threadData?.defaultView || null,
-        personalIdentity: threadData?.personalIdentity,
-      }}
-    >
-      {children}
-    </ThreadContext.Provider>
-  );
+  return {
+    isLoading: isFetchingThread,
+    threadRoot: root,
+    currentRoot:
+      !!postId && threadData
+        ? (threadData.posts.find((post) => post.postId == postId) as PostType)
+        : root,
+    newAnswersSequence,
+    filteredRoot,
+    parentChildrenMap,
+    filteredParentChildrenMap,
+    categories: extractCategories(threadData?.posts),
+    categoryFilterState,
+    setCategoryFilterState,
+    postCommentsMap,
+    chronologicalPostsSequence,
+    defaultView: threadData?.defaultView || null,
+    personalIdentity: threadData?.personalIdentity,
+  };
 };
-
-const useThread = () => React.useContext(ThreadContext);
-
-export { ThreadProvider, useThread };

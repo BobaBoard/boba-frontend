@@ -5,17 +5,19 @@ import {
   ButtonStyle,
   PostQuote,
 } from "@bobaboard/ui-components";
-import { useThread } from "components/thread/ThreadContext";
+import { useThread } from "components/thread/ThreadQueryHook";
 import { THREAD_VIEW_MODES } from "types/Types";
 import moment from "moment";
 import classnames from "classnames";
+import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 
 const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
+  const { slug, threadId, postId } = usePageDetails<ThreadPageDetails>();
   const {
     threadRoot,
     categoryFilterState,
     setCategoryFilterState,
-  } = useThread();
+  } = useThread({ slug, threadId, postId });
 
   if (!threadRoot) {
     return <div />;

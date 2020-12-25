@@ -10,7 +10,7 @@ import {
 import { useRouter } from "next/router";
 import moment from "moment";
 import debug from "debug";
-import { useThread } from "components/thread/ThreadContext";
+import { useThread } from "components/thread/ThreadQueryHook";
 import { PostType } from "../../types/Types";
 import {
   getTotalContributions,
@@ -307,8 +307,17 @@ const ThreadView: React.FC<{
   onEditPost: (post: PostType) => void;
   isLoggedIn: boolean;
 }> = (props) => {
-  const { postId, threadBaseUrl } = usePageDetails<ThreadPageDetails>();
-  const { currentRoot, parentChildrenMap } = useThread();
+  const {
+    slug,
+    threadId,
+    postId,
+    threadBaseUrl,
+  } = usePageDetails<ThreadPageDetails>();
+  const { currentRoot, parentChildrenMap } = useThread({
+    slug,
+    threadId,
+    postId,
+  });
   const router = useRouter();
 
   if (!currentRoot) {

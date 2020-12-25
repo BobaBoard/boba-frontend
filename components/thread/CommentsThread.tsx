@@ -6,9 +6,10 @@ import {
   useIndent,
 } from "@bobaboard/ui-components";
 import { CommentType, ThreadCommentInfoType } from "../../types/Types";
-import { useThread } from "./ThreadContext";
+import { useThread } from "./ThreadQueryHook";
 
 import debug from "debug";
+import { usePageDetails, ThreadPageDetails } from "utils/router-utils";
 // @ts-expect-error
 const log = debug("bobafrontend:threadLevel-log");
 // @ts-expect-error
@@ -88,7 +89,8 @@ const CommentsThread: React.FC<{
   level: number;
   onReplyTo: (replyTo: string) => void;
 }> = (props) => {
-  const { postCommentsMap } = useThread();
+  const { slug, threadId, postId } = usePageDetails<ThreadPageDetails>();
+  const { postCommentsMap } = useThread({ slug, threadId, postId });
 
   if (!postCommentsMap.has(props.parentPostId)) {
     return <div />;
