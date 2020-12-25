@@ -13,10 +13,10 @@ import {
   toast,
   setTumblrEmbedFetcher,
   setOEmbedFetcher,
-  // @ts-ignore
 } from "@bobaboard/ui-components";
 import { NextPageContext } from "next";
 import { BoardData } from "types/Types";
+import { QueryParamProvider } from "../components/QueryParamNextProvider";
 import { makeClientBoardData, getServerBaseUrl } from "utils/server-utils";
 // import debug from "debug";
 // const logging = debug("bobafrontend:app-log");
@@ -136,13 +136,15 @@ function MyApp({
         />
         <link rel="manifest" href="/icons/site.webmanifest"></link>
       </Head>
-      <AuthProvider>
-        <AxiosInterceptor />
-        <BoardContextProvider initialData={boardData}>
-          <ToastContainer />
-          <Component {...pageProps} />
-        </BoardContextProvider>
-      </AuthProvider>
+      <QueryParamProvider>
+        <AuthProvider>
+          <AxiosInterceptor />
+          <BoardContextProvider initialData={boardData}>
+            <ToastContainer />
+            <Component {...pageProps} />
+          </BoardContextProvider>
+        </AuthProvider>
+      </QueryParamProvider>
     </>
   );
 }

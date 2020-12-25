@@ -39,6 +39,8 @@ import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
 import debug from "debug";
 import { NextPage } from "next";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
+import { useQueryParam } from "use-query-params";
+import { ExistanceParam } from "components/QueryParamNextProvider";
 const log = debug("bobafrontend:threadPage-log");
 
 const getViewTypeFromString = (
@@ -97,20 +99,24 @@ function ThreadPage() {
   const onCompassClick = React.useCallback(() => setShowSidebar(!showSidebar), [
     showSidebar,
   ]);
+
+  const [gallery, setGallery] = useQueryParam("gallery", ExistanceParam);
+  const [timeline, setTimeline] = useQueryParam("timeline", ExistanceParam);
+  const [thread, setThread] = useQueryParam("thread", ExistanceParam);
+
   React.useEffect(() => {
-    const url = new URL(`${window.location.origin}${router.asPath}`);
-    if (url.searchParams.has("gallery")) {
-      setViewMode(THREAD_VIEW_MODES.MASONRY);
-    } else if (url.searchParams.has("timeline")) {
-      setViewMode(THREAD_VIEW_MODES.TIMELINE);
-    } else if (url.searchParams.has("thread")) {
-      setViewMode(THREAD_VIEW_MODES.THREAD);
-    } else {
+    setGallery(viewMode == THREAD_VIEW_MODES.MASONRY);
+    setTimeline(viewMode == THREAD_VIEW_MODES.TIMELINE);
+    setThread(viewMode == THREAD_VIEW_MODES.THREAD);
+  }, [viewMode]);
+
+  React.useEffect(() => {
+    if (!isFetchingThread) {
       setViewMode(
         getViewTypeFromString(defaultView) || THREAD_VIEW_MODES.THREAD
       );
     }
-  }, [router.asPath, isFetchingThread]);
+  }, [isFetchingThread]);
   const newAnswersIndex = React.useRef<number>(-1);
 
   // TODO: disable this while post editing and readd
@@ -274,19 +280,6 @@ function ThreadPage() {
                 open={showSidebar}
                 onViewChange={React.useCallback(
                   (viewMode) => {
-                    const queryParam =
-                      viewMode === THREAD_VIEW_MODES.MASONRY
-                        ? "?gallery"
-                        : viewMode == THREAD_VIEW_MODES.TIMELINE
-                        ? "?timeline"
-                        : "?thread";
-                    router.push(
-                      `/[boardId]/thread/[...threadId]`,
-                      `${threadBaseUrl}${queryParam}`,
-                      {
-                        shallow: true,
-                      }
-                    );
                     setViewMode(viewMode);
                   },
                   [threadBaseUrl]

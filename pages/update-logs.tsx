@@ -11,6 +11,42 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [20/12/20]
+                  <ul>
+                    <li>
+                      [DISCORD NOTIFICATIONS] As seen in !bobaland, Discord
+                      servers can now receive feed updates when threads are
+                      created in certain categories. This is just for the
+                      webmaster's exclusive set up for now, but will be
+                      configurable by everyone in the future.
+                    </li>
+                    <li>
+                      [LOCKED BOARDS] Boards can now be logged in only!
+                      !volunteers is the first of such type. (!salt will likely
+                      soon follow, as discussed in the past.)
+                    </li>
+                    <li>
+                      [NOTIFICATIONS] We now have a concept of "outdated"
+                      notifications. That is, if you've visited a board without
+                      clearing notifications, and NO NEW UPDATE has happened
+                      since then, the notification dot color will be darker. If
+                      no new update has happened on any board, but notifications
+                      are still present, the menu red notification will turn
+                      white. This is somewhat experimental, let me know what you
+                      think.
+                    </li>
+                    <li>
+                      [YEETING] Click on dabbing bobatan to get yeeted to the
+                      top of the thread.
+                    </li>
+                    <li>
+                      [RANDOM FIXES] Fixed index page decorations on iOS, right
+                      margin spacing on lists, and removed muted threads from
+                      personal feeds.
+                    </li>
+                  </ul>
+                </li>
+                <li>
                   [13/12/20]
                   <p>Happy holidays!</p>
                 </li>

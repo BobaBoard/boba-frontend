@@ -32,10 +32,12 @@
     "next-transpile-modules": "^3.3.0",
     "noop-ts": "^1.0.3",
     "normalize.css": "^8.0.1",
+    "query-string": "^6.13.7",
     "react-hotkeys-hook": "^2.1.4",
     "react-query": "^2.5.4",
     "react-query-devtools": "^2.3.0",
-    "smoothscroll-polyfill": "^0.4.4"
+    "smoothscroll-polyfill": "^0.4.4",
+    "use-query-params": "^1.1.9"
   },
   "devDependencies": {
     "@types/jest": "^26.0.10",
