@@ -10,7 +10,6 @@ import {
   TagType,
 } from "@bobaboard/ui-components";
 import Layout from "../../components/Layout";
-import PostEditorModal from "../../components/editors/PostEditorModal";
 import { useInfiniteQuery, queryCache, useMutation } from "react-query";
 import { useAuth } from "../../components/Auth";
 import { useBoardContext } from "../../components/BoardContext";
@@ -62,6 +61,7 @@ import {
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import noop from "noop-ts";
 import { updateThreadView } from "utils/queries/post";
+import { useEditors } from "components/editors/useEditors";
 
 const error = debug("bobafrontend:boardPage-error");
 const log = debug("bobafrontend:boardPage-log");
@@ -271,13 +271,12 @@ const MemoizedBoardPost = React.memo(BoardPost);
 const MemoizedActionButton = React.memo(PostingActionButton);
 const MemoizedBoardSidebar = React.memo(BoardSidebar);
 function BoardPage() {
-  const [postEditorOpen, setPostEditorOpen] = React.useState(false);
-  const openPostEditor = React.useCallback(() => setPostEditorOpen(true), []);
+  const { Editors, editorsProps, setNewThread } = useEditors();
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
   const router = useRouter();
   const slug: string = router.query.boardId?.slice(1) as string;
-  const { isPending: isAuthPending, isLoggedIn, user } = useAuth();
+  const { isPending: isAuthPending, isLoggedIn } = useAuth();
   const { boardsData, nextPinnedOrder } = useBoardContext();
   const onTitleClick = React.useCallback(() => setShowSidebar(!showSidebar), [
     showSidebar,
@@ -287,7 +286,6 @@ function BoardPage() {
   const [categoryFilter, setCategoryFilter] = React.useState<string | null>(
     null
   );
-  const { getLinkToBoard } = useCachedLinks();
   React.useEffect(() => {
     setCategoryFilter(null);
   }, [slug]);
@@ -571,59 +569,18 @@ function BoardPage() {
     }
   }, [isAuthPending, isLoggedIn, slug]);
 
+  const onNewThread = React.useCallback(() => setNewThread(true), []);
+
   const showLockedMessage =
     !isAuthPending && !isLoggedIn && boardsData[slug].loggedInOnly;
   const showEmptyMessage =
     !showLockedMessage &&
     !isFetchingBoardActivity &&
     boardActivityData?.[0]?.activity?.length === 0;
-  const allBoards = React.useMemo(
-    () =>
-      Object.values(boardsData)
-        .map((data) => {
-          return {
-            slug: data.slug,
-            avatar: data.avatarUrl,
-            color: data.accentColor,
-          };
-        })
-        .sort((b1, b2) => b1.slug.localeCompare(b2.slug)),
-    [boardsData]
-  );
 
   return (
     <div className="main">
-      {isLoggedIn && (
-        <PostEditorModal
-          isOpen={postEditorOpen}
-          userIdentity={{
-            name: user?.username,
-            avatar: user?.avatarUrl,
-          }}
-          // TODO: this transformation shouldn't be done here.
-          additionalIdentities={
-            boardsData[slug]?.postingIdentities
-              ? boardsData[slug].postingIdentities?.map((identity) => ({
-                  ...identity,
-                  avatar: identity.avatarUrl,
-                }))
-              : undefined
-          }
-          onPostSaved={(post: any, postedSlug: string) => {
-            queryCache.invalidateQueries(["boardActivityData", { slug }]);
-            setPostEditorOpen(false);
-            if (postedSlug != slug) {
-              getLinkToBoard(postedSlug).onClick?.();
-            }
-          }}
-          onCloseModal={() => setPostEditorOpen(false)}
-          slug={slug}
-          replyToPostId={null}
-          uploadBaseUrl={`images/${slug}/`}
-          suggestedCategories={boardsData[slug]?.suggestedCategories}
-          selectableBoards={allBoards}
-        />
-      )}
+      <Editors {...editorsProps} />
       <Layout
         mainContent={
           <FeedWithMenu
@@ -746,7 +703,7 @@ function BoardPage() {
           isLoggedIn && (
             <MemoizedActionButton
               accentColor={boardsData[slug]?.accentColor || "#f96680"}
-              onNewPost={openPostEditor}
+              onNewPost={onNewThread}
             />
           )
         }

@@ -2,25 +2,11 @@ import React from "react";
 import {
   FeedWithMenu,
   CycleNewButton,
-  toast,
   PostingActionButton,
-  // @ts-ignore
 } from "@bobaboard/ui-components";
 import Layout from "components/Layout";
-import PostEditorModal from "components/editors/PostEditorModal";
-import CommentEditorModal from "components/editors/CommentEditorModal";
 import { useAuth } from "components/Auth";
-import {
-  PostType,
-  CommentType,
-  THREAD_VIEW_MODES,
-  ThreadType,
-} from "types/Types";
-import {
-  updateCommentCache,
-  updatePostCache,
-  updatePostTagsInCache,
-} from "utils/queries/cache";
+import { THREAD_VIEW_MODES, ThreadType } from "types/Types";
 import classnames from "classnames";
 import { useBoardContext } from "components/BoardContext";
 //import { useHotkeys } from "react-hotkeys-hook";
@@ -39,6 +25,7 @@ import debug from "debug";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useQueryParam } from "use-query-params";
 import { ExistanceParam } from "components/QueryParamNextProvider";
+import { useEditors } from "components/editors/useEditors";
 const log = debug("bobafrontend:threadPage-log");
 
 const getViewTypeFromString = (
@@ -62,28 +49,27 @@ const MemoizedThreadView = React.memo(ThreadView);
 const MemoizedGalleryThreadView = React.memo(GalleryThreadView);
 const MemoizedTimelineThreadView = React.memo(TimelineThreadView);
 function ThreadPage() {
-  const [postReplyId, setPostReplyId] = React.useState<string | null>(null);
-  const [postEdit, setPostEdit] = React.useState<PostType | null>(null);
-  const [commentReplyId, setCommentReplyId] = React.useState<{
-    postId: string | null;
-    commentId: string | null;
-  } | null>(null);
   const {
     postId,
     threadBaseUrl,
     slug,
     threadId,
   } = usePageDetails<ThreadPageDetails>();
-  const { user, isLoggedIn, isPending: isAuthPending } = useAuth();
+  const {
+    Editors,
+    editorsProps,
+    setPostReplyId,
+    setPostEdit,
+    setCommentReplyId,
+  } = useEditors();
+  const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const { getLinkToBoard } = useCachedLinks();
   const router = useRouter();
   const {
     threadRoot,
     newAnswersSequence,
     isLoading: isFetchingThread,
-    personalIdentity,
     defaultView,
-    categories,
   } = useThread({ threadId, postId, slug });
   const { boardsData } = useBoardContext();
   const currentBoardData = boardsData?.[slug];
@@ -98,9 +84,9 @@ function ThreadPage() {
     showSidebar,
   ]);
 
-  const [gallery, setGallery] = useQueryParam("gallery", ExistanceParam);
-  const [timeline, setTimeline] = useQueryParam("timeline", ExistanceParam);
-  const [thread, setThread] = useQueryParam("thread", ExistanceParam);
+  const [, setGallery] = useQueryParam("gallery", ExistanceParam);
+  const [, setTimeline] = useQueryParam("timeline", ExistanceParam);
+  const [, setThread] = useQueryParam("thread", ExistanceParam);
 
   React.useEffect(() => {
     setGallery(viewMode == THREAD_VIEW_MODES.MASONRY);
@@ -167,7 +153,7 @@ function ThreadPage() {
         postId: replyToPostId,
         commentId: replyToCommentId,
       }),
-    []
+    [setCommentReplyId]
   );
 
   const canTopLevelPost =
@@ -177,95 +163,7 @@ function ThreadPage() {
 
   return (
     <div className="main">
-      {isLoggedIn && (
-        <>
-          <PostEditorModal
-            isOpen={!!postReplyId || !!postEdit}
-            secretIdentity={personalIdentity}
-            userIdentity={{
-              name: user?.username,
-              avatar: user?.avatarUrl,
-            }}
-            // TODO: this transformation shouldn't be done here.
-            additionalIdentities={
-              !personalIdentity && currentBoardData?.postingIdentities
-                ? currentBoardData.postingIdentities.map((identity) => ({
-                    ...identity,
-                    avatar: identity.avatarUrl,
-                  }))
-                : undefined
-            }
-            onPostSaved={(post: PostType) => {
-              log(
-                `Saved new prompt to thread ${threadId}, replying to post ${postReplyId}.`
-              );
-              log(post);
-              if (
-                postEdit &&
-                !updatePostTagsInCache({
-                  threadId,
-                  postId: post.postId,
-                  tags: post.tags,
-                })
-              ) {
-                toast.error(`Error updating post cache after editing tags.`);
-              } else if (postReplyId && !updatePostCache({ threadId, post })) {
-                toast.error(
-                  `Error updating post cache after posting new post.`
-                );
-              }
-              setPostReplyId(null);
-              setPostEdit(null);
-            }}
-            onCloseModal={() => {
-              setPostReplyId(null);
-              setPostEdit(null);
-            }}
-            slug={slug}
-            editPost={postEdit}
-            replyToPostId={postReplyId}
-            uploadBaseUrl={`images/${slug}/${router.query.id}/`}
-            suggestedCategories={categories}
-          />
-          <CommentEditorModal
-            isOpen={!!commentReplyId}
-            userIdentity={{
-              name: user?.username,
-              avatar: user?.avatarUrl,
-            }}
-            secretIdentity={personalIdentity}
-            additionalIdentities={
-              !personalIdentity && currentBoardData?.postingIdentities
-                ? currentBoardData.postingIdentities.map((identity) => ({
-                    ...identity,
-                    avatar: identity.avatarUrl,
-                  }))
-                : undefined
-            }
-            onCommentsSaved={(comments: CommentType[]) => {
-              log(
-                `Saved new comment(s) to thread ${threadId}, replying to post ${commentReplyId}.`
-              );
-              log(comments);
-              if (
-                !commentReplyId ||
-                !updateCommentCache({
-                  threadId,
-                  newComments: comments,
-                  replyTo: commentReplyId,
-                })
-              ) {
-                toast.error(
-                  `Error updating comment cache after posting new comment.`
-                );
-              }
-              setCommentReplyId(null);
-            }}
-            onCloseModal={() => setCommentReplyId(null)}
-            replyTo={commentReplyId}
-          />
-        </>
-      )}
+      <Editors {...editorsProps} />
       <Layout
         mainContent={
           <FeedWithMenu
