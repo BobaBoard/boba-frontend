@@ -1,25 +1,11 @@
 import React from "react";
-import {
-  Post,
-  PostSizes,
-  MasonryView,
-  ThreadIndent,
-  toast,
-} from "@bobaboard/ui-components";
-import {
-  getTotalContributions,
-  getTotalNewContributions,
-} from "../../utils/thread-utils";
-import moment from "moment";
+import { MasonryView, ThreadIndent } from "@bobaboard/ui-components";
 import TemporarySegmentedButton from "./TemporarySegmentedButton";
 import { useThread } from "components/thread/ThreadQueryHook";
-import { useRouter } from "next/router";
-import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
 import CommentsThread from "./CommentsThread";
 import { usePageDetails, ThreadPageDetails } from "utils/router-utils";
-import { faEdit, faLink } from "@fortawesome/free-solid-svg-icons";
 import { PostType } from "types/Types";
-import { useCachedLinks } from "components/hooks/useCachedLinks";
+import ThreadPost from "./ThreadPost";
 
 enum TIMELINE_VIEW_MODE {
   UPDATED,
@@ -106,25 +92,18 @@ const GalleryThreadView: React.FC<{
   displayAtMost: number;
   onEditPost: (post: PostType) => void;
 }> = (props) => {
-  const {
+  const { slug, threadId, postId } = usePageDetails<ThreadPageDetails>();
+  const { chronologicalPostsSequence, postCommentsMap } = useThread({
     slug,
-    threadBaseUrl,
     threadId,
     postId,
-  } = usePageDetails<ThreadPageDetails>();
-  const {
-    chronologicalPostsSequence,
-    parentChildrenMap,
-    postCommentsMap,
-  } = useThread({ slug, threadId, postId });
+  });
   const masonryRef = React.createRef<{ reposition: () => void }>();
-  const router = useRouter();
   const [showCover, setShowCover] = React.useState(false);
   const [timelineView, setTimelineView] = React.useState(
     TIMELINE_VIEW_MODE.ALL
   );
   const [showComments, setShowComments] = React.useState<string[]>([]);
-  const { getLinkToPost } = useCachedLinks();
 
   // const activeCategories = categoryFilterState.filter(
   //   (category) => category.active
@@ -176,48 +155,6 @@ const GalleryThreadView: React.FC<{
     ? [coverPost, ...updatedPosts]
     : updatedPosts
   ).filter((_, index) => index < props.displayAtMost);
-  const menuOptions = React.useMemo(
-    () =>
-      toDisplay.map((post) => [
-        {
-          icon: faLink,
-          name: "Copy Link",
-          link: {
-            onClick: () => {
-              const tempInput = document.createElement("input");
-              tempInput.value = new URL(
-                getLinkToPost({
-                  slug,
-                  postId: post.postId,
-                  threadId,
-                })?.href as string,
-                window.location.origin
-              ).toString();
-              document.body.appendChild(tempInput);
-              tempInput.select();
-              document.execCommand("copy");
-              document.body.removeChild(tempInput);
-              toast.success("Link copied!");
-            },
-          },
-        },
-        // Add options just for logged in users
-        ...(props.isLoggedIn && post.isOwn
-          ? [
-              {
-                icon: faEdit,
-                name: "Edit tags",
-                link: {
-                  onClick: () => {
-                    props.onEditPost(post);
-                  },
-                },
-              },
-            ]
-          : []),
-      ]),
-    [props.isLoggedIn, toDisplay, threadId, props.onEditPost]
-  );
 
   if (!showCover && !allGalleryPosts.length) {
     return (
@@ -230,7 +167,6 @@ const GalleryThreadView: React.FC<{
     );
   }
 
-  const url = new URL(`${window.location.origin}${router.asPath}`);
   return (
     <>
       <div className="view-controls">
@@ -275,53 +211,20 @@ const GalleryThreadView: React.FC<{
                 style={{ position: "absolute" }}
               >
                 <div className="post">
-                  <Post
-                    key={post.postId}
-                    size={
-                      post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR
-                    }
-                    createdTime={moment.utc(post.created).fromNow()}
-                    createdTimeLink={createLinkTo({
-                      urlPattern: THREAD_URL_PATTERN,
-                      url: `${threadBaseUrl}/${post.postId}${url.search}`,
-                    })}
-                    notesLink={{
-                      href: `${threadBaseUrl}/${post.postId}${url.search}`,
-                      onClick: () => {
-                        setShowComments(
-                          showComments.includes(post.postId)
-                            ? showComments.filter((id) => post.postId != id)
-                            : [...showComments, post.postId]
-                        );
-                      },
-                    }}
-                    text={post.content}
-                    secretIdentity={post.secretIdentity}
-                    userIdentity={post.userIdentity}
-                    accessory={post.accessory}
-                    onNewContribution={() =>
-                      props.onNewContribution(post.postId)
-                    }
-                    onNewComment={() => props.onNewComment(post.postId, null)}
-                    totalComments={post.comments?.length}
-                    directContributions={
-                      parentChildrenMap.get(post.postId)?.children.length
-                    }
-                    totalContributions={getTotalContributions(
-                      post,
-                      parentChildrenMap
-                    )}
-                    newPost={props.isLoggedIn && post.isNew}
-                    newComments={props.isLoggedIn ? post.newCommentsAmount : 0}
-                    newContributions={
-                      props.isLoggedIn
-                        ? getTotalNewContributions(post, parentChildrenMap)
-                        : 0
-                    }
-                    tags={post.tags}
+                  <ThreadPost
+                    post={post}
+                    isLoggedIn={props.isLoggedIn}
+                    onNewContribution={props.onNewContribution}
+                    onNewComment={props.onNewComment}
+                    onEditPost={props.onEditPost}
+                    onNotesClick={React.useCallback(() => {
+                      setShowComments(
+                        showComments.includes(post.postId)
+                          ? showComments.filter((id) => post.postId != id)
+                          : [...showComments, post.postId]
+                      );
+                    }, [])}
                     onEmbedLoaded={() => masonryRef.current?.reposition()}
-                    answerable={props.isLoggedIn}
-                    menuOptions={menuOptions[index]}
                   />
                 </div>
                 {post.comments && showComments.includes(post.postId) && (

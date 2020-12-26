@@ -1,20 +1,14 @@
 import React from "react";
-import { Post, PostSizes, ThreadIndent, toast } from "@bobaboard/ui-components";
+import { ThreadIndent } from "@bobaboard/ui-components";
 import debug from "debug";
-import {
-  getTotalContributions,
-  getTotalNewContributions,
-} from "../../utils/thread-utils";
-import moment from "moment";
 import { useThread } from "components/thread/ThreadQueryHook";
 import { useRouter } from "next/router";
 import classnames from "classnames";
 import TemporarySegmentedButton from "./TemporarySegmentedButton";
 import CommentsThread from "./CommentsThread";
-import { faEdit, faLink } from "@fortawesome/free-solid-svg-icons";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
-import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { PostType } from "types/Types";
+import ThreadPost from "./ThreadPost";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // @ts-ignore
@@ -45,12 +39,7 @@ const TimelineView: React.FC<{
     postId,
     threadId,
   } = usePageDetails<ThreadPageDetails>();
-  const {
-    chronologicalPostsSequence,
-    postCommentsMap,
-    filteredParentChildrenMap,
-    isLoading,
-  } = useThread({
+  const { chronologicalPostsSequence, postCommentsMap, isLoading } = useThread({
     slug,
     threadId,
     postId,
@@ -102,7 +91,6 @@ const TimelineView: React.FC<{
       );
     }
   }, [isLoading]);
-  const { getLinkToPost } = useCachedLinks();
 
   const { newPosts, updatedPosts, allPosts } = React.useMemo(() => {
     // @ts-ignore
@@ -126,48 +114,6 @@ const TimelineView: React.FC<{
       ? updatedPosts
       : newPosts;
 
-  const menuOptions = React.useMemo(
-    () =>
-      displayPosts.map((post) => [
-        {
-          icon: faLink,
-          name: "Copy Link",
-          link: {
-            onClick: () => {
-              const tempInput = document.createElement("input");
-              tempInput.value = new URL(
-                getLinkToPost({
-                  slug,
-                  postId: post.postId,
-                  threadId,
-                })?.href as string,
-                window.location.origin
-              ).toString();
-              document.body.appendChild(tempInput);
-              tempInput.select();
-              document.execCommand("copy");
-              document.body.removeChild(tempInput);
-              toast.success("Link copied!");
-            },
-          },
-        },
-        // Add options just for logged in users
-        ...(props.isLoggedIn && post.isOwn
-          ? [
-              {
-                icon: faEdit,
-                name: "Edit tags",
-                link: {
-                  onClick: () => {
-                    props.onEditPost(post);
-                  },
-                },
-              },
-            ]
-          : []),
-      ]),
-    [props.isLoggedIn, displayPosts, threadId]
-  );
   return (
     <div
       className={classnames("timeline-container", {
@@ -216,47 +162,12 @@ const TimelineView: React.FC<{
           .map((post, index) => (
             <div className="thread" key={post.postId}>
               <div className="post" key={post.postId}>
-                <Post
-                  key={post.postId}
-                  size={post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}
-                  createdTime={moment.utc(post.created).fromNow()}
-                  createdTimeLink={getLinkToPost({
-                    slug,
-                    threadId,
-                    postId: post.postId,
-                  })}
-                  notesLink={getLinkToPost({
-                    slug,
-                    threadId,
-                    postId: post.postId,
-                  })}
-                  text={post.content}
-                  secretIdentity={post.secretIdentity}
-                  userIdentity={post.userIdentity}
-                  accessory={post.accessory}
-                  onNewContribution={() => props.onNewContribution(post.postId)}
-                  onNewComment={() => props.onNewComment(post.postId, null)}
-                  totalComments={post.comments?.length}
-                  directContributions={
-                    filteredParentChildrenMap.get(post.postId)?.children.length
-                  }
-                  totalContributions={getTotalContributions(
-                    post,
-                    filteredParentChildrenMap
-                  )}
-                  newPost={props.isLoggedIn && post.isNew}
-                  newComments={props.isLoggedIn ? post.newCommentsAmount : 0}
-                  newContributions={
-                    props.isLoggedIn
-                      ? getTotalNewContributions(
-                          post,
-                          filteredParentChildrenMap
-                        )
-                      : 0
-                  }
-                  tags={post.tags}
-                  answerable={props.isLoggedIn}
-                  menuOptions={menuOptions[index]}
+                <ThreadPost
+                  post={post}
+                  isLoggedIn={props.isLoggedIn}
+                  onNewContribution={props.onNewContribution}
+                  onNewComment={props.onNewComment}
+                  onEditPost={props.onEditPost}
                 />
               </div>
               {post.comments && (

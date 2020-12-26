@@ -1,27 +1,18 @@
 import React from "react";
 import {
   ThreadIndent,
-  Post,
-  PostSizes,
   PostHandler,
   DefaultTheme,
-  toast,
 } from "@bobaboard/ui-components";
 import { useRouter } from "next/router";
-import moment from "moment";
+import ThreadPost from "./ThreadPost";
 import debug from "debug";
 import { useThread } from "components/thread/ThreadQueryHook";
 import { PostType } from "../../types/Types";
-import {
-  getTotalContributions,
-  getTotalNewContributions,
-} from "../../utils/thread-utils";
 import Link from "next/link";
 import { useBoardContext } from "../BoardContext";
 import classnames from "classnames";
 import CommentsThread, { commentHandlers } from "./CommentsThread";
-import { useCachedLinks } from "components/hooks/useCachedLinks";
-import { faEdit, faLink } from "@fortawesome/free-solid-svg-icons";
 import { usePageDetails, ThreadPageDetails } from "utils/router-utils";
 //import { useHotkeys } from "react-hotkeys-hook";
 
@@ -78,7 +69,6 @@ export const scrollToComment = (commentId: string, color: string) => {
 };
 
 const MemoizedThreadIndent = React.memo(ThreadIndent);
-const MemoizedPost = React.memo(Post);
 const postHandlers = new Map<string, PostHandler>();
 const ThreadLevel: React.FC<{
   post: PostType;
@@ -95,8 +85,6 @@ const ThreadLevel: React.FC<{
 }> = (props) => {
   const router = useRouter();
   const slug = router.query.boardId?.slice(1) as string;
-  const threadId = router.query.threadId?.[0] as string;
-  const { getLinkToPost } = useCachedLinks();
   const { boardsData } = useBoardContext();
   info(
     `Rendering subtree at level ${props.level} starting with post with id ${props.post.postId}`
@@ -117,11 +105,6 @@ const ThreadLevel: React.FC<{
         }))
       : [];
   info(`Ends array: %o`, endsArray);
-  const linkToPost = getLinkToPost({
-    slug,
-    threadId: threadId,
-    postId: props.post.postId,
-  });
   const ends = React.useMemo(
     () => [
       ...(props.lastOf || []),
@@ -153,47 +136,6 @@ const ThreadLevel: React.FC<{
       scrollToPost,
     ]
   );
-  const menuOptions = React.useMemo(
-    () => [
-      {
-        icon: faLink,
-        name: "Copy Link",
-        link: {
-          onClick: () => {
-            const tempInput = document.createElement("input");
-            tempInput.value = new URL(
-              getLinkToPost({
-                slug,
-                postId: props.post.postId,
-                threadId,
-              })?.href as string,
-              window.location.origin
-            ).toString();
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempInput);
-            toast.success("Link copied!");
-          },
-        },
-      },
-      // Add options just for logged in users
-      ...(props.isLoggedIn && props.post.isOwn
-        ? [
-            {
-              icon: faEdit,
-              name: "Edit tags",
-              link: {
-                onClick: () => {
-                  props.onEditPost(props.post);
-                },
-              },
-            },
-          ]
-        : []),
-    ],
-    [props.isLoggedIn, props.post, props.onEditPost, threadId]
-  );
 
   const onReplyToComment = React.useCallback(
     (replyToCommentId: string) =>
@@ -209,49 +151,12 @@ const ThreadLevel: React.FC<{
         ends={props.post.comments ? undefined : endsArray}
       >
         <div className="post outline-hidden" data-post-id={props.post.postId}>
-          <MemoizedPost
-            key={props.post.postId}
-            ref={React.useCallback(
-              (handler: PostHandler) =>
-                postHandlers.set(props.post.postId, handler),
-              [props.post.postId]
-            )}
-            size={props.post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}
-            createdTime={moment.utc(props.post.created).fromNow()}
-            createdTimeLink={linkToPost}
-            notesLink={linkToPost}
-            text={props.post.content}
-            secretIdentity={props.post.secretIdentity}
-            userIdentity={props.post.userIdentity}
-            accessory={props.post.accessory}
-            onNewContribution={React.useCallback(
-              () => props.onNewContribution(props.post.postId),
-              []
-            )}
-            onNewComment={React.useCallback(
-              () => props.onNewComment(props.post.postId, null),
-              []
-            )}
-            totalComments={props.post.comments?.length}
-            directContributions={
-              props.postsMap.get(props.post.postId)?.children?.length
-            }
-            totalContributions={getTotalContributions(
-              props.post,
-              props.postsMap
-            )}
-            newPost={props.isLoggedIn && props.post.isNew}
-            newComments={props.isLoggedIn ? props.post.newCommentsAmount : 0}
-            newContributions={
-              props.isLoggedIn
-                ? getTotalNewContributions(props.post, props.postsMap)
-                : 0
-            }
-            centered={props.postsMap.size == 0}
-            answerable={props.isLoggedIn}
-            tags={props.post.tags}
-            muted={props.isLoggedIn && !props.post.isNew && props.level > 0}
-            menuOptions={menuOptions}
+          <ThreadPost
+            post={props.post}
+            isLoggedIn={props.isLoggedIn}
+            onNewContribution={props.onNewContribution}
+            onNewComment={props.onNewComment}
+            onEditPost={props.onEditPost}
           />
         </div>
       </MemoizedThreadIndent>
