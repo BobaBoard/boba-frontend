@@ -2,13 +2,14 @@ import React from "react";
 import { ThreadIndent } from "@bobaboard/ui-components";
 import debug from "debug";
 import { useThread } from "components/thread/ThreadQueryHook";
-import { useRouter } from "next/router";
 import classnames from "classnames";
 import TemporarySegmentedButton from "./TemporarySegmentedButton";
 import CommentsThread from "./CommentsThread";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import { PostType } from "types/Types";
 import ThreadPost from "./ThreadPost";
+import { ExistanceParam } from "components/QueryParamNextProvider";
+import { useQueryParams } from "use-query-params";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // @ts-ignore
@@ -19,6 +20,23 @@ enum TIMELINE_VIEW_MODE {
   UPDATED,
   ALL,
 }
+const TimelineViewQueryParams = {
+  new: ExistanceParam,
+  latest: ExistanceParam,
+  all: ExistanceParam,
+};
+
+const getCurrentViewMode = () => {
+  const [query] = useQueryParams(TimelineViewQueryParams);
+  if (query.new) {
+    return TIMELINE_VIEW_MODE.NEW;
+  } else if (query.latest) {
+    return TIMELINE_VIEW_MODE.UPDATED;
+  } else if (query.all) {
+    return TIMELINE_VIEW_MODE.ALL;
+  }
+  return TIMELINE_VIEW_MODE.NEW;
+};
 
 const TimelineView: React.FC<{
   onNewComment: (
@@ -30,64 +48,47 @@ const TimelineView: React.FC<{
   isLoggedIn: boolean;
   displayAtMost: number;
 }> = (props) => {
-  const [timelineView, setTimelineView] = React.useState(
-    TIMELINE_VIEW_MODE.ALL
-  );
-  const {
-    slug,
-    threadBaseUrl,
-    postId,
-    threadId,
-  } = usePageDetails<ThreadPageDetails>();
+  const currentViewMode = getCurrentViewMode();
+  const [timelineView, setTimelineView] = React.useState(currentViewMode);
+  const { slug, postId, threadId } = usePageDetails<ThreadPageDetails>();
   const { chronologicalPostsSequence, postCommentsMap, isLoading } = useThread({
     slug,
     threadId,
     postId,
   });
-  const router = useRouter();
+
+  const [timelineViewQuery, setQuery] = useQueryParams(TimelineViewQueryParams);
 
   React.useEffect(() => {
-    const url = new URL(`${window.location.origin}${router.asPath}`);
-    if (url.searchParams.has("timeline") && url.searchParams.has("all")) {
-      setTimelineView(TIMELINE_VIEW_MODE.ALL);
-    } else if (
-      url.searchParams.has("timeline") &&
-      url.searchParams.has("updated")
-    ) {
-      setTimelineView(TIMELINE_VIEW_MODE.UPDATED);
-    } else {
-      setTimelineView(TIMELINE_VIEW_MODE.NEW);
-    }
-  }, [router.asPath]);
+    setTimelineView(currentViewMode);
+  }, [timelineViewQuery]);
 
-  const setTimelineViewMode = (
-    viewMode: TIMELINE_VIEW_MODE,
-    replace: boolean = false
-  ) => {
-    const queryParam =
-      viewMode === TIMELINE_VIEW_MODE.ALL
-        ? "?timeline&all"
-        : viewMode == TIMELINE_VIEW_MODE.UPDATED
-        ? "?timeline&updated"
-        : "?timeline";
+  React.useEffect(() => {
+    // Remove all associated url artifacts when exiting view mode.
+    return () =>
+      setQuery(
+        (params) => ({
+          ...params,
+          all: false,
+          new: false,
+          latest: false,
+        }),
+        "replaceIn"
+      );
+  }, []);
 
-    const routingMethod = replace ? router.replace : router.push;
-    routingMethod(
-      `/[boardId]/thread/[...threadId]`,
-      `${threadBaseUrl}${queryParam}`,
-      {
-        shallow: true,
-      }
+  React.useEffect(() => {
+    const hasNew = chronologicalPostsSequence.some(
+      (post) => post.newCommentsAmount > 0 || post.isNew
     );
-  };
-
-  React.useEffect(() => {
-    if (!isLoading && !chronologicalPostsSequence.some((post) => post.isNew)) {
-      setTimelineViewMode(
-        chronologicalPostsSequence.some((post) => post.newCommentsAmount > 0)
-          ? TIMELINE_VIEW_MODE.UPDATED
-          : TIMELINE_VIEW_MODE.ALL,
-        true
+    if (!isLoading && !hasNew && timelineView == TIMELINE_VIEW_MODE.NEW) {
+      setQuery(
+        {
+          all: false,
+          new: false,
+          latest: true,
+        },
+        "replaceIn"
       );
     }
   }, [isLoading]);
@@ -127,19 +128,34 @@ const TimelineView: React.FC<{
               id: TIMELINE_VIEW_MODE.NEW,
               label: "New",
               updates: newPosts.length > 0 ? newPosts.length : undefined,
-              onClick: () => setTimelineView(TIMELINE_VIEW_MODE.NEW),
+              onClick: () =>
+                setQuery({
+                  all: false,
+                  new: true,
+                  latest: false,
+                }),
             },
             {
               id: TIMELINE_VIEW_MODE.UPDATED,
               label: "New+Updated",
               updates:
                 updatedPosts.length > 0 ? updatedPosts.length : undefined,
-              onClick: () => setTimelineView(TIMELINE_VIEW_MODE.UPDATED),
+              onClick: () =>
+                setQuery({
+                  all: false,
+                  new: false,
+                  latest: true,
+                }),
             },
             {
               id: TIMELINE_VIEW_MODE.ALL,
               label: `All (${allPosts.length})`,
-              onClick: () => setTimelineView(TIMELINE_VIEW_MODE.ALL),
+              onClick: () =>
+                setQuery({
+                  all: true,
+                  new: false,
+                  latest: false,
+                }),
             },
           ]}
           selected={timelineView}
@@ -159,7 +175,7 @@ const TimelineView: React.FC<{
         )}
         {displayPosts
           .filter((_, index) => index < props.displayAtMost)
-          .map((post, index) => (
+          .map((post) => (
             <div className="thread" key={post.postId}>
               <div className="post" key={post.postId}>
                 <ThreadPost

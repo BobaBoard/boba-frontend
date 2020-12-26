@@ -127,6 +127,13 @@ const GalleryThreadView: React.FC<{
   React.useEffect(() => {
     requestAnimationFrame(() => masonryRef.current?.reposition());
   }, [showComments, showCover]);
+  const onNotesClick = React.useCallback((postId) => {
+    setShowComments(
+      showComments.includes(postId)
+        ? showComments.filter((id) => postId != id)
+        : [...showComments, postId]
+    );
+  }, []);
 
   const { coverPost, updatedPosts, allGalleryPosts } = React.useMemo(() => {
     let [coverPost, ...allGalleryPosts] = chronologicalPostsSequence;
@@ -217,13 +224,7 @@ const GalleryThreadView: React.FC<{
                     onNewContribution={props.onNewContribution}
                     onNewComment={props.onNewComment}
                     onEditPost={props.onEditPost}
-                    onNotesClick={React.useCallback(() => {
-                      setShowComments(
-                        showComments.includes(post.postId)
-                          ? showComments.filter((id) => post.postId != id)
-                          : [...showComments, post.postId]
-                      );
-                    }, [])}
+                    onNotesClick={onNotesClick}
                     onEmbedLoaded={() => masonryRef.current?.reposition()}
                   />
                 </div>

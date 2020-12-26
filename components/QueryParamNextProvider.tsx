@@ -28,14 +28,16 @@ export const QueryParamProviderComponent = (props: {
           { search, pathname },
           { shallow: true }
         ),
-      replace: ({ search }: Location) =>
+      replace: ({ search }: Location) => {
         router.replace(
           { pathname: router.pathname, query: router.query },
           { search, pathname },
           { shallow: true }
-        ),
+        );
+      },
+      location,
     }),
-    [pathname, router]
+    [pathname, router.pathname, router.query, location]
   );
 
   return (

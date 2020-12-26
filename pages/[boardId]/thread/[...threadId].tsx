@@ -23,7 +23,7 @@ import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
 
 import debug from "debug";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
-import { useQueryParam } from "use-query-params";
+import { useQueryParams } from "use-query-params";
 import { ExistanceParam } from "components/QueryParamNextProvider";
 import { useEditors } from "components/editors/useEditors";
 const log = debug("bobafrontend:threadPage-log");
@@ -44,17 +44,31 @@ const getViewTypeFromString = (
   }
 };
 
+const ThreadViewQueryParams = {
+  gallery: ExistanceParam,
+  timeline: ExistanceParam,
+  thread: ExistanceParam,
+};
+
+const getCurrentViewMode = (defaultView: ThreadType["defaultView"] | null) => {
+  const [query] = useQueryParams(ThreadViewQueryParams);
+
+  if (query.gallery) {
+    return THREAD_VIEW_MODES.MASONRY;
+  } else if (query.timeline) {
+    return THREAD_VIEW_MODES.TIMELINE;
+  } else if (query.thread) {
+    return THREAD_VIEW_MODES.THREAD;
+  }
+  return getViewTypeFromString(defaultView) || THREAD_VIEW_MODES.THREAD;
+};
+
 const MemoizedThreadSidebar = React.memo(ThreadSidebar);
 const MemoizedThreadView = React.memo(ThreadView);
 const MemoizedGalleryThreadView = React.memo(GalleryThreadView);
 const MemoizedTimelineThreadView = React.memo(TimelineThreadView);
 function ThreadPage() {
-  const {
-    postId,
-    threadBaseUrl,
-    slug,
-    threadId,
-  } = usePageDetails<ThreadPageDetails>();
+  const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
   const {
     Editors,
     editorsProps,
@@ -73,9 +87,8 @@ function ThreadPage() {
   } = useThread({ threadId, postId, slug });
   const { boardsData } = useBoardContext();
   const currentBoardData = boardsData?.[slug];
-  const [viewMode, setViewMode] = React.useState(
-    getViewTypeFromString(defaultView) || THREAD_VIEW_MODES.THREAD
-  );
+  const currentViewMode = getCurrentViewMode(defaultView);
+  const [viewMode, setViewMode] = React.useState(currentViewMode);
   const [maxDisplay, setMaxDisplay] = React.useState(2);
 
   const [showSidebar, setShowSidebar] = React.useState(false);
@@ -84,21 +97,27 @@ function ThreadPage() {
     showSidebar,
   ]);
 
-  const [, setGallery] = useQueryParam("gallery", ExistanceParam);
-  const [, setTimeline] = useQueryParam("timeline", ExistanceParam);
-  const [, setThread] = useQueryParam("thread", ExistanceParam);
+  const [threadViewQuery, setQuery] = useQueryParams(ThreadViewQueryParams);
+
+  const onViewChange = React.useCallback((viewMode) => {
+    const isDefaultView = getViewTypeFromString(defaultView) === viewMode;
+    setQuery({
+      gallery: !isDefaultView && viewMode == THREAD_VIEW_MODES.MASONRY,
+      timeline: !isDefaultView && viewMode == THREAD_VIEW_MODES.TIMELINE,
+      thread: !isDefaultView && viewMode == THREAD_VIEW_MODES.THREAD,
+    });
+  }, []);
 
   React.useEffect(() => {
-    setGallery(viewMode == THREAD_VIEW_MODES.MASONRY);
-    setTimeline(viewMode == THREAD_VIEW_MODES.TIMELINE);
-    setThread(viewMode == THREAD_VIEW_MODES.THREAD);
-  }, [viewMode]);
+    setViewMode(currentViewMode);
+  }, [threadViewQuery]);
 
   React.useEffect(() => {
-    if (!isFetchingThread) {
-      setViewMode(
-        getViewTypeFromString(defaultView) || THREAD_VIEW_MODES.THREAD
-      );
+    const hasDefinedViewType = Object.entries(threadViewQuery).some(
+      (value) => value
+    );
+    if (!isFetchingThread && !hasDefinedViewType) {
+      onViewChange(defaultView || "thread");
     }
   }, [isFetchingThread]);
   const newAnswersIndex = React.useRef<number>(-1);
@@ -174,12 +193,7 @@ function ThreadPage() {
               <MemoizedThreadSidebar
                 viewMode={viewMode}
                 open={showSidebar}
-                onViewChange={React.useCallback(
-                  (viewMode) => {
-                    setViewMode(viewMode);
-                  },
-                  [threadBaseUrl]
-                )}
+                onViewChange={onViewChange}
               />
             }
             feedContent={

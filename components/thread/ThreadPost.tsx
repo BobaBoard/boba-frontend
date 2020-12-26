@@ -24,7 +24,7 @@ interface ThreadPostProps
     replyToCommentId: string | null
   ) => void;
   onEditPost?: (post: PostType) => void;
-  onNotesClick?: () => void;
+  onNotesClick?: (id: string) => void;
 }
 
 const ThreadPost = React.memo(
@@ -40,13 +40,13 @@ const ThreadPost = React.memo(
     const {
       slug,
       threadId,
-      postId,
+      postId: pagePostId,
       threadBaseUrl,
     } = usePageDetails<ThreadPageDetails>();
     const { parentChildrenMap } = useThread({
       slug,
       threadId,
-      postId,
+      postId: pagePostId,
     });
     const options = usePostOptions({
       options: [PostOptions.COPY_LINK, PostOptions.EDIT_TAGS],
@@ -69,6 +69,10 @@ const ThreadPost = React.memo(
       urlPattern: THREAD_URL_PATTERN,
       url: `${threadBaseUrl}/${post.postId}${url.search}`,
     });
+    const onNotesClickWithId = React.useCallback(
+      () => onNotesClick?.(post.postId),
+      [post.postId, onNotesClick]
+    );
 
     return (
       <Post
@@ -79,7 +83,7 @@ const ThreadPost = React.memo(
         notesLink={React.useMemo(
           () => ({
             href: directLink.href,
-            onClick: onNotesClick ? onNotesClick : directLink.onClick,
+            onClick: onNotesClick ? onNotesClickWithId : directLink.onClick,
           }),
           [directLink, onNotesClick]
         )}
