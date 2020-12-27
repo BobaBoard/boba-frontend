@@ -17,7 +17,7 @@ const log = debug("bobafrontend:threadLevel-log");
 
 enum TIMELINE_VIEW_MODE {
   NEW,
-  UPDATED,
+  LATEST,
   ALL,
 }
 const TimelineViewQueryParams = {
@@ -31,7 +31,7 @@ const getCurrentViewMode = () => {
   if (query.new) {
     return TIMELINE_VIEW_MODE.NEW;
   } else if (query.latest) {
-    return TIMELINE_VIEW_MODE.UPDATED;
+    return TIMELINE_VIEW_MODE.LATEST;
   } else if (query.all) {
     return TIMELINE_VIEW_MODE.ALL;
   }
@@ -93,17 +93,15 @@ const TimelineView: React.FC<{
     }
   }, [isLoading]);
 
-  const { newPosts, updatedPosts, allPosts } = React.useMemo(() => {
+  const { updatedPosts, allPosts } = React.useMemo(() => {
     // @ts-ignore
     let [unusedFirstElement, ...allPosts] = chronologicalPostsSequence;
-    const newPosts = chronologicalPostsSequence.filter((post) => post.isNew);
     const updatedPosts = chronologicalPostsSequence.filter(
       (post) => post.isNew || post.newCommentsAmount > 0
     );
 
     return {
       allPosts: chronologicalPostsSequence,
-      newPosts,
       updatedPosts,
     };
   }, [chronologicalPostsSequence, postCommentsMap]);
@@ -111,9 +109,9 @@ const TimelineView: React.FC<{
   const displayPosts =
     timelineView === TIMELINE_VIEW_MODE.ALL
       ? allPosts
-      : timelineView == TIMELINE_VIEW_MODE.UPDATED
-      ? updatedPosts
-      : newPosts;
+      : timelineView == TIMELINE_VIEW_MODE.LATEST
+      ? [...allPosts].reverse()
+      : updatedPosts;
 
   return (
     <div
@@ -127,7 +125,8 @@ const TimelineView: React.FC<{
             {
               id: TIMELINE_VIEW_MODE.NEW,
               label: "New",
-              updates: newPosts.length > 0 ? newPosts.length : undefined,
+              updates:
+                updatedPosts.length > 0 ? updatedPosts.length : undefined,
               onClick: () =>
                 setQuery({
                   all: false,
@@ -136,10 +135,8 @@ const TimelineView: React.FC<{
                 }),
             },
             {
-              id: TIMELINE_VIEW_MODE.UPDATED,
-              label: "New+Updated",
-              updates:
-                updatedPosts.length > 0 ? updatedPosts.length : undefined,
+              id: TIMELINE_VIEW_MODE.LATEST,
+              label: "Latest",
               onClick: () =>
                 setQuery({
                   all: false,
@@ -163,15 +160,7 @@ const TimelineView: React.FC<{
       </div>
       <div>
         {displayPosts.length == 0 && (
-          <div className="empty">
-            No{" "}
-            {timelineView === TIMELINE_VIEW_MODE.NEW
-              ? "new "
-              : timelineView == TIMELINE_VIEW_MODE.UPDATED
-              ? "updated "
-              : ""}
-            post available.
-          </div>
+          <div className="empty">No post available.</div>
         )}
         {displayPosts
           .filter((_, index) => index < props.displayAtMost)

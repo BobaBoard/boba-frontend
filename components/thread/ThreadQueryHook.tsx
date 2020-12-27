@@ -56,10 +56,12 @@ export const useThread = ({
   threadId,
   postId,
   slug,
+  markAsRead,
 }: {
   threadId: string;
   postId: string | null;
   slug: string;
+  markAsRead?: boolean;
 }): ThreadContextType => {
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const {
@@ -103,7 +105,13 @@ export const useThread = ({
     },
   });
   React.useEffect(() => {
-    if (!isAuthPending && !isFetchingThread && !isThreadStale && isLoggedIn) {
+    if (
+      !isAuthPending &&
+      !isFetchingThread &&
+      !isThreadStale &&
+      isLoggedIn &&
+      markAsRead
+    ) {
       readThread();
       return;
     }

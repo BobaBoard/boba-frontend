@@ -84,7 +84,7 @@ function ThreadPage() {
     newAnswersSequence,
     isLoading: isFetchingThread,
     defaultView,
-  } = useThread({ threadId, postId, slug });
+  } = useThread({ threadId, postId, slug, markAsRead: true });
   const { boardsData } = useBoardContext();
   const currentBoardData = boardsData?.[slug];
   const currentViewMode = getCurrentViewMode(defaultView);
