@@ -16,7 +16,9 @@ import ThreadView, {
 } from "components/thread/ThreadView";
 import ThreadSidebar from "components/thread/ThreadSidebar";
 import GalleryThreadView from "components/thread/GalleryThreadView";
-import TimelineThreadView from "components/thread/TimelineThreadView";
+import TimelineThreadView, {
+  TIMELINE_VIEW_MODE,
+} from "components/thread/TimelineThreadView";
 import {
   ThreadContextType,
   withThreadData,
@@ -47,10 +49,28 @@ const getViewTypeFromString = (
   }
 };
 
+const TimelineViewQueryParams = {
+  new: ExistanceParam,
+  latest: ExistanceParam,
+  all: ExistanceParam,
+};
+
 const ThreadViewQueryParams = {
   gallery: ExistanceParam,
   timeline: ExistanceParam,
   thread: ExistanceParam,
+};
+
+const getCurrentTimelineViewMode = () => {
+  const [query] = useQueryParams(TimelineViewQueryParams);
+  if (query.new) {
+    return TIMELINE_VIEW_MODE.NEW;
+  } else if (query.latest) {
+    return TIMELINE_VIEW_MODE.LATEST;
+  } else if (query.all) {
+    return TIMELINE_VIEW_MODE.ALL;
+  }
+  return TIMELINE_VIEW_MODE.NEW;
 };
 
 const getCurrentViewMode = (defaultView: ThreadType["defaultView"] | null) => {
@@ -90,37 +110,81 @@ function ThreadPage({
   const router = useRouter();
   const { boardsData } = useBoardContext();
   const currentBoardData = boardsData?.[slug];
-  const currentViewMode = getCurrentViewMode(defaultView);
-  const [viewMode, setViewMode] = React.useState(currentViewMode);
   const [maxDisplay, setMaxDisplay] = React.useState(2);
-
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
   const onCompassClick = React.useCallback(() => setShowSidebar(!showSidebar), [
     showSidebar,
   ]);
 
-  const [threadViewQuery, setQuery] = useQueryParams(ThreadViewQueryParams);
+  // URL params management
+  const currentViewMode = getCurrentViewMode(defaultView);
+  const [viewMode, setViewMode] = React.useState(currentViewMode);
+  const [threadViewQuery, setQuery] = useQueryParams({
+    ...ThreadViewQueryParams,
+    ...TimelineViewQueryParams,
+  });
+  const currentTimelineViewMode = getCurrentTimelineViewMode();
+  const [timelineView, setTimelineView] = React.useState(
+    TIMELINE_VIEW_MODE.NEW
+  );
 
-  const onViewChange = React.useCallback((viewMode) => {
-    const isDefaultView = getViewTypeFromString(defaultView) === viewMode;
-    setQuery({
-      gallery: !isDefaultView && viewMode == THREAD_VIEW_MODES.MASONRY,
-      timeline: !isDefaultView && viewMode == THREAD_VIEW_MODES.TIMELINE,
-      thread: !isDefaultView && viewMode == THREAD_VIEW_MODES.THREAD,
-    });
-  }, []);
+  const onThreadViewModeChange = React.useCallback(
+    (viewMode: THREAD_VIEW_MODES) => {
+      const isDefaultView = getViewTypeFromString(defaultView) === viewMode;
+      const isTimeline = isDefaultView
+        ? getViewTypeFromString(defaultView) === THREAD_VIEW_MODES.TIMELINE
+        : viewMode === THREAD_VIEW_MODES.TIMELINE;
+      const hasNewPosts = newAnswersSequence.length > 0;
+      setQuery({
+        gallery: !isDefaultView && viewMode == THREAD_VIEW_MODES.MASONRY,
+        timeline: viewMode == THREAD_VIEW_MODES.TIMELINE,
+        thread: !isDefaultView && viewMode == THREAD_VIEW_MODES.THREAD,
+        all: isTimeline && currentTimelineViewMode == TIMELINE_VIEW_MODE.ALL,
+        new:
+          isTimeline && hasNewPosts
+            ? currentTimelineViewMode == TIMELINE_VIEW_MODE.NEW
+            : false,
+        latest:
+          isTimeline &&
+          (currentTimelineViewMode == TIMELINE_VIEW_MODE.LATEST ||
+            (!hasNewPosts &&
+              currentTimelineViewMode == TIMELINE_VIEW_MODE.NEW)),
+      });
+    },
+    [defaultView]
+  );
+
+  const onTimelineViewModeChange = React.useCallback(
+    (viewMode) => {
+      setQuery(
+        {
+          thread: false,
+          gallery: false,
+          timeline: true,
+          all: viewMode == TIMELINE_VIEW_MODE.ALL,
+          new: viewMode == TIMELINE_VIEW_MODE.NEW,
+          latest: viewMode == TIMELINE_VIEW_MODE.LATEST,
+        },
+        "replaceIn"
+      );
+    },
+    [defaultView]
+  );
 
   React.useEffect(() => {
     setViewMode(currentViewMode);
+    setTimelineView(currentTimelineViewMode);
   }, [threadViewQuery]);
 
   React.useEffect(() => {
-    const hasDefinedViewType = Object.entries(threadViewQuery).some(
+    const hasDefinedViewType = Object.values(threadViewQuery).some(
       (value) => value
     );
     if (!isFetchingThread && !hasDefinedViewType) {
-      onViewChange(defaultView || "thread");
+      const defaultViewType =
+        getViewTypeFromString(defaultView) || THREAD_VIEW_MODES.THREAD;
+      onThreadViewModeChange(defaultViewType);
     }
   }, [isFetchingThread]);
   const newAnswersIndex = React.useRef<number>(-1);
@@ -196,7 +260,7 @@ function ThreadPage({
               <MemoizedThreadSidebar
                 viewMode={viewMode}
                 open={showSidebar}
-                onViewChange={onViewChange}
+                onViewChange={onThreadViewModeChange}
               />
             }
             feedContent={
@@ -231,6 +295,8 @@ function ThreadPage({
                       isLoggedIn={isLoggedIn}
                       onEditPost={setPostEdit}
                       displayAtMost={maxDisplay}
+                      viewMode={timelineView}
+                      onViewModeChange={onTimelineViewModeChange}
                     />
                   )}
                 </div>

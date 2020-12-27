@@ -10,35 +10,16 @@ import TemporarySegmentedButton from "./TemporarySegmentedButton";
 import CommentsThread from "./CommentsThread";
 import { PostType } from "types/Types";
 import ThreadPost from "./ThreadPost";
-import { ExistanceParam } from "components/QueryParamNextProvider";
-import { useQueryParams } from "use-query-params";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // @ts-ignore
 const log = debug("bobafrontend:threadLevel-log");
 
-enum TIMELINE_VIEW_MODE {
+export enum TIMELINE_VIEW_MODE {
   NEW,
   LATEST,
   ALL,
 }
-const TimelineViewQueryParams = {
-  new: ExistanceParam,
-  latest: ExistanceParam,
-  all: ExistanceParam,
-};
-
-const getCurrentViewMode = () => {
-  const [query] = useQueryParams(TimelineViewQueryParams);
-  if (query.new) {
-    return TIMELINE_VIEW_MODE.NEW;
-  } else if (query.latest) {
-    return TIMELINE_VIEW_MODE.LATEST;
-  } else if (query.all) {
-    return TIMELINE_VIEW_MODE.ALL;
-  }
-  return TIMELINE_VIEW_MODE.NEW;
-};
 
 interface TimelineViewProps extends ThreadContextType {
   onNewComment: (
@@ -49,52 +30,19 @@ interface TimelineViewProps extends ThreadContextType {
   onEditPost: (post: PostType) => void;
   isLoggedIn: boolean;
   displayAtMost: number;
+  viewMode: TIMELINE_VIEW_MODE;
+  onViewModeChange: (newMode: TIMELINE_VIEW_MODE) => void;
 }
 
 const TimelineView: React.FC<TimelineViewProps> = ({
   chronologicalPostsSequence,
+  newAnswersSequence,
   postCommentsMap,
   isLoading,
+  viewMode,
+  onViewModeChange,
   ...props
 }) => {
-  const currentViewMode = getCurrentViewMode();
-  const [timelineView, setTimelineView] = React.useState(currentViewMode);
-  const [timelineViewQuery, setQuery] = useQueryParams(TimelineViewQueryParams);
-
-  React.useEffect(() => {
-    setTimelineView(currentViewMode);
-  }, [timelineViewQuery]);
-
-  React.useEffect(() => {
-    // Remove all associated url artifacts when exiting view mode.
-    return () =>
-      setQuery(
-        (params) => ({
-          ...params,
-          all: false,
-          new: false,
-          latest: false,
-        }),
-        "replaceIn"
-      );
-  }, []);
-
-  React.useEffect(() => {
-    const hasNew = chronologicalPostsSequence.some(
-      (post) => post.newCommentsAmount > 0 || post.isNew
-    );
-    if (!isLoading && !hasNew && timelineView == TIMELINE_VIEW_MODE.NEW) {
-      setQuery(
-        {
-          all: false,
-          new: false,
-          latest: true,
-        },
-        "replaceIn"
-      );
-    }
-  }, [isLoading]);
-
   const { updatedPosts, allPosts } = React.useMemo(() => {
     // @ts-ignore
     let [unusedFirstElement, ...allPosts] = chronologicalPostsSequence;
@@ -108,10 +56,17 @@ const TimelineView: React.FC<TimelineViewProps> = ({
     };
   }, [chronologicalPostsSequence, postCommentsMap]);
 
+  // React.useEffect(() => {
+  //   // If upon mount we're in new but have no new post, switch to latest.
+  //   if (newAnswersSequence.length == 0 && viewMode === TIMELINE_VIEW_MODE.NEW) {
+  //     onViewModeChange(TIMELINE_VIEW_MODE.LATEST);
+  //   }
+  // }, []);
+
   const displayPosts =
-    timelineView === TIMELINE_VIEW_MODE.ALL
+    viewMode === TIMELINE_VIEW_MODE.ALL
       ? allPosts
-      : timelineView == TIMELINE_VIEW_MODE.LATEST
+      : viewMode == TIMELINE_VIEW_MODE.LATEST
       ? [...allPosts].reverse()
       : updatedPosts;
 
@@ -129,35 +84,20 @@ const TimelineView: React.FC<TimelineViewProps> = ({
               label: "New",
               updates:
                 updatedPosts.length > 0 ? updatedPosts.length : undefined,
-              onClick: () =>
-                setQuery({
-                  all: false,
-                  new: true,
-                  latest: false,
-                }),
+              onClick: () => onViewModeChange(TIMELINE_VIEW_MODE.NEW),
             },
             {
               id: TIMELINE_VIEW_MODE.LATEST,
               label: "Latest",
-              onClick: () =>
-                setQuery({
-                  all: false,
-                  new: false,
-                  latest: true,
-                }),
+              onClick: () => onViewModeChange(TIMELINE_VIEW_MODE.LATEST),
             },
             {
               id: TIMELINE_VIEW_MODE.ALL,
               label: `All (${allPosts.length})`,
-              onClick: () =>
-                setQuery({
-                  all: true,
-                  new: false,
-                  latest: false,
-                }),
+              onClick: () => onViewModeChange(TIMELINE_VIEW_MODE.ALL),
             },
           ]}
-          selected={timelineView}
+          selected={viewMode}
         />
       </div>
       <div>
