@@ -17,7 +17,10 @@ import ThreadView, {
 import ThreadSidebar from "components/thread/ThreadSidebar";
 import GalleryThreadView from "components/thread/GalleryThreadView";
 import TimelineThreadView from "components/thread/TimelineThreadView";
-import { useThread } from "components/thread/ThreadQueryHook";
+import {
+  ThreadContextType,
+  withThreadData,
+} from "components/thread/ThreadQueryHook";
 import { useRouter } from "next/router";
 import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
 
@@ -67,8 +70,14 @@ const MemoizedThreadSidebar = React.memo(ThreadSidebar);
 const MemoizedThreadView = React.memo(ThreadView);
 const MemoizedGalleryThreadView = React.memo(GalleryThreadView);
 const MemoizedTimelineThreadView = React.memo(TimelineThreadView);
-function ThreadPage() {
-  const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
+
+function ThreadPage({
+  threadRoot,
+  newAnswersSequence,
+  isLoading: isFetchingThread,
+  defaultView,
+}: ThreadContextType) {
+  const { postId, slug } = usePageDetails<ThreadPageDetails>();
   const {
     Editors,
     editorsProps,
@@ -79,12 +88,6 @@ function ThreadPage() {
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const { getLinkToBoard } = useCachedLinks();
   const router = useRouter();
-  const {
-    threadRoot,
-    newAnswersSequence,
-    isLoading: isFetchingThread,
-    defaultView,
-  } = useThread({ threadId, postId, slug, markAsRead: true });
   const { boardsData } = useBoardContext();
   const currentBoardData = boardsData?.[slug];
   const currentViewMode = getCurrentViewMode(defaultView);
@@ -320,4 +323,4 @@ function ThreadPage() {
   );
 }
 
-export default ThreadPage;
+export default withThreadData(ThreadPage, { markReadOnMount: true });

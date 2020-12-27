@@ -1,9 +1,11 @@
 import React from "react";
 import { MasonryView, ThreadIndent } from "@bobaboard/ui-components";
 import TemporarySegmentedButton from "./TemporarySegmentedButton";
-import { useThread } from "components/thread/ThreadQueryHook";
+import {
+  ThreadContextType,
+  withThreadData,
+} from "components/thread/ThreadQueryHook";
 import CommentsThread from "./CommentsThread";
-import { usePageDetails, ThreadPageDetails } from "utils/router-utils";
 import { PostType } from "types/Types";
 import ThreadPost from "./ThreadPost";
 
@@ -82,7 +84,7 @@ const ShowCover = ({ cover, isShown, setShowCover }: any) => (
   </>
 );
 
-const GalleryThreadView: React.FC<{
+interface GalleryThreadViewProps extends ThreadContextType {
   onNewComment: (
     replyToPostId: string,
     replyToCommentId: string | null
@@ -91,13 +93,12 @@ const GalleryThreadView: React.FC<{
   isLoggedIn: boolean;
   displayAtMost: number;
   onEditPost: (post: PostType) => void;
-}> = (props) => {
-  const { slug, threadId, postId } = usePageDetails<ThreadPageDetails>();
-  const { chronologicalPostsSequence, postCommentsMap } = useThread({
-    slug,
-    threadId,
-    postId,
-  });
+}
+const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
+  chronologicalPostsSequence,
+  postCommentsMap,
+  ...props
+}) => {
   const masonryRef = React.createRef<{ reposition: () => void }>();
   const [showCover, setShowCover] = React.useState(false);
   const [timelineView, setTimelineView] = React.useState(
@@ -269,4 +270,4 @@ const GalleryThreadView: React.FC<{
   );
 };
 
-export default GalleryThreadView;
+export default withThreadData(GalleryThreadView);

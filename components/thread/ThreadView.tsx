@@ -7,7 +7,10 @@ import {
 import { useRouter } from "next/router";
 import ThreadPost from "./ThreadPost";
 import debug from "debug";
-import { useThread } from "components/thread/ThreadQueryHook";
+import {
+  ThreadContextType,
+  withThreadData,
+} from "components/thread/ThreadQueryHook";
 import { PostType } from "../../types/Types";
 import Link from "next/link";
 import { useBoardContext } from "../BoardContext";
@@ -202,8 +205,7 @@ const ThreadLevel: React.FC<{
   );
 };
 
-const MemoizedThreadLevel = React.memo(ThreadLevel);
-const ThreadView: React.FC<{
+interface ThreadViewProps extends ThreadContextType {
   onNewComment: (
     replyToPostId: string,
     replyToCommentId: string | null
@@ -211,18 +213,15 @@ const ThreadView: React.FC<{
   onNewContribution: (id: string) => void;
   onEditPost: (post: PostType) => void;
   isLoggedIn: boolean;
-}> = (props) => {
-  const {
-    slug,
-    threadId,
-    postId,
-    threadBaseUrl,
-  } = usePageDetails<ThreadPageDetails>();
-  const { currentRoot, parentChildrenMap } = useThread({
-    slug,
-    threadId,
-    postId,
-  });
+}
+const MemoizedThreadLevel = React.memo(ThreadLevel);
+const ThreadView: React.FC<ThreadViewProps> = ({
+  currentRoot,
+  parentChildrenMap,
+  ...props
+}) => {
+  const { postId, threadBaseUrl } = usePageDetails<ThreadPageDetails>();
+
   const router = useRouter();
 
   if (!currentRoot) {
@@ -271,4 +270,4 @@ const ThreadView: React.FC<{
   );
 };
 
-export default ThreadView;
+export default withThreadData(ThreadView);

@@ -25,10 +25,11 @@ import {
 import moment from "moment";
 
 import debug from "debug";
+import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 const log = debug("bobafrontend:threadProvider-log");
 const info = debug("bobafrontend:threadProvider-info");
 
-interface ThreadContextType {
+export interface ThreadContextType {
   isLoading: boolean;
   defaultView: ThreadType["defaultView"] | null;
   // The root of the thread (a.k.a. the first post).
@@ -64,11 +65,7 @@ export const useThread = ({
   markAsRead?: boolean;
 }): ThreadContextType => {
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
-  const {
-    data: threadData,
-    isFetching: isFetchingThread,
-    isStale: isThreadStale,
-  } = useQuery<
+  const { data: threadData, isLoading: isFetchingThread } = useQuery<
     ThreadType,
     [
       string,
@@ -105,17 +102,11 @@ export const useThread = ({
     },
   });
   React.useEffect(() => {
-    if (
-      !isAuthPending &&
-      !isFetchingThread &&
-      !isThreadStale &&
-      isLoggedIn &&
-      markAsRead
-    ) {
+    if (!isAuthPending && !isFetchingThread && isLoggedIn && markAsRead) {
       readThread();
       return;
     }
-  }, [isAuthPending, isFetchingThread, isThreadStale, isLoggedIn]);
+  }, [isAuthPending, isFetchingThread, isLoggedIn]);
 
   // Extract posts data in a format that is easily consumable by context consumers.
   const {
@@ -212,4 +203,27 @@ export const useThread = ({
     defaultView: threadData?.defaultView || null,
     personalIdentity: threadData?.personalIdentity,
   };
+};
+
+// TODO: readd mark as read.
+type Subtract<T, V> = Pick<T, Exclude<keyof T, keyof V>>;
+export const withThreadData = <P extends ThreadContextType>(
+  WrappedComponent: React.ComponentType<P>,
+  options?: {
+    markReadOnMount?: boolean;
+  }
+) => {
+  const ReturnedComponent: React.FC<Subtract<P, ThreadContextType>> = (
+    props: P
+  ) => {
+    const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
+    const threadData = useThread({
+      threadId,
+      postId,
+      slug,
+      markAsRead: options?.markReadOnMount,
+    });
+    return <WrappedComponent {...threadData} {...props} />;
+  };
+  return ReturnedComponent;
 };

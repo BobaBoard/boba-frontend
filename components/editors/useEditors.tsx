@@ -4,7 +4,7 @@ import PostEditorModal from "./PostEditorModal";
 import CommentEditorModal from "./CommentEditorModal";
 import { useAuth } from "../Auth";
 import { CommentType, PostType } from "../../types/Types";
-import { useThread } from "../thread/ThreadQueryHook";
+import { ThreadContextType, withThreadData } from "../thread/ThreadQueryHook";
 import { useBoardContext } from "../BoardContext";
 import { useCachedLinks } from "../hooks/useCachedLinks";
 import { ThreadPageDetails, usePageDetails } from "../../utils/router-utils";
@@ -19,148 +19,151 @@ import debug from "debug";
 import { queryCache } from "react-query";
 const log = debug("bobafrontend:useEditors-log");
 
+interface EditorsProps extends ThreadContextType {
+  newThread: boolean;
+  postReplyId: string | null;
+  commentReplyId: {
+    postId: string | null;
+    commentId: string | null;
+  } | null;
+  postEdit: PostType | null;
+  onDone: () => void;
+}
 const Editors = React.memo(
-  ({
-    newThread,
-    commentReplyId,
-    postEdit,
-    postReplyId,
-    onDone,
-  }: {
-    newThread: boolean;
-    postReplyId: string | null;
-    commentReplyId: {
-      postId: string | null;
-      commentId: string | null;
-    } | null;
-    postEdit: PostType | null;
-    onDone: () => void;
-  }) => {
-    const { user, isLoggedIn, isPending: isAuthPending } = useAuth();
-    const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
-    const { boardsData } = useBoardContext();
-    const currentBoardData = boardsData?.[slug];
-    const { personalIdentity, categories: threadCategories } = useThread({
-      threadId,
-      postId,
-      slug,
-    });
-    const { getLinkToBoard } = useCachedLinks();
-    const allBoards = React.useMemo(
-      () =>
-        Object.values(boardsData)
-          .map((data) => {
-            return {
-              slug: data.slug,
-              avatar: data.avatarUrl,
-              color: data.accentColor,
-            };
-          })
-          .sort((b1, b2) => b1.slug.localeCompare(b2.slug)),
-      [boardsData]
-    );
+  withThreadData<EditorsProps>(
+    ({
+      newThread,
+      commentReplyId,
+      postEdit,
+      postReplyId,
+      onDone,
+      personalIdentity,
+      categories: threadCategories,
+    }) => {
+      const { user, isLoggedIn, isPending: isAuthPending } = useAuth();
+      const { slug, threadId } = usePageDetails<ThreadPageDetails>();
+      const { boardsData } = useBoardContext();
+      const currentBoardData = boardsData?.[slug];
+      const { getLinkToBoard } = useCachedLinks();
+      const allBoards = React.useMemo(
+        () =>
+          Object.values(boardsData)
+            .map((data) => {
+              return {
+                slug: data.slug,
+                avatar: data.avatarUrl,
+                color: data.accentColor,
+              };
+            })
+            .sort((b1, b2) => b1.slug.localeCompare(b2.slug)),
+        [boardsData]
+      );
 
-    if (!isLoggedIn || isAuthPending) {
-      return null;
-    }
-    return (
-      <>
-        <PostEditorModal
-          isOpen={!!postReplyId || !!postEdit || newThread}
-          secretIdentity={personalIdentity}
-          userIdentity={{
-            name: user?.username,
-            avatar: user?.avatarUrl,
-          }}
-          // TODO: this transformation shouldn't be done here.
-          additionalIdentities={
-            !personalIdentity && currentBoardData?.postingIdentities
-              ? currentBoardData.postingIdentities.map((identity) => ({
-                  ...identity,
-                  avatar: identity.avatarUrl,
-                }))
-              : undefined
-          }
-          onPostSaved={(post: PostType, postedSlug: string) => {
-            if (postReplyId || postEdit) {
+      if (!isLoggedIn || isAuthPending) {
+        return null;
+      }
+      return (
+        <>
+          <PostEditorModal
+            isOpen={!!postReplyId || !!postEdit || newThread}
+            secretIdentity={personalIdentity}
+            userIdentity={{
+              name: user?.username,
+              avatar: user?.avatarUrl,
+            }}
+            // TODO: this transformation shouldn't be done here.
+            additionalIdentities={
+              !personalIdentity && currentBoardData?.postingIdentities
+                ? currentBoardData.postingIdentities.map((identity) => ({
+                    ...identity,
+                    avatar: identity.avatarUrl,
+                  }))
+                : undefined
+            }
+            onPostSaved={(post: PostType, postedSlug: string) => {
+              if (postReplyId || postEdit) {
+                log(
+                  `Saved new prompt to thread ${threadId}, replying to post ${postReplyId}.`
+                );
+                log(post);
+                if (
+                  postEdit &&
+                  !updatePostTagsInCache({
+                    threadId,
+                    postId: post.postId,
+                    tags: post.tags,
+                  })
+                ) {
+                  toast.error(`Error updating post cache after editing tags.`);
+                } else if (
+                  postReplyId &&
+                  !updatePostCache({ threadId, post })
+                ) {
+                  toast.error(
+                    `Error updating post cache after posting new post.`
+                  );
+                }
+              } else if (newThread) {
+                queryCache.invalidateQueries(["boardActivityData", { slug }]);
+                if (postedSlug != slug) {
+                  getLinkToBoard(postedSlug).onClick?.();
+                }
+              }
+              onDone();
+            }}
+            onCloseModal={onDone}
+            slug={slug}
+            editPost={postEdit}
+            replyToPostId={postReplyId}
+            uploadBaseUrl={`images/${slug}/${threadId ? threadId + "/" : ""}`}
+            suggestedCategories={
+              threadId == null
+                ? boardsData[slug]?.suggestedCategories
+                : threadCategories
+            }
+            selectableBoards={newThread ? allBoards : undefined}
+          />
+          <CommentEditorModal
+            isOpen={!!commentReplyId}
+            userIdentity={{
+              name: user?.username,
+              avatar: user?.avatarUrl,
+            }}
+            secretIdentity={personalIdentity}
+            additionalIdentities={
+              !personalIdentity && currentBoardData?.postingIdentities
+                ? currentBoardData.postingIdentities.map((identity) => ({
+                    ...identity,
+                    avatar: identity.avatarUrl,
+                  }))
+                : undefined
+            }
+            onCommentsSaved={(comments: CommentType[]) => {
               log(
-                `Saved new prompt to thread ${threadId}, replying to post ${postReplyId}.`
+                `Saved new comment(s) to thread ${threadId}, replying to post ${commentReplyId}.`
               );
-              log(post);
+              log(comments);
               if (
-                postEdit &&
-                !updatePostTagsInCache({
+                !commentReplyId ||
+                !updateCommentCache({
                   threadId,
-                  postId: post.postId,
-                  tags: post.tags,
+                  newComments: comments,
+                  replyTo: commentReplyId,
                 })
               ) {
-                toast.error(`Error updating post cache after editing tags.`);
-              } else if (postReplyId && !updatePostCache({ threadId, post })) {
                 toast.error(
-                  `Error updating post cache after posting new post.`
+                  `Error updating comment cache after posting new comment.`
                 );
               }
-            } else if (newThread) {
-              queryCache.invalidateQueries(["boardActivityData", { slug }]);
-              if (postedSlug != slug) {
-                getLinkToBoard(postedSlug).onClick?.();
-              }
-            }
-            onDone();
-          }}
-          onCloseModal={onDone}
-          slug={slug}
-          editPost={postEdit}
-          replyToPostId={postReplyId}
-          uploadBaseUrl={`images/${slug}/${threadId ? threadId + "/" : ""}`}
-          suggestedCategories={
-            threadId == null
-              ? boardsData[slug]?.suggestedCategories
-              : threadCategories
-          }
-          selectableBoards={newThread ? allBoards : undefined}
-        />
-        <CommentEditorModal
-          isOpen={!!commentReplyId}
-          userIdentity={{
-            name: user?.username,
-            avatar: user?.avatarUrl,
-          }}
-          secretIdentity={personalIdentity}
-          additionalIdentities={
-            !personalIdentity && currentBoardData?.postingIdentities
-              ? currentBoardData.postingIdentities.map((identity) => ({
-                  ...identity,
-                  avatar: identity.avatarUrl,
-                }))
-              : undefined
-          }
-          onCommentsSaved={(comments: CommentType[]) => {
-            log(
-              `Saved new comment(s) to thread ${threadId}, replying to post ${commentReplyId}.`
-            );
-            log(comments);
-            if (
-              !commentReplyId ||
-              !updateCommentCache({
-                threadId,
-                newComments: comments,
-                replyTo: commentReplyId,
-              })
-            ) {
-              toast.error(
-                `Error updating comment cache after posting new comment.`
-              );
-            }
-            onDone();
-          }}
-          onCloseModal={onDone}
-          replyTo={commentReplyId}
-        />
-      </>
-    );
-  }
+              onDone();
+            }}
+            onCloseModal={onDone}
+            replyTo={commentReplyId}
+          />
+        </>
+      );
+    }
+  )
 );
 
 export const useEditors = () => {

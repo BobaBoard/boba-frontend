@@ -6,10 +6,9 @@ import {
   useIndent,
 } from "@bobaboard/ui-components";
 import { CommentType, ThreadCommentInfoType } from "../../types/Types";
-import { useThread } from "./ThreadQueryHook";
+import { ThreadContextType, withThreadData } from "./ThreadQueryHook";
 
 import debug from "debug";
-import { usePageDetails, ThreadPageDetails } from "utils/router-utils";
 // @ts-expect-error
 const log = debug("bobafrontend:threadLevel-log");
 // @ts-expect-error
@@ -80,25 +79,26 @@ const CommentsThreadLevel: React.FC<{
   );
 };
 
-// TODO: clear commentHandlers when changing thread
-export const commentHandlers = new Map<string, CommentHandler>();
-const CommentsThread: React.FC<{
+interface CommentsThreadProps extends ThreadContextType {
   parentPostId: string;
   parentCommentId: string | null;
   isLoggedIn: boolean;
   level: number;
   onReplyTo: (replyTo: string) => void;
-}> = (props) => {
-  const { slug, threadId, postId } = usePageDetails<ThreadPageDetails>();
-  const { postCommentsMap } = useThread({ slug, threadId, postId });
+}
 
-  if (!postCommentsMap.has(props.parentPostId)) {
+// TODO: clear commentHandlers when changing thread
+export const commentHandlers = new Map<string, CommentHandler>();
+const CommentsThread = withThreadData<CommentsThreadProps>((props) => {
+  if (!props.postCommentsMap.has(props.parentPostId)) {
     return <div />;
   }
 
-  const { roots, parentChainMap, parentChildrenMap } = postCommentsMap.get(
-    props.parentPostId
-  ) as ThreadCommentInfoType;
+  const {
+    roots,
+    parentChainMap,
+    parentChildrenMap,
+  } = props.postCommentsMap.get(props.parentPostId) as ThreadCommentInfoType;
   let actualRoots = props.parentCommentId
     ? parentChildrenMap.get(props.parentCommentId) || []
     : roots;
@@ -110,13 +110,13 @@ const CommentsThread: React.FC<{
             key={comment.commentId}
             comment={comment}
             parentChainMap={parentChainMap}
-            parentChildrenMap={parentChildrenMap}
             {...props}
+            parentChildrenMap={parentChildrenMap}
           />
         );
       })}
     </>
   );
-};
+});
 
 export default CommentsThread;

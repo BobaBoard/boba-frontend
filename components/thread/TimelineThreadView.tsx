@@ -1,11 +1,13 @@
 import React from "react";
 import { ThreadIndent } from "@bobaboard/ui-components";
 import debug from "debug";
-import { useThread } from "components/thread/ThreadQueryHook";
+import {
+  ThreadContextType,
+  withThreadData,
+} from "components/thread/ThreadQueryHook";
 import classnames from "classnames";
 import TemporarySegmentedButton from "./TemporarySegmentedButton";
 import CommentsThread from "./CommentsThread";
-import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import { PostType } from "types/Types";
 import ThreadPost from "./ThreadPost";
 import { ExistanceParam } from "components/QueryParamNextProvider";
@@ -38,7 +40,7 @@ const getCurrentViewMode = () => {
   return TIMELINE_VIEW_MODE.NEW;
 };
 
-const TimelineView: React.FC<{
+interface TimelineViewProps extends ThreadContextType {
   onNewComment: (
     replyToPostId: string,
     replyToCommentId: string | null
@@ -47,16 +49,16 @@ const TimelineView: React.FC<{
   onEditPost: (post: PostType) => void;
   isLoggedIn: boolean;
   displayAtMost: number;
-}> = (props) => {
+}
+
+const TimelineView: React.FC<TimelineViewProps> = ({
+  chronologicalPostsSequence,
+  postCommentsMap,
+  isLoading,
+  ...props
+}) => {
   const currentViewMode = getCurrentViewMode();
   const [timelineView, setTimelineView] = React.useState(currentViewMode);
-  const { slug, postId, threadId } = usePageDetails<ThreadPageDetails>();
-  const { chronologicalPostsSequence, postCommentsMap, isLoading } = useThread({
-    slug,
-    threadId,
-    postId,
-  });
-
   const [timelineViewQuery, setQuery] = useQueryParams(TimelineViewQueryParams);
 
   React.useEffect(() => {
@@ -223,6 +225,4 @@ const TimelineView: React.FC<{
   );
 };
 
-export default TimelineView;
-
-0;
+export default withThreadData(TimelineView);
