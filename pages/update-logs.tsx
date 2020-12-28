@@ -11,6 +11,30 @@ function HomePage() {
               <h1>Update Logs!</h1>
               <ul>
                 <li>
+                  [25/12/20]
+                  <div>
+                    <p>
+                      <iframe
+                        width="300"
+                        height="168"
+                        src="https://www.youtube.com/embed/aaBL8CEwQWM"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      ></iframe>
+                    </p>
+                  </div>
+                </li>
+                <li>
+                  [24/12/20]
+                  <div>
+                    <img
+                      src="/almost-christmas.png"
+                      style={{ height: "250px" }}
+                    />
+                  </div>
+                </li>
+                <li>
                   [20/12/20]
                   <ul>
                     <li>

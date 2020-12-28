@@ -9,6 +9,7 @@ import { CommentType, ThreadCommentInfoType } from "../../types/Types";
 import { ThreadContextType, withThreadData } from "./ThreadQueryHook";
 
 import debug from "debug";
+import moment from "moment";
 // @ts-expect-error
 const log = debug("bobafrontend:threadLevel-log");
 // @ts-expect-error
@@ -55,6 +56,7 @@ const CommentsThreadLevel: React.FC<{
           key={props.comment.commentId}
           secretIdentity={props.comment.secretIdentity}
           userIdentity={props.comment.userIdentity}
+          createdTime={moment.utc(props.comment.created).fromNow()}
           accessory={props.comment.accessory}
           comments={chain.map((el) => ({
             id: el.commentId,

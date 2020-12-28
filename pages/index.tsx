@@ -40,21 +40,44 @@ function HomePage() {
               <div className="updates">
                 <h2>New Stuff </h2>
                 <div className="last">
-                  [Last Updated: 25/12/20.{" "}
+                  [Last Updated: 27/12/20.{" "}
                   <Link href="/update-logs">
                     <a>Older logs.</a>
                   </Link>
                   ]{" "}
                   <p>
-                    <iframe
-                      width="560"
-                      height="315"
-                      src="https://www.youtube.com/embed/aaBL8CEwQWM"
-                      // @ts-ignore
-                      frameborder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowfullscreen
-                    ></iframe>
+                    Please join us for our first{" "}
+                    <a href="https://www.bobaboard.com/treat-yourself">
+                      TREAT YOURSELF EVENT
+                    </a>{" "}
+                    on January 6th 2021!
+                    <ul>
+                      <li>
+                        [TIMELINE VIEW] Changed view options to include
+                        "latest", a reverse-chronological view of the thread.
+                        Remember: you can change the default view of your
+                        threads with the dropdown options.
+                      </li>
+                      <li>
+                        [COMMENTS DETAILS] When clicking on a comment's avatar,
+                        you can now see the same details you have available for
+                        contributions, including the creation date.
+                      </li>
+                      <li>
+                        [BOARD SELECTION] The "select a board" menu on new
+                        thread creation now allows filtering for board name.
+                      </li>
+                      <li>
+                        [LINK FIXES] Links to welcome guide and feedback form in
+                        login menu have been fixed.
+                      </li>
+                      <li>
+                        [HIDDEN REFACTORING] I changed how we handle getting
+                        thread data and updating URL when changing thread view
+                        mode. TECHNICALLY nothing should change. Practically,
+                        our wheather report says high probability of bugs.
+                      </li>
+                    </ul>
                   </p>
                 </div>
               </div>
