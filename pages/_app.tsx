@@ -71,7 +71,7 @@ setOEmbedFetcher((url: string) => {
     });
 });
 
-const getTitle = (currentBoardData: BoardData | undefined) => {
+export const getTitle = (currentBoardData: BoardData | undefined) => {
   return currentBoardData
     ? `BobaBoard v0 — !${currentBoardData.slug} — Where the bugs are funny and the people are cool!`
     : "BobaBoard v0 — Where the bugs are funny and the people are cool!";

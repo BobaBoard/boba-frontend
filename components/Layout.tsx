@@ -20,6 +20,8 @@ import {
   faInbox,
   faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
+import Head from "next/head";
+import { getTitle } from "pages/_app";
 
 const log = debug("bobafrontend:queries-log");
 
@@ -65,7 +67,22 @@ const Layout = (props: LayoutProps) => {
     layoutRef.current?.closeSideMenu();
     refetch();
   }, [layoutRef.current?.closeSideMenu, refetch]);
+  const [isChangingRoute, setChangingRoute] = React.useState(false);
 
+  React.useEffect(() => {
+    const changeStartHandler = () => {
+      setChangingRoute(true);
+    };
+    const changeEndHandler = () => {
+      setChangingRoute(false);
+    };
+    router.events.on("routeChangeStart", changeStartHandler);
+    router.events.on("routeChangeComplete", changeEndHandler);
+    return () => {
+      router.events.off("routeChangeStart", changeStartHandler);
+      router.events.off("routeChangeComplete", changeEndHandler);
+    };
+  }, []);
   const {
     pinnedBoards,
     recentBoards,
@@ -101,6 +118,9 @@ const Layout = (props: LayoutProps) => {
   const boardData = boardsData[slug];
   return (
     <div>
+      <Head>
+        <title>{getTitle(boardData)}</title>
+      </Head>
       {loginOpen && (
         <LoginModal
           isOpen={loginOpen}
@@ -185,7 +205,8 @@ const Layout = (props: LayoutProps) => {
         user={user}
         title={props.title}
         forceHideTitle={props.forceHideTitle}
-        loading={props.loading || isUserPending}
+        loading={props.loading || isUserPending || isChangingRoute}
+        userLoading={isUserPending}
         updates={isLoggedIn && hasUpdates}
         outdated={isOutdated}
         onSideMenuButtonClick={refetch}
