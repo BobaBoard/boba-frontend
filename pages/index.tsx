@@ -1,14 +1,36 @@
 import React from "react";
 import Layout from "../components/Layout";
-import { BoardsDisplay } from "@bobaboard/ui-components";
+import { BoardsDisplay, PostQuote } from "@bobaboard/ui-components";
 import Link from "next/link";
-import { BOARD_URL_PATTERN, createLinkTo } from "utils/link-utils";
+import {
+  BOARD_URL_PATTERN,
+  createLinkTo,
+  THREAD_URL_PATTERN,
+} from "utils/link-utils";
 import { useBoardContext } from "components/BoardContext";
 import useBoos from "components/hooks/useBoos";
+import moment from "moment";
+import { getLatestSubscriptionUpdate } from "utils/queries";
+import { useQuery } from "react-query";
 
-function HomePage() {
+function HomePage(props: any) {
   const { styles } = useBoos();
   const { boardsData } = useBoardContext();
+  const { data: subscriptionData } = useQuery(
+    [
+      "subscriptionData",
+      {
+        subscriptionId: process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID,
+      },
+    ],
+    getLatestSubscriptionUpdate,
+    {
+      refetchOnWindowFocus: false,
+      staleTime: Infinity,
+      initialData: () => props?.lastUpdate,
+      initialStale: false,
+    }
+  );
 
   return (
     <div className="main">
@@ -39,47 +61,32 @@ function HomePage() {
               </p>
               <div className="updates">
                 <h2>New Stuff </h2>
-                <div className="last">
-                  [Last Updated: 27/12/20.{" "}
-                  <Link href="/update-logs">
-                    <a>Older logs.</a>
-                  </Link>
-                  ]{" "}
-                  <p>
-                    Please join us for our first{" "}
-                    <a href="https://www.bobaboard.com/treat-yourself">
-                      TREAT YOURSELF EVENT
-                    </a>{" "}
-                    on January 6th 2021!
-                    <ul>
-                      <li>
-                        [TIMELINE VIEW] Changed view options to include
-                        "latest", a reverse-chronological view of the thread.
-                        Remember: you can change the default view of your
-                        threads with the dropdown options.
-                      </li>
-                      <li>
-                        [COMMENTS DETAILS] When clicking on a comment's avatar,
-                        you can now see the same details you have available for
-                        contributions, including the creation date.
-                      </li>
-                      <li>
-                        [BOARD SELECTION] The "select a board" menu on new
-                        thread creation now allows filtering for board name.
-                      </li>
-                      <li>
-                        [LINK FIXES] Links to welcome guide and feedback form in
-                        login menu have been fixed.
-                      </li>
-                      <li>
-                        [HIDDEN REFACTORING] I changed how we handle getting
-                        thread data and updating URL when changing thread view
-                        mode. TECHNICALLY nothing should change. Practically,
-                        our wheather report says high probability of bugs.
-                      </li>
-                    </ul>
-                  </p>
-                </div>
+                {subscriptionData && (
+                  <div className="last">
+                    [Last Updated:{" "}
+                    {moment
+                      .utc(subscriptionData.last_updated)
+                      .format("MM/DD/YY")}
+                    .{" "}
+                    <Link
+                      href={THREAD_URL_PATTERN}
+                      as={process.env.NEXT_PUBLIC_RELEASE_THREAD_URL || ""}
+                    >
+                      <a>Older logs.</a>
+                    </Link>
+                    ]
+                    <PostQuote
+                      createdTime={moment
+                        .utc(subscriptionData.last_updated)
+                        .fromNow()}
+                      text={subscriptionData.post_content}
+                      secretIdentity={{
+                        name: subscriptionData.secret_identity_name,
+                        avatar: subscriptionData.secret_identity_avatar,
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
             <div className="display">

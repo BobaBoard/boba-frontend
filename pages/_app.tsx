@@ -18,8 +18,8 @@ import { NextPageContext } from "next";
 import { BoardData } from "types/Types";
 import { QueryParamProvider } from "../components/QueryParamNextProvider";
 import { makeClientBoardData, getServerBaseUrl } from "utils/server-utils";
-// import debug from "debug";
-// const logging = debug("bobafrontend:app-log");
+import debug from "debug";
+const error = debug("bobafrontend:app-error");
 
 if (typeof window !== "undefined") {
   smoothscroll.polyfill();
@@ -62,7 +62,7 @@ setOEmbedFetcher((url: string) => {
   // We add a random number to the embed load to get around https://github.com/itteco/iframely/issues/281
   return embedsAxios
     .get(
-      `https://embeds-dot-bobaboard.uc.r.appspot.com/iframely?uri=${url}&iframe=0&test=${Math.floor(
+      `https://boba-embeds.herokuapp.com/iframely?uri=${url}&iframe=0&test=${Math.floor(
         Math.random() * 100000
       )}`
     )
@@ -87,6 +87,19 @@ const getDescription = (currentBoardData: BoardData | undefined) => {
   return currentBoardData
     ? currentBoardData.tagline
     : `BobaBoard is an upcoming commmunity (and platform) aiming to balance the freedom and wonder of the early 00s web with a modern user experience and ethos. Feel free to look around, but remember: what you see is Work in Progress! Read more (and get involved) at www.bobaboard.com.`;
+};
+
+const getLastUpdate = async (ctx: NextPageContext) => {
+  try {
+    const response = await axios.get(
+      `${getServerBaseUrl(ctx)}subscriptions/${
+        process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID
+      }/latest`
+    );
+    return await response.data[0];
+  } catch (e) {
+    error(`Error retrieving lastUpdate.`);
+  }
 };
 
 function MyApp({
@@ -141,7 +154,7 @@ function MyApp({
           <AxiosInterceptor />
           <BoardContextProvider initialData={boardData}>
             <ToastContainer />
-            <Component {...pageProps} />
+            <Component {...pageProps} lastUpdate={props.lastUpdate} />
           </BoardContextProvider>
         </AuthProvider>
       </QueryParamProvider>
@@ -153,8 +166,14 @@ export default MyApp;
 
 MyApp.getInitialProps = async ({ ctx }: { ctx: NextPageContext }) => {
   const body = await axios.get(`${getServerBaseUrl(ctx)}boards`);
+  let lastUpdate = await getLastUpdate(ctx);
+
   const boardData = await body.data;
   return {
-    props: { boardData, slug: ctx.query.boardId?.slice(1) },
+    props: {
+      boardData,
+      slug: ctx.query.boardId?.slice(1),
+      lastUpdate: lastUpdate,
+    },
   };
 };

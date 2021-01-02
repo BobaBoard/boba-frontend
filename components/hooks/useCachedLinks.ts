@@ -6,7 +6,6 @@ import {
 } from "../../utils/link-utils";
 
 export const FEED_URL = "/users/feed";
-const LOGS_URL = "/update-logs";
 const PERSONAL_SETTINGS_URL = "/users/me";
 
 const BOARDS_CACHE = new Map<
@@ -81,7 +80,10 @@ const getLinkToPost = ({
 };
 const linkToHome = createLinkTo({ url: "/" });
 const linkToFeed = createLinkTo({ url: FEED_URL });
-const linkToLogs = createLinkTo({ url: LOGS_URL });
+const linkToLogs = createLinkTo({
+  urlPattern: THREAD_URL_PATTERN,
+  url: process.env.NEXT_PUBLIC_RELEASE_THREAD_URL || "",
+});
 const linkToPersonalSettings = createLinkTo({ url: PERSONAL_SETTINGS_URL });
 export const useCachedLinks = () => {
   return {
