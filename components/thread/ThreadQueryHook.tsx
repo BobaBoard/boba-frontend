@@ -58,14 +58,16 @@ export const useThread = ({
   postId,
   slug,
   markAsRead,
+  fetch,
 }: {
   threadId: string;
   postId: string | null;
   slug: string;
   markAsRead?: boolean;
+  fetch?: boolean;
 }): ThreadContextType => {
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
-  const { data: threadData, isLoading: isFetchingThread } = useQuery<
+  const { data: threadData, isLoading: isFetchingThread, isStale } = useQuery<
     ThreadType,
     [
       string,
@@ -87,6 +89,7 @@ export const useThread = ({
     },
     staleTime: 30 * 1000,
     keepPreviousData: true,
+    enabled: !!fetch,
     onSuccess: (data) => {
       log(`Retrieved thread data for thread with id ${threadId}`);
       info(data);
@@ -102,11 +105,17 @@ export const useThread = ({
     },
   });
   React.useEffect(() => {
-    if (!isAuthPending && !isFetchingThread && isLoggedIn && markAsRead) {
+    if (
+      !isAuthPending &&
+      !isFetchingThread &&
+      isLoggedIn &&
+      markAsRead &&
+      !isStale
+    ) {
       readThread();
       return;
     }
-  }, [isAuthPending, isFetchingThread, isLoggedIn]);
+  }, [isAuthPending, isFetchingThread, isLoggedIn, isStale]);
 
   // Extract posts data in a format that is easily consumable by context consumers.
   const {
@@ -211,6 +220,7 @@ export const withThreadData = <P extends ThreadContextType>(
   WrappedComponent: React.ComponentType<P>,
   options?: {
     markReadOnMount?: boolean;
+    fetch?: boolean;
   }
 ) => {
   const ReturnedComponent: React.FC<Subtract<P, ThreadContextType>> = (
@@ -222,6 +232,7 @@ export const withThreadData = <P extends ThreadContextType>(
       postId,
       slug,
       markAsRead: options?.markReadOnMount,
+      fetch: options?.fetch,
     });
     return <WrappedComponent {...threadData} {...props} />;
   };

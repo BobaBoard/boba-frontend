@@ -113,6 +113,7 @@ const ThreadSidebar = withThreadData<ThreadSidebarProps>(
           .post-header {
             margin-top: 20px;
             margin-bottom: 10px;
+            margin-right: 20px;
           }
           .views {
             color: white;

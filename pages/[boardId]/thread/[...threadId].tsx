@@ -389,4 +389,7 @@ function ThreadPage({
   );
 }
 
-export default withThreadData(ThreadPage, { markReadOnMount: true });
+export default withThreadData(ThreadPage, {
+  markReadOnMount: true,
+  fetch: true,
+});

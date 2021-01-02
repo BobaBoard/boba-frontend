@@ -56,13 +56,6 @@ const TimelineView: React.FC<TimelineViewProps> = ({
     };
   }, [chronologicalPostsSequence, postCommentsMap]);
 
-  // React.useEffect(() => {
-  //   // If upon mount we're in new but have no new post, switch to latest.
-  //   if (newAnswersSequence.length == 0 && viewMode === TIMELINE_VIEW_MODE.NEW) {
-  //     onViewModeChange(TIMELINE_VIEW_MODE.LATEST);
-  //   }
-  // }, []);
-
   const displayPosts =
     viewMode === TIMELINE_VIEW_MODE.ALL
       ? allPosts
