@@ -19,6 +19,7 @@ import {
   UNCATEGORIZED_LABEL,
 } from "utils/thread-utils";
 import {
+  clearThreadData,
   getThreadInBoardCache,
   removeThreadActivityFromCache,
 } from "utils/queries/cache";
@@ -31,6 +32,7 @@ const info = debug("bobafrontend:threadProvider-info");
 
 export interface ThreadContextType {
   isLoading: boolean;
+  isRefetching: boolean;
   defaultView: ThreadType["defaultView"] | null;
   // The root of the thread (a.k.a. the first post).
   threadRoot: PostType | null;
@@ -67,7 +69,12 @@ export const useThread = ({
   fetch?: boolean;
 }): ThreadContextType => {
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
-  const { data: threadData, isLoading: isFetchingThread, isStale } = useQuery<
+  const {
+    data: threadData,
+    isLoading: isFetchingThread,
+    isStale,
+    isFetching: isRefetching,
+  } = useQuery<
     ThreadType,
     [
       string,
@@ -85,7 +92,7 @@ export const useThread = ({
         slug,
         threadId,
         categoryFilter: null,
-      })?.thread;
+      });
     },
     staleTime: 30 * 1000,
     keepPreviousData: true,
@@ -96,6 +103,14 @@ export const useThread = ({
     },
     initialStale: true,
   });
+
+  React.useEffect(() => {
+    return () => {
+      if (fetch) {
+        clearThreadData({ slug, threadId });
+      }
+    };
+  }, []);
 
   // Mark thread as read on authentication and thread fetch
   const [readThread] = useMutation(() => markThreadAsRead({ threadId }), {
@@ -211,6 +226,7 @@ export const useThread = ({
     chronologicalPostsSequence,
     defaultView: threadData?.defaultView || null,
     personalIdentity: threadData?.personalIdentity,
+    isRefetching,
   };
 };
 

@@ -572,7 +572,7 @@ function BoardPage() {
   const onNewThread = React.useCallback(() => setNewThread(true), []);
 
   const showLockedMessage =
-    !isAuthPending && !isLoggedIn && boardsData[slug].loggedInOnly;
+    !isAuthPending && !isLoggedIn && boardsData[slug]?.loggedInOnly;
   const showEmptyMessage =
     !showLockedMessage &&
     !isFetchingBoardActivity &&

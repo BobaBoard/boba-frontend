@@ -95,6 +95,7 @@ function ThreadPage({
   threadRoot,
   newAnswersSequence,
   isLoading: isFetchingThread,
+  isRefetching: isRefetchingThread,
   defaultView,
 }: ThreadContextType) {
   const { postId, slug } = usePageDetails<ThreadPageDetails>();
@@ -302,20 +303,24 @@ function ThreadPage({
                 </div>
                 <div
                   className={classnames("loading-indicator", {
-                    loading: isFetchingThread,
+                    loading: isFetchingThread || isRefetchingThread,
                   })}
                 >
                   Loading...
                 </div>
-                <div
-                  className="bobadab"
-                  onClick={() => {
-                    window.scroll({
-                      top: 0,
-                      behavior: "smooth",
-                    });
-                  }}
-                />
+                <div className="bobadab-container">
+                  <div
+                    className={classnames("bobadab", {
+                      refetching: isRefetchingThread,
+                    })}
+                    onClick={() => {
+                      window.scroll({
+                        top: 0,
+                        behavior: "smooth",
+                      });
+                    }}
+                  />
+                </div>
               </div>
             }
             onReachEnd={React.useCallback(() => {
@@ -366,16 +371,35 @@ function ThreadPage({
           .loading-indicator.loading {
             display: block;
           }
-          .bobadab {
-            display: none;
+          .bobadab-container {
             position: absolute;
-            width: 50px;
-            height: 50px;
+            width: 70px;
+            height: 70px;
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
+            overflow: hidden;
+          }
+          .bobadab {
+            display: none;
             background-image: url("/bobadab.png");
             background-size: contain;
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            bottom: 0;
+            left: 10px;
+          }
+          .bobadab.refetching {
+            animation: rotation 2s infinite linear;
+          }
+          @keyframes rotation {
+            from {
+              transform: rotate(0deg);
+            }
+            to {
+              transform: rotate(359deg);
+            }
           }
           .bobadab:hover {
             cursor: pointer;

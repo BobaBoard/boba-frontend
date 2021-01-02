@@ -379,6 +379,19 @@ export const updatePostTagsInCache = ({
   return true;
 };
 
+export const clearThreadData = ({
+  slug,
+  threadId,
+}: {
+  slug: string;
+  threadId: string;
+}) => {
+  queryCache.setQueryData(["threadData", { threadId }], () =>
+    getThreadInBoardCache({ slug, threadId, categoryFilter: null })
+  );
+  queryCache.invalidateQueries(["threadData", { threadId }]);
+};
+
 export const getThreadInBoardCache = ({
   slug,
   threadId,
@@ -392,5 +405,5 @@ export const getThreadInBoardCache = ({
     "boardActivityData",
     { slug, categoryFilter },
   ]);
-  return getThreadInActivityData(boardActivityData, threadId);
+  return getThreadInActivityData(boardActivityData, threadId)?.thread;
 };
