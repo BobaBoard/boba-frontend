@@ -10,27 +10,10 @@ import {
 import { useBoardContext } from "components/BoardContext";
 import useBoos from "components/hooks/useBoos";
 import moment from "moment";
-import { getLatestSubscriptionUpdate } from "utils/queries";
-import { useQuery } from "react-query";
 
 function HomePage(props: any) {
   const { styles } = useBoos();
   const { boardsData } = useBoardContext();
-  const { data: subscriptionData } = useQuery(
-    [
-      "subscriptionData",
-      {
-        subscriptionId: process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID,
-      },
-    ],
-    getLatestSubscriptionUpdate,
-    {
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
-      initialData: () => props?.lastUpdate,
-      initialStale: false,
-    }
-  );
 
   return (
     <div className="main">
@@ -61,11 +44,11 @@ function HomePage(props: any) {
               </p>
               <div className="updates">
                 <h2>New Stuff </h2>
-                {subscriptionData && (
+                {props?.lastUpdate && (
                   <div className="last">
                     [Last Updated:{" "}
                     {moment
-                      .utc(subscriptionData.last_updated)
+                      .utc(props?.lastUpdate.last_updated)
                       .format("MM/DD/YY")}
                     .{" "}
                     <Link
@@ -77,12 +60,12 @@ function HomePage(props: any) {
                     ]
                     <PostQuote
                       createdTime={moment
-                        .utc(subscriptionData.last_updated)
+                        .utc(props?.lastUpdate.last_updated)
                         .fromNow()}
-                      text={subscriptionData.post_content}
+                      text={props?.lastUpdate.post_content}
                       secretIdentity={{
-                        name: subscriptionData.secret_identity_name,
-                        avatar: subscriptionData.secret_identity_avatar,
+                        name: props?.lastUpdate.secret_identity_name,
+                        avatar: props?.lastUpdate.secret_identity_avatar,
                       }}
                     />
                   </div>

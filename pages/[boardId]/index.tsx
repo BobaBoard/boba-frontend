@@ -10,7 +10,7 @@ import {
   TagType,
 } from "@bobaboard/ui-components";
 import Layout from "../../components/Layout";
-import { useInfiniteQuery, queryCache, useMutation } from "react-query";
+import { useInfiniteQuery, useMutation, useQueryClient } from "react-query";
 import { useAuth } from "../../components/Auth";
 import { useBoardContext } from "../../components/BoardContext";
 import {
@@ -271,6 +271,7 @@ const MemoizedBoardPost = React.memo(BoardPost);
 const MemoizedActionButton = React.memo(PostingActionButton);
 const MemoizedBoardSidebar = React.memo(BoardSidebar);
 function BoardPage() {
+  const queryCache = useQueryClient();
   const { Editors, editorsProps, setNewThread } = useEditors();
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
@@ -293,17 +294,15 @@ function BoardPage() {
   const {
     data: boardActivityData,
     isFetching: isFetchingBoardActivity,
-    isFetchingMore,
-    fetchMore,
-    canFetchMore,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
   } = useInfiniteQuery(
     ["boardActivityData", { slug, categoryFilter }],
-    getBoardActivityData,
+    ({ pageParam = undefined }) =>
+      getBoardActivityData({ slug, categoryFilter }, pageParam),
     {
-      getFetchMore: (lastGroup, allGroups) => {
-        // TODO: if this method fires too often in a row, sometimes there's duplicate
-        // values within allGroups (aka groups fetched with the same cursor).
-        // This seems to be a library problem.
+      getNextPageParam: (lastGroup, allGroups) => {
         return lastGroup?.nextPageCursor;
       },
       // Block this query for loggedInOnly boards (unless we're logged in)
@@ -312,7 +311,7 @@ function BoardPage() {
     }
   );
 
-  const [readThread] = useMutation(
+  const { mutate: readThread } = useMutation(
     (threadId: string) => markThreadAsRead({ threadId }),
     {
       onMutate: (threadId) => {
@@ -330,7 +329,7 @@ function BoardPage() {
     }
   );
 
-  const [setThreadMuted] = useMutation(
+  const { mutate: setThreadMuted } = useMutation(
     ({ threadId, mute }: { threadId: string; mute: boolean }) =>
       muteThread({ threadId, mute }),
     {
@@ -360,7 +359,7 @@ function BoardPage() {
     }
   );
 
-  const [setThreadView] = useMutation(
+  const { mutate: setThreadView } = useMutation(
     ({
       threadId,
       view,
@@ -390,7 +389,7 @@ function BoardPage() {
     }
   );
 
-  const [setBoardMuted] = useMutation(
+  const { mutate: setBoardMuted } = useMutation(
     ({ slug, mute }: { slug: string; mute: boolean }) =>
       muteBoard({ slug, mute }),
     {
@@ -418,7 +417,7 @@ function BoardPage() {
     }
   );
 
-  const [setBoardPinned] = useMutation(
+  const { mutate: setBoardPinned } = useMutation(
     ({ slug, pin }: { slug: string; pin: boolean }) => pinBoard({ slug, pin }),
     {
       onMutate: ({ slug, pin }) => {
@@ -447,7 +446,7 @@ function BoardPage() {
     }
   );
 
-  const [dismissNotifications] = useMutation(
+  const { mutate: dismissNotifications } = useMutation(
     ({ slug }: { slug: string }) => dismissBoardNotifications({ slug }),
     {
       onSuccess: () => {
@@ -458,7 +457,7 @@ function BoardPage() {
     }
   );
 
-  const [setThreadHidden] = useMutation(
+  const { mutate: setThreadHidden } = useMutation(
     ({ threadId, hide }: { threadId: string; hide: boolean }) =>
       hideThread({ threadId, hide }),
     {
@@ -488,7 +487,7 @@ function BoardPage() {
     }
   );
 
-  const [updateBoardMetadata] = useMutation(
+  const { mutate: updateBoardMetadata } = useMutation(
     ({
       slug,
       descriptions,
@@ -576,7 +575,7 @@ function BoardPage() {
   const showEmptyMessage =
     !showLockedMessage &&
     !isFetchingBoardActivity &&
-    boardActivityData?.[0]?.activity?.length === 0;
+    boardActivityData?.pages?.[0]?.activity?.length === 0;
 
   return (
     <div className="main">
@@ -632,8 +631,8 @@ function BoardPage() {
                 {showEmptyMessage && (
                   <img className="empty" src={"/nothing.jpg"} />
                 )}
-                {boardActivityData &&
-                  boardActivityData
+                {boardActivityData?.pages &&
+                  boardActivityData.pages
                     .flatMap((activityData) => activityData?.activity)
                     .map((thread: ThreadType) => {
                       const post = thread.posts[0];
@@ -674,10 +673,10 @@ function BoardPage() {
                 <div className="loading">
                   {!showLockedMessage &&
                     !showEmptyMessage &&
-                    boardActivityData?.length &&
-                    (isFetchingMore
+                    boardActivityData?.pages?.length &&
+                    (isFetchingNextPage
                       ? "Loading more..."
-                      : canFetchMore
+                      : hasNextPage
                       ? "..."
                       : "Nothing more to load")}
                 </div>
@@ -685,18 +684,18 @@ function BoardPage() {
             }
             onReachEnd={React.useCallback(() => {
               info(`Attempting to fetch more...`);
-              info(canFetchMore);
-              if (canFetchMore && !isFetchingMore) {
+              info(hasNextPage);
+              if (hasNextPage && !isFetchingNextPage) {
                 info(`...found stuff!`);
-                fetchMore();
+                fetchNextPage();
                 return;
               }
               info(
-                isFetchingMore
+                isFetchingNextPage
                   ? `...but we're already fetching`
                   : `...but there's nothing!`
               );
-            }, [canFetchMore, isFetchingMore, fetchMore])}
+            }, [hasNextPage, isFetchingNextPage, fetchNextPage])}
           />
         }
         actionButton={

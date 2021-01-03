@@ -82,7 +82,7 @@ export const useThread = ({
         threadId: string;
       }
     ]
-  >(["threadData", { threadId }], getThreadData, {
+  >(["threadData", { threadId }], () => getThreadData({ threadId }), {
     refetchOnWindowFocus: false,
     initialData: () => {
       log(
@@ -101,7 +101,6 @@ export const useThread = ({
       log(`Retrieved thread data for thread with id ${threadId}`);
       info(data);
     },
-    initialStale: true,
   });
 
   React.useEffect(() => {
@@ -113,12 +112,15 @@ export const useThread = ({
   }, []);
 
   // Mark thread as read on authentication and thread fetch
-  const [readThread] = useMutation(() => markThreadAsRead({ threadId }), {
-    onSuccess: () => {
-      log(`Successfully marked thread as read`);
-      removeThreadActivityFromCache({ threadId, slug, categoryFilter: null });
-    },
-  });
+  const { mutate: readThread } = useMutation(
+    () => markThreadAsRead({ threadId }),
+    {
+      onSuccess: () => {
+        log(`Successfully marked thread as read`);
+        removeThreadActivityFromCache({ threadId, slug, categoryFilter: null });
+      },
+    }
+  );
   React.useEffect(() => {
     if (
       !isAuthPending &&

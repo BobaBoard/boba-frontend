@@ -34,7 +34,7 @@
     "normalize.css": "^8.0.1",
     "query-string": "^6.13.7",
     "react-hotkeys-hook": "^2.1.4",
-    "react-query": "^2.5.4",
+    "react-query": "^3.5.9",
     "react-query-devtools": "^2.3.0",
     "smoothscroll-polyfill": "^0.4.4",
     "use-query-params": "^1.1.9"

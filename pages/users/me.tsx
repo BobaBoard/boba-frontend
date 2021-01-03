@@ -25,7 +25,7 @@ function UserPage() {
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
 
-  const [updateData] = useMutation(
+  const { mutate: updateData } = useMutation(
     (data: { avatarUrl: string; username: string }) => updateUserData(data),
     {
       onSuccess: ({ avatarUrl, username }) => {

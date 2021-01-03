@@ -17,7 +17,6 @@ import {
 const log = debug("bobafrontend:queries-log");
 
 export const getBoardActivityData = async (
-  key: string,
   { slug, categoryFilter }: { slug: string; categoryFilter: string | null },
   cursor?: string
 ): Promise<BoardActivityResponse | undefined> => {
@@ -44,10 +43,11 @@ export const getBoardActivityData = async (
   };
 };
 
-export const getThreadData = async (
-  key: string,
-  { threadId }: { threadId: string }
-): Promise<ThreadType> => {
+export const getThreadData = async ({
+  threadId,
+}: {
+  threadId: string;
+}): Promise<ThreadType> => {
   if (!threadId) {
     log(`...can't fetch thread with no id.`);
     // TODO: don't request thread when there's no id.

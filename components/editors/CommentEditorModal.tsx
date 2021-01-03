@@ -22,7 +22,7 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
   usePreventPageChange(() => props.isOpen, props.onCloseModal, [props.isOpen]);
   const { isLoggedIn } = useAuth();
 
-  const [postComment] = useMutation(
+  const { mutate: postComment } = useMutation(
     ({
       replyToPostId,
       commentData,
@@ -46,7 +46,7 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
     }
   );
 
-  const [postCommentChain] = useMutation(
+  const { mutate: postCommentChain } = useMutation(
     ({
       replyToPostId,
       commentData,

@@ -24,7 +24,7 @@ function InvitesPage() {
   const router = useRouter();
   const { isPending: isUserPending, isLoggedIn, attemptLogin } = useAuth();
 
-  const [updateData] = useMutation(
+  const { mutate: updateData } = useMutation(
     (data: { password: string; email: string; nonce: string }) =>
       acceptInvite(data),
     {

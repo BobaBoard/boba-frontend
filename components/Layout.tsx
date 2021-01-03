@@ -4,7 +4,7 @@ import LoginModal from "./LoginModal";
 import { dismissAllNotifications } from "../utils/queries";
 import { useAuth } from "./Auth";
 import { NextRouter, useRouter } from "next/router";
-import { useMutation, queryCache } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 // @ts-ignore
 import { ReactQueryDevtools } from "react-query-devtools";
 import { useBoardContext } from "./BoardContext";
@@ -48,21 +48,25 @@ const Layout = (props: LayoutProps) => {
   const slug: string = router.query.boardId?.slice(1) as string;
   const { boardsData, refetch } = useBoardContext();
   const [boardFilter, setBoardFilter] = React.useState("");
-  const [dismissNotifications] = useMutation(dismissAllNotifications, {
-    onSuccess: () => {
-      log(`Successfully dismissed all notifications. Refetching...`);
-      queryCache.invalidateQueries("allBoardsData");
-      if (slug) {
-        queryCache.invalidateQueries(["boardActivityData", { slug }]);
-      }
-      if (router.query.id) {
-        queryCache.invalidateQueries([
-          "threadData",
-          { threadId: router.query.id },
-        ]);
-      }
-    },
-  });
+  const queryClient = useQueryClient();
+  const { mutate: dismissNotifications } = useMutation(
+    dismissAllNotifications,
+    {
+      onSuccess: () => {
+        log(`Successfully dismissed all notifications. Refetching...`);
+        queryClient.invalidateQueries("allBoardsData");
+        if (slug) {
+          queryClient.invalidateQueries(["boardActivityData", { slug }]);
+        }
+        if (router.query.id) {
+          queryClient.invalidateQueries([
+            "threadData",
+            { threadId: router.query.id },
+          ]);
+        }
+      },
+    }
+  );
   const onBoardChange = React.useCallback(() => {
     layoutRef.current?.closeSideMenu();
     refetch();

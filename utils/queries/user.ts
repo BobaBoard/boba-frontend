@@ -40,7 +40,6 @@ export const acceptInvite = async (data: {
   return response.data;
 };
 export const getUserActivityData = async (
-  key: string,
   params: {
     ownOnly?: boolean;
     updatedOnly?: boolean;

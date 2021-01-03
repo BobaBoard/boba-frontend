@@ -19,6 +19,7 @@ import { BoardData } from "types/Types";
 import { QueryParamProvider } from "../components/QueryParamNextProvider";
 import { makeClientBoardData, getServerBaseUrl } from "utils/server-utils";
 import debug from "debug";
+import { QueryClient, QueryClientProvider } from "react-query";
 const error = debug("bobafrontend:app-error");
 
 if (typeof window !== "undefined") {
@@ -102,6 +103,8 @@ const getLastUpdate = async (ctx: NextPageContext) => {
   }
 };
 
+const queryClient = new QueryClient();
+
 function MyApp({
   Component,
   pageProps,
@@ -150,13 +153,15 @@ function MyApp({
         <link rel="manifest" href="/icons/site.webmanifest"></link>
       </Head>
       <QueryParamProvider>
-        <AuthProvider>
-          <AxiosInterceptor />
-          <BoardContextProvider initialData={boardData}>
-            <ToastContainer />
-            <Component {...pageProps} lastUpdate={props.lastUpdate} />
-          </BoardContextProvider>
-        </AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <AxiosInterceptor />
+            <BoardContextProvider initialData={boardData}>
+              <ToastContainer />
+              <Component {...pageProps} lastUpdate={props.lastUpdate} />
+            </BoardContextProvider>
+          </AuthProvider>
+        </QueryClientProvider>
       </QueryParamProvider>
     </>
   );

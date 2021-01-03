@@ -88,10 +88,9 @@ const BoardContextProvider: React.FC<{
   // aren't anymore can be safely removed.
   const { data: allBoardsData, refetch: refetchAllBoards } = useQuery(
     "allBoardsData",
-    getAllBoardsData,
+    () => getAllBoardsData(),
     {
       initialData: () => Object.values(boardsData),
-      initialStale: true,
       staleTime: 1000 * 30, // Make stale after 30s
       refetchInterval: 1000 * 60 * 1, // Refetch automatically every minute
       refetchOnWindowFocus: true,
@@ -130,7 +129,7 @@ const BoardContextProvider: React.FC<{
   // to the /boards/:slug endpoint (i.e. the one returning details for the "slug" board).
   const { data: boardData, refetch: refetchCurrentBoard } = useQuery(
     ["boardThemeData", { slug }],
-    getBoardData,
+    () => getBoardData({ slug }),
     { staleTime: Infinity }
   );
   React.useEffect(() => {

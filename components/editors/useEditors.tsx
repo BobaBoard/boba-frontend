@@ -16,7 +16,7 @@ import {
 } from "../../utils/queries/cache";
 
 import debug from "debug";
-import { queryCache } from "react-query";
+import { useQueryClient } from "react-query";
 const log = debug("bobafrontend:useEditors-log");
 
 interface EditorsProps extends ThreadContextType {
@@ -45,6 +45,7 @@ const Editors = React.memo(
       const { boardsData } = useBoardContext();
       const currentBoardData = boardsData?.[slug];
       const { getLinkToBoard } = useCachedLinks();
+      const queryClient = useQueryClient();
       const allBoards = React.useMemo(
         () =>
           Object.values(boardsData)
@@ -104,7 +105,7 @@ const Editors = React.memo(
                   );
                 }
               } else if (newThread) {
-                queryCache.invalidateQueries(["boardActivityData", { slug }]);
+                queryClient.invalidateQueries(["boardActivityData", { slug }]);
                 if (postedSlug != slug) {
                   getLinkToBoard(postedSlug).onClick?.();
                 }

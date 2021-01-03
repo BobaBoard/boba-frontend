@@ -65,7 +65,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
   const { isLoggedIn } = useAuth();
   usePreventPageChange(() => props.isOpen, props.onCloseModal, [props.isOpen]);
 
-  const [postContribution] = useMutation<
+  const { mutate: postContribution } = useMutation<
     PostType | ThreadType,
     unknown,
     {
@@ -104,7 +104,7 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
     }
   );
 
-  const [editContribution] = useMutation<
+  const { mutate: editContribution } = useMutation<
     PostType,
     unknown,
     {

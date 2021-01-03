@@ -1,7 +1,7 @@
 import React from "react";
 import { Post, PostSizes, FeedWithMenu, toast } from "@bobaboard/ui-components";
 import Layout from "../../components/Layout";
-import { useInfiniteQuery, queryCache, useMutation } from "react-query";
+import { useInfiniteQuery, useMutation, useQueryClient } from "react-query";
 import { useAuth } from "../../components/Auth";
 import { useBoardContext } from "../../components/BoardContext";
 import { markThreadAsRead, muteThread, hideThread } from "../../utils/queries";
@@ -33,6 +33,7 @@ info.log = console.info.bind(console);
 const MemoizedPost = React.memo(Post);
 
 function UserFeedPage() {
+  const queryClient = useQueryClient();
   const [showSidebar, setShowSidebar] = React.useState(false);
   const [feedOptions, setFeedOptions] = React.useState<FeedOptions>({
     updatedOnly: true,
@@ -53,14 +54,14 @@ function UserFeedPage() {
   const {
     data: userActivityData,
     isFetching: isFetchingUserActivity,
-    isFetchingMore,
-    fetchMore,
-    canFetchMore,
+    isFetchingPreviousPage,
+    fetchPreviousPage,
+    hasNextPage,
   } = useInfiniteQuery(
     ["userActivityData", { ...feedOptions }],
-    getUserActivityData,
+    ({ pageParam = undefined }) => getUserActivityData(feedOptions, pageParam),
     {
-      getFetchMore: (lastGroup, allGroups) => {
+      getNextPageParam: (lastGroup, allGroups) => {
         // TODO: if this method fires too often in a row, sometimes there's duplicate
         // values within allGroups (aka groups fetched with the same cursor).
         // This seems to be a library problem.
@@ -69,7 +70,7 @@ function UserFeedPage() {
     }
   );
 
-  const [readThread] = useMutation(
+  const { mutate: readThread } = useMutation(
     ({ threadId }: { threadId: string; slug: string }) =>
       markThreadAsRead({ threadId }),
     {
@@ -88,7 +89,7 @@ function UserFeedPage() {
     }
   );
 
-  const [setThreadMuted] = useMutation(
+  const { mutate: setThreadMuted } = useMutation(
     ({ threadId, mute }: { threadId: string; mute: boolean; slug: string }) =>
       muteThread({ threadId, mute }),
     {
@@ -118,12 +119,12 @@ function UserFeedPage() {
             mute ? "muted" : "unmuted"
           }.`
         );
-        queryCache.invalidateQueries("allBoardsData");
+        queryClient.invalidateQueries("allBoardsData");
       },
     }
   );
 
-  const [setThreadHidden] = useMutation(
+  const { mutate: setThreadHidden } = useMutation(
     ({ threadId, hide }: { threadId: string; slug: string; hide: boolean }) =>
       hideThread({ threadId, hide }),
     {
@@ -153,7 +154,7 @@ function UserFeedPage() {
             hide ? "hidden" : "visible"
           }.`
         );
-        queryCache.invalidateQueries("allBoardsData");
+        queryClient.invalidateQueries("allBoardsData");
       },
     }
   );
@@ -199,8 +200,8 @@ function UserFeedPage() {
                 {showEmptyMessage && (
                   <img className="empty" src={"/nothing.jpg"} />
                 )}
-                {userActivityData &&
-                  userActivityData
+                {userActivityData?.pages &&
+                  userActivityData.pages
                     .flatMap((activityData) => activityData?.activity)
                     .map((thread: ThreadType) => {
                       const post = thread.posts[0];
@@ -356,10 +357,10 @@ function UserFeedPage() {
                     })}
                 <div className="loading">
                   {!showEmptyMessage &&
-                    userActivityData?.length &&
-                    (isFetchingMore
+                    userActivityData?.pages?.length &&
+                    (isFetchingPreviousPage
                       ? "Loading more..."
-                      : canFetchMore
+                      : hasNextPage
                       ? "..."
                       : "Nothing more to load")}
                 </div>
@@ -367,14 +368,14 @@ function UserFeedPage() {
             }
             onReachEnd={() => {
               info(`Attempting to fetch more...`);
-              info(canFetchMore);
-              if (canFetchMore && !isFetchingMore) {
+              info(hasNextPage);
+              if (hasNextPage && !isFetchingPreviousPage) {
                 info(`...found stuff!`);
-                fetchMore();
+                fetchPreviousPage();
                 return;
               }
               info(
-                isFetchingMore
+                isFetchingPreviousPage
                   ? `...but we're already fetching`
                   : `...but there's nothing!`
               );
