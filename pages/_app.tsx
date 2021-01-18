@@ -11,15 +11,17 @@ import type { AppProps } from "next/app";
 import {
   ToastContainer,
   toast,
-  setTumblrEmbedFetcher,
-  setOEmbedFetcher,
+  EmbedsFetcherContext,
+  ImageUploaderContext,
 } from "@bobaboard/ui-components";
+import { createImageUploadPromise } from "../utils/image-upload";
 import { NextPageContext } from "next";
 import { BoardData } from "types/Types";
 import { QueryParamProvider } from "../components/QueryParamNextProvider";
 import { makeClientBoardData, getServerBaseUrl } from "utils/server-utils";
 import debug from "debug";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { NextRouter, useRouter } from "next/router";
 const error = debug("bobafrontend:app-error");
 
 if (typeof window !== "undefined") {
@@ -54,22 +56,31 @@ const AxiosInterceptor = () => {
 };
 
 const embedsAxios = axios.create();
-setTumblrEmbedFetcher((url: string) => {
-  return embedsAxios.get(`posts/embed/tumblr?url=${url}`).then((res) => {
-    return res.data;
-  });
-});
-setOEmbedFetcher((url: string) => {
-  // We add a random number to the embed load to get around https://github.com/itteco/iframely/issues/281
-  return embedsAxios
-    .get(
-      `https://boba-embeds.herokuapp.com/iframely?uri=${url}&iframe=0&test=${Math.floor(
-        Math.random() * 100000
-      )}`
-    )
-    .then((res) => {
+const embedsFetchers = {
+  getTumblrEmbedFromUrl: (url: string) => {
+    return embedsAxios.get(`posts/embed/tumblr?url=${url}`).then((res) => {
       return res.data;
     });
+  },
+  getOEmbedFromUrl: (url: string) => {
+    // We add a random number to the embed load to get around https://github.com/itteco/iframely/issues/281
+    return embedsAxios
+      .get(
+        `https://boba-embeds.herokuapp.com/iframely?uri=${url}&iframe=0&test=${Math.floor(
+          Math.random() * 100000
+        )}`
+      )
+      .then((res) => {
+        return res.data;
+      });
+  },
+};
+const getImageUploader = (router: NextRouter) => ({
+  onImageUploadRequest: (src: string) =>
+    createImageUploadPromise({
+      imageData: src,
+      router,
+    }),
 });
 
 export const getTitle = (currentBoardData: BoardData | undefined) => {
@@ -114,6 +125,10 @@ function MyApp({
   const boardData: BoardData[] =
     props?.boardData.map(makeClientBoardData) || [];
   const currentBoardData = boardData.find((board) => board.slug == props.slug);
+  const router = useRouter();
+
+  const imageUploader = React.useMemo(() => getImageUploader(router), [router]);
+
   return (
     <>
       <Head>
@@ -154,13 +169,17 @@ function MyApp({
       </Head>
       <QueryParamProvider>
         <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <AxiosInterceptor />
-            <BoardContextProvider initialData={boardData}>
-              <ToastContainer />
-              <Component {...pageProps} lastUpdate={props.lastUpdate} />
-            </BoardContextProvider>
-          </AuthProvider>
+          <EmbedsFetcherContext.Provider value={embedsFetchers}>
+            <ImageUploaderContext.Provider value={imageUploader}>
+              <AuthProvider>
+                <AxiosInterceptor />
+                <BoardContextProvider initialData={boardData}>
+                  <ToastContainer />
+                  <Component {...pageProps} lastUpdate={props.lastUpdate} />
+                </BoardContextProvider>
+              </AuthProvider>
+            </ImageUploaderContext.Provider>
+          </EmbedsFetcherContext.Provider>
         </QueryClientProvider>
       </QueryParamProvider>
     </>

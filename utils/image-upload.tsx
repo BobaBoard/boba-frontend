@@ -1,15 +1,17 @@
 import firebase from "firebase/app";
 import { v4 as uuidv4 } from "uuid";
+import { NextRouter } from "next/router";
 
 import debug from "debug";
+import { getPageDetails } from "./router-utils";
 const error = debug("bobafrontend:postEditor-error");
 
 export const createImageUploadPromise = ({
   imageData,
-  baseUrl,
+  router,
 }: {
   imageData: string;
-  baseUrl: string;
+  router: NextRouter;
 }) => {
   return new Promise<string>((onSuccess, onReject) => {
     // Do not upload tenor stuff
@@ -17,6 +19,8 @@ export const createImageUploadPromise = ({
       onSuccess(imageData);
       return;
     }
+    const { slug, threadId } = getPageDetails(router);
+    const baseUrl = `images/${slug}/${threadId ? threadId + "/" : ""}`;
     // Upload base 64 images
     if (imageData.startsWith("data:image")) {
       const dataType = imageData.match(/[^:/]\w+(?=;|,)/)?.[0];

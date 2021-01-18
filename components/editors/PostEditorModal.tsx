@@ -10,7 +10,6 @@ import { useAuth } from "../Auth";
 import { useMutation } from "react-query";
 import { createPost, createThread } from "../../utils/queries";
 import { editPost } from "../../utils/queries/post";
-import { createImageUploadPromise } from "../../utils/image-upload";
 import {
   PostData,
   PostType,
@@ -166,12 +165,6 @@ const PostEditorModal: React.FC<PostEditorModalProps> = (props) => {
           }
           loading={isPostLoading}
           suggestedCategories={props?.suggestedCategories || []}
-          onImageUploadRequest={(src: string) =>
-            createImageUploadPromise({
-              imageData: src,
-              baseUrl: props.uploadBaseUrl,
-            })
-          }
           editableSections={
             props.editPost
               ? {
@@ -252,7 +245,6 @@ export interface PostEditorModalProps {
   replyToPostId: string | null;
   editPost?: PostType | null;
   slug: string;
-  uploadBaseUrl: string;
   suggestedCategories?: string[];
   selectableBoards?: PostEditorProps["availableBoards"];
 }

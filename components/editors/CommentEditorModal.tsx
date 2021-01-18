@@ -59,6 +59,7 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
         toast.error("Error while creating new comment.");
         error(`Error while commenting on post ${replyToPostId}:`);
         error(serverError);
+        setCommentLoading(false);
       },
       onSuccess: (data: CommentType[]) => {
         log(`Received comment data after save:`);
@@ -82,15 +83,16 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
             userIdentity={props.userIdentity}
             additionalIdentities={props.additionalIdentities}
             loading={isCommentLoading}
-            onSubmit={({ texts, identityId }) => {
+            onSubmit={async ({ texts, identityId }) => {
               if (!props.replyTo || !props.replyTo.postId) {
                 return;
               }
               setCommentLoading(true);
-              if (texts.length > 1) {
+              const uploadedTexts = await texts;
+              if (uploadedTexts.length > 1) {
                 postCommentChain({
                   replyToPostId: props.replyTo.postId,
-                  commentData: texts.map((t) => ({
+                  commentData: uploadedTexts.map((t) => ({
                     content: t,
                     forceAnonymous: false,
                     identityId,
@@ -101,7 +103,7 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
                 postComment({
                   replyToPostId: props.replyTo.postId,
                   commentData: {
-                    content: texts[0],
+                    content: uploadedTexts[0],
                     forceAnonymous: false,
                     identityId,
                     replyToCommentId: props.replyTo?.commentId || null,

@@ -1,4 +1,4 @@
-import { useRouter } from "next/router";
+import { NextRouter, useRouter } from "next/router";
 
 interface PageDetails {
   slug: string | null;
@@ -16,7 +16,10 @@ export interface ThreadPageDetails {
 
 export const usePageDetails = <T extends PageDetails>() => {
   const router = useRouter();
+  return getPageDetails<T>(router);
+};
 
+export const getPageDetails = <T extends PageDetails>(router: NextRouter) => {
   const slug = (router.query.boardId as string)?.substring(1) || null;
   const threadId = (router.query.threadId?.[0] as string) || null;
   return {
