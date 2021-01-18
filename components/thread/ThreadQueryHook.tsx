@@ -2,7 +2,7 @@ import React from "react";
 
 import { useAuth } from "components/Auth";
 import { getThreadData, markThreadAsRead } from "utils/queries";
-import { useQuery, useMutation } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 import {
   PostType,
   ThreadType,
@@ -68,6 +68,7 @@ export const useThread = ({
   markAsRead?: boolean;
   fetch?: boolean;
 }): ThreadContextType => {
+  const queryClient = useQueryClient();
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const {
     data: threadData,
@@ -88,7 +89,7 @@ export const useThread = ({
       log(
         `Searching board activity data for board ${slug} and thread ${threadId}`
       );
-      return getThreadInBoardCache({
+      return getThreadInBoardCache(queryClient, {
         slug,
         threadId,
         categoryFilter: null,
@@ -106,7 +107,7 @@ export const useThread = ({
   React.useEffect(() => {
     return () => {
       if (fetch) {
-        clearThreadData({ slug, threadId });
+        clearThreadData(queryClient, { slug, threadId });
       }
     };
   }, []);
@@ -117,7 +118,11 @@ export const useThread = ({
     {
       onSuccess: () => {
         log(`Successfully marked thread as read`);
-        removeThreadActivityFromCache({ threadId, slug, categoryFilter: null });
+        removeThreadActivityFromCache(queryClient, {
+          threadId,
+          slug,
+          categoryFilter: null,
+        });
       },
     }
   );

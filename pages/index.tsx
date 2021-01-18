@@ -20,7 +20,6 @@ function HomePage(props: any) {
       <Layout
         mainContent={
           <div className="content">
-            <div className="lights" />
             <div className="intro">
               <div className="title">
                 <h1>Welcome to BobaBoard!</h1>
@@ -98,17 +97,6 @@ function HomePage(props: any) {
                 margin: 0 auto;
                 margin-bottom: 25px;
                 line-height: 20px;
-              }
-              .lights {
-                position: absolute;
-                top: 70px;
-                right: 0;
-                left: 0;
-                height: 100px;
-                background: url("/lights.gif");
-                background-size: auto 35px;
-                background-repeat: repeat-x;
-                background-position-y: -8px;
               }
               a {
                 color: #f96680;

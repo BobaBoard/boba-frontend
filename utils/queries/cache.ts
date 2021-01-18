@@ -1,4 +1,4 @@
-import { useQueryClient } from "react-query";
+import { QueryClient } from "react-query";
 import {
   BoardActivityResponse,
   BoardData,
@@ -73,16 +73,18 @@ const removeThreadActivity = (
   });
 };
 
-export const removeThreadActivityFromCache = ({
-  slug,
-  categoryFilter,
-  threadId,
-}: {
-  slug: string;
-  categoryFilter: string | null;
-  threadId: string;
-}) => {
-  const queryClient = useQueryClient();
+export const removeThreadActivityFromCache = (
+  queryClient: QueryClient,
+  {
+    slug,
+    categoryFilter,
+    threadId,
+  }: {
+    slug: string;
+    categoryFilter: string | null;
+    threadId: string;
+  }
+) => {
   const boardActivityData = queryClient.getQueryData<BoardActivityResponse[]>([
     "boardActivityData",
     { slug, categoryFilter },
@@ -101,18 +103,20 @@ export const removeThreadActivityFromCache = ({
   queryClient.setQueryData(["userActivityData"], () => userActivityData);
 };
 
-export const setThreadMutedInCache = ({
-  slug,
-  categoryFilter,
-  threadId,
-  mute,
-}: {
-  slug: string;
-  categoryFilter: string | null;
-  threadId: string;
-  mute: boolean;
-}) => {
-  const queryClient = useQueryClient();
+export const setThreadMutedInCache = (
+  queryClient: QueryClient,
+  {
+    slug,
+    categoryFilter,
+    threadId,
+    mute,
+  }: {
+    slug: string;
+    categoryFilter: string | null;
+    threadId: string;
+    mute: boolean;
+  }
+) => {
   const boardActivityData = queryClient.getQueryData<BoardActivityResponse[]>([
     "boardActivityData",
     { slug, categoryFilter },
@@ -139,14 +143,16 @@ export const setThreadMutedInCache = ({
   queryClient.setQueryData(["userActivityData"], () => userActivityData);
 };
 
-export const setBoardMutedInCache = ({
-  slug,
-  mute,
-}: {
-  slug: string;
-  mute: boolean;
-}) => {
-  const queryClient = useQueryClient();
+export const setBoardMutedInCache = (
+  queryClient: QueryClient,
+  {
+    slug,
+    mute,
+  }: {
+    slug: string;
+    mute: boolean;
+  }
+) => {
   const boardData = queryClient.getQueryData<BoardData>([
     "boardThemeData",
     { slug },
@@ -161,16 +167,18 @@ export const setBoardMutedInCache = ({
   queryClient.setQueryData(["boardThemeData", { slug }], { ...boardData });
 };
 
-export const setBoardPinnedInCache = ({
-  slug,
-  pin,
-  nextPinnedOrder,
-}: {
-  slug: string;
-  pin: boolean;
-  nextPinnedOrder: number;
-}) => {
-  const queryClient = useQueryClient();
+export const setBoardPinnedInCache = (
+  queryClient: QueryClient,
+  {
+    slug,
+    pin,
+    nextPinnedOrder,
+  }: {
+    slug: string;
+    pin: boolean;
+    nextPinnedOrder: number;
+  }
+) => {
   const boardData = queryClient.getQueryData<BoardData>([
     "boardThemeData",
     { slug },
@@ -185,18 +193,20 @@ export const setBoardPinnedInCache = ({
   queryClient.setQueryData(["boardThemeData", { slug }], { ...boardData });
 };
 
-export const setThreadHiddenInCache = ({
-  slug,
-  categoryFilter,
-  threadId,
-  hide,
-}: {
-  slug: string;
-  categoryFilter: string | null;
-  threadId: string;
-  hide: boolean;
-}) => {
-  const queryClient = useQueryClient();
+export const setThreadHiddenInCache = (
+  queryClient: QueryClient,
+  {
+    slug,
+    categoryFilter,
+    threadId,
+    hide,
+  }: {
+    slug: string;
+    categoryFilter: string | null;
+    threadId: string;
+    hide: boolean;
+  }
+) => {
   const boardActivityData = queryClient.getQueryData<BoardActivityResponse[]>([
     "boardActivityData",
     { slug, categoryFilter },
@@ -222,18 +232,20 @@ export const setThreadHiddenInCache = ({
   queryClient.setQueryData(["userActivityData"], () => userActivityData);
 };
 
-export const setDefaultThreadViewInCache = ({
-  slug,
-  categoryFilter,
-  threadId,
-  view,
-}: {
-  slug: string;
-  categoryFilter: string | null;
-  threadId: string;
-  view: ThreadType["defaultView"];
-}) => {
-  const queryClient = useQueryClient();
+export const setDefaultThreadViewInCache = (
+  queryClient: QueryClient,
+  {
+    slug,
+    categoryFilter,
+    threadId,
+    view,
+  }: {
+    slug: string;
+    categoryFilter: string | null;
+    threadId: string;
+    view: ThreadType["defaultView"];
+  }
+) => {
   const boardActivityData = queryClient.getQueryData<BoardActivityResponse[]>([
     "boardActivityData",
     { slug, categoryFilter },
@@ -259,19 +271,21 @@ export const setDefaultThreadViewInCache = ({
   queryClient.setQueryData(["userActivityData"], () => userActivityData);
 };
 
-export const updateCommentCache = ({
-  threadId,
-  newComments,
-  replyTo,
-}: {
-  threadId: string;
-  newComments: CommentType[];
-  replyTo: {
-    postId: string | null;
-    commentId: string | null;
-  };
-}) => {
-  const queryClient = useQueryClient();
+export const updateCommentCache = (
+  queryClient: QueryClient,
+  {
+    threadId,
+    newComments,
+    replyTo,
+  }: {
+    threadId: string;
+    newComments: CommentType[];
+    replyTo: {
+      postId: string | null;
+      commentId: string | null;
+    };
+  }
+) => {
   const threadData = queryClient.getQueryData<ThreadType>([
     "threadData",
     { threadId },
@@ -305,14 +319,16 @@ export const updateCommentCache = ({
   return true;
 };
 
-export const updatePostCache = ({
-  threadId,
-  post,
-}: {
-  threadId: string;
-  post: PostType;
-}) => {
-  const queryClient = useQueryClient();
+export const updatePostCache = (
+  queryClient: QueryClient,
+  {
+    threadId,
+    post,
+  }: {
+    threadId: string;
+    post: PostType;
+  }
+) => {
   const threadData = queryClient.getQueryData<ThreadType>([
     "threadData",
     { threadId },
@@ -342,16 +358,18 @@ export const updatePostCache = ({
   return true;
 };
 
-export const updatePostTagsInCache = ({
-  threadId,
-  postId,
-  tags,
-}: {
-  threadId: string;
-  postId: string;
-  tags: TagsType;
-}) => {
-  const queryClient = useQueryClient();
+export const updatePostTagsInCache = (
+  queryClient: QueryClient,
+  {
+    threadId,
+    postId,
+    tags,
+  }: {
+    threadId: string;
+    postId: string;
+    tags: TagsType;
+  }
+) => {
   const threadData = queryClient.getQueryData<ThreadType>([
     "threadData",
     { threadId },
@@ -388,30 +406,34 @@ export const updatePostTagsInCache = ({
   return true;
 };
 
-export const clearThreadData = ({
-  slug,
-  threadId,
-}: {
-  slug: string;
-  threadId: string;
-}) => {
-  const queryClient = useQueryClient();
+export const clearThreadData = (
+  queryClient: QueryClient,
+  {
+    slug,
+    threadId,
+  }: {
+    slug: string;
+    threadId: string;
+  }
+) => {
   queryClient.setQueryData(["threadData", { threadId }], () =>
-    getThreadInBoardCache({ slug, threadId, categoryFilter: null })
+    getThreadInBoardCache(queryClient, { slug, threadId, categoryFilter: null })
   );
   queryClient.invalidateQueries(["threadData", { threadId }]);
 };
 
-export const getThreadInBoardCache = ({
-  slug,
-  threadId,
-  categoryFilter,
-}: {
-  slug: string;
-  threadId: string;
-  categoryFilter: string | null;
-}) => {
-  const queryClient = useQueryClient();
+export const getThreadInBoardCache = (
+  queryClient: QueryClient,
+  {
+    slug,
+    threadId,
+    categoryFilter,
+  }: {
+    slug: string;
+    threadId: string;
+    categoryFilter: string | null;
+  }
+) => {
   const boardActivityData = queryClient.getQueryData<BoardActivityResponse[]>([
     "boardActivityData",
     { slug, categoryFilter },

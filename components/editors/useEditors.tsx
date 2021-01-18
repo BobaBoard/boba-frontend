@@ -89,7 +89,7 @@ const Editors = React.memo(
                 log(post);
                 if (
                   postEdit &&
-                  !updatePostTagsInCache({
+                  !updatePostTagsInCache(queryClient, {
                     threadId,
                     postId: post.postId,
                     tags: post.tags,
@@ -98,7 +98,7 @@ const Editors = React.memo(
                   toast.error(`Error updating post cache after editing tags.`);
                 } else if (
                   postReplyId &&
-                  !updatePostCache({ threadId, post })
+                  !updatePostCache(queryClient, { threadId, post })
                 ) {
                   toast.error(
                     `Error updating post cache after posting new post.`
@@ -146,7 +146,7 @@ const Editors = React.memo(
               log(comments);
               if (
                 !commentReplyId ||
-                !updateCommentCache({
+                !updateCommentCache(queryClient, {
                   threadId,
                   newComments: comments,
                   replyTo: commentReplyId,

@@ -76,7 +76,11 @@ function UserFeedPage() {
     {
       onMutate: ({ threadId, slug }) => {
         log(`Optimistically marking thread ${threadId} as visited.`);
-        removeThreadActivityFromCache({ slug, categoryFilter: null, threadId });
+        removeThreadActivityFromCache(queryClient, {
+          slug,
+          categoryFilter: null,
+          threadId,
+        });
       },
       onError: (error: Error, threadId) => {
         toast.error("Error while marking thread as visited");
@@ -99,7 +103,7 @@ function UserFeedPage() {
             mute ? "muted" : "unmuted"
           }.`
         );
-        setThreadMutedInCache({
+        setThreadMutedInCache(queryClient, {
           slug,
           categoryFilter: null,
           threadId,
@@ -134,7 +138,7 @@ function UserFeedPage() {
             hide ? "hidden" : "visible"
           }.`
         );
-        setThreadHiddenInCache({
+        setThreadHiddenInCache(queryClient, {
           slug,
           categoryFilter: null,
           threadId,

@@ -271,7 +271,7 @@ const MemoizedBoardPost = React.memo(BoardPost);
 const MemoizedActionButton = React.memo(PostingActionButton);
 const MemoizedBoardSidebar = React.memo(BoardSidebar);
 function BoardPage() {
-  const queryCache = useQueryClient();
+  const queryClient = useQueryClient();
   const { Editors, editorsProps, setNewThread } = useEditors();
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
@@ -316,7 +316,11 @@ function BoardPage() {
     {
       onMutate: (threadId) => {
         log(`Optimistically marking thread ${threadId} as visited.`);
-        removeThreadActivityFromCache({ slug, categoryFilter, threadId });
+        removeThreadActivityFromCache(queryClient, {
+          slug,
+          categoryFilter,
+          threadId,
+        });
       },
       onError: (error: Error, threadId) => {
         toast.error("Error while marking thread as visited");
@@ -339,7 +343,12 @@ function BoardPage() {
             mute ? "muted" : "unmuted"
           }.`
         );
-        setThreadMutedInCache({ slug, categoryFilter, threadId, mute });
+        setThreadMutedInCache(queryClient, {
+          slug,
+          categoryFilter,
+          threadId,
+          mute,
+        });
       },
       onError: (error: Error, { threadId, mute }) => {
         toast.error(
@@ -354,7 +363,7 @@ function BoardPage() {
             mute ? "muted" : "unmuted"
           }.`
         );
-        queryCache.invalidateQueries("allBoardsData");
+        queryClient.invalidateQueries("allBoardsData");
       },
     }
   );
@@ -372,7 +381,12 @@ function BoardPage() {
         log(
           `Optimistically switched thread ${threadId} to default view ${view}.`
         );
-        setDefaultThreadViewInCache({ slug, categoryFilter, threadId, view });
+        setDefaultThreadViewInCache(queryClient, {
+          slug,
+          categoryFilter,
+          threadId,
+          view,
+        });
       },
       onError: (error: Error, { threadId, view }) => {
         toast.error(
@@ -399,7 +413,7 @@ function BoardPage() {
             mute ? "muted" : "unmuted"
           }.`
         );
-        setBoardMutedInCache({ slug, mute });
+        setBoardMutedInCache(queryClient, { slug, mute });
       },
       onError: (error: Error, { slug, mute }) => {
         toast.error(
@@ -412,7 +426,7 @@ function BoardPage() {
         log(
           `Successfully marked board ${slug} as  ${mute ? "muted" : "unmuted"}.`
         );
-        queryCache.invalidateQueries("allBoardsData");
+        queryClient.invalidateQueries("allBoardsData");
       },
     }
   );
@@ -426,7 +440,7 @@ function BoardPage() {
             pin ? "pinned" : "unpinned"
           }.`
         );
-        setBoardPinnedInCache({ slug, pin, nextPinnedOrder });
+        setBoardPinnedInCache(queryClient, { slug, pin, nextPinnedOrder });
       },
       onError: (error: Error, { slug, pin }) => {
         toast.error(
@@ -441,7 +455,7 @@ function BoardPage() {
         log(
           `Successfully marked board ${slug} as ${pin ? "pinned" : "unpinned"}.`
         );
-        queryCache.invalidateQueries("allBoardsData");
+        queryClient.invalidateQueries("allBoardsData");
       },
     }
   );
@@ -451,8 +465,8 @@ function BoardPage() {
     {
       onSuccess: () => {
         log(`Successfully dismissed board notifications. Refetching...`);
-        queryCache.invalidateQueries("allBoardsData");
-        queryCache.invalidateQueries(["boardActivityData", { slug }]);
+        queryClient.invalidateQueries("allBoardsData");
+        queryClient.invalidateQueries(["boardActivityData", { slug }]);
       },
     }
   );
@@ -467,7 +481,12 @@ function BoardPage() {
             hide ? "hidden" : "visible"
           }.`
         );
-        setThreadHiddenInCache({ slug, categoryFilter, threadId, hide });
+        setThreadHiddenInCache(queryClient, {
+          slug,
+          categoryFilter,
+          threadId,
+          hide,
+        });
       },
       onError: (error: Error, { threadId, hide }) => {
         toast.error(
@@ -482,7 +501,7 @@ function BoardPage() {
             hide ? "hidden" : "visible"
           }.`
         );
-        queryCache.invalidateQueries("allBoardsData");
+        queryClient.invalidateQueries("allBoardsData");
       },
     }
   );
@@ -508,8 +527,8 @@ function BoardPage() {
         log(`Received comment data after save:`);
         log(data);
         setEditingSidebar(false);
-        queryCache.setQueryData(["boardThemeData", { slug }], data);
-        queryCache.invalidateQueries("allBoardsData");
+        queryClient.setQueryData(["boardThemeData", { slug }], data);
+        queryClient.invalidateQueries("allBoardsData");
       },
     }
   );
@@ -587,7 +606,6 @@ function BoardPage() {
             showSidebar={showSidebar}
             sidebarContent={
               <div>
-                <div className="garland" />
                 <MemoizedBoardSidebar
                   // @ts-ignore
                   slug={boardsData[slug]?.slug || slug}
@@ -711,17 +729,6 @@ function BoardPage() {
         forceHideTitle={true}
       />
       <style jsx>{`
-        .garland {
-          pointer-events: none;
-          background: url("/garland.png");
-          background-size: contain;
-          width: 300px;
-          height: 90px;
-          position: absolute;
-          left: 26px;
-          top: 73px;
-          z-index: 5;
-        }
         .main {
           width: 100%;
         }
