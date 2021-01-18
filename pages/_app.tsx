@@ -21,6 +21,7 @@ import { QueryParamProvider } from "../components/QueryParamNextProvider";
 import { makeClientBoardData, getServerBaseUrl } from "utils/server-utils";
 import debug from "debug";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { ReactQueryDevtools } from "react-query/devtools";
 import { NextRouter, useRouter } from "next/router";
 const error = debug("bobafrontend:app-error");
 
@@ -180,6 +181,7 @@ function MyApp({
               </AuthProvider>
             </ImageUploaderContext.Provider>
           </EmbedsFetcherContext.Provider>
+          <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </QueryParamProvider>
     </>

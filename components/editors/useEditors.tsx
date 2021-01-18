@@ -116,7 +116,6 @@ const Editors = React.memo(
             slug={slug}
             editPost={postEdit}
             replyToPostId={postReplyId}
-            uploadBaseUrl={`images/${slug}/${threadId ? threadId + "/" : ""}`}
             suggestedCategories={
               threadId == null
                 ? boardsData[slug]?.suggestedCategories

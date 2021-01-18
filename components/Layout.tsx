@@ -5,8 +5,6 @@ import { dismissAllNotifications } from "../utils/queries";
 import { useAuth } from "./Auth";
 import { NextRouter, useRouter } from "next/router";
 import { useMutation, useQueryClient } from "react-query";
-// @ts-ignore
-import { ReactQueryDevtools } from "react-query-devtools";
 import { useBoardContext } from "./BoardContext";
 import { processBoardsUpdates } from "../utils/boards-utils";
 import { useCachedLinks, FEED_URL } from "./hooks/useCachedLinks";
@@ -245,7 +243,6 @@ const Layout = (props: LayoutProps) => {
         }
         onCompassClick={props.onCompassClick}
       />
-      <ReactQueryDevtools initialIsOpen={false} />
     </div>
   );
 };

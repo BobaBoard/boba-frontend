@@ -20,6 +20,7 @@ import {
 } from "utils/thread-utils";
 import {
   clearThreadData,
+  // @ts-ignore
   getThreadInBoardCache,
   removeThreadActivityFromCache,
 } from "utils/queries/cache";
@@ -85,16 +86,16 @@ export const useThread = ({
     ]
   >(["threadData", { threadId }], () => getThreadData({ threadId }), {
     refetchOnWindowFocus: false,
-    initialData: () => {
-      log(
-        `Searching board activity data for board ${slug} and thread ${threadId}`
-      );
-      return getThreadInBoardCache(queryClient, {
-        slug,
-        threadId,
-        categoryFilter: null,
-      });
-    },
+    // initialData: () => {
+    //   log(
+    //     `Searching board activity data for board ${slug} and thread ${threadId}`
+    //   );
+    //   // return getThreadInBoardCache(queryClient, {
+    //   //   slug,
+    //   //   threadId,
+    //   //   categoryFilter: null,
+    //   // });
+    // },
     staleTime: 30 * 1000,
     keepPreviousData: true,
     enabled: !!fetch,

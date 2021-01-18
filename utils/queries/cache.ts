@@ -1,4 +1,4 @@
-import { QueryClient } from "react-query";
+import { InfiniteData, QueryClient } from "react-query";
 import {
   BoardActivityResponse,
   BoardData,
@@ -18,9 +18,10 @@ interface ThreadInActivityData {
   threadIndex: number;
 }
 const getThreadInActivityData = (
-  activityData: BoardActivityResponse[] | undefined,
+  data: InfiniteData<BoardActivityResponse> | undefined,
   threadId: string
 ): ThreadInActivityData | undefined => {
+  const activityData = data?.pages;
   if (!activityData) {
     return undefined;
   }
@@ -40,12 +41,12 @@ const getThreadInActivityData = (
 };
 
 const updateThreadInActivity = (
-  activityData: BoardActivityResponse[] | undefined,
+  data: InfiniteData<BoardActivityResponse> | undefined,
   threadId: string,
   updateThread: (thread: ThreadType) => void
 ) => {
-  const threadData = getThreadInActivityData(activityData, threadId);
-  if (!threadData || !activityData) {
+  const threadData = getThreadInActivityData(data, threadId);
+  if (!threadData || !data) {
     return;
   }
   const newThread = {
@@ -54,13 +55,13 @@ const updateThreadInActivity = (
 
   updateThread(newThread);
 
-  activityData[threadData.activityDataIndex].activity[
+  data.pages[threadData.activityDataIndex].activity[
     threadData.threadIndex
   ] = newThread;
 };
 
 const removeThreadActivity = (
-  activityData: BoardActivityResponse[] | undefined,
+  activityData: InfiniteData<BoardActivityResponse> | undefined,
   threadId: string
 ) => {
   updateThreadInActivity(activityData, threadId, (thread) => {
@@ -85,22 +86,26 @@ export const removeThreadActivityFromCache = (
     threadId: string;
   }
 ) => {
-  const boardActivityData = queryClient.getQueryData<BoardActivityResponse[]>([
-    "boardActivityData",
-    { slug, categoryFilter },
-  ]);
-  const userActivityData = queryClient.getQueryData<BoardActivityResponse[]>([
-    "userActivityData",
-  ]);
+  const boardActivityData = queryClient.getQueryData<
+    InfiniteData<BoardActivityResponse>
+  >(["boardActivityData", { slug, categoryFilter }]);
+  const userActivityData = queryClient.getQueryData<
+    InfiniteData<BoardActivityResponse>
+  >(["userActivityData"]);
 
   removeThreadActivity(boardActivityData, threadId);
   removeThreadActivity(userActivityData, threadId);
 
-  queryClient.setQueryData(
-    ["boardActivityData", { slug, categoryFilter }],
-    () => boardActivityData
-  );
-  queryClient.setQueryData(["userActivityData"], () => userActivityData);
+  boardActivityData &&
+    queryClient.setQueryData<InfiniteData<BoardActivityResponse>>(
+      ["boardActivityData", { slug, categoryFilter }],
+      () => boardActivityData
+    );
+  userActivityData &&
+    queryClient.setQueryData<InfiniteData<BoardActivityResponse>>(
+      ["userActivityData"],
+      () => userActivityData
+    );
 };
 
 export const setThreadMutedInCache = (
@@ -117,13 +122,12 @@ export const setThreadMutedInCache = (
     mute: boolean;
   }
 ) => {
-  const boardActivityData = queryClient.getQueryData<BoardActivityResponse[]>([
-    "boardActivityData",
-    { slug, categoryFilter },
-  ]);
-  const userActivityData = queryClient.getQueryData<BoardActivityResponse[]>([
-    "userActivityData",
-  ]);
+  const boardActivityData = queryClient.getQueryData<
+    InfiniteData<BoardActivityResponse>
+  >(["boardActivityData", { slug, categoryFilter }]);
+  const userActivityData = queryClient.getQueryData<
+    InfiniteData<BoardActivityResponse>
+  >(["userActivityData"]);
 
   updateThreadInActivity(
     boardActivityData,
@@ -136,11 +140,16 @@ export const setThreadMutedInCache = (
     (thread) => (thread.muted = mute)
   );
 
-  queryClient.setQueryData(
-    ["boardActivityData", { slug }],
-    () => boardActivityData
-  );
-  queryClient.setQueryData(["userActivityData"], () => userActivityData);
+  boardActivityData &&
+    queryClient.setQueryData<InfiniteData<BoardActivityResponse>>(
+      ["boardActivityData", { slug, categoryFilter }],
+      () => boardActivityData
+    );
+  userActivityData &&
+    queryClient.setQueryData<InfiniteData<BoardActivityResponse>>(
+      ["userActivityData"],
+      () => userActivityData
+    );
 };
 
 export const setBoardMutedInCache = (
@@ -207,13 +216,12 @@ export const setThreadHiddenInCache = (
     hide: boolean;
   }
 ) => {
-  const boardActivityData = queryClient.getQueryData<BoardActivityResponse[]>([
-    "boardActivityData",
-    { slug, categoryFilter },
-  ]);
-  const userActivityData = queryClient.getQueryData<BoardActivityResponse[]>([
-    "userActivityData",
-  ]);
+  const boardActivityData = queryClient.getQueryData<
+    InfiniteData<BoardActivityResponse>
+  >(["boardActivityData", { slug, categoryFilter }]);
+  const userActivityData = queryClient.getQueryData<
+    InfiniteData<BoardActivityResponse>
+  >(["userActivityData"]);
   updateThreadInActivity(
     boardActivityData,
     threadId,
@@ -225,11 +233,16 @@ export const setThreadHiddenInCache = (
     (thread) => (thread.hidden = hide)
   );
 
-  queryClient.setQueryData(
-    ["boardActivityData", { slug }],
-    () => boardActivityData
-  );
-  queryClient.setQueryData(["userActivityData"], () => userActivityData);
+  boardActivityData &&
+    queryClient.setQueryData<InfiniteData<BoardActivityResponse>>(
+      ["boardActivityData", { slug, categoryFilter }],
+      () => boardActivityData
+    );
+  userActivityData &&
+    queryClient.setQueryData<InfiniteData<BoardActivityResponse>>(
+      ["userActivityData"],
+      () => userActivityData
+    );
 };
 
 export const setDefaultThreadViewInCache = (
@@ -246,13 +259,12 @@ export const setDefaultThreadViewInCache = (
     view: ThreadType["defaultView"];
   }
 ) => {
-  const boardActivityData = queryClient.getQueryData<BoardActivityResponse[]>([
-    "boardActivityData",
-    { slug, categoryFilter },
-  ]);
-  const userActivityData = queryClient.getQueryData<BoardActivityResponse[]>([
-    "userActivityData",
-  ]);
+  const boardActivityData = queryClient.getQueryData<
+    InfiniteData<BoardActivityResponse>
+  >(["boardActivityData", { slug, categoryFilter }]);
+  const userActivityData = queryClient.getQueryData<
+    InfiniteData<BoardActivityResponse>
+  >(["userActivityData"]);
   updateThreadInActivity(
     boardActivityData,
     threadId,
@@ -264,11 +276,16 @@ export const setDefaultThreadViewInCache = (
     (thread) => (thread.defaultView = view)
   );
 
-  queryClient.setQueryData(
-    ["boardActivityData", { slug }],
-    () => boardActivityData
-  );
-  queryClient.setQueryData(["userActivityData"], () => userActivityData);
+  boardActivityData &&
+    queryClient.setQueryData<InfiniteData<BoardActivityResponse>>(
+      ["boardActivityData", { slug, categoryFilter }],
+      () => boardActivityData
+    );
+  userActivityData &&
+    queryClient.setQueryData<InfiniteData<BoardActivityResponse>>(
+      ["userActivityData"],
+      () => userActivityData
+    );
 };
 
 export const updateCommentCache = (
@@ -434,9 +451,8 @@ export const getThreadInBoardCache = (
     categoryFilter: string | null;
   }
 ) => {
-  const boardActivityData = queryClient.getQueryData<BoardActivityResponse[]>([
-    "boardActivityData",
-    { slug, categoryFilter },
-  ]);
+  const boardActivityData = queryClient.getQueryData<
+    InfiniteData<BoardActivityResponse>
+  >(["boardActivityData", { slug, categoryFilter }]);
   return getThreadInActivityData(boardActivityData, threadId)?.thread;
 };
