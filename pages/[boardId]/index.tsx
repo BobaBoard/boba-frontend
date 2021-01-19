@@ -13,12 +13,13 @@ import Layout from "../../components/Layout";
 import { useInfiniteQuery, useMutation, useQueryClient } from "react-query";
 import { useAuth } from "../../components/Auth";
 import { useBoardContext } from "../../components/BoardContext";
+import { getBoardActivityData } from "../../utils/queries";
 import {
-  getBoardActivityData,
-  markThreadAsRead,
-  muteThread,
-  hideThread,
-} from "../../utils/queries";
+  useMarkThreadAsRead,
+  useMuteThread,
+  useSetThreadHidden,
+  useSetThreadView,
+} from "../../components/queries/threadHooks";
 import {
   updateBoardSettings,
   muteBoard,
@@ -26,12 +27,8 @@ import {
   pinBoard,
 } from "../../utils/queries/board";
 import {
-  removeThreadActivityFromCache,
   setBoardMutedInCache,
   setBoardPinnedInCache,
-  setDefaultThreadViewInCache,
-  setThreadHiddenInCache,
-  setThreadMutedInCache,
 } from "../../utils/queries/cache";
 import { useRouter } from "next/router";
 import axios from "axios";
@@ -60,7 +57,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import noop from "noop-ts";
-import { updateThreadView } from "utils/queries/post";
 import { useEditors } from "components/editors/useEditors";
 
 const error = debug("bobafrontend:boardPage-error");
@@ -72,26 +68,14 @@ const BoardPost: React.FC<{
   thread: ThreadType;
   post: PostType;
   isLoggedIn: boolean;
-  onReadThread: (threadId: string) => void;
   onSetCategoryFilter: (filter: string) => void;
-  onHideThread: (data: { threadId: string; hide: boolean }) => void;
-  onMuteThread: (data: { threadId: string; mute: boolean }) => void;
-  onChangeThreadView: (data: {
-    threadId: string;
-    view: ThreadType["defaultView"];
-  }) => void;
-}> = ({
-  post,
-  thread,
-  isLoggedIn,
-  onHideThread,
-  onMuteThread,
-  onReadThread,
-  onSetCategoryFilter,
-  onChangeThreadView,
-}) => {
+}> = ({ post, thread, isLoggedIn, onSetCategoryFilter }) => {
   const router = useRouter();
   const slug: string = router.query.boardId?.slice(1) as string;
+  const markThreadAsRead = useMarkThreadAsRead();
+  const muteThread = useMuteThread();
+  const setThreadHidden = useSetThreadHidden();
+  const setThreadView = useSetThreadView();
   const { getLinkToThread } = useCachedLinks();
   const hasReplies =
     thread.totalPostsAmount > 1 || thread.totalCommentsAmount > 0;
@@ -165,7 +149,7 @@ const BoardPost: React.FC<{
                   name: "Mark Read",
                   link: {
                     onClick: () => {
-                      onReadThread(thread.threadId);
+                      markThreadAsRead(thread.threadId);
                     },
                   },
                 },
@@ -174,7 +158,7 @@ const BoardPost: React.FC<{
                   name: thread.muted ? "Unmute" : "Mute",
                   link: {
                     onClick: () => {
-                      onMuteThread({
+                      muteThread({
                         threadId: thread.threadId,
                         mute: !thread.muted,
                       });
@@ -186,7 +170,7 @@ const BoardPost: React.FC<{
                   name: thread.hidden ? "Unhide" : "Hide",
                   link: {
                     onClick: () => {
-                      onHideThread({
+                      setThreadHidden({
                         threadId: thread.threadId,
                         hide: !thread.hidden,
                       });
@@ -204,7 +188,7 @@ const BoardPost: React.FC<{
                             name: "Thread",
                             link: {
                               onClick: () => {
-                                onChangeThreadView({
+                                setThreadView({
                                   threadId: thread.threadId,
                                   view: "thread",
                                 });
@@ -216,7 +200,7 @@ const BoardPost: React.FC<{
                             name: "Gallery",
                             link: {
                               onClick: () => {
-                                onChangeThreadView({
+                                setThreadView({
                                   threadId: thread.threadId,
                                   view: "gallery",
                                 });
@@ -228,7 +212,7 @@ const BoardPost: React.FC<{
                             name: "Timeline",
                             link: {
                               onClick: () => {
-                                onChangeThreadView({
+                                setThreadView({
                                   threadId: thread.threadId,
                                   view: "timeline",
                                 });
@@ -287,6 +271,7 @@ function BoardPage() {
   const [categoryFilter, setCategoryFilter] = React.useState<string | null>(
     null
   );
+  const setThreadHidden = useSetThreadHidden();
   React.useEffect(() => {
     setCategoryFilter(null);
   }, [slug]);
@@ -302,104 +287,12 @@ function BoardPage() {
     ({ pageParam = undefined }) =>
       getBoardActivityData({ slug, categoryFilter }, pageParam),
     {
-      getNextPageParam: (lastGroup, allGroups) => {
+      getNextPageParam: (lastGroup) => {
         return lastGroup?.nextPageCursor;
       },
       // Block this query for loggedInOnly boards (unless we're logged in)
       enabled:
         !boardsData[slug]?.loggedInOnly || (!isAuthPending && isLoggedIn),
-    }
-  );
-
-  const { mutate: readThread } = useMutation(
-    (threadId: string) => markThreadAsRead({ threadId }),
-    {
-      onMutate: (threadId) => {
-        log(`Optimistically marking thread ${threadId} as visited.`);
-        removeThreadActivityFromCache(queryClient, {
-          slug,
-          categoryFilter,
-          threadId,
-        });
-      },
-      onError: (error: Error, threadId) => {
-        toast.error("Error while marking thread as visited");
-        log(`Error while marking thread ${threadId} as visited:`);
-        log(error);
-      },
-      onSuccess: (data: boolean, threadId) => {
-        log(`Successfully marked thread ${threadId} as visited.`);
-      },
-    }
-  );
-
-  const { mutate: setThreadMuted } = useMutation(
-    ({ threadId, mute }: { threadId: string; mute: boolean }) =>
-      muteThread({ threadId, mute }),
-    {
-      onMutate: ({ threadId, mute }) => {
-        log(
-          `Optimistically marking thread ${threadId} as ${
-            mute ? "muted" : "unmuted"
-          }.`
-        );
-        setThreadMutedInCache(queryClient, {
-          slug,
-          categoryFilter,
-          threadId,
-          mute,
-        });
-      },
-      onError: (error: Error, { threadId, mute }) => {
-        toast.error(
-          `Error while marking thread as ${mute ? "muted" : "unmuted"}`
-        );
-        log(`Error while marking thread ${threadId} as muted:`);
-        log(error);
-      },
-      onSuccess: (data: boolean, { threadId, mute }) => {
-        log(
-          `Successfully marked thread ${threadId} as  ${
-            mute ? "muted" : "unmuted"
-          }.`
-        );
-        queryClient.invalidateQueries("allBoardsData");
-      },
-    }
-  );
-
-  const { mutate: setThreadView } = useMutation(
-    ({
-      threadId,
-      view,
-    }: {
-      threadId: string;
-      view: ThreadType["defaultView"];
-    }) => updateThreadView({ threadId, view }),
-    {
-      onMutate: ({ threadId, view }) => {
-        log(
-          `Optimistically switched thread ${threadId} to default view ${view}.`
-        );
-        setDefaultThreadViewInCache(queryClient, {
-          slug,
-          categoryFilter,
-          threadId,
-          view,
-        });
-      },
-      onError: (error: Error, { threadId, view }) => {
-        toast.error(
-          `Error while switching thread ${threadId} to default view ${view}.`
-        );
-        log(error);
-      },
-      onSuccess: (_, { threadId, view }) => {
-        log(
-          `Successfully switched thread ${threadId} to default view ${view}.`
-        );
-        toast.success("Successfully updated thread view!");
-      },
     }
   );
 
@@ -471,41 +364,6 @@ function BoardPage() {
     }
   );
 
-  const { mutate: setThreadHidden } = useMutation(
-    ({ threadId, hide }: { threadId: string; hide: boolean }) =>
-      hideThread({ threadId, hide }),
-    {
-      onMutate: ({ threadId, hide }) => {
-        log(
-          `Optimistically marking thread ${threadId} as ${
-            hide ? "hidden" : "visible"
-          }.`
-        );
-        setThreadHiddenInCache(queryClient, {
-          slug,
-          categoryFilter,
-          threadId,
-          hide,
-        });
-      },
-      onError: (error: Error, { threadId, hide }) => {
-        toast.error(
-          `Error while marking thread as ${hide ? "hidden" : "visible"}`
-        );
-        log(`Error while marking thread ${threadId} as hidden:`);
-        log(error);
-      },
-      onSuccess: (data: boolean, { threadId, hide }) => {
-        log(
-          `Successfully marked thread ${threadId} as  ${
-            hide ? "hidden" : "visible"
-          }.`
-        );
-        queryClient.invalidateQueries("allBoardsData");
-      },
-    }
-  );
-
   const { mutate: updateBoardMetadata } = useMutation(
     ({
       slug,
@@ -519,7 +377,7 @@ function BoardPage() {
       tagline: string;
     }) => updateBoardSettings({ slug, descriptions, accentColor, tagline }),
     {
-      onError: (serverError: Error, { descriptions }) => {
+      onError: (serverError: Error, {}) => {
         toast.error("Error while updating the board sidebar.");
         error(serverError);
       },
@@ -679,11 +537,7 @@ function BoardPage() {
                             post={post}
                             thread={thread}
                             isLoggedIn={isLoggedIn}
-                            onHideThread={setThreadHidden}
-                            onMuteThread={setThreadMuted}
-                            onReadThread={readThread}
                             onSetCategoryFilter={setCategoryFilter}
-                            onChangeThreadView={setThreadView}
                           />
                         </div>
                       );
