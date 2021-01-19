@@ -97,7 +97,7 @@ export const useThread = ({
       });
     },
     staleTime: 30 * 1000,
-    keepPreviousData: true,
+    notifyOnChangeProps: ["data"],
     enabled: !!fetch,
     onSuccess: (data) => {
       log(`Retrieved thread data for thread with id ${threadId}`);
@@ -260,5 +260,6 @@ export const withThreadData = <P extends ThreadContextType>(
     });
     return <WrappedComponent {...threadData} {...props} />;
   };
+  ReturnedComponent.displayName = `${WrappedComponent.displayName}_withThreadData`;
   return ReturnedComponent;
 };

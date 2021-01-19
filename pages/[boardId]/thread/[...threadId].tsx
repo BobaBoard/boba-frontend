@@ -363,7 +363,6 @@ function ThreadPage({
           }
           .loading-indicator {
             color: white;
-            width: 100%;
             text-align: center;
             padding: 20px;
             display: none;
@@ -378,7 +377,6 @@ function ThreadPage({
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            overflow: hidden;
           }
           .bobadab {
             display: none;
