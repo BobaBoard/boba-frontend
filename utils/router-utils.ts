@@ -14,6 +14,13 @@ export interface ThreadPageDetails {
   threadBaseUrl: string;
 }
 
+export interface BoardPageDetails {
+  slug: string;
+  threadId: null;
+  postId: null;
+  threadBaseUrl: null;
+}
+
 export const usePageDetails = <T extends PageDetails>() => {
   const router = useRouter();
   return getPageDetails<T>(router);

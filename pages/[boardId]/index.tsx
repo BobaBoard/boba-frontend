@@ -49,6 +49,7 @@ import {
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import noop from "noop-ts";
 import { useEditors } from "components/editors/useEditors";
+import { BoardPageDetails, usePageDetails } from "utils/router-utils";
 
 const log = debug("bobafrontend:boardPage-log");
 const info = debug("bobafrontend:boardPage-info");
@@ -248,8 +249,7 @@ function BoardPage() {
   const { Editors, editorsProps, setNewThread } = useEditors();
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
-  const router = useRouter();
-  const slug: string = router.query.boardId?.slice(1) as string;
+  const { slug } = usePageDetails<BoardPageDetails>();
   const { isPending: isAuthPending, isLoggedIn } = useAuth();
   const { boardsData } = useBoardContext();
   const onTitleClick = React.useCallback(() => setShowSidebar(!showSidebar), [
