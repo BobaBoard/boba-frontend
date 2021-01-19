@@ -1,19 +1,23 @@
 import { toast } from "@bobaboard/ui-components";
 import { useMutation, useQueryClient } from "react-query";
-import { markThreadAsRead, muteThread, hideThread } from "../../utils/queries";
+import {
+  markThreadAsRead,
+  muteThread,
+  hideThread,
+} from "../../../utils/queries";
 import {
   removeThreadActivityFromCache,
   setDefaultThreadViewInCache,
   setThreadHiddenInCache,
   setThreadMutedInCache,
-} from "../../utils/queries/cache";
+} from "../../../utils/queries/cache";
 import debug from "debug";
-import { ThreadType } from "../../types/Types";
-import { updateThreadView } from "../../utils/queries/post";
-import { usePageDetails } from "../../utils/router-utils";
+import { ThreadType } from "../../../types/Types";
+import { updateThreadView } from "../../../utils/queries/post";
+import { usePageDetails } from "../../../utils/router-utils";
 
-const error = debug("bobafrontend:threadHooks-error");
-const log = debug("bobafrontend:threadHooks-log");
+const error = debug("bobafrontend:hooks:queries:thread-error");
+const log = debug("bobafrontend:hooks:queries:thread-log");
 
 export const useMarkThreadAsRead = () => {
   const { slug } = usePageDetails();

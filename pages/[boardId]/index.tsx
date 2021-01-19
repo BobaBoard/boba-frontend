@@ -10,7 +10,7 @@ import {
   TagType,
 } from "@bobaboard/ui-components";
 import Layout from "../../components/Layout";
-import { useInfiniteQuery, useMutation, useQueryClient } from "react-query";
+import { useInfiniteQuery } from "react-query";
 import { useAuth } from "../../components/Auth";
 import { useBoardContext } from "../../components/BoardContext";
 import { getBoardActivityData } from "../../utils/queries";
@@ -19,27 +19,18 @@ import {
   useMuteThread,
   useSetThreadHidden,
   useSetThreadView,
-} from "../../components/queries/threadHooks";
+} from "../../components/hooks/queries/thread";
 import {
-  updateBoardSettings,
-  muteBoard,
-  dismissBoardNotifications,
-  pinBoard,
-} from "../../utils/queries/board";
-import {
-  setBoardMutedInCache,
-  setBoardPinnedInCache,
-} from "../../utils/queries/cache";
+  useDismissBoardNotifications,
+  useMuteBoard,
+  usePinBoard,
+  useUpdateBoardMetadata,
+} from "../../components/hooks/queries/board";
 import { useRouter } from "next/router";
 import axios from "axios";
 import debug from "debug";
 import moment from "moment";
-import {
-  BoardData,
-  BoardDescription,
-  PostType,
-  ThreadType,
-} from "../../types/Types";
+import { PostType, ThreadType } from "../../types/Types";
 import {
   faBookOpen,
   faCodeBranch,
@@ -59,7 +50,6 @@ import { useCachedLinks } from "components/hooks/useCachedLinks";
 import noop from "noop-ts";
 import { useEditors } from "components/editors/useEditors";
 
-const error = debug("bobafrontend:boardPage-error");
 const log = debug("bobafrontend:boardPage-log");
 const info = debug("bobafrontend:boardPage-info");
 info.log = console.info.bind(console);
@@ -255,14 +245,13 @@ const MemoizedBoardPost = React.memo(BoardPost);
 const MemoizedActionButton = React.memo(PostingActionButton);
 const MemoizedBoardSidebar = React.memo(BoardSidebar);
 function BoardPage() {
-  const queryClient = useQueryClient();
   const { Editors, editorsProps, setNewThread } = useEditors();
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
   const router = useRouter();
   const slug: string = router.query.boardId?.slice(1) as string;
   const { isPending: isAuthPending, isLoggedIn } = useAuth();
-  const { boardsData, nextPinnedOrder } = useBoardContext();
+  const { boardsData } = useBoardContext();
   const onTitleClick = React.useCallback(() => setShowSidebar(!showSidebar), [
     showSidebar,
   ]);
@@ -275,6 +264,14 @@ function BoardPage() {
   React.useEffect(() => {
     setCategoryFilter(null);
   }, [slug]);
+  const updateBoardMetadata = useUpdateBoardMetadata({
+    onSuccess: () => {
+      setEditingSidebar(false);
+    },
+  });
+  const setBoardPinned = usePinBoard();
+  const dismissNotifications = useDismissBoardNotifications();
+  const setBoardMuted = useMuteBoard();
 
   const {
     data: boardActivityData,
@@ -293,101 +290,6 @@ function BoardPage() {
       // Block this query for loggedInOnly boards (unless we're logged in)
       enabled:
         !boardsData[slug]?.loggedInOnly || (!isAuthPending && isLoggedIn),
-    }
-  );
-
-  const { mutate: setBoardMuted } = useMutation(
-    ({ slug, mute }: { slug: string; mute: boolean }) =>
-      muteBoard({ slug, mute }),
-    {
-      onMutate: ({ slug, mute }) => {
-        log(
-          `Optimistically marking board ${slug} as ${
-            mute ? "muted" : "unmuted"
-          }.`
-        );
-        setBoardMutedInCache(queryClient, { slug, mute });
-      },
-      onError: (error: Error, { slug, mute }) => {
-        toast.error(
-          `Error while marking board as ${mute ? "muted" : "unmuted"}`
-        );
-        log(`Error while marking board ${slug} as muted:`);
-        log(error);
-      },
-      onSuccess: (data: boolean, { slug, mute }) => {
-        log(
-          `Successfully marked board ${slug} as  ${mute ? "muted" : "unmuted"}.`
-        );
-        queryClient.invalidateQueries("allBoardsData");
-      },
-    }
-  );
-
-  const { mutate: setBoardPinned } = useMutation(
-    ({ slug, pin }: { slug: string; pin: boolean }) => pinBoard({ slug, pin }),
-    {
-      onMutate: ({ slug, pin }) => {
-        log(
-          `Optimistically marking board ${slug} as ${
-            pin ? "pinned" : "unpinned"
-          }.`
-        );
-        setBoardPinnedInCache(queryClient, { slug, pin, nextPinnedOrder });
-      },
-      onError: (error: Error, { slug, pin }) => {
-        toast.error(
-          `Error while marking board as ${pin ? "pinned" : "unpinned"}`
-        );
-        log(
-          `Error while marking board ${slug} as ${pin ? "pinned" : "unpinned"}:`
-        );
-        log(error);
-      },
-      onSuccess: (data: boolean, { slug, pin }) => {
-        log(
-          `Successfully marked board ${slug} as ${pin ? "pinned" : "unpinned"}.`
-        );
-        queryClient.invalidateQueries("allBoardsData");
-      },
-    }
-  );
-
-  const { mutate: dismissNotifications } = useMutation(
-    ({ slug }: { slug: string }) => dismissBoardNotifications({ slug }),
-    {
-      onSuccess: () => {
-        log(`Successfully dismissed board notifications. Refetching...`);
-        queryClient.invalidateQueries("allBoardsData");
-        queryClient.invalidateQueries(["boardActivityData", { slug }]);
-      },
-    }
-  );
-
-  const { mutate: updateBoardMetadata } = useMutation(
-    ({
-      slug,
-      descriptions,
-      accentColor,
-      tagline,
-    }: {
-      slug: string;
-      descriptions: BoardDescription[];
-      accentColor: string;
-      tagline: string;
-    }) => updateBoardSettings({ slug, descriptions, accentColor, tagline }),
-    {
-      onError: (serverError: Error, {}) => {
-        toast.error("Error while updating the board sidebar.");
-        error(serverError);
-      },
-      onSuccess: (data: BoardData) => {
-        log(`Received comment data after save:`);
-        log(data);
-        setEditingSidebar(false);
-        queryClient.setQueryData(["boardThemeData", { slug }], data);
-        queryClient.invalidateQueries("allBoardsData");
-      },
     }
   );
 
