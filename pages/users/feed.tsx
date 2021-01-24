@@ -55,7 +55,7 @@ function UserFeedPage() {
     data: userActivityData,
     isFetching: isFetchingUserActivity,
     isFetchingPreviousPage,
-    fetchPreviousPage,
+    fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery(
     ["userActivityData", { ...feedOptions }],
@@ -282,7 +282,7 @@ function UserFeedPage() {
               info(hasNextPage);
               if (hasNextPage && !isFetchingPreviousPage) {
                 info(`...found stuff!`);
-                fetchPreviousPage();
+                fetchNextPage();
                 return;
               }
               info(
