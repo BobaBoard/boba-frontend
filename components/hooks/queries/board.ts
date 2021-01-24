@@ -106,7 +106,6 @@ export const useDismissBoardNotifications = () => {
 export const useUpdateBoardMetadata = (callbacks: {
   onSuccess: () => void;
 }) => {
-  const { slug } = usePageDetails();
   const queryClient = useQueryClient();
   const { mutate: updateBoardMetadata } = useMutation(
     ({
@@ -125,7 +124,7 @@ export const useUpdateBoardMetadata = (callbacks: {
         toast.error("Error while updating the board sidebar.");
         error(serverError);
       },
-      onSuccess: (data: BoardData) => {
+      onSuccess: (data: BoardData, { slug }) => {
         log(`Received comment data after save:`);
         log(data);
         callbacks.onSuccess();

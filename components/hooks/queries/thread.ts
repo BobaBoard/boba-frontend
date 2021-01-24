@@ -14,35 +14,30 @@ import {
 import debug from "debug";
 import { ThreadType } from "../../../types/Types";
 import { updateThreadView } from "../../../utils/queries/post";
-import { usePageDetails } from "../../../utils/router-utils";
 
 const error = debug("bobafrontend:hooks:queries:thread-error");
 const log = debug("bobafrontend:hooks:queries:thread-log");
 
 export const useMarkThreadAsRead = () => {
-  const { slug } = usePageDetails();
   const queryClient = useQueryClient();
   const { mutate: readThread } = useMutation(
-    (threadId: string) => markThreadAsRead({ threadId }),
+    ({ threadId }: { threadId: string; slug: string }) =>
+      markThreadAsRead({ threadId }),
     {
-      onMutate: (threadId) => {
+      onMutate: ({ threadId, slug }) => {
         log(`Optimistically marking thread ${threadId} as visited.`);
-        // TODO: the thread should be searched in the appropriate activity
-        // caches.
-        if (slug) {
-          removeThreadActivityFromCache(queryClient, {
-            slug,
-            categoryFilter: null,
-            threadId,
-          });
-        }
+        removeThreadActivityFromCache(queryClient, {
+          slug,
+          categoryFilter: null,
+          threadId,
+        });
       },
       onError: (serverError: Error, threadId) => {
         toast.error("Error while marking thread as visited");
         error(`Error while marking thread ${threadId} as visited:`);
         error(serverError);
       },
-      onSuccess: (data: boolean, threadId) => {
+      onSuccess: (data: boolean, { threadId }) => {
         log(`Successfully marked thread ${threadId} as visited.`);
       },
     }
@@ -51,13 +46,12 @@ export const useMarkThreadAsRead = () => {
 };
 
 export const useMuteThread = () => {
-  const { slug } = usePageDetails();
   const queryClient = useQueryClient();
   const { mutate: setThreadMuted } = useMutation(
-    ({ threadId, mute }: { threadId: string; mute: boolean }) =>
+    ({ threadId, mute }: { threadId: string; mute: boolean; slug: string }) =>
       muteThread({ threadId, mute }),
     {
-      onMutate: ({ threadId, mute }) => {
+      onMutate: ({ threadId, mute, slug }) => {
         log(
           `Optimistically marking thread ${threadId} as ${
             mute ? "muted" : "unmuted"
@@ -65,14 +59,12 @@ export const useMuteThread = () => {
         );
         // TODO: the thread should be searched in the appropriate activity
         // caches.
-        if (slug) {
-          setThreadMutedInCache(queryClient, {
-            slug,
-            categoryFilter: null,
-            threadId,
-            mute,
-          });
-        }
+        setThreadMutedInCache(queryClient, {
+          slug,
+          categoryFilter: null,
+          threadId,
+          mute,
+        });
       },
       onError: (error: Error, { threadId, mute }) => {
         toast.error(
@@ -96,7 +88,6 @@ export const useMuteThread = () => {
 };
 
 export const useSetThreadView = () => {
-  const { slug } = usePageDetails();
   const queryClient = useQueryClient();
   const { mutate: setThreadView } = useMutation(
     ({
@@ -105,17 +96,13 @@ export const useSetThreadView = () => {
     }: {
       threadId: string;
       view: ThreadType["defaultView"];
+      slug: string;
     }) => updateThreadView({ threadId, view }),
     {
-      onMutate: ({ threadId, view }) => {
+      onMutate: ({ threadId, view, slug }) => {
         log(
           `Optimistically switched thread ${threadId} to default view ${view}.`
         );
-        // TODO: the thread should be searched in the appropriate activity
-        // caches.
-        if (!slug) {
-          return;
-        }
         setDefaultThreadViewInCache(queryClient, {
           slug,
           categoryFilter: null,
@@ -142,23 +129,17 @@ export const useSetThreadView = () => {
 };
 
 export const useSetThreadHidden = () => {
-  const { slug } = usePageDetails();
   const queryClient = useQueryClient();
   const { mutate: setThreadHidden } = useMutation(
-    ({ threadId, hide }: { threadId: string; hide: boolean }) =>
+    ({ threadId, hide }: { threadId: string; hide: boolean; slug: string }) =>
       hideThread({ threadId, hide }),
     {
-      onMutate: ({ threadId, hide }) => {
+      onMutate: ({ threadId, hide, slug }) => {
         log(
           `Optimistically marking thread ${threadId} as ${
             hide ? "hidden" : "visible"
           }.`
         );
-        // TODO: the thread should be searched in the appropriate activity
-        // caches.
-        if (!slug) {
-          return;
-        }
         setThreadHiddenInCache(queryClient, {
           slug,
           categoryFilter: null,

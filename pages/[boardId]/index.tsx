@@ -61,8 +61,7 @@ const BoardPost: React.FC<{
   isLoggedIn: boolean;
   onSetCategoryFilter: (filter: string) => void;
 }> = ({ post, thread, isLoggedIn, onSetCategoryFilter }) => {
-  const router = useRouter();
-  const slug: string = router.query.boardId?.slice(1) as string;
+  const { slug } = usePageDetails<BoardPageDetails>();
   const markThreadAsRead = useMarkThreadAsRead();
   const muteThread = useMuteThread();
   const setThreadHidden = useSetThreadHidden();
@@ -70,7 +69,10 @@ const BoardPost: React.FC<{
   const { getLinkToThread } = useCachedLinks();
   const hasReplies =
     thread.totalPostsAmount > 1 || thread.totalCommentsAmount > 0;
-  const threadUrl = `/${router.query.boardId}/thread/${thread.threadId}`;
+  const linkToThread = getLinkToThread({
+    slug,
+    threadId: thread.threadId,
+  });
   return (
     <Post
       key={post.postId}
@@ -79,10 +81,7 @@ const BoardPost: React.FC<{
           ? ` [updated: ${moment.utc(thread.lastActivity).fromNow()}]`
           : ""
       }`}
-      createdTimeLink={getLinkToThread({
-        slug,
-        threadId: thread.threadId,
-      })}
+      createdTimeLink={linkToThread}
       text={post.content}
       tags={post.tags}
       secretIdentity={post.secretIdentity}
@@ -107,10 +106,7 @@ const BoardPost: React.FC<{
       // including the head one.-
       totalContributions={thread.totalPostsAmount - 1}
       directContributions={thread.directThreadsAmount}
-      notesLink={getLinkToThread({
-        slug,
-        threadId: thread.threadId,
-      })}
+      notesLink={linkToThread}
       muted={isLoggedIn && thread.muted}
       menuOptions={React.useMemo(
         () => [
@@ -121,7 +117,7 @@ const BoardPost: React.FC<{
               onClick: () => {
                 const tempInput = document.createElement("input");
                 tempInput.value = new URL(
-                  threadUrl,
+                  linkToThread.href,
                   window.location.origin
                 ).toString();
                 document.body.appendChild(tempInput);
@@ -140,7 +136,7 @@ const BoardPost: React.FC<{
                   name: "Mark Read",
                   link: {
                     onClick: () => {
-                      markThreadAsRead(thread.threadId);
+                      markThreadAsRead({ threadId: thread.threadId, slug });
                     },
                   },
                 },
@@ -152,6 +148,7 @@ const BoardPost: React.FC<{
                       muteThread({
                         threadId: thread.threadId,
                         mute: !thread.muted,
+                        slug,
                       });
                     },
                   },
@@ -164,6 +161,7 @@ const BoardPost: React.FC<{
                       setThreadHidden({
                         threadId: thread.threadId,
                         hide: !thread.hidden,
+                        slug,
                       });
                     },
                   },
@@ -182,6 +180,7 @@ const BoardPost: React.FC<{
                                 setThreadView({
                                   threadId: thread.threadId,
                                   view: "thread",
+                                  slug,
                                 });
                               },
                             },
@@ -194,6 +193,7 @@ const BoardPost: React.FC<{
                                 setThreadView({
                                   threadId: thread.threadId,
                                   view: "gallery",
+                                  slug,
                                 });
                               },
                             },
@@ -206,6 +206,7 @@ const BoardPost: React.FC<{
                                 setThreadView({
                                   threadId: thread.threadId,
                                   view: "timeline",
+                                  slug,
                                 });
                               },
                             },
@@ -424,6 +425,7 @@ function BoardPage() {
                                 setThreadHidden({
                                   threadId: thread.threadId,
                                   hide: !thread.hidden,
+                                  slug,
                                 });
                                 e.preventDefault();
                               }}

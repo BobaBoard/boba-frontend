@@ -1,4 +1,3 @@
-import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
 import {
   BOARD_URL_PATTERN,
   THREAD_URL_PATTERN,
@@ -8,18 +7,26 @@ import {
 export const FEED_URL = "/users/feed";
 const PERSONAL_SETTINGS_URL = "/users/me";
 
+interface LinkWithNotNullAction {
+  href: string;
+  onClick: () => void;
+}
+
 const BOARDS_CACHE = new Map<
   string,
-  Map<(() => void) | undefined, LinkWithAction>
+  Map<(() => void) | undefined, LinkWithNotNullAction>
 >();
-const getLinkToBoard = (slug: string, onLoad?: () => void): LinkWithAction => {
+const getLinkToBoard = (
+  slug: string,
+  onLoad?: () => void
+): LinkWithNotNullAction => {
   const memoized = BOARDS_CACHE.get(slug)?.get(onLoad);
   if (memoized) {
     return memoized;
   }
   let slugCache = BOARDS_CACHE.get(slug);
   if (!slugCache) {
-    slugCache = new Map<() => void | undefined, LinkWithAction>();
+    slugCache = new Map<() => void | undefined, LinkWithNotNullAction>();
     BOARDS_CACHE.set(slug, slugCache);
   }
   slugCache.set(
@@ -30,10 +37,10 @@ const getLinkToBoard = (slug: string, onLoad?: () => void): LinkWithAction => {
       onLoad,
     })
   );
-  return slugCache.get(onLoad) as LinkWithAction;
+  return slugCache.get(onLoad) as LinkWithNotNullAction;
 };
 
-const THREADS_CACHE = new Map<string, LinkWithAction>();
+const THREADS_CACHE = new Map<string, LinkWithNotNullAction>();
 const getLinkToThread = ({
   slug,
   threadId,
@@ -41,21 +48,20 @@ const getLinkToThread = ({
   slug: string;
   threadId: string;
 }) => {
-  if (THREADS_CACHE.has(threadId)) {
-    return THREADS_CACHE.get(threadId);
+  if (!THREADS_CACHE.has(threadId)) {
+    THREADS_CACHE.set(
+      threadId,
+      createLinkTo({
+        urlPattern: THREAD_URL_PATTERN,
+        url: `/!${slug}/thread/${threadId}`,
+      })
+    );
   }
-  THREADS_CACHE.set(
-    threadId,
-    createLinkTo({
-      urlPattern: THREAD_URL_PATTERN,
-      url: `/!${slug}/thread/${threadId}`,
-    })
-  );
 
-  return THREADS_CACHE.get(threadId);
+  return THREADS_CACHE.get(threadId) as LinkWithNotNullAction;
 };
 
-const POSTS_CACHE = new Map<string, LinkWithAction>();
+const POSTS_CACHE = new Map<string, LinkWithNotNullAction>();
 const getLinkToPost = ({
   slug,
   threadId,
@@ -65,18 +71,17 @@ const getLinkToPost = ({
   threadId: string;
   postId: string;
 }) => {
-  if (POSTS_CACHE.has(postId)) {
-    return POSTS_CACHE.get(postId);
+  if (!POSTS_CACHE.has(postId)) {
+    POSTS_CACHE.set(
+      postId,
+      createLinkTo({
+        urlPattern: THREAD_URL_PATTERN,
+        url: `/!${slug}/thread/${threadId}/${postId}`,
+      })
+    );
   }
-  POSTS_CACHE.set(
-    postId,
-    createLinkTo({
-      urlPattern: THREAD_URL_PATTERN,
-      url: `/!${slug}/thread/${threadId}/${postId}`,
-    })
-  );
 
-  return POSTS_CACHE.get(postId);
+  return POSTS_CACHE.get(postId) as LinkWithNotNullAction;
 };
 const linkToHome = createLinkTo({ url: "/" });
 const linkToFeed = createLinkTo({ url: FEED_URL });

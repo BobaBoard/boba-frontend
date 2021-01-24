@@ -1,21 +1,15 @@
 import React from "react";
 import { Post, PostSizes, FeedWithMenu, toast } from "@bobaboard/ui-components";
 import Layout from "../../components/Layout";
-import { useInfiniteQuery, useMutation, useQueryClient } from "react-query";
+import { useInfiniteQuery } from "react-query";
 import { useAuth } from "../../components/Auth";
 import { useBoardContext } from "../../components/BoardContext";
-import { markThreadAsRead, muteThread, hideThread } from "../../utils/queries";
 import { getUserActivityData } from "../../utils/queries/user";
 import debug from "debug";
 import moment from "moment";
 import { ThreadType } from "../../types/Types";
 import FeedSidebar, { FeedOptions } from "../../components/feed/FeedSidebar";
 
-import {
-  removeThreadActivityFromCache,
-  setThreadHiddenInCache,
-  setThreadMutedInCache,
-} from "../../utils/queries/cache";
 import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
 import {
   faBookOpen,
@@ -25,15 +19,18 @@ import {
   faVolumeMute,
   faVolumeUp,
 } from "@fortawesome/free-solid-svg-icons";
+import {
+  useMarkThreadAsRead,
+  useMuteThread,
+  useSetThreadHidden,
+} from "components/hooks/queries/thread";
 
-const log = debug("bobafrontend:boardPage-log");
 const info = debug("bobafrontend:boardPage-info");
 info.log = console.info.bind(console);
 
 const MemoizedPost = React.memo(Post);
 
 function UserFeedPage() {
-  const queryClient = useQueryClient();
   const [showSidebar, setShowSidebar] = React.useState(false);
   const [feedOptions, setFeedOptions] = React.useState<FeedOptions>({
     updatedOnly: true,
@@ -41,6 +38,9 @@ function UserFeedPage() {
   });
   const { isLoggedIn } = useAuth();
   const { boardsData } = useBoardContext();
+  const setThreadHidden = useSetThreadHidden();
+  const markThreadAsRead = useMarkThreadAsRead();
+  const muteThread = useMuteThread();
   const threadRedirectMethod = React.useRef(
     new Map<
       string,
@@ -61,104 +61,11 @@ function UserFeedPage() {
     ["userActivityData", { ...feedOptions }],
     ({ pageParam = undefined }) => getUserActivityData(feedOptions, pageParam),
     {
-      getNextPageParam: (lastGroup, allGroups) => {
+      getNextPageParam: (lastGroup) => {
         // TODO: if this method fires too often in a row, sometimes there's duplicate
         // values within allGroups (aka groups fetched with the same cursor).
         // This seems to be a library problem.
         return lastGroup?.nextPageCursor;
-      },
-    }
-  );
-
-  const { mutate: readThread } = useMutation(
-    ({ threadId }: { threadId: string; slug: string }) =>
-      markThreadAsRead({ threadId }),
-    {
-      onMutate: ({ threadId, slug }) => {
-        log(`Optimistically marking thread ${threadId} as visited.`);
-        removeThreadActivityFromCache(queryClient, {
-          slug,
-          categoryFilter: null,
-          threadId,
-        });
-      },
-      onError: (error: Error, threadId) => {
-        toast.error("Error while marking thread as visited");
-        log(`Error while marking thread ${threadId} as visited:`);
-        log(error);
-      },
-      onSuccess: (data: boolean, threadId) => {
-        log(`Successfully marked thread ${threadId} as visited.`);
-      },
-    }
-  );
-
-  const { mutate: setThreadMuted } = useMutation(
-    ({ threadId, mute }: { threadId: string; mute: boolean; slug: string }) =>
-      muteThread({ threadId, mute }),
-    {
-      onMutate: ({ threadId, mute, slug }) => {
-        log(
-          `Optimistically marking thread ${threadId} as ${
-            mute ? "muted" : "unmuted"
-          }.`
-        );
-        setThreadMutedInCache(queryClient, {
-          slug,
-          categoryFilter: null,
-          threadId,
-          mute,
-        });
-      },
-      onError: (error: Error, { threadId, mute }) => {
-        toast.error(
-          `Error while marking thread as ${mute ? "muted" : "unmuted"}`
-        );
-        log(`Error while marking thread ${threadId} as muted:`);
-        log(error);
-      },
-      onSuccess: (data: boolean, { threadId, mute }) => {
-        log(
-          `Successfully marked thread ${threadId} as  ${
-            mute ? "muted" : "unmuted"
-          }.`
-        );
-        queryClient.invalidateQueries("allBoardsData");
-      },
-    }
-  );
-
-  const { mutate: setThreadHidden } = useMutation(
-    ({ threadId, hide }: { threadId: string; slug: string; hide: boolean }) =>
-      hideThread({ threadId, hide }),
-    {
-      onMutate: ({ threadId, hide, slug }) => {
-        log(
-          `Optimistically marking thread ${threadId} as ${
-            hide ? "hidden" : "visible"
-          }.`
-        );
-        setThreadHiddenInCache(queryClient, {
-          slug,
-          categoryFilter: null,
-          threadId,
-          hide,
-        });
-      },
-      onError: (error: Error, { threadId, hide }) => {
-        toast.error(
-          `Error while marking thread as ${hide ? "hidden" : "visible"}`
-        );
-        log(`Error while marking thread ${threadId} as hidden:`);
-        log(error);
-      },
-      onSuccess: (data: boolean, { threadId, hide }) => {
-        log(
-          `Successfully marked thread ${threadId} as  ${
-            hide ? "hidden" : "visible"
-          }.`
-        );
-        queryClient.invalidateQueries("allBoardsData");
       },
     }
   );
@@ -317,7 +224,7 @@ function UserFeedPage() {
                                       name: "Mark Read",
                                       link: {
                                         onClick: () => {
-                                          readThread({
+                                          markThreadAsRead({
                                             threadId: thread.threadId,
                                             slug: thread.boardSlug,
                                           });
@@ -331,7 +238,7 @@ function UserFeedPage() {
                                       name: thread.muted ? "Unmute" : "Mute",
                                       link: {
                                         onClick: () => {
-                                          setThreadMuted({
+                                          muteThread({
                                             threadId: thread.threadId,
                                             slug: thread.boardSlug,
                                             mute: !thread.muted,
