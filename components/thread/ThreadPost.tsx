@@ -11,7 +11,7 @@ import {
   getTotalContributions,
   getTotalNewContributions,
 } from "../../utils/thread-utils";
-import { usePostOptions, PostOptions } from "../hooks/useOptions";
+import { PostOptions, usePostOptionsProvider } from "../hooks/useOptions";
 
 interface ThreadPostProps
   // This type can add any prop from the original post type
@@ -38,6 +38,7 @@ const ThreadPost = React.memo(
       onEditPost,
       onNotesClick,
       parentChildrenMap,
+      threadRoot,
       ...extraProps
     }: ThreadPostProps) => {
       const {
@@ -45,20 +46,23 @@ const ThreadPost = React.memo(
         threadId,
         threadBaseUrl,
       } = usePageDetails<ThreadPageDetails>();
-      const options = usePostOptions({
-        options: [PostOptions.COPY_LINK, PostOptions.EDIT_TAGS],
-        isLoggedIn,
-        postData: {
-          slug,
-          threadId,
-          postId: post.postId,
-          own: post.isOwn,
-        },
-        onSelectOption: (option) => {
-          if (option == PostOptions.EDIT_TAGS) {
-            onEditPost?.(post);
-          }
-        },
+      const options = usePostOptionsProvider({
+        options: [
+          threadRoot?.postId == post.postId
+            ? PostOptions.COPY_THREAD_LINK
+            : PostOptions.COPY_LINK,
+          PostOptions.EDIT_TAGS,
+        ],
+        postsData: [
+          {
+            slug,
+            threadId,
+            postId: post.postId,
+            own: post.isOwn,
+            muted: false,
+            hidden: false,
+          },
+        ],
       });
       const router = useRouter();
       const url = new URL(`${window.location.origin}${router.asPath}`);
@@ -108,7 +112,7 @@ const ThreadPost = React.memo(
           }
           tags={post.tags}
           answerable={isLoggedIn}
-          menuOptions={options}
+          menuOptions={options.get(post.postId)}
           {...extraProps}
         />
       );

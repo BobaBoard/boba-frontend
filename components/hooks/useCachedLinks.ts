@@ -90,6 +90,7 @@ const linkToLogs = createLinkTo({
   url: process.env.NEXT_PUBLIC_RELEASE_THREAD_URL || "",
 });
 const linkToPersonalSettings = createLinkTo({ url: PERSONAL_SETTINGS_URL });
+// TODO: this is not really a hook so it should be somewhere else with a different name.
 export const useCachedLinks = () => {
   return {
     linkToHome,

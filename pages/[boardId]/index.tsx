@@ -26,7 +26,10 @@ import {
   usePinBoard,
   useUpdateBoardMetadata,
 } from "../../components/hooks/queries/board";
-import { useRouter } from "next/router";
+import {
+  PostOptions,
+  usePostOptionsProvider,
+} from "../../components/hooks/useOptions";
 import axios from "axios";
 import debug from "debug";
 import moment from "moment";
@@ -73,6 +76,24 @@ const BoardPost: React.FC<{
     slug,
     threadId: thread.threadId,
   });
+  const optionsProvider = usePostOptionsProvider({
+    options: [
+      PostOptions.COPY_THREAD_LINK,
+      PostOptions.MARK_READ,
+      PostOptions.MUTE,
+      PostOptions.HIDE,
+      PostOptions.EDIT_TAGS,
+    ],
+    postsData: [
+      {
+        slug: thread.boardSlug,
+        threadId: thread.threadId,
+        own: post.isOwn,
+        muted: thread.muted,
+        hidden: thread.hidden,
+      },
+    ],
+  });
   return (
     <Post
       key={post.postId}
@@ -108,121 +129,13 @@ const BoardPost: React.FC<{
       directContributions={thread.directThreadsAmount}
       notesLink={linkToThread}
       muted={isLoggedIn && thread.muted}
-      menuOptions={React.useMemo(
-        () => [
-          {
-            icon: faLink,
-            name: "Copy Link",
-            link: {
-              onClick: () => {
-                const tempInput = document.createElement("input");
-                tempInput.value = new URL(
-                  linkToThread.href,
-                  window.location.origin
-                ).toString();
-                document.body.appendChild(tempInput);
-                tempInput.select();
-                document.execCommand("copy");
-                document.body.removeChild(tempInput);
-                toast.success("Link copied!");
-              },
-            },
-          },
-          // Add options just for logged in users
-          ...(isLoggedIn
-            ? [
-                {
-                  icon: faBookOpen,
-                  name: "Mark Read",
-                  link: {
-                    onClick: () => {
-                      markThreadAsRead({ threadId: thread.threadId, slug });
-                    },
-                  },
-                },
-                {
-                  icon: thread.muted ? faVolumeUp : faVolumeMute,
-                  name: thread.muted ? "Unmute" : "Mute",
-                  link: {
-                    onClick: () => {
-                      muteThread({
-                        threadId: thread.threadId,
-                        mute: !thread.muted,
-                        slug,
-                      });
-                    },
-                  },
-                },
-                {
-                  icon: thread.hidden ? faEye : faEyeSlash,
-                  name: thread.hidden ? "Unhide" : "Hide",
-                  link: {
-                    onClick: () => {
-                      setThreadHidden({
-                        threadId: thread.threadId,
-                        hide: !thread.hidden,
-                        slug,
-                      });
-                    },
-                  },
-                },
-                ...(thread.posts[0]?.isOwn
-                  ? [
-                      {
-                        icon: faEdit,
-                        name: "Change default view",
-                        options: [
-                          {
-                            icon: faCodeBranch,
-                            name: "Thread",
-                            link: {
-                              onClick: () => {
-                                setThreadView({
-                                  threadId: thread.threadId,
-                                  view: "thread",
-                                  slug,
-                                });
-                              },
-                            },
-                          },
-                          {
-                            icon: faImages,
-                            name: "Gallery",
-                            link: {
-                              onClick: () => {
-                                setThreadView({
-                                  threadId: thread.threadId,
-                                  view: "gallery",
-                                  slug,
-                                });
-                              },
-                            },
-                          },
-                          {
-                            icon: faFilm,
-                            name: "Timeline",
-                            link: {
-                              onClick: () => {
-                                setThreadView({
-                                  threadId: thread.threadId,
-                                  view: "timeline",
-                                  slug,
-                                });
-                              },
-                            },
-                          },
-                        ].filter(
-                          (option) =>
-                            option.name.toLowerCase() != thread.defaultView
-                        ),
-                      },
-                    ]
-                  : []),
-              ]
-            : []),
-        ],
-        [isLoggedIn, thread]
-      )}
+      menuOptions={optionsProvider.get({
+        slug: thread.boardSlug,
+        threadId: thread.threadId,
+        own: post.isOwn,
+        muted: thread.muted,
+        hidden: thread.hidden,
+      })}
       getOptionsForTag={React.useCallback((tag: TagsType) => {
         if (tag.type == TagType.CATEGORY) {
           return [

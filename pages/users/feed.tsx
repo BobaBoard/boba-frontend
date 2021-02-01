@@ -1,5 +1,5 @@
 import React from "react";
-import { Post, PostSizes, FeedWithMenu, toast } from "@bobaboard/ui-components";
+import { Post, PostSizes, FeedWithMenu } from "@bobaboard/ui-components";
 import Layout from "../../components/Layout";
 import { useInfiniteQuery } from "react-query";
 import { useAuth } from "../../components/Auth";
@@ -9,21 +9,13 @@ import debug from "debug";
 import moment from "moment";
 import { ThreadType } from "../../types/Types";
 import FeedSidebar, { FeedOptions } from "../../components/feed/FeedSidebar";
+import {
+  PostOptions,
+  usePostOptionsProvider,
+} from "../../components/hooks/useOptions";
 
 import { createLinkTo, THREAD_URL_PATTERN } from "utils/link-utils";
-import {
-  faBookOpen,
-  faEye,
-  faEyeSlash,
-  faLink,
-  faVolumeMute,
-  faVolumeUp,
-} from "@fortawesome/free-solid-svg-icons";
-import {
-  useMarkThreadAsRead,
-  useMuteThread,
-  useSetThreadHidden,
-} from "components/hooks/queries/thread";
+import { useSetThreadHidden } from "components/hooks/queries/thread";
 
 const info = debug("bobafrontend:boardPage-info");
 info.log = console.info.bind(console);
@@ -39,8 +31,6 @@ function UserFeedPage() {
   const { isLoggedIn } = useAuth();
   const { boardsData } = useBoardContext();
   const setThreadHidden = useSetThreadHidden();
-  const markThreadAsRead = useMarkThreadAsRead();
-  const muteThread = useMuteThread();
   const threadRedirectMethod = React.useRef(
     new Map<
       string,
@@ -69,6 +59,26 @@ function UserFeedPage() {
       },
     }
   );
+
+  const optionsProvider = usePostOptionsProvider({
+    options: [
+      PostOptions.COPY_THREAD_LINK,
+      PostOptions.MARK_READ,
+      PostOptions.MUTE,
+      PostOptions.HIDE,
+      PostOptions.EDIT_TAGS,
+    ],
+    postsData:
+      userActivityData?.pages
+        .flatMap((page) => page?.activity!)
+        .map((thread) => ({
+          slug: thread.boardSlug,
+          threadId: thread.threadId,
+          own: thread.posts[0].isOwn,
+          muted: thread.muted,
+          hidden: thread.hidden,
+        })) || [],
+  });
 
   const getMemoizedRedirectMethod = (data: {
     slug: string;
@@ -195,73 +205,13 @@ function UserFeedPage() {
                             directContributions={thread.directThreadsAmount}
                             notesLink={redirectMethod}
                             muted={isLoggedIn && thread.muted}
-                            menuOptions={[
-                              {
-                                icon: faLink,
-                                name: "Copy Link",
-                                link: {
-                                  onClick: () => {
-                                    const tempInput = document.createElement(
-                                      "input"
-                                    );
-                                    tempInput.value = new URL(
-                                      (redirectMethod as any)?.href,
-                                      window.location.origin
-                                    ).toString();
-                                    document.body.appendChild(tempInput);
-                                    tempInput.select();
-                                    document.execCommand("copy");
-                                    document.body.removeChild(tempInput);
-                                    toast.success("Link copied!");
-                                  },
-                                },
-                              },
-                              // Add options just for logged in users
-                              ...(isLoggedIn
-                                ? [
-                                    {
-                                      icon: faBookOpen,
-                                      name: "Mark Read",
-                                      link: {
-                                        onClick: () => {
-                                          markThreadAsRead({
-                                            threadId: thread.threadId,
-                                            slug: thread.boardSlug,
-                                          });
-                                        },
-                                      },
-                                    },
-                                    {
-                                      icon: thread.muted
-                                        ? faVolumeUp
-                                        : faVolumeMute,
-                                      name: thread.muted ? "Unmute" : "Mute",
-                                      link: {
-                                        onClick: () => {
-                                          muteThread({
-                                            threadId: thread.threadId,
-                                            slug: thread.boardSlug,
-                                            mute: !thread.muted,
-                                          });
-                                        },
-                                      },
-                                    },
-                                    {
-                                      icon: thread.hidden ? faEye : faEyeSlash,
-                                      name: thread.hidden ? "Unhide" : "Hide",
-                                      link: {
-                                        onClick: () => {
-                                          setThreadHidden({
-                                            threadId: thread.threadId,
-                                            slug: thread.boardSlug,
-                                            hide: !thread.hidden,
-                                          });
-                                        },
-                                      },
-                                    },
-                                  ]
-                                : []),
-                            ]}
+                            menuOptions={optionsProvider.get({
+                              slug: thread.boardSlug,
+                              threadId: thread.threadId,
+                              own: thread.posts[0].isOwn,
+                              muted: thread.muted,
+                              hidden: thread.hidden,
+                            })}
                           />
                         </div>
                       );
