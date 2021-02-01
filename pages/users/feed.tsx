@@ -24,6 +24,7 @@ import {
   useMuteThread,
   useSetThreadHidden,
 } from "components/hooks/queries/thread";
+import LoadingSpinner from "components/LoadingSpinner";
 
 const info = debug("bobafrontend:boardPage-info");
 info.log = console.info.bind(console);
@@ -54,7 +55,7 @@ function UserFeedPage() {
   const {
     data: userActivityData,
     isFetching: isFetchingUserActivity,
-    isFetchingPreviousPage,
+    isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery(
@@ -266,27 +267,25 @@ function UserFeedPage() {
                         </div>
                       );
                     })}
-                <div className="loading">
-                  {!showEmptyMessage &&
-                    userActivityData?.pages?.length &&
-                    (isFetchingPreviousPage
-                      ? "Loading more..."
-                      : hasNextPage
-                      ? "..."
-                      : "Nothing more to load")}
-                </div>
+                {!showEmptyMessage && userActivityData?.pages?.length && (
+                  <LoadingSpinner
+                    loading={isFetchingNextPage}
+                    idleMessage={hasNextPage ? "..." : "Nothing more to load."}
+                    loadingMessage={"Loading more"}
+                  />
+                )}
               </div>
             }
             onReachEnd={() => {
               info(`Attempting to fetch more...`);
               info(hasNextPage);
-              if (hasNextPage && !isFetchingPreviousPage) {
+              if (hasNextPage && !isFetchingNextPage) {
                 info(`...found stuff!`);
                 fetchNextPage();
                 return;
               }
               info(
-                isFetchingPreviousPage
+                isFetchingNextPage
                   ? `...but we're already fetching`
                   : `...but there's nothing!`
               );

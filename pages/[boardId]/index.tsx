@@ -26,7 +26,6 @@ import {
   usePinBoard,
   useUpdateBoardMetadata,
 } from "../../components/hooks/queries/board";
-import { useRouter } from "next/router";
 import axios from "axios";
 import debug from "debug";
 import moment from "moment";
@@ -50,6 +49,7 @@ import { useCachedLinks } from "components/hooks/useCachedLinks";
 import noop from "noop-ts";
 import { useEditors } from "components/editors/useEditors";
 import { BoardPageDetails, usePageDetails } from "utils/router-utils";
+import LoadingSpinner from "components/LoadingSpinner";
 
 const log = debug("bobafrontend:boardPage-log");
 const info = debug("bobafrontend:boardPage-info");
@@ -446,16 +446,17 @@ function BoardPage() {
                         </div>
                       );
                     })}
-                <div className="loading">
-                  {!showLockedMessage &&
-                    !showEmptyMessage &&
-                    boardActivityData?.pages?.length &&
-                    (isFetchingNextPage
-                      ? "Loading more..."
-                      : hasNextPage
-                      ? "..."
-                      : "Nothing more to load")}
-                </div>
+                {!showLockedMessage &&
+                  !showEmptyMessage &&
+                  boardActivityData?.pages?.length && (
+                    <LoadingSpinner
+                      loading={isFetchingNextPage}
+                      idleMessage={
+                        hasNextPage ? "..." : "Nothing more to load."
+                      }
+                      loadingMessage={"Loading more"}
+                    />
+                  )}
               </div>
             }
             onReachEnd={React.useCallback(() => {

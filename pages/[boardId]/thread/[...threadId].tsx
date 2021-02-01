@@ -5,6 +5,7 @@ import {
   PostingActionButton,
 } from "@bobaboard/ui-components";
 import Layout from "components/Layout";
+import LoadingSpinner from "components/LoadingSpinner";
 import { useAuth } from "components/Auth";
 import { THREAD_VIEW_MODES, ThreadType } from "types/Types";
 import classnames from "classnames";
@@ -97,6 +98,7 @@ function ThreadPage({
   isLoading: isFetchingThread,
   isRefetching: isRefetchingThread,
   defaultView,
+  chronologicalPostsSequence,
 }: ThreadContextType) {
   const { postId, slug } = usePageDetails<ThreadPageDetails>();
   const {
@@ -301,26 +303,15 @@ function ThreadPage({
                     />
                   )}
                 </div>
-                <div
-                  className={classnames("loading-indicator", {
-                    loading: isFetchingThread || isRefetchingThread,
-                  })}
-                >
-                  Loading...
-                </div>
-                <div className="bobadab-container">
-                  <div
-                    className={classnames("bobadab", {
-                      refetching: isRefetchingThread,
-                    })}
-                    onClick={() => {
-                      window.scroll({
-                        top: 0,
-                        behavior: "smooth",
-                      });
-                    }}
-                  />
-                </div>
+                <LoadingSpinner
+                  loading={isFetchingThread || isRefetchingThread}
+                  idleMessage={
+                    maxDisplay < chronologicalPostsSequence.length
+                      ? "..."
+                      : "Nothing more to load."
+                  }
+                  loadingMessage="Loading"
+                />
               </div>
             }
             onReachEnd={React.useCallback(() => {
@@ -360,50 +351,6 @@ function ThreadPage({
             width: 100%;
             position: relative;
             margin-top: 20px;
-          }
-          .loading-indicator {
-            color: white;
-            text-align: center;
-            padding: 20px;
-            display: none;
-          }
-          .loading-indicator.loading {
-            display: block;
-          }
-          .bobadab-container {
-            position: absolute;
-            width: 70px;
-            height: 70px;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-          }
-          .bobadab {
-            display: none;
-            background-image: url("/bobadab.png");
-            background-size: contain;
-            width: 50px;
-            height: 50px;
-            position: absolute;
-            bottom: 0;
-            left: 10px;
-          }
-          .bobadab.refetching {
-            animation: rotation 2s infinite linear;
-          }
-          @keyframes rotation {
-            from {
-              transform: rotate(0deg);
-            }
-            to {
-              transform: rotate(359deg);
-            }
-          }
-          .bobadab:hover {
-            cursor: pointer;
-          }
-          .feed:not(.loading) .bobadab {
-            display: block;
           }
         `}
       </style>
