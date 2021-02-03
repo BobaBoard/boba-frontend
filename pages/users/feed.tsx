@@ -106,14 +106,31 @@ function UserFeedPage() {
           <FeedWithMenu
             onCloseSidebar={() => setShowSidebar(false)}
             showSidebar={showSidebar}
-            sidebarContent={
+            onReachEnd={() => {
+              info(`Attempting to fetch more...`);
+              info(hasNextPage);
+              if (hasNextPage && !isFetchingNextPage) {
+                info(`...found stuff!`);
+                fetchNextPage();
+                return;
+              }
+              info(
+                isFetchingNextPage
+                  ? `...but we're already fetching`
+                  : `...but there's nothing!`
+              );
+            }}
+          >
+            <FeedWithMenu.Sidebar>
+              {" "}
               <FeedSidebar
                 currentOptions={feedOptions}
                 onOptionsChange={setFeedOptions}
                 open={showSidebar}
               />
-            }
-            feedContent={
+            </FeedWithMenu.Sidebar>
+            <FeedWithMenu.FeedContent>
+              {" "}
               <div className="main">
                 {showEmptyMessage && (
                   <img className="empty" src={"/nothing.jpg"} />
@@ -281,22 +298,8 @@ function UserFeedPage() {
                   />
                 )}
               </div>
-            }
-            onReachEnd={() => {
-              info(`Attempting to fetch more...`);
-              info(hasNextPage);
-              if (hasNextPage && !isFetchingNextPage) {
-                info(`...found stuff!`);
-                fetchNextPage();
-                return;
-              }
-              info(
-                isFetchingNextPage
-                  ? `...but we're already fetching`
-                  : `...but there's nothing!`
-              );
-            }}
-          />
+            </FeedWithMenu.FeedContent>
+          </FeedWithMenu>
         </Layout.MainContent>
       </Layout>
       <style jsx>{`

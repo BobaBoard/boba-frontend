@@ -263,14 +263,18 @@ function ThreadPage({
             forceHideSidebar={router.query.hideSidebar !== undefined}
             showSidebar={showSidebar}
             onCloseSidebar={closeSidebar}
-            sidebarContent={
+            onReachEnd={React.useCallback(() => {
+              setMaxDisplay((maxDisplay) => maxDisplay + 2);
+            }, [])}
+          >
+            <FeedWithMenu.Sidebar>
               <MemoizedThreadSidebar
                 viewMode={viewMode}
                 open={showSidebar}
                 onViewChange={onThreadViewModeChange}
               />
-            }
-            feedContent={
+            </FeedWithMenu.Sidebar>
+            <FeedWithMenu.FeedContent>
               <div
                 className={classnames("feed", {
                   thread: viewMode == THREAD_VIEW_MODES.THREAD || postId,
@@ -319,11 +323,8 @@ function ThreadPage({
                   loadingMessage="Loading"
                 />
               </div>
-            }
-            onReachEnd={React.useCallback(() => {
-              setMaxDisplay((maxDisplay) => maxDisplay + 2);
-            }, [])}
-          />
+            </FeedWithMenu.FeedContent>
+          </FeedWithMenu>
         </Layout.MainContent>
         <Layout.ActionButton>
           {viewMode == THREAD_VIEW_MODES.THREAD &&

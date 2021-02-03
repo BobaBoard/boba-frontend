@@ -369,7 +369,22 @@ function BoardPage() {
           <FeedWithMenu
             onCloseSidebar={closeSidebar}
             showSidebar={showSidebar}
-            sidebarContent={
+            onReachEnd={React.useCallback(() => {
+              info(`Attempting to fetch more...`);
+              info(hasNextPage);
+              if (hasNextPage && !isFetchingNextPage) {
+                info(`...found stuff!`);
+                fetchNextPage();
+                return;
+              }
+              info(
+                isFetchingNextPage
+                  ? `...but we're already fetching`
+                  : `...but there's nothing!`
+              );
+            }, [hasNextPage, isFetchingNextPage, fetchNextPage])}
+          >
+            <FeedWithMenu.Sidebar>
               <div>
                 <MemoizedBoardSidebar
                   // @ts-ignore
@@ -402,8 +417,8 @@ function BoardPage() {
                   />
                 )}
               </div>
-            }
-            feedContent={
+            </FeedWithMenu.Sidebar>
+            <FeedWithMenu.FeedContent>
               <div className="main">
                 {showLockedMessage && (
                   <div className="locked">
@@ -462,22 +477,8 @@ function BoardPage() {
                     />
                   )}
               </div>
-            }
-            onReachEnd={React.useCallback(() => {
-              info(`Attempting to fetch more...`);
-              info(hasNextPage);
-              if (hasNextPage && !isFetchingNextPage) {
-                info(`...found stuff!`);
-                fetchNextPage();
-                return;
-              }
-              info(
-                isFetchingNextPage
-                  ? `...but we're already fetching`
-                  : `...but there's nothing!`
-              );
-            }, [hasNextPage, isFetchingNextPage, fetchNextPage])}
-          />
+            </FeedWithMenu.FeedContent>
+          </FeedWithMenu>
         </Layout.MainContent>
         {isLoggedIn && (
           <Layout.ActionButton>

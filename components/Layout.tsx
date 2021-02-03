@@ -41,7 +41,7 @@ const MainContent: LayoutComposition["MainContent"] = (props) => {
   return <>{props.children}</>;
 };
 
-const ActionButton: LayoutComposition["MainContent"] = (props) => {
+const ActionButton: LayoutComposition["ActionButton"] = (props) => {
   return <>{props.children}</>;
 };
 
