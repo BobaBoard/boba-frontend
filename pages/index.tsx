@@ -17,8 +17,8 @@ function HomePage(props: any) {
 
   return (
     <div className="main">
-      <Layout
-        mainContent={
+      <Layout title={`Hello!`}>
+        <Layout.MainContent>
           <div className="content">
             <div className="intro">
               <div className="title">
@@ -179,9 +179,8 @@ function HomePage(props: any) {
               }
             `}</style>
           </div>
-        }
-        title={`Hello!`}
-      />
+        </Layout.MainContent>
+      </Layout>
     </div>
   );
 }

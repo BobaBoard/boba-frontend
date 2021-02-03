@@ -254,7 +254,11 @@ function ThreadPage({
     <div className="main">
       <Editors {...editorsProps} />
       <Layout
-        mainContent={
+        title={`!${slug}`}
+        loading={isFetchingThread}
+        onCompassClick={onCompassClick}
+      >
+        <Layout.MainContent>
           <FeedWithMenu
             forceHideSidebar={router.query.hideSidebar !== undefined}
             showSidebar={showSidebar}
@@ -308,6 +312,8 @@ function ThreadPage({
                   idleMessage={
                     maxDisplay < chronologicalPostsSequence.length
                       ? "..."
+                      : viewMode == THREAD_VIEW_MODES.THREAD
+                      ? ""
                       : "Nothing more to load."
                   }
                   loadingMessage="Loading"
@@ -318,12 +324,9 @@ function ThreadPage({
               setMaxDisplay((maxDisplay) => maxDisplay + 2);
             }, [])}
           />
-        }
-        title={`!${slug}`}
-        loading={isFetchingThread}
-        onCompassClick={onCompassClick}
-        actionButton={
-          viewMode == THREAD_VIEW_MODES.THREAD &&
+        </Layout.MainContent>
+        <Layout.ActionButton>
+          {viewMode == THREAD_VIEW_MODES.THREAD &&
           !!newAnswersSequence.length ? (
             <CycleNewButton text="Next New" onNext={onNewAnswersButtonClick} />
           ) : canTopLevelPost ? (
@@ -331,9 +334,9 @@ function ThreadPage({
               accentColor={currentBoardData?.accentColor || "#f96680"}
               onNewPost={() => threadRoot && setPostReplyId(threadRoot.postId)}
             />
-          ) : undefined
-        }
-      />
+          ) : undefined}
+        </Layout.ActionButton>
+      </Layout>
       <style jsx>
         {`
           .feed {

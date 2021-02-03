@@ -96,7 +96,13 @@ function UserFeedPage() {
   return (
     <div className="main">
       <Layout
-        mainContent={
+        title={`Your Stuff`}
+        onTitleClick={createLinkTo({ url: "/users/feed" })?.onClick}
+        onCompassClick={() => setShowSidebar(true)}
+        forceHideTitle={true}
+        loading={isFetchingUserActivity}
+      >
+        <Layout.MainContent>
           <FeedWithMenu
             onCloseSidebar={() => setShowSidebar(false)}
             showSidebar={showSidebar}
@@ -291,13 +297,8 @@ function UserFeedPage() {
               );
             }}
           />
-        }
-        title={`Your Stuff`}
-        onTitleClick={createLinkTo({ url: "/users/feed" })?.onClick}
-        onCompassClick={() => setShowSidebar(true)}
-        forceHideTitle={true}
-        loading={isFetchingUserActivity}
-      />
+        </Layout.MainContent>
+      </Layout>
       <style jsx>{`
         .main {
           width: 100%;

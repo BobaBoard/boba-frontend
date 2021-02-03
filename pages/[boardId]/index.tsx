@@ -361,7 +361,11 @@ function BoardPage() {
     <div className="main">
       <Editors {...editorsProps} />
       <Layout
-        mainContent={
+        title={`!${slug}`}
+        onCompassClick={onTitleClick}
+        forceHideTitle={true}
+      >
+        <Layout.MainContent>
           <FeedWithMenu
             onCloseSidebar={closeSidebar}
             showSidebar={showSidebar}
@@ -474,19 +478,16 @@ function BoardPage() {
               );
             }, [hasNextPage, isFetchingNextPage, fetchNextPage])}
           />
-        }
-        actionButton={
-          isLoggedIn && (
+        </Layout.MainContent>
+        {isLoggedIn && (
+          <Layout.ActionButton>
             <MemoizedActionButton
               accentColor={boardsData[slug]?.accentColor || "#f96680"}
               onNewPost={onNewThread}
             />
-          )
-        }
-        title={`!${slug}`}
-        onCompassClick={onTitleClick}
-        forceHideTitle={true}
-      />
+          </Layout.ActionButton>
+        )}
+      </Layout>
       <style jsx>{`
         .main {
           width: 100%;

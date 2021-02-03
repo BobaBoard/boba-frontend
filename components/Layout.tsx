@@ -31,7 +31,28 @@ const getSelectedMenuOptionFromPath = (router: NextRouter) => {
 };
 
 const MemoizedSideMenu = React.memo(SideMenu);
-const Layout = (props: LayoutProps) => {
+
+interface LayoutComposition {
+  MainContent: React.FC<{}>;
+  ActionButton: React.FC<{}>;
+}
+
+const MainContent: LayoutComposition["MainContent"] = (props) => {
+  return <>{props.children}</>;
+};
+
+const ActionButton: LayoutComposition["MainContent"] = (props) => {
+  return <>{props.children}</>;
+};
+
+const isMainContent = (node: React.ReactNode): node is typeof MainContent => {
+  return React.isValidElement(node) && node.type == MainContent;
+};
+const isActionButton = (node: React.ReactNode): node is typeof ActionButton => {
+  return React.isValidElement(node) && node.type == ActionButton;
+};
+
+const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const router = useRouter();
   const {
     linkToHome,
@@ -118,6 +139,13 @@ const Layout = (props: LayoutProps) => {
   );
 
   const boardData = boardsData[slug];
+  const mainContent = React.Children.toArray(props.children).find((child) =>
+    isMainContent(child)
+  ) as typeof MainContent | undefined;
+  const actionButton = React.Children.toArray(props.children).find((child) =>
+    isActionButton(child)
+  ) as typeof ActionButton | undefined;
+
   return (
     <div>
       <Head>
@@ -132,7 +160,7 @@ const Layout = (props: LayoutProps) => {
       )}
       <InnerLayout
         ref={layoutRef}
-        mainContent={props.mainContent}
+        mainContent={mainContent}
         sideMenuContent={
           <MemoizedSideMenu
             pinnedBoards={pinnedBoards}
@@ -161,7 +189,7 @@ const Layout = (props: LayoutProps) => {
             onFilterChange={setBoardFilter}
           />
         }
-        actionButton={props.actionButton}
+        actionButton={actionButton}
         headerAccent={boardData?.accentColor || "#f96680"}
         onUserBarClick={React.useCallback(
           () => setLoginOpen(!isUserPending && !isLoggedIn),
@@ -248,12 +276,13 @@ const Layout = (props: LayoutProps) => {
 };
 
 export interface LayoutProps {
-  mainContent: JSX.Element;
-  actionButton?: JSX.Element;
   loading?: boolean;
   title: string;
   forceHideTitle?: boolean;
   onTitleClick?: () => void;
   onCompassClick?: () => void;
 }
+
+Layout.ActionButton = ActionButton;
+Layout.MainContent = MainContent;
 export default Layout;
