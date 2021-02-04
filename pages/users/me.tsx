@@ -55,8 +55,8 @@ function UserPage() {
 
   return (
     <div className="main">
-      <Layout
-        mainContent={
+      <Layout title={`User Settings`}>
+        <Layout.MainContent>
           <div className="page">
             <h2>You</h2>
             <div className="description">
@@ -157,9 +157,8 @@ function UserPage() {
               }
             `}</style>
           </div>
-        }
-        title={`User Settings`}
-      />
+        </Layout.MainContent>
+      </Layout>
     </div>
   );
 }

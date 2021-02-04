@@ -8,6 +8,12 @@ import {
 import CommentsThread from "./CommentsThread";
 import { PostType } from "types/Types";
 import ThreadPost from "./ThreadPost";
+import { useAuth } from "components/Auth";
+import {
+  EditorActions,
+  useEditorsDispatch,
+} from "components/editors/EditorsContext";
+import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 
 enum TIMELINE_VIEW_MODE {
   UPDATED,
@@ -85,14 +91,7 @@ const ShowCover = ({ cover, isShown, setShowCover }: any) => (
 );
 
 interface GalleryThreadViewProps extends ThreadContextType {
-  onNewComment: (
-    replyToPostId: string,
-    replyToCommentId: string | null
-  ) => void;
-  onNewContribution: (id: string) => void;
-  isLoggedIn: boolean;
   displayAtMost: number;
-  onEditPost: (post: PostType) => void;
 }
 const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   chronologicalPostsSequence,
@@ -105,6 +104,9 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
     TIMELINE_VIEW_MODE.ALL
   );
   const [showComments, setShowComments] = React.useState<string[]>([]);
+  const { isLoggedIn } = useAuth();
+  const dispatch = useEditorsDispatch();
+  const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
 
   // const activeCategories = categoryFilterState.filter(
   //   (category) => category.active
@@ -164,6 +166,49 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
     : updatedPosts
   ).filter((_, index) => index < props.displayAtMost);
 
+  const onNewComment = React.useCallback(
+    (replyToContributionId: string, replyToCommentId: string | null) => {
+      dispatch({
+        type: EditorActions.NEW_COMMENT,
+        payload: {
+          boardSlug,
+          threadId,
+          replyToContributionId,
+          replyToCommentId,
+        },
+      });
+    },
+    [boardSlug, threadId]
+  );
+
+  const onNewContribution = React.useCallback(
+    (replyToContributionId: string) => {
+      dispatch({
+        type: EditorActions.NEW_CONTRIBUTION,
+        payload: {
+          boardSlug,
+          threadId,
+          replyToContributionId,
+        },
+      });
+    },
+    [boardSlug, threadId]
+  );
+
+  const onEditContribution = React.useCallback(
+    (editContribution: PostType) => {
+      dispatch({
+        type: EditorActions.EDIT_TAGS,
+        payload: {
+          boardSlug,
+          threadId,
+          contributionId: editContribution.postId,
+        },
+      });
+    },
+    [boardSlug, threadId]
+  );
+
   if (!showCover && !allGalleryPosts.length) {
     return (
       <EmptyGalleryView
@@ -221,10 +266,10 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
                 <div className="post">
                   <ThreadPost
                     post={post}
-                    isLoggedIn={props.isLoggedIn}
-                    onNewContribution={props.onNewContribution}
-                    onNewComment={props.onNewComment}
-                    onEditPost={props.onEditPost}
+                    isLoggedIn={isLoggedIn}
+                    onNewContribution={onNewContribution}
+                    onNewComment={onNewComment}
+                    onEditPost={onEditContribution}
                     onNotesClick={onNotesClick}
                     onEmbedLoaded={() => masonryRef.current?.reposition()}
                   />
@@ -232,12 +277,12 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
                 {post.comments && showComments.includes(post.postId) && (
                   <ThreadIndent level={1} key={`0_${post.postId}`} ends={[]}>
                     <CommentsThread
-                      isLoggedIn={props.isLoggedIn}
+                      isLoggedIn={isLoggedIn}
                       parentPostId={post.postId}
                       parentCommentId={null}
                       level={0}
                       onReplyTo={(replyToCommentId: string) =>
-                        props.onNewComment(post.postId, replyToCommentId)
+                        onNewComment(post.postId, replyToCommentId)
                       }
                     />
                   </ThreadIndent>

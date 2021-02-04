@@ -31,7 +31,11 @@ import debug from "debug";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useQueryParams } from "use-query-params";
 import { ExistanceParam } from "components/QueryParamNextProvider";
-import { useEditors } from "components/editors/useEditors";
+import { withEditors } from "components/editors/withEditors";
+import {
+  EditorActions,
+  useEditorsDispatch,
+} from "components/editors/EditorsContext";
 const log = debug("bobafrontend:threadPage-log");
 
 const getViewTypeFromString = (
@@ -100,14 +104,7 @@ function ThreadPage({
   defaultView,
   chronologicalPostsSequence,
 }: ThreadContextType) {
-  const { postId, slug } = usePageDetails<ThreadPageDetails>();
-  const {
-    Editors,
-    editorsProps,
-    setPostReplyId,
-    setPostEdit,
-    setCommentReplyId,
-  } = useEditors();
+  const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const { getLinkToBoard } = useCachedLinks();
   const router = useRouter();
@@ -119,6 +116,7 @@ function ThreadPage({
   const onCompassClick = React.useCallback(() => setShowSidebar(!showSidebar), [
     showSidebar,
   ]);
+  const dispatch = useEditorsDispatch();
 
   // URL params management
   const currentViewMode = getCurrentViewMode(defaultView);
@@ -217,6 +215,20 @@ function ThreadPage({
     }
   }, [currentBoardData, isAuthPending, isLoggedIn]);
 
+  const onNewContribution = React.useCallback(
+    (replyToContributionId: string) => {
+      dispatch({
+        type: EditorActions.NEW_CONTRIBUTION,
+        payload: {
+          boardSlug: slug,
+          threadId,
+          replyToContributionId,
+        },
+      });
+    },
+    [slug, threadId]
+  );
+
   const onNewAnswersButtonClick = () => {
     if (!newAnswersSequence) {
       return;
@@ -236,15 +248,6 @@ function ThreadPage({
     }
   };
 
-  const replyToComment = React.useCallback(
-    (replyToPostId, replyToCommentId) =>
-      setCommentReplyId({
-        postId: replyToPostId,
-        commentId: replyToCommentId,
-      }),
-    [setCommentReplyId]
-  );
-
   const canTopLevelPost =
     isLoggedIn &&
     (viewMode == THREAD_VIEW_MODES.MASONRY ||
@@ -252,7 +255,6 @@ function ThreadPage({
 
   return (
     <div className="main">
-      <Editors {...editorsProps} />
       <Layout
         title={`!${slug}`}
         loading={isFetchingThread}
@@ -285,26 +287,11 @@ function ThreadPage({
               >
                 <div className="view-modes">
                   {viewMode == THREAD_VIEW_MODES.THREAD || postId ? (
-                    <MemoizedThreadView
-                      onNewComment={replyToComment}
-                      onNewContribution={setPostReplyId}
-                      onEditPost={setPostEdit}
-                      isLoggedIn={isLoggedIn}
-                    />
+                    <MemoizedThreadView />
                   ) : viewMode == THREAD_VIEW_MODES.MASONRY ? (
-                    <MemoizedGalleryThreadView
-                      onNewComment={replyToComment}
-                      onNewContribution={setPostReplyId}
-                      isLoggedIn={isLoggedIn}
-                      onEditPost={setPostEdit}
-                      displayAtMost={maxDisplay}
-                    />
+                    <MemoizedGalleryThreadView displayAtMost={maxDisplay} />
                   ) : (
                     <MemoizedTimelineThreadView
-                      onNewComment={replyToComment}
-                      onNewContribution={setPostReplyId}
-                      isLoggedIn={isLoggedIn}
-                      onEditPost={setPostEdit}
                       displayAtMost={maxDisplay}
                       viewMode={timelineView}
                       onViewModeChange={onTimelineViewModeChange}
@@ -333,7 +320,9 @@ function ThreadPage({
           ) : canTopLevelPost ? (
             <PostingActionButton
               accentColor={currentBoardData?.accentColor || "#f96680"}
-              onNewPost={() => threadRoot && setPostReplyId(threadRoot.postId)}
+              onNewPost={() =>
+                threadRoot && onNewContribution(threadRoot.postId)
+              }
             />
           ) : undefined}
         </Layout.ActionButton>
@@ -362,7 +351,7 @@ function ThreadPage({
   );
 }
 
-export default withThreadData(ThreadPage, {
+export default withThreadData(withEditors(ThreadPage), {
   markReadOnMount: true,
   fetch: true,
 });

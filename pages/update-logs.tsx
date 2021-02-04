@@ -4,8 +4,8 @@ import Layout from "../components/Layout";
 function HomePage() {
   return (
     <div className="main">
-      <Layout
-        mainContent={
+      <Layout title={`Logs Archive`}>
+        <Layout.MainContent>
           <div className="content">
             <div className="intro updates">
               <h1>Update Logs!</h1>
@@ -983,9 +983,8 @@ function HomePage() {
               }
             `}</style>
           </div>
-        }
-        title={`Logs Archive`}
-      />
+        </Layout.MainContent>
+      </Layout>
     </div>
   );
 }

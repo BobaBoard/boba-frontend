@@ -56,16 +56,29 @@ export interface ThreadContextType {
   };
 }
 
-export const useThread = ({
+export const useThread = (props: {
+  threadId: string;
+  postId: string | null;
+  slug: string;
+  markAsRead?: boolean;
+  fetch?: boolean;
+}): ThreadContextType => {
+  if (!props.threadId || !props.slug) {
+    throw new Error("useThread requires an id and a slug.");
+  }
+  return useThreadWithNull(props);
+};
+
+export const useThreadWithNull = ({
   threadId,
   postId,
   slug,
   markAsRead,
   fetch,
 }: {
-  threadId: string;
+  threadId: string | null;
   postId: string | null;
-  slug: string;
+  slug: string | null;
   markAsRead?: boolean;
   fetch?: boolean;
 }): ThreadContextType => {
@@ -77,47 +90,59 @@ export const useThread = ({
     isStale,
     isFetching: isRefetching,
   } = useQuery<
-    ThreadType,
+    ThreadType | null,
     [
       string,
       {
         threadId: string;
       }
     ]
-  >(["threadData", { threadId }], () => getThreadData({ threadId }), {
-    refetchOnWindowFocus: false,
-    placeholderData: () => {
-      log(
-        `Searching board activity data for board ${slug} and thread ${threadId}`
-      );
-      return getThreadInBoardCache(queryClient, {
-        slug,
-        threadId,
-        categoryFilter: null,
-      });
-    },
-    staleTime: 30 * 1000,
-    notifyOnChangeProps: ["data"],
-    enabled: !!fetch,
-    onSuccess: (data) => {
-      log(`Retrieved thread data for thread with id ${threadId}`);
-      info(data);
-    },
-  });
-
-  React.useEffect(() => {
-    return () => {
-      if (fetch) {
-        clearThreadData(queryClient, { slug, threadId });
+  >(
+    ["threadData", { threadId }],
+    () => {
+      if (!threadId || !slug) {
+        return null;
       }
-    };
-  }, []);
+      return getThreadData({ threadId });
+    },
+    {
+      refetchOnWindowFocus: false,
+      placeholderData: () => {
+        if (!threadId || !slug) {
+          return null;
+        }
+        log(
+          `Searching board activity data for board ${slug} and thread ${threadId}`
+        );
+        return getThreadInBoardCache(queryClient, {
+          slug,
+          threadId,
+          categoryFilter: null,
+        });
+      },
+      staleTime: 30 * 1000,
+      notifyOnChangeProps: ["data"],
+      enabled: !!fetch,
+      onSuccess: (data) => {
+        log(`Retrieved thread data for thread with id ${threadId}`);
+        info(data);
+      },
+    }
+  );
 
   // Mark thread as read on authentication and thread fetch
   const { mutate: readThread } = useMutation(
-    () => markThreadAsRead({ threadId }),
+    () => {
+      if (!threadId) {
+        return Promise.resolve(null);
+      }
+      return markThreadAsRead({ threadId });
+    },
     {
       onSuccess: () => {
+        if (!threadId || !slug) {
+          return;
+        }
         log(`Successfully marked thread as read`);
         removeThreadActivityFromCache(queryClient, {
           threadId,
@@ -127,6 +152,17 @@ export const useThread = ({
       },
     }
   );
+
+  React.useEffect(() => {
+    return () => {
+      if (!threadId || !slug) {
+        return;
+      }
+      if (fetch) {
+        clearThreadData(queryClient, { slug, threadId });
+      }
+    };
+  }, []);
   React.useEffect(() => {
     if (
       !isAuthPending &&
@@ -150,10 +186,11 @@ export const useThread = ({
   } = React.useMemo(() => {
     info("Building posts tree from data:");
     info(threadData);
-    const { root, parentChildrenMap, postsDisplaySequence } = makePostsTree(
-      threadData?.posts,
-      threadId
-    );
+    const {
+      root = null,
+      parentChildrenMap = new Map(),
+      postsDisplaySequence = [],
+    } = threadId ? makePostsTree(threadData?.posts, threadId) : {};
     const postCommentsMap = new Map<string, ThreadCommentInfoType>();
     threadData?.posts?.forEach((post) => {
       log(`Creating comments tree for post ${postId}`);

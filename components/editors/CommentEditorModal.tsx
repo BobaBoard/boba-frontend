@@ -1,26 +1,33 @@
 import React from "react";
 // @ts-ignore
-import {
-  CommentChainEditor,
-  Modal,
-  ModalWithButtons,
-  toast,
-} from "@bobaboard/ui-components";
+import { CommentChainEditor, toast } from "@bobaboard/ui-components";
 import { useAuth } from "../Auth";
 import { useMutation } from "react-query";
 import { CommentType, CommentData } from "../../types/Types";
 import { createComment, createCommentChain } from "../../utils/queries";
-import { usePreventPageChange } from "../hooks/usePreventPageChange";
 import debug from "debug";
+import { useEditorsState } from "./EditorsContext";
+import { isCommentEditorState } from "./types";
+import { useThreadDetails } from "./utils";
 
 const log = debug("bobafrontend:commentEditor-log");
 const error = debug("bobafrontend:commentEditor-error");
 
 const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
   const [isCommentLoading, setCommentLoading] = React.useState(false);
-  const [askConfirmation, setAskConfirmation] = React.useState(false);
-  usePreventPageChange(() => props.isOpen, props.onCloseModal, [props.isOpen]);
   const { isLoggedIn } = useAuth();
+
+  const state = useEditorsState();
+  if (!isCommentEditorState(state)) {
+    throw new Error(
+      "CommentEditorModal must only be rendered when the editor is open and a comment is being edited."
+    );
+  }
+  const {
+    additionalIdentities,
+    secretIdentity,
+    userIdentity,
+  } = useThreadDetails(state);
 
   const { mutate: postComment } = useMutation(
     ({
@@ -75,93 +82,53 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
   }
 
   return (
-    <>
-      <Modal isOpen={props.isOpen}>
-        <div className="editor">
-          <CommentChainEditor
-            secretIdentity={props.secretIdentity}
-            userIdentity={props.userIdentity}
-            additionalIdentities={props.additionalIdentities}
-            loading={isCommentLoading}
-            onSubmit={async ({ texts, identityId }) => {
-              if (!props.replyTo || !props.replyTo.postId) {
-                return;
-              }
-              setCommentLoading(true);
-              const uploadedTexts = await texts;
-              if (uploadedTexts.length > 1) {
-                postCommentChain({
-                  replyToPostId: props.replyTo.postId,
-                  commentData: uploadedTexts.map((t) => ({
-                    content: t,
-                    forceAnonymous: false,
-                    identityId,
-                    replyToCommentId: props.replyTo?.commentId || null,
-                  })),
-                });
-              } else {
-                postComment({
-                  replyToPostId: props.replyTo.postId,
-                  commentData: {
-                    content: uploadedTexts[0],
-                    forceAnonymous: false,
-                    identityId,
-                    replyToCommentId: props.replyTo?.commentId || null,
-                  },
-                });
-              }
-            }}
-            onCancel={(empty) =>
-              empty ? props.onCloseModal() : setAskConfirmation(true)
-            }
-          />
-        </div>
-        <style jsx>{`
-          .editor {
-            display: flex;
-            justify-content: center;
-            padding: 15px;
+    <div className="editor">
+      <CommentChainEditor
+        secretIdentity={secretIdentity}
+        userIdentity={userIdentity}
+        additionalIdentities={additionalIdentities}
+        loading={isCommentLoading}
+        onSubmit={async ({ texts, identityId }) => {
+          setCommentLoading(true);
+          const uploadedTexts = await texts;
+          if (uploadedTexts.length > 1) {
+            postCommentChain({
+              replyToPostId: state.newComment.replyToContributionId,
+              commentData: uploadedTexts.map((t) => ({
+                content: t,
+                forceAnonymous: false,
+                identityId,
+                replyToCommentId: state.newComment.replyToCommentId,
+              })),
+            });
+          } else {
+            postComment({
+              replyToPostId: state.newComment.replyToContributionId,
+              commentData: {
+                content: uploadedTexts[0],
+                forceAnonymous: false,
+                identityId,
+                replyToCommentId: state.newComment.replyToCommentId,
+              },
+            });
           }
-        `}</style>
-      </Modal>
-      <ModalWithButtons
-        isOpen={askConfirmation}
-        onCloseModal={() => setAskConfirmation(false)}
-        onSubmit={() => {
-          setAskConfirmation(false);
-          props.onCloseModal();
         }}
-        primaryText={"Exterminate!"}
-        secondaryText={"Nevermind"}
-        shouldCloseOnOverlayClick={false}
-      >
-        Are you sure?
-      </ModalWithButtons>
-    </>
+        onCancel={props.onCancel}
+      />
+      <style jsx>{`
+        .editor {
+          display: flex;
+          justify-content: center;
+          padding: 15px;
+        }
+      `}</style>
+    </div>
   );
 };
 
 export interface CommentEditorModalProps {
-  isOpen: boolean;
-  onCloseModal: () => void;
-  secretIdentity?: {
-    avatar: string;
-    name: string;
-  };
-  userIdentity?: {
-    avatar: string;
-    name: string;
-  };
-  additionalIdentities?: {
-    id: string;
-    avatar: string;
-    name: string;
-  }[];
+  onCancel: (empty: boolean) => void;
   onCommentsSaved: (comments: CommentType[]) => void;
-  replyTo: {
-    postId: string | null;
-    commentId: string | null;
-  } | null;
 }
 
 export default CommentEditorModal;

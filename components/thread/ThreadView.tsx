@@ -17,7 +17,11 @@ import { useBoardContext } from "../BoardContext";
 import classnames from "classnames";
 import CommentsThread, { commentHandlers } from "./CommentsThread";
 import { usePageDetails, ThreadPageDetails } from "utils/router-utils";
-//import { useHotkeys } from "react-hotkeys-hook";
+import {
+  EditorActions,
+  useEditorsDispatch,
+} from "components/editors/EditorsContext";
+import { useAuth } from "components/Auth";
 
 const log = debug("bobafrontend:threadLevel-log");
 const info = debug("bobafrontend:threadLevel-info");
@@ -205,24 +209,65 @@ const ThreadLevel: React.FC<{
   );
 };
 
-interface ThreadViewProps extends ThreadContextType {
-  onNewComment: (
-    replyToPostId: string,
-    replyToCommentId: string | null
-  ) => void;
-  onNewContribution: (id: string) => void;
-  onEditPost: (post: PostType) => void;
-  isLoggedIn: boolean;
-}
+interface ThreadViewProps extends ThreadContextType {}
 const MemoizedThreadLevel = React.memo(ThreadLevel);
 const ThreadView: React.FC<ThreadViewProps> = ({
   currentRoot,
   parentChildrenMap,
   ...props
 }) => {
-  const { postId, threadBaseUrl } = usePageDetails<ThreadPageDetails>();
-
+  const {
+    postId,
+    threadBaseUrl,
+    slug: boardSlug,
+    threadId,
+  } = usePageDetails<ThreadPageDetails>();
   const router = useRouter();
+  const { isLoggedIn } = useAuth();
+  const dispatch = useEditorsDispatch();
+
+  const onNewComment = React.useCallback(
+    (replyToContributionId: string, replyToCommentId: string | null) => {
+      dispatch({
+        type: EditorActions.NEW_COMMENT,
+        payload: {
+          boardSlug,
+          threadId,
+          replyToContributionId,
+          replyToCommentId,
+        },
+      });
+    },
+    [boardSlug, threadId]
+  );
+
+  const onNewContribution = React.useCallback(
+    (replyToContributionId: string) => {
+      dispatch({
+        type: EditorActions.NEW_CONTRIBUTION,
+        payload: {
+          boardSlug,
+          threadId,
+          replyToContributionId,
+        },
+      });
+    },
+    [boardSlug, threadId]
+  );
+
+  const onEditContribution = React.useCallback(
+    (editContribution: PostType) => {
+      dispatch({
+        type: EditorActions.EDIT_TAGS,
+        payload: {
+          boardSlug,
+          threadId,
+          contributionId: editContribution.postId,
+        },
+      });
+    },
+    [boardSlug, threadId]
+  );
 
   if (!currentRoot) {
     return <div />;
@@ -247,10 +292,10 @@ const ThreadView: React.FC<ThreadViewProps> = ({
         post={currentRoot}
         postsMap={parentChildrenMap}
         level={0}
-        onNewComment={props.onNewComment}
-        onNewContribution={props.onNewContribution}
-        isLoggedIn={props.isLoggedIn}
-        onEditPost={props.onEditPost}
+        onNewComment={onNewComment}
+        onNewContribution={onNewContribution}
+        isLoggedIn={isLoggedIn}
+        onEditPost={onEditContribution}
       />
       <style jsx>{`
         .whole-thread {

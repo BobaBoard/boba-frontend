@@ -47,9 +47,13 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import noop from "noop-ts";
-import { useEditors } from "components/editors/useEditors";
 import { BoardPageDetails, usePageDetails } from "utils/router-utils";
 import LoadingSpinner from "components/LoadingSpinner";
+import {
+  EditorActions,
+  useEditorsDispatch,
+} from "components/editors/EditorsContext";
+import { withEditors } from "components/editors/withEditors";
 
 const log = debug("bobafrontend:boardPage-log");
 const info = debug("bobafrontend:boardPage-info");
@@ -243,11 +247,26 @@ const BoardPost: React.FC<{
   );
 };
 
+const NewThreadButton = withEditors<{ slug: string }>((props) => {
+  const { boardsData } = useBoardContext();
+  const editorDispatch = useEditorsDispatch();
+  return (
+    <MemoizedActionButton
+      accentColor={boardsData[props.slug]?.accentColor || "#f96680"}
+      onNewPost={() => {
+        editorDispatch({
+          type: EditorActions.NEW_THREAD,
+          payload: { boardSlug: props.slug },
+        });
+      }}
+    />
+  );
+});
+
 const MemoizedBoardPost = React.memo(BoardPost);
 const MemoizedActionButton = React.memo(PostingActionButton);
 const MemoizedBoardSidebar = React.memo(BoardSidebar);
 function BoardPage() {
-  const { Editors, editorsProps, setNewThread } = useEditors();
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
   const { slug } = usePageDetails<BoardPageDetails>();
@@ -348,8 +367,6 @@ function BoardPage() {
     }
   }, [isAuthPending, isLoggedIn, slug]);
 
-  const onNewThread = React.useCallback(() => setNewThread(true), []);
-
   const showLockedMessage =
     !isAuthPending && !isLoggedIn && boardsData[slug]?.loggedInOnly;
   const showEmptyMessage =
@@ -359,7 +376,6 @@ function BoardPage() {
 
   return (
     <div className="main">
-      <Editors {...editorsProps} />
       <Layout
         title={`!${slug}`}
         onCompassClick={onTitleClick}
@@ -482,10 +498,7 @@ function BoardPage() {
         </Layout.MainContent>
         {isLoggedIn && (
           <Layout.ActionButton>
-            <MemoizedActionButton
-              accentColor={boardsData[slug]?.accentColor || "#f96680"}
-              onNewPost={onNewThread}
-            />
+            <NewThreadButton slug={slug} />
           </Layout.ActionButton>
         )}
       </Layout>
