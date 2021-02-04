@@ -184,7 +184,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
             log(identityId);
             postContribution({
               slug: postedBoardSlug ? postedBoardSlug : state.boardSlug,
-              replyToPostId: parentContribution!.postId,
+              replyToPostId: parentContribution?.postId || null,
               postData: {
                 content: text,
                 forceAnonymous: false,

@@ -99,7 +99,9 @@ export const isCommentEditorState = (
 };
 
 export const isNewThread = (state: EditorState): state is NewThreadState => {
-  return state.isOpen && !isContributionEditorState(state);
+  return (
+    state.isOpen && isContributionEditorState(state) && state.threadId === null
+  );
 };
 
 export const isEditContribution = (

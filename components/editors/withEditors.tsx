@@ -142,7 +142,7 @@ const Editors = () => {
 export const withEditors = function <T>(WrappedComponent: React.FC<T>) {
   const ReturnedComponent: React.FC<T> = (props) => (
     <EditorsProvider>
-      <Editors />
+      {typeof window !== "undefined" && <Editors />}
       <WrappedComponent {...props} />
     </EditorsProvider>
   );
