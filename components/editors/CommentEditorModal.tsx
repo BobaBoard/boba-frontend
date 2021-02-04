@@ -47,8 +47,8 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
       onSuccess: (data: CommentType) => {
         log(`Received comment data after save:`);
         log(data);
-        props.onCommentsSaved([data]);
         setCommentLoading(false);
+        props.onCommentsSaved([data]);
       },
     }
   );
@@ -71,8 +71,8 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
       onSuccess: (data: CommentType[]) => {
         log(`Received comment data after save:`);
         log(data);
-        props.onCommentsSaved(data);
         setCommentLoading(false);
+        props.onCommentsSaved(data);
       },
     }
   );
