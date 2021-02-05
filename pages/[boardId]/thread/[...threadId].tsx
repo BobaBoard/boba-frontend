@@ -137,7 +137,6 @@ function ThreadPage({
         ? getViewTypeFromString(threadDefaultView) ===
           THREAD_VIEW_MODES.TIMELINE
         : viewMode === THREAD_VIEW_MODES.TIMELINE;
-      debugger;
       setQuery({
         gallery: !isDefaultView && viewMode == THREAD_VIEW_MODES.MASONRY,
         timeline: viewMode == THREAD_VIEW_MODES.TIMELINE,
@@ -250,10 +249,6 @@ function ThreadPage({
     (queryParamsViewMode == THREAD_VIEW_MODES.MASONRY ||
       queryParamsViewMode == THREAD_VIEW_MODES.TIMELINE);
 
-  console.log(`--------`);
-  console.log(`QueryParamsTimelineViewMode: ${queryParamsTimelineViewMode}`);
-  console.log(`NewAnswersSequence length: ${newAnswersSequence.length}`);
-  console.log(`--------`);
   return (
     <div className="main">
       <Layout
