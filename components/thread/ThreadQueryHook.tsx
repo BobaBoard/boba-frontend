@@ -50,6 +50,7 @@ export interface ThreadContextType {
   setCategoryFilterState: React.Dispatch<
     React.SetStateAction<{ name: string; active: boolean }[]>
   >;
+  hasNewReplies: boolean;
   personalIdentity?: {
     name: string;
     avatar: string;
@@ -272,6 +273,8 @@ export const useThreadWithNull = ({
     defaultView: threadData?.defaultView || null,
     personalIdentity: threadData?.personalIdentity,
     isRefetching,
+    hasNewReplies:
+      !!threadData?.newCommentsAmount || !!threadData?.newPostsAmount,
   };
 };
 

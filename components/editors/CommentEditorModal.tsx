@@ -1,5 +1,4 @@
 import React from "react";
-// @ts-ignore
 import { CommentChainEditor, toast } from "@bobaboard/ui-components";
 import { useAuth } from "../Auth";
 import { useMutation } from "react-query";
