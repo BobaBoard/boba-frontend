@@ -25,7 +25,6 @@ import {
   useSetThreadHidden,
   useSetThreadView,
 } from "./queries/thread";
-import memoize from "fast-memoize";
 
 export enum PostOptions {
   COPY_LINK = "COPY_LINK",
@@ -37,7 +36,7 @@ export enum PostOptions {
   UPDATE_VIEW = "UPDATE_VIEW",
 }
 
-const getCopyLinkOption = memoize((href: string, text: string) => ({
+const getCopyLinkOption = (href: string, text: string) => ({
   icon: faLink,
   name: text,
   link: {
@@ -51,76 +50,75 @@ const getCopyLinkOption = memoize((href: string, text: string) => ({
       toast.success("Link copied!");
     },
   },
-}));
+});
 
-const getEditTagsOption = memoize((callback: () => void) => ({
+const getEditTagsOption = (callback: () => void) => ({
   icon: faEdit,
   name: "Edit tags",
   link: {
     onClick: callback,
   },
-}));
+});
 
-const getMarkReadOption = memoize((callback: () => void) => ({
+const getMarkReadOption = (callback: () => void) => ({
   icon: faBookOpen,
   name: "Mark Read",
   link: {
     onClick: callback,
   },
-}));
+});
 
-const getMuteThreadOption = memoize(
-  (muted: boolean, callback: (muted: boolean) => void) => ({
-    icon: muted ? faVolumeUp : faVolumeMute,
-    name: muted ? "Unmute" : "Mute",
-    link: {
-      onClick: () => callback(!muted),
+const getMuteThreadOption = (
+  muted: boolean,
+  callback: (muted: boolean) => void
+) => ({
+  icon: muted ? faVolumeUp : faVolumeMute,
+  name: muted ? "Unmute" : "Mute",
+  link: {
+    onClick: () => callback(!muted),
+  },
+});
+
+const getHideThreadOption = (
+  hidden: boolean,
+  callback: (hidden: boolean) => void
+) => ({
+  icon: hidden ? faEye : faEyeSlash,
+  name: hidden ? "Unhide" : "Hide",
+  link: {
+    onClick: () => callback(!hidden),
+  },
+});
+const getUpdateViewOption = (
+  currentView: PostData["defaultView"],
+  callback: (updatedView: PostData["defaultView"]) => void
+) => ({
+  icon: faEdit,
+  name: "Change default view",
+  options: [
+    {
+      icon: faCodeBranch,
+      name: "Thread",
+      link: {
+        onClick: () => callback("thread"),
+      },
     },
-  })
-);
-
-const getHideThreadOption = memoize(
-  (hidden: boolean, callback: (hidden: boolean) => void) => ({
-    icon: hidden ? faEye : faEyeSlash,
-    name: hidden ? "Unhide" : "Hide",
-    link: {
-      onClick: () => callback(!hidden),
+    {
+      icon: faImages,
+      name: "Gallery",
+      link: {
+        onClick: () => callback("gallery"),
+      },
     },
-  })
-);
-
-const getUpdateViewOption = memoize(
-  (
-    currentView: PostData["defaultView"],
-    callback: (updatedView: PostData["defaultView"]) => void
-  ) => ({
-    icon: faEdit,
-    name: "Change default view",
-    options: [
-      {
-        icon: faCodeBranch,
-        name: "Thread",
-        link: {
-          onClick: () => callback("thread"),
-        },
+    {
+      icon: faFilm,
+      name: "Timeline",
+      link: {
+        onClick: () => callback("timeline"),
       },
-      {
-        icon: faImages,
-        name: "Gallery",
-        link: {
-          onClick: () => callback("gallery"),
-        },
-      },
-      {
-        icon: faFilm,
-        name: "Timeline",
-        link: {
-          onClick: () => callback("timeline"),
-        },
-      },
-    ].filter((option) => option.name.toLowerCase() != currentView),
-  })
-);
+    },
+  ].filter((option) => option.name.toLowerCase() != currentView),
+});
 
 const usePostOptions = ({
   options,

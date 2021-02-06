@@ -27,10 +27,13 @@ interface ThreadPostProps
   onEditPost?: (post: PostType) => void;
   onNotesClick?: (id: string) => void;
 }
-const REGULAR_POST_OPTIONS = [PostOptions.COPY_LINK, PostOptions.EDIT_TAGS];
-const TOP_POST_OPTIONS = [
+const REGULAR_POST_OPTIONS = [
+  PostOptions.COPY_LINK,
   PostOptions.COPY_THREAD_LINK,
-  ...REGULAR_POST_OPTIONS,
+  PostOptions.EDIT_TAGS,
+];
+const TOP_POST_OPTIONS = [
+  ...REGULAR_POST_OPTIONS.filter((option) => option != PostOptions.COPY_LINK),
   PostOptions.UPDATE_VIEW,
 ];
 

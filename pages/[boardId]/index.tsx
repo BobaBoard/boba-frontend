@@ -1,25 +1,14 @@
 import React from "react";
 import {
-  Post,
-  PostSizes,
   FeedWithMenu,
   BoardSidebar,
   PostingActionButton,
-  toast,
-  TagsType,
-  TagType,
 } from "@bobaboard/ui-components";
 import Layout from "../../components/Layout";
 import { useInfiniteQuery } from "react-query";
 import { useAuth } from "../../components/Auth";
 import { useBoardContext } from "../../components/BoardContext";
 import { getBoardActivityData } from "../../utils/queries";
-import {
-  useMarkThreadAsRead,
-  useMuteThread,
-  useSetThreadHidden,
-  useSetThreadView,
-} from "../../components/hooks/queries/thread";
 import {
   useDismissBoardNotifications,
   useMuteBoard,
@@ -28,132 +17,26 @@ import {
 } from "../../components/hooks/queries/board";
 import axios from "axios";
 import debug from "debug";
-import moment from "moment";
-import { PostType, ThreadType } from "../../types/Types";
+import { ThreadType } from "../../types/Types";
 import {
-  faBookOpen,
-  faCodeBranch,
   faCommentSlash,
   faEdit,
-  faEye,
-  faEyeSlash,
-  faFilm,
-  faFilter,
-  faImages,
-  faLink,
   faThumbtack,
   faVolumeMute,
   faVolumeUp,
 } from "@fortawesome/free-solid-svg-icons";
-import { useCachedLinks } from "components/hooks/useCachedLinks";
-import noop from "noop-ts";
 import { BoardPageDetails, usePageDetails } from "utils/router-utils";
 import LoadingSpinner from "components/LoadingSpinner";
+import ThreadPreview from "components/ThreadPreview";
 import {
   EditorActions,
   useEditorsDispatch,
 } from "components/editors/EditorsContext";
 import { withEditors } from "components/editors/withEditors";
-import { PostOptions, usePostOptions } from "components/hooks/useOptions";
 
 const log = debug("bobafrontend:boardPage-log");
 const info = debug("bobafrontend:boardPage-info");
 info.log = console.info.bind(console);
-
-const BoardPost: React.FC<{
-  thread: ThreadType;
-  post: PostType;
-  isLoggedIn: boolean;
-  onSetCategoryFilter: (filter: string) => void;
-}> = ({ post, thread, isLoggedIn, onSetCategoryFilter }) => {
-  const { slug } = usePageDetails<BoardPageDetails>();
-  const markThreadAsRead = useMarkThreadAsRead();
-  const muteThread = useMuteThread();
-  const setThreadHidden = useSetThreadHidden();
-  const setThreadView = useSetThreadView();
-  const { getLinkToThread } = useCachedLinks();
-  const hasReplies =
-    thread.totalPostsAmount > 1 || thread.totalCommentsAmount > 0;
-  const linkToThread = getLinkToThread({
-    slug,
-    threadId: thread.threadId,
-  });
-  const postOptions = usePostOptions({
-    options: [
-      PostOptions.COPY_THREAD_LINK,
-      PostOptions.MARK_READ,
-      PostOptions.HIDE,
-      PostOptions.MUTE,
-      PostOptions.EDIT_TAGS,
-      PostOptions.UPDATE_VIEW,
-    ],
-    isLoggedIn,
-    data: {
-      threadId: thread.threadId,
-      slug: thread.boardSlug,
-      postId: post.postId,
-      hidden: thread.hidden,
-      muted: thread.muted,
-      own: post.isOwn,
-      currentView: thread.defaultView,
-    },
-  });
-
-  return (
-    <Post
-      key={post.postId}
-      createdTime={`${moment.utc(post.created).fromNow()}${
-        hasReplies
-          ? ` [updated: ${moment.utc(thread.lastActivity).fromNow()}]`
-          : ""
-      }`}
-      createdTimeLink={linkToThread}
-      text={post.content}
-      tags={post.tags}
-      secretIdentity={post.secretIdentity}
-      userIdentity={post.userIdentity}
-      accessory={post.accessory}
-      onNewContribution={noop}
-      onNewComment={noop}
-      size={post?.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}
-      newPost={isLoggedIn && !thread.muted && post.isNew}
-      newComments={
-        isLoggedIn ? (thread.muted ? undefined : thread.newCommentsAmount) : 0
-      }
-      newContributions={
-        isLoggedIn
-          ? thread.muted
-            ? undefined
-            : thread.newPostsAmount - (post.isNew ? 1 : 0)
-          : 0
-      }
-      totalComments={thread.totalCommentsAmount}
-      // subtract 1 since posts_amount is the amount of posts total in the thread
-      // including the head one.-
-      totalContributions={thread.totalPostsAmount - 1}
-      directContributions={thread.directThreadsAmount}
-      notesLink={linkToThread}
-      muted={isLoggedIn && thread.muted}
-      menuOptions={postOptions}
-      getOptionsForTag={React.useCallback((tag: TagsType) => {
-        if (tag.type == TagType.CATEGORY) {
-          return [
-            {
-              icon: faFilter,
-              name: "Filter",
-              link: {
-                onClick: () => {
-                  onSetCategoryFilter(tag.name);
-                },
-              },
-            },
-          ];
-        }
-        return undefined;
-      }, [])}
-    />
-  );
-};
 
 const NewThreadButton = withEditors<{ slug: string }>((props) => {
   const { boardsData } = useBoardContext();
@@ -171,7 +54,7 @@ const NewThreadButton = withEditors<{ slug: string }>((props) => {
   );
 });
 
-const MemoizedBoardPost = React.memo(BoardPost);
+const MemoizedThreadPreview = React.memo(ThreadPreview);
 const MemoizedActionButton = React.memo(PostingActionButton);
 const MemoizedBoardSidebar = React.memo(BoardSidebar);
 function BoardPage() {
@@ -188,7 +71,6 @@ function BoardPage() {
   const [categoryFilter, setCategoryFilter] = React.useState<string | null>(
     null
   );
-  const setThreadHidden = useSetThreadHidden();
   React.useEffect(() => {
     setCategoryFilter(null);
   }, [slug]);
@@ -357,31 +239,12 @@ function BoardPage() {
                   boardActivityData.pages
                     .flatMap((activityData) => activityData?.activity)
                     .map((thread: ThreadType) => {
-                      const post = thread.posts[0];
-                      if (thread.hidden) {
-                        return (
-                          <div className="post hidden" key={thread.threadId}>
-                            This thread was hidden{" "}
-                            <a
-                              href="#"
-                              onClick={(e) => {
-                                setThreadHidden({
-                                  threadId: thread.threadId,
-                                  hide: !thread.hidden,
-                                  slug,
-                                });
-                                e.preventDefault();
-                              }}
-                            >
-                              [unhide]
-                            </a>
-                          </div>
-                        );
-                      }
                       return (
-                        <div className="post" key={`${post.postId}_container`}>
-                          <MemoizedBoardPost
-                            post={post}
+                        <div
+                          className="post"
+                          key={`${thread.threadId}_container`}
+                        >
+                          <MemoizedThreadPreview
                             thread={thread}
                             isLoggedIn={isLoggedIn}
                             onSetCategoryFilter={setCategoryFilter}
