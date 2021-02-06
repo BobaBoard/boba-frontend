@@ -27,6 +27,12 @@ interface ThreadPostProps
   onEditPost?: (post: PostType) => void;
   onNotesClick?: (id: string) => void;
 }
+const REGULAR_POST_OPTIONS = [PostOptions.COPY_LINK, PostOptions.EDIT_TAGS];
+const TOP_POST_OPTIONS = [
+  PostOptions.COPY_THREAD_LINK,
+  ...REGULAR_POST_OPTIONS,
+  PostOptions.UPDATE_VIEW,
+];
 
 const ThreadPost = React.memo(
   withThreadData(
@@ -46,18 +52,15 @@ const ThreadPost = React.memo(
         threadBaseUrl,
       } = usePageDetails<ThreadPageDetails>();
       const options = usePostOptions({
-        options: [PostOptions.COPY_LINK, PostOptions.EDIT_TAGS],
+        options:
+          post.parentPostId == null ? TOP_POST_OPTIONS : REGULAR_POST_OPTIONS,
         isLoggedIn,
-        postData: {
+        data: {
           slug,
           threadId,
           postId: post.postId,
           own: post.isOwn,
-        },
-        onSelectOption: (option) => {
-          if (option == PostOptions.EDIT_TAGS) {
-            onEditPost?.(post);
-          }
+          currentView: extraProps.defaultView!,
         },
       });
       const router = useRouter();

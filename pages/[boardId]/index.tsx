@@ -54,6 +54,7 @@ import {
   useEditorsDispatch,
 } from "components/editors/EditorsContext";
 import { withEditors } from "components/editors/withEditors";
+import { PostOptions, usePostOptions } from "components/hooks/useOptions";
 
 const log = debug("bobafrontend:boardPage-log");
 const info = debug("bobafrontend:boardPage-info");
@@ -77,6 +78,27 @@ const BoardPost: React.FC<{
     slug,
     threadId: thread.threadId,
   });
+  const postOptions = usePostOptions({
+    options: [
+      PostOptions.COPY_THREAD_LINK,
+      PostOptions.MARK_READ,
+      PostOptions.HIDE,
+      PostOptions.MUTE,
+      PostOptions.EDIT_TAGS,
+      PostOptions.UPDATE_VIEW,
+    ],
+    isLoggedIn,
+    data: {
+      threadId: thread.threadId,
+      slug: thread.boardSlug,
+      postId: post.postId,
+      hidden: thread.hidden,
+      muted: thread.muted,
+      own: post.isOwn,
+      currentView: thread.defaultView,
+    },
+  });
+
   return (
     <Post
       key={post.postId}
@@ -112,121 +134,7 @@ const BoardPost: React.FC<{
       directContributions={thread.directThreadsAmount}
       notesLink={linkToThread}
       muted={isLoggedIn && thread.muted}
-      menuOptions={React.useMemo(
-        () => [
-          {
-            icon: faLink,
-            name: "Copy Link",
-            link: {
-              onClick: () => {
-                const tempInput = document.createElement("input");
-                tempInput.value = new URL(
-                  linkToThread.href,
-                  window.location.origin
-                ).toString();
-                document.body.appendChild(tempInput);
-                tempInput.select();
-                document.execCommand("copy");
-                document.body.removeChild(tempInput);
-                toast.success("Link copied!");
-              },
-            },
-          },
-          // Add options just for logged in users
-          ...(isLoggedIn
-            ? [
-                {
-                  icon: faBookOpen,
-                  name: "Mark Read",
-                  link: {
-                    onClick: () => {
-                      markThreadAsRead({ threadId: thread.threadId, slug });
-                    },
-                  },
-                },
-                {
-                  icon: thread.muted ? faVolumeUp : faVolumeMute,
-                  name: thread.muted ? "Unmute" : "Mute",
-                  link: {
-                    onClick: () => {
-                      muteThread({
-                        threadId: thread.threadId,
-                        mute: !thread.muted,
-                        slug,
-                      });
-                    },
-                  },
-                },
-                {
-                  icon: thread.hidden ? faEye : faEyeSlash,
-                  name: thread.hidden ? "Unhide" : "Hide",
-                  link: {
-                    onClick: () => {
-                      setThreadHidden({
-                        threadId: thread.threadId,
-                        hide: !thread.hidden,
-                        slug,
-                      });
-                    },
-                  },
-                },
-                ...(thread.posts[0]?.isOwn
-                  ? [
-                      {
-                        icon: faEdit,
-                        name: "Change default view",
-                        options: [
-                          {
-                            icon: faCodeBranch,
-                            name: "Thread",
-                            link: {
-                              onClick: () => {
-                                setThreadView({
-                                  threadId: thread.threadId,
-                                  view: "thread",
-                                  slug,
-                                });
-                              },
-                            },
-                          },
-                          {
-                            icon: faImages,
-                            name: "Gallery",
-                            link: {
-                              onClick: () => {
-                                setThreadView({
-                                  threadId: thread.threadId,
-                                  view: "gallery",
-                                  slug,
-                                });
-                              },
-                            },
-                          },
-                          {
-                            icon: faFilm,
-                            name: "Timeline",
-                            link: {
-                              onClick: () => {
-                                setThreadView({
-                                  threadId: thread.threadId,
-                                  view: "timeline",
-                                  slug,
-                                });
-                              },
-                            },
-                          },
-                        ].filter(
-                          (option) =>
-                            option.name.toLowerCase() != thread.defaultView
-                        ),
-                      },
-                    ]
-                  : []),
-              ]
-            : []),
-        ],
-        [isLoggedIn, thread]
-      )}
+      menuOptions={postOptions}
       getOptionsForTag={React.useCallback((tag: TagsType) => {
         if (tag.type == TagType.CATEGORY) {
           return [
@@ -565,4 +473,4 @@ function BoardPage() {
   );
 }
 
-export default BoardPage;
+export default withEditors(BoardPage);

@@ -25,6 +25,7 @@
     "cross-env": "^7.0.2",
     "debug": "^4.1.1",
     "dotenv": "^8.2.0",
+    "fast-memoize": "^2.5.2",
     "firebase": "^7.14.6",
     "firebase-admin": "^8.12.1",
     "moment": "^2.26.0",
