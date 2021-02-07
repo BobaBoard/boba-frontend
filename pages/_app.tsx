@@ -129,11 +129,58 @@ function MyApp({
   const router = useRouter();
 
   const imageUploader = React.useMemo(() => getImageUploader(router), [router]);
+  React.useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      // const cachedScrollPositions: {
+      //   [key: string]: { x: number; y: number };
+      // } = {};
+      let toRestore: { x: number; y: number } | null = null;
+
+      router.events.on("routeChangeStart", () => {
+        // if (cachedScrollPositions[window.location.pathname]) {
+        //   return;
+        // }
+        // cachedScrollPositions[window.location.pathname] = {
+        //   x: window.scrollX,
+        //   y: window.scrollY,
+        // };
+        if (window.history.state["cachedScrollPosition"]) {
+          return;
+        }
+        window.history.replaceState(
+          {
+            ...window.history.state,
+            cachedScrollPosition: { x: window.scrollX, y: window.scrollY },
+          },
+          ""
+        );
+      });
+
+      router.events.on("routeChangeComplete", () => {
+        if (toRestore) {
+          const { x, y } = toRestore;
+          window.scrollTo(x, y);
+          toRestore = null;
+        }
+      });
+
+      router.events.on("beforeHistoryChange", () => {
+        if (window.history.state["cachedScrollPosition"]) {
+          toRestore = window.history.state["cachedScrollPosition"];
+        }
+        return true;
+      });
+    }
+  }, []);
 
   return (
     <>
       <Head>
         <title>{getTitle(currentBoardData)}</title>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1"
+        ></meta>
         <meta property="og:title" content={getTitle(currentBoardData)} />
         <meta property="og:type" content="website" />
         <meta
