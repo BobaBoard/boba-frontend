@@ -60,13 +60,12 @@ const ThreadPreview: React.FC<{
     accentColor: string;
   };
   onSetCategoryFilter?: (filter: string) => void;
-}> = ({ thread, isLoggedIn, onSetCategoryFilter }) => {
-  const { slug } = usePageDetails<BoardPageDetails>();
+}> = ({ thread, isLoggedIn, onSetCategoryFilter, originBoard }) => {
   const { getLinkToThread } = useCachedLinks();
   const hasReplies =
     thread.totalPostsAmount > 1 || thread.totalCommentsAmount > 0;
   const linkToThread = getLinkToThread({
-    slug,
+    slug: thread.boardSlug,
     threadId: thread.threadId,
   });
   const rootPost = thread.posts[0];
@@ -74,7 +73,7 @@ const ThreadPreview: React.FC<{
     options: THREAD_OPTIONS,
     isLoggedIn,
     data: {
-      slug,
+      slug: thread.boardSlug,
       threadId: thread.threadId,
       postId: rootPost.postId,
       own: rootPost.isOwn,
@@ -142,6 +141,7 @@ const ThreadPreview: React.FC<{
       muted={isLoggedIn && thread.muted}
       menuOptions={options}
       getOptionsForTag={tagOptions}
+      board={originBoard}
     />
   );
 };

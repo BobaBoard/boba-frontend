@@ -12,6 +12,7 @@ import { createLinkTo } from "utils/link-utils";
 import LoadingSpinner from "components/LoadingSpinner";
 import ThreadPreview from "components/ThreadPreview";
 import { withEditors } from "components/editors/withEditors";
+import { useBoardContext } from "components/BoardContext";
 
 const info = debug("bobafrontend:boardPage-info");
 info.log = console.info.bind(console);
@@ -23,6 +24,7 @@ function UserFeedPage() {
     ownOnly: false,
   });
   const { isLoggedIn } = useAuth();
+  const { boardsData } = useBoardContext();
 
   const {
     data: userActivityData,
@@ -101,6 +103,7 @@ function UserFeedPage() {
                           <ThreadPreview
                             thread={thread}
                             isLoggedIn={isLoggedIn}
+                            originBoard={boardsData[thread.boardSlug]}
                           />
                         </div>
                       );
