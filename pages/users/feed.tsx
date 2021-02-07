@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FeedWithMenu } from "@bobaboard/ui-components";
 import Layout from "../../components/Layout";
-import { useInfiniteQuery } from "react-query";
+import { InfiniteData, useInfiniteQuery, useQueryClient } from "react-query";
 import { useAuth } from "../../components/Auth";
 import { getUserActivityData } from "../../utils/queries/user";
 import debug from "debug";
-import { ThreadType } from "../../types/Types";
+import { BoardActivityResponse, ThreadType } from "../../types/Types";
 import FeedSidebar, { FeedOptions } from "../../components/feed/FeedSidebar";
 
 import { createLinkTo } from "utils/link-utils";
@@ -13,12 +13,13 @@ import LoadingSpinner from "components/LoadingSpinner";
 import ThreadPreview from "components/ThreadPreview";
 import { withEditors } from "components/editors/withEditors";
 import { useBoardContext } from "components/BoardContext";
+import { isFromBackButton } from "components/hooks/useFromBackButton";
 
 const info = debug("bobafrontend:boardPage-info");
 info.log = console.info.bind(console);
 
 function UserFeedPage() {
-  const [showSidebar, setShowSidebar] = React.useState(false);
+  const [isShowingSidebar, setShowSidebar] = React.useState(false);
   const [feedOptions, setFeedOptions] = React.useState<FeedOptions>({
     updatedOnly: true,
     ownOnly: false,
@@ -37,14 +38,30 @@ function UserFeedPage() {
     ({ pageParam = undefined }) => getUserActivityData(feedOptions, pageParam),
     {
       getNextPageParam: (lastGroup) => {
-        // TODO: if this method fires too often in a row, sometimes there's duplicate
-        // values within allGroups (aka groups fetched with the same cursor).
-        // This seems to be a library problem.
         return lastGroup?.nextPageCursor;
       },
       keepPreviousData: true,
+      refetchOnWindowFocus: false,
+      enabled: !isFromBackButton(),
     }
   );
+
+  const fetchNext = React.useCallback(() => {
+    info(`Attempting to fetch more...`);
+    info(hasNextPage);
+    if (hasNextPage && !isFetchingNextPage) {
+      info(`...found stuff!`);
+      fetchNextPage();
+      return;
+    }
+    info(
+      isFetchingNextPage
+        ? `...but we're already fetching`
+        : `...but there's nothing!`
+    );
+  }, [hasNextPage, fetchNextPage, isFetchingNextPage]);
+  const hideSidebar = React.useCallback(() => setShowSidebar(false), []);
+  const showSidebar = React.useCallback(() => setShowSidebar(true), []);
 
   const showEmptyMessage =
     !isFetchingUserActivity && userActivityData?.[0]?.activity?.length === 0;
@@ -54,39 +71,24 @@ function UserFeedPage() {
       <Layout
         title={`Your Stuff`}
         onTitleClick={createLinkTo({ url: "/users/feed" })?.onClick}
-        onCompassClick={() => setShowSidebar(true)}
+        onCompassClick={showSidebar}
         forceHideTitle={true}
         loading={isFetchingUserActivity}
       >
         <Layout.MainContent>
           <FeedWithMenu
-            onCloseSidebar={() => setShowSidebar(false)}
-            showSidebar={showSidebar}
-            onReachEnd={() => {
-              info(`Attempting to fetch more...`);
-              info(hasNextPage);
-              if (hasNextPage && !isFetchingNextPage) {
-                info(`...found stuff!`);
-                fetchNextPage();
-                return;
-              }
-              info(
-                isFetchingNextPage
-                  ? `...but we're already fetching`
-                  : `...but there's nothing!`
-              );
-            }}
+            onCloseSidebar={hideSidebar}
+            showSidebar={isShowingSidebar}
+            onReachEnd={fetchNext}
           >
             <FeedWithMenu.Sidebar>
-              {" "}
               <FeedSidebar
                 currentOptions={feedOptions}
                 onOptionsChange={setFeedOptions}
-                open={showSidebar}
+                open={isShowingSidebar}
               />
             </FeedWithMenu.Sidebar>
             <FeedWithMenu.FeedContent>
-              {" "}
               <div className="main">
                 {showEmptyMessage && (
                   <img className="empty" src={"/nothing.jpg"} />

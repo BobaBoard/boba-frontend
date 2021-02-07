@@ -7,6 +7,7 @@ import axios from "axios";
 import Head from "next/head";
 import { AuthProvider, useAuth } from "../components/Auth";
 import { BoardContextProvider } from "../components/BoardContext";
+import useFromBackButton from "../components/hooks/useFromBackButton";
 import type { AppProps } from "next/app";
 import {
   ToastContainer,
@@ -127,23 +128,14 @@ function MyApp({
     props?.boardData.map(makeClientBoardData) || [];
   const currentBoardData = boardData.find((board) => board.slug == props.slug);
   const router = useRouter();
+  useFromBackButton();
 
   const imageUploader = React.useMemo(() => getImageUploader(router), [router]);
   React.useEffect(() => {
     if ("scrollRestoration" in window.history) {
-      // const cachedScrollPositions: {
-      //   [key: string]: { x: number; y: number };
-      // } = {};
       let toRestore: { x: number; y: number } | null = null;
 
       router.events.on("routeChangeStart", () => {
-        // if (cachedScrollPositions[window.location.pathname]) {
-        //   return;
-        // }
-        // cachedScrollPositions[window.location.pathname] = {
-        //   x: window.scrollX,
-        //   y: window.scrollY,
-        // };
         if (window.history.state["cachedScrollPosition"]) {
           return;
         }

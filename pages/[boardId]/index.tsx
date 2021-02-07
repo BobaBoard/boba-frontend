@@ -101,6 +101,7 @@ function BoardPage() {
       enabled:
         !boardsData[slug]?.loggedInOnly || (!isAuthPending && isLoggedIn),
       keepPreviousData: true,
+      refetchOnWindowFocus: false,
     }
   );
 

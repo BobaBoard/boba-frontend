@@ -5,7 +5,6 @@ import { ThreadType } from "../types/Types";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { useCachedLinks } from "./hooks/useCachedLinks";
 import noop from "noop-ts";
-import { BoardPageDetails, usePageDetails } from "../utils/router-utils";
 import { usePostOptions, PostOptions } from "./hooks/useOptions";
 import { useSetThreadHidden } from "./hooks/queries/thread";
 
