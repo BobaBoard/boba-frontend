@@ -36,6 +36,9 @@ import {
   EditorActions,
   useEditorsDispatch,
 } from "components/editors/EditorsContext";
+import { useReadThread } from "components/hooks/queries/thread";
+import { clearThreadData } from "utils/queries/cache";
+import { useQueryClient } from "react-query";
 const log = debug("bobafrontend:threadPage-log");
 
 const getViewTypeFromString = (
@@ -107,6 +110,7 @@ function ThreadPage({
   hasNewReplies,
   chronologicalPostsSequence,
 }: ThreadContextType) {
+  const queryClient = useQueryClient();
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const { getLinkToBoard } = useCachedLinks();
@@ -120,6 +124,31 @@ function ThreadPage({
     showSidebar,
   ]);
   const dispatch = useEditorsDispatch();
+  const markAsRead = useReadThread();
+  const hasMarkedAsRead = React.useRef(false);
+
+  React.useEffect(() => {
+    if (
+      !isAuthPending &&
+      !isFetchingThread &&
+      isLoggedIn &&
+      !hasMarkedAsRead.current
+    ) {
+      markAsRead({ slug, threadId });
+      hasMarkedAsRead.current = true;
+      return;
+    }
+  }, [isAuthPending, isFetchingThread, isLoggedIn]);
+
+  React.useEffect(() => {
+    return () => {
+      if (!threadId || !slug) {
+        return;
+      }
+      clearThreadData(queryClient, { slug, threadId });
+      hasMarkedAsRead.current = false;
+    };
+  }, []);
 
   // URL params management
   const queryParamsViewMode = getQueryParamsViewMode(threadDefaultView);
@@ -301,7 +330,13 @@ function ThreadPage({
                 <LoadingSpinner
                   loading={isFetchingThread || isRefetchingThread}
                   idleMessage={
-                    maxDisplay < chronologicalPostsSequence.length
+                    // Check whether there's more posts to display
+                    (
+                      queryParamsViewMode == THREAD_VIEW_MODES.TIMELINE &&
+                      queryParamsTimelineViewMode == TIMELINE_VIEW_MODE.NEW
+                        ? maxDisplay < newAnswersSequence.length
+                        : maxDisplay < chronologicalPostsSequence.length
+                    )
                       ? "..."
                       : queryParamsViewMode == THREAD_VIEW_MODES.THREAD
                       ? ""

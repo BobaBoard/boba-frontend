@@ -1,8 +1,7 @@
 import React from "react";
 
-import { useAuth } from "components/Auth";
-import { getThreadData, markThreadAsRead } from "utils/queries";
-import { useQuery, useMutation, useQueryClient } from "react-query";
+import { getThreadData } from "utils/queries";
+import { useQuery, useQueryClient } from "react-query";
 import {
   PostType,
   ThreadType,
@@ -18,12 +17,7 @@ import {
   extractAnswersSequence,
   UNCATEGORIZED_LABEL,
 } from "utils/thread-utils";
-import {
-  clearThreadData,
-  // @ts-ignore
-  getThreadInBoardCache,
-  removeThreadActivityFromCache,
-} from "utils/queries/cache";
+import { getThreadInBoardCache } from "utils/queries/cache";
 import moment from "moment";
 
 import debug from "debug";
@@ -84,11 +78,9 @@ export const useThreadWithNull = ({
   fetch?: boolean;
 }): ThreadContextType => {
   const queryClient = useQueryClient();
-  const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const {
     data: threadData,
     isLoading: isFetchingThread,
-    isStale,
     isFetching: isRefetching,
   } = useQuery<
     ThreadType | null,
@@ -123,59 +115,13 @@ export const useThreadWithNull = ({
       },
       staleTime: 30 * 1000,
       notifyOnChangeProps: ["data"],
-      enabled: !!fetch,
+      refetchOnMount: !!fetch,
       onSuccess: (data) => {
         log(`Retrieved thread data for thread with id ${threadId}`);
         info(data);
       },
     }
   );
-
-  // Mark thread as read on authentication and thread fetch
-  const { mutate: readThread } = useMutation(
-    () => {
-      if (!threadId) {
-        return Promise.resolve(null);
-      }
-      return markThreadAsRead({ threadId });
-    },
-    {
-      onSuccess: () => {
-        if (!threadId || !slug) {
-          return;
-        }
-        log(`Successfully marked thread as read`);
-        removeThreadActivityFromCache(queryClient, {
-          threadId,
-          slug,
-          categoryFilter: null,
-        });
-      },
-    }
-  );
-
-  React.useEffect(() => {
-    return () => {
-      if (!threadId || !slug) {
-        return;
-      }
-      if (fetch) {
-        clearThreadData(queryClient, { slug, threadId });
-      }
-    };
-  }, []);
-  React.useEffect(() => {
-    if (
-      !isAuthPending &&
-      !isFetchingThread &&
-      isLoggedIn &&
-      markAsRead &&
-      !isStale
-    ) {
-      readThread();
-      return;
-    }
-  }, [isAuthPending, isFetchingThread, isLoggedIn, isStale]);
 
   // Extract posts data in a format that is easily consumable by context consumers.
   const {
@@ -295,7 +241,6 @@ export const withThreadData = <P extends ThreadContextType>(
       threadId,
       postId,
       slug,
-      markAsRead: options?.markReadOnMount,
       fetch: options?.fetch,
     });
     return <WrappedComponent {...threadData} {...props} />;

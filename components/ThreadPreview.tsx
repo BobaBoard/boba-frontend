@@ -55,6 +55,10 @@ const HiddenThread: React.FC<{
 const ThreadPreview: React.FC<{
   thread: ThreadType;
   isLoggedIn: boolean;
+  originBoard?: {
+    slug: string;
+    accentColor: string;
+  };
   onSetCategoryFilter?: (filter: string) => void;
 }> = ({ thread, isLoggedIn, onSetCategoryFilter }) => {
   const { slug } = usePageDetails<BoardPageDetails>();

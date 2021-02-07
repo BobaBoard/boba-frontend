@@ -14,6 +14,7 @@ import {
 import debug from "debug";
 import { ThreadType } from "../../../types/Types";
 import { updateThreadView } from "../../../utils/queries/post";
+import { useAuth } from "components/Auth";
 
 const error = debug("bobafrontend:hooks:queries:thread-error");
 const log = debug("bobafrontend:hooks:queries:thread-log");
@@ -165,4 +166,36 @@ export const useSetThreadHidden = () => {
     }
   );
   return setThreadHidden;
+};
+
+export const useReadThread = () => {
+  const queryClient = useQueryClient();
+  const { isLoggedIn } = useAuth();
+  // Mark thread as read on authentication and thread fetch
+  const { mutate: readThread } = useMutation(
+    ({ threadId }: { threadId: string; slug: string }) => {
+      if (!isLoggedIn) {
+        throw new Error("Attempt to read thread with no user logged in.");
+      }
+      if (!threadId) {
+        return Promise.resolve(null);
+      }
+      return markThreadAsRead({ threadId });
+    },
+    {
+      onSuccess: (_, { threadId, slug }) => {
+        if (!threadId || !slug) {
+          return;
+        }
+        log(`Successfully marked thread as read`);
+        removeThreadActivityFromCache(queryClient, {
+          threadId,
+          slug,
+          categoryFilter: null,
+        });
+      },
+    }
+  );
+
+  return readThread;
 };

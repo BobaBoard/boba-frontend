@@ -100,6 +100,7 @@ function BoardPage() {
       // Block this query for loggedInOnly boards (unless we're logged in)
       enabled:
         !boardsData[slug]?.loggedInOnly || (!isAuthPending && isLoggedIn),
+      keepPreviousData: true,
     }
   );
 

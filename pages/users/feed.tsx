@@ -40,6 +40,7 @@ function UserFeedPage() {
         // This seems to be a library problem.
         return lastGroup?.nextPageCursor;
       },
+      keepPreviousData: true,
     }
   );
 
