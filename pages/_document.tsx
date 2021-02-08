@@ -34,30 +34,30 @@ const bodyCss = (
     }
   `}</style>
 );
+
 class MyDocument extends Document {
   static async getInitialProps(ctx: any) {
     log(ctx);
     const initialProps = await Document.getInitialProps(ctx);
     const externalStyles = componentsFlush() as any;
-
-    return { ...initialProps, externalStyles };
+    return {
+      ...initialProps,
+      styles: (
+        <>
+          {bodyCss}
+          {externalStyles}
+          {initialProps.styles}
+        </>
+      ),
+    };
   }
 
   render() {
     return (
       <Html>
         <Head>
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1"
-          ></meta>
-          {bodyCss}
-          {
-            // @ts-ignore
-            this.props.externalStyles
-          }
           <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=fallback"
             rel="stylesheet"
           />
           <script
@@ -69,7 +69,6 @@ class MyDocument extends Document {
           ></script>
         </Head>
         <body>
-          <script>0</script>
           <Main />
           <NextScript />
         </body>

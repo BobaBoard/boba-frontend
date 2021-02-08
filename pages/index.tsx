@@ -35,11 +35,9 @@ function HomePage(props: any) {
               </p>
               <p>
                 Please do report bugs, thoughts and praise (seriously, gotta
-                know what's working) in the{" "}
-                <pre style={{ display: "inline" }}>#v0-report</pre> discord
-                channel, the <pre style={{ display: "inline" }}>!bobaland</pre>{" "}
-                board or the (even more) anonymous feedback form in the user
-                menu.
+                know what's working) in the <code>#v0-report</code> discord
+                channel, the <code>!bobaland</code> board or the (even more)
+                anonymous feedback form in the user menu.
               </p>
               <div className="updates">
                 <h2>New Stuff </h2>
