@@ -169,10 +169,6 @@ function MyApp({
     <>
       <Head>
         <title>{getTitle(currentBoardData)}</title>
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1"
-        ></meta>
         <meta property="og:title" content={getTitle(currentBoardData)} />
         <meta property="og:type" content="website" />
         <meta

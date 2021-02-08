@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { FeedWithMenu } from "@bobaboard/ui-components";
 import Layout from "../../components/Layout";
-import { InfiniteData, useInfiniteQuery, useQueryClient } from "react-query";
+import { useInfiniteQuery } from "react-query";
 import { useAuth } from "../../components/Auth";
 import { getUserActivityData } from "../../utils/queries/user";
 import debug from "debug";
-import { BoardActivityResponse, ThreadType } from "../../types/Types";
+import { ThreadType } from "../../types/Types";
 import FeedSidebar, { FeedOptions } from "../../components/feed/FeedSidebar";
 
 import { createLinkTo } from "utils/link-utils";

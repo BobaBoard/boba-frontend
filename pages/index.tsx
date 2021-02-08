@@ -91,96 +91,96 @@ function HomePage(props: any) {
               />
             </div>
             {styles}
-            <style jsx>{`
-              .intro {
-                max-width: 600px;
-                margin: 0 auto;
-                margin-bottom: 25px;
-                line-height: 20px;
-              }
-              a {
-                color: #f96680;
-              }
-              .tagline {
-                font-style: italic;
-                opacity: 0.9;
-                margin-top: -10px;
-                margin-bottom: 15px;
-              }
-              .intro img {
-                height: 100px;
-              }
-              .updates {
-                background-color: #1c1c1c;
-                padding: 15px;
-                border-radius: 25px;
-                position: relative;
-              }
-              .updates .last {
-                font-size: small;
-                margin-bottom: 5px;
-              }
-              .updates :global(.expand-overlay) :global(svg) {
-                margin-top: 15px;
-              }
-              .intro ul {
-                list-style-position: inside;
-                list-style-type: lower-greek;
-                padding-left: 0px;
-              }
-              .intro ul ul {
-                padding-left: 10px;
-                list-style-type: circle;
-              }
-              .intro ul ul li {
-                padding-bottom: 5px;
-              }
-              .intro ul li {
-                padding-bottom: 10px;
-              }
-              .content {
-                color: white;
-                text-align: center;
-                margin: 0 auto;
-                padding: 20px;
-              }
-              .display {
-                max-width: 800px;
-                width: 90%;
-                margin: 0 auto;
-              }
-              .title {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin-top: 20px;
-                margin-bottom: 10px;
-              }
-              .title h1 {
-                margin: 0px 5px;
-                line-height: 30px;
-              }
-              .title img:first-child {
-                width: 45px;
-                height: 45px;
-              }
-              .title img {
-                width: 50px;
-                height: 50px;
-                z-index: 5;
-              }
-              .intro .christmas {
-                height: 250px;
-              }
-              @media only screen and (max-width: 400px) {
-                h1 {
-                  font-size: 25px;
-                }
-              }
-            `}</style>
           </div>
         </Layout.MainContent>
       </Layout>
+      <style jsx>{`
+        .intro {
+          max-width: 600px;
+          margin: 0 auto;
+          margin-bottom: 25px;
+          line-height: 20px;
+        }
+        a {
+          color: #f96680;
+        }
+        .tagline {
+          font-style: italic;
+          opacity: 0.9;
+          margin-top: -10px;
+          margin-bottom: 15px;
+        }
+        .intro img {
+          height: 100px;
+        }
+        .updates {
+          background-color: #1c1c1c;
+          padding: 15px;
+          border-radius: 25px;
+          position: relative;
+        }
+        .updates .last {
+          font-size: small;
+          margin-bottom: 5px;
+        }
+        .updates :global(.expand-overlay) :global(svg) {
+          margin-top: 15px;
+        }
+        .intro ul {
+          list-style-position: inside;
+          list-style-type: lower-greek;
+          padding-left: 0px;
+        }
+        .intro ul ul {
+          padding-left: 10px;
+          list-style-type: circle;
+        }
+        .intro ul ul li {
+          padding-bottom: 5px;
+        }
+        .intro ul li {
+          padding-bottom: 10px;
+        }
+        .content {
+          color: white;
+          text-align: center;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        .display {
+          max-width: 800px;
+          width: 90%;
+          margin: 0 auto;
+        }
+        .title {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-top: 20px;
+          margin-bottom: 10px;
+        }
+        .title h1 {
+          margin: 0px 5px;
+          line-height: 30px;
+        }
+        .title img:first-child {
+          width: 45px;
+          height: 45px;
+        }
+        .title img {
+          width: 50px;
+          height: 50px;
+          z-index: 5;
+        }
+        .intro .christmas {
+          height: 250px;
+        }
+        @media only screen and (max-width: 400px) {
+          h1 {
+            font-size: 25px;
+          }
+        }
+      `}</style>
     </div>
   );
 }
