@@ -9,22 +9,10 @@ import { useInfiniteQuery } from "react-query";
 import { useAuth } from "../../components/Auth";
 import { useBoardContext } from "../../components/BoardContext";
 import { getBoardActivityData } from "../../utils/queries";
-import {
-  useDismissBoardNotifications,
-  useMuteBoard,
-  usePinBoard,
-  useUpdateBoardMetadata,
-} from "../../components/hooks/queries/board";
+import { useUpdateBoardMetadata } from "../../components/hooks/queries/board";
 import axios from "axios";
 import debug from "debug";
 import { ThreadType } from "../../types/Types";
-import {
-  faCommentSlash,
-  faEdit,
-  faThumbtack,
-  faVolumeMute,
-  faVolumeUp,
-} from "@fortawesome/free-solid-svg-icons";
 import { BoardPageDetails, usePageDetails } from "utils/router-utils";
 import LoadingSpinner from "components/LoadingSpinner";
 import ThreadPreview from "components/ThreadPreview";
@@ -33,6 +21,10 @@ import {
   useEditorsDispatch,
 } from "components/editors/EditorsContext";
 import { withEditors } from "components/editors/withEditors";
+import {
+  useBoardOptions,
+  BoardOptions,
+} from "components/hooks/useBoardOptions";
 
 const log = debug("bobafrontend:boardPage-log");
 const info = debug("bobafrontend:boardPage-info");
@@ -71,6 +63,18 @@ function BoardPage() {
   const [categoryFilter, setCategoryFilter] = React.useState<string | null>(
     null
   );
+  const boardOptions = useBoardOptions({
+    options: [
+      BoardOptions.MUTE,
+      BoardOptions.PIN,
+      BoardOptions.DISMISS_NOTIFICATIONS,
+      BoardOptions.EDIT,
+    ],
+    slug,
+    callbacks: {
+      editSidebar: setEditingSidebar,
+    },
+  });
   React.useEffect(() => {
     setCategoryFilter(null);
   }, [slug]);
@@ -79,9 +83,6 @@ function BoardPage() {
       setEditingSidebar(false);
     },
   });
-  const setBoardPinned = usePinBoard();
-  const dismissNotifications = useDismissBoardNotifications();
-  const setBoardMuted = useMuteBoard();
 
   const {
     data: boardActivityData,
@@ -105,59 +106,22 @@ function BoardPage() {
     }
   );
 
-  const boardOptions = React.useMemo(() => {
-    if (!isLoggedIn || !boardsData || !boardsData[slug]) {
-      return undefined;
-    }
-    const options: any = [
-      {
-        icon: boardsData[slug].muted ? faVolumeUp : faVolumeMute,
-        name: boardsData[slug].muted ? "Unmute" : "Mute",
-        link: {
-          onClick: () =>
-            setBoardMuted({
-              slug,
-              mute: !boardsData[slug].muted,
-            }),
-        },
-      },
-      {
-        icon: faThumbtack,
-        name: !!boardsData[slug].pinnedOrder ? "Unpin" : "Pin",
-        link: {
-          onClick: () =>
-            setBoardPinned({
-              slug,
-              pin: !boardsData[slug].pinnedOrder,
-            }),
-        },
-      },
-      {
-        icon: faCommentSlash,
-        name: "Dismiss notifications",
-        link: {
-          onClick: () => dismissNotifications({ slug }),
-        },
-      },
-    ];
-    if (boardsData[slug].permissions?.canEditBoardData) {
-      options.push({
-        icon: faEdit,
-        name: "Edit Board",
-        link: {
-          onClick: () => setEditingSidebar(true),
-        },
-      });
-    }
-    return options;
-  }, [isLoggedIn, boardsData[slug], slug]);
-
   React.useEffect(() => {
     if (!isAuthPending && isLoggedIn) {
       log(`Marking board ${slug} as visited`);
       axios.get(`boards/${slug}/visit`);
     }
   }, [isAuthPending, isLoggedIn, slug]);
+
+  const onCategoriesStateChange = React.useCallback(
+    (categories: { name: string; active: boolean }[]) => {
+      const activeCategories = categories.filter((category) => category.active);
+      setCategoryFilter(
+        activeCategories.length == 1 ? activeCategories[0].name : null
+      );
+    },
+    []
+  );
 
   const showLockedMessage =
     !isAuthPending && !isLoggedIn && boardsData[slug]?.loggedInOnly;
@@ -195,7 +159,6 @@ function BoardPage() {
             <FeedWithMenu.Sidebar>
               <div>
                 <MemoizedBoardSidebar
-                  // @ts-ignore
                   slug={boardsData[slug]?.slug || slug}
                   avatarUrl={boardsData[slug]?.avatarUrl || "/"}
                   tagline={boardsData[slug]?.tagline || "loading..."}
@@ -207,16 +170,7 @@ function BoardPage() {
                   onCancelEditing={stopEditing}
                   onUpdateMetadata={updateBoardMetadata}
                   activeCategory={categoryFilter}
-                  onCategoriesStateChange={React.useCallback((categories) => {
-                    const activeCategories = categories.filter(
-                      (category) => category.active
-                    );
-                    setCategoryFilter(
-                      activeCategories.length == 1
-                        ? activeCategories[0].name
-                        : null
-                    );
-                  }, [])}
+                  onCategoriesStateChange={onCategoriesStateChange}
                 />
                 {!boardsData[slug]?.descriptions && !editingSidebar && (
                   <img

@@ -12,7 +12,6 @@ import {
 } from "../../../utils/queries/cache";
 import debug from "debug";
 import { BoardData, BoardDescription } from "../../../types/Types";
-import { usePageDetails } from "../../../utils/router-utils";
 import { useBoardContext } from "components/BoardContext";
 
 const error = debug("bobafrontend:hooks:queries:board-error");
@@ -87,12 +86,11 @@ export const usePinBoard = () => {
 };
 
 export const useDismissBoardNotifications = () => {
-  const { slug } = usePageDetails();
   const queryClient = useQueryClient();
   const { mutate: dismissNotifications } = useMutation(
     ({ slug }: { slug: string }) => dismissBoardNotifications({ slug }),
     {
-      onSuccess: () => {
+      onSuccess: (_, { slug }) => {
         log(`Successfully dismissed board notifications. Refetching...`);
         queryClient.invalidateQueries("allBoardsData");
         queryClient.invalidateQueries(["boardActivityData", { slug }]);
