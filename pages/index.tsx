@@ -59,6 +59,9 @@ function HomePage(props: any) {
                       createdTime={moment
                         .utc(props?.lastUpdate.last_updated)
                         .fromNow()}
+                      createdTimeLink={{
+                        href: process.env.NEXT_PUBLIC_RELEASE_THREAD_URL,
+                      }}
                       text={props?.lastUpdate.post_content}
                       secretIdentity={{
                         name: props?.lastUpdate.secret_identity_name,
