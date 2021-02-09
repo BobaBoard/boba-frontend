@@ -9,7 +9,7 @@ log.enabled = false;
 const bodyCss = (
   <style jsx>{`
     body {
-      font-family: "Inter", sans-serif;
+      font-family: Inter, sans-serif;
       background-color: rgb(47, 47, 48);
     }
 
@@ -57,7 +57,7 @@ class MyDocument extends Document {
       <Html>
         <Head>
           <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=fallback"
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"
             rel="stylesheet"
           />
           <script

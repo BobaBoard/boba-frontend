@@ -131,6 +131,7 @@ function ThreadPage({
     if (
       !isAuthPending &&
       !isFetchingThread &&
+      !isRefetchingThread &&
       isLoggedIn &&
       !hasMarkedAsRead.current
     ) {
@@ -138,7 +139,7 @@ function ThreadPage({
       hasMarkedAsRead.current = true;
       return;
     }
-  }, [isAuthPending, isFetchingThread, isLoggedIn]);
+  }, [isAuthPending, isFetchingThread, isRefetchingThread, isLoggedIn]);
 
   React.useEffect(() => {
     return () => {
@@ -387,6 +388,5 @@ function ThreadPage({
 }
 
 export default withThreadData(withEditors(ThreadPage), {
-  markReadOnMount: true,
   fetch: true,
 });

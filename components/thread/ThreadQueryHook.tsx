@@ -55,7 +55,6 @@ export const useThread = (props: {
   threadId: string;
   postId: string | null;
   slug: string;
-  markAsRead?: boolean;
   fetch?: boolean;
 }): ThreadContextType => {
   if (!props.threadId || !props.slug) {
@@ -68,13 +67,11 @@ export const useThreadWithNull = ({
   threadId,
   postId,
   slug,
-  markAsRead,
   fetch,
 }: {
   threadId: string | null;
   postId: string | null;
   slug: string | null;
-  markAsRead?: boolean;
   fetch?: boolean;
 }): ThreadContextType => {
   const queryClient = useQueryClient();
@@ -229,7 +226,6 @@ type Subtract<T, V> = Pick<T, Exclude<keyof T, keyof V>>;
 export const withThreadData = <P extends ThreadContextType>(
   WrappedComponent: React.ComponentType<P>,
   options?: {
-    markReadOnMount?: boolean;
     fetch?: boolean;
   }
 ) => {
