@@ -12,7 +12,7 @@ import type { AppProps } from "next/app";
 import {
   ToastContainer,
   toast,
-  EmbedsFetcherContext,
+  EditorContext,
   ImageUploaderContext,
 } from "@bobaboard/ui-components";
 import { createImageUploadPromise } from "../utils/image-upload";
@@ -24,6 +24,7 @@ import debug from "debug";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { NextRouter, useRouter } from "next/router";
+import embedsCache from "../utils/embeds-cache";
 const error = debug("bobafrontend:app-error");
 
 if (typeof window !== "undefined") {
@@ -76,6 +77,10 @@ const embedsFetchers = {
         return res.data;
       });
   },
+};
+const editorContext = {
+  cache: embedsCache,
+  fetchers: embedsFetchers,
 };
 const getImageUploader = (router: NextRouter) => ({
   onImageUploadRequest: (src: string) =>
@@ -209,7 +214,7 @@ function MyApp({
       </Head>
       <QueryParamProvider>
         <QueryClientProvider client={queryClient}>
-          <EmbedsFetcherContext.Provider value={embedsFetchers}>
+          <EditorContext.Provider value={editorContext}>
             <ImageUploaderContext.Provider value={imageUploader}>
               <AuthProvider>
                 <AxiosInterceptor />
@@ -219,7 +224,7 @@ function MyApp({
                 </BoardContextProvider>
               </AuthProvider>
             </ImageUploaderContext.Provider>
-          </EmbedsFetcherContext.Provider>
+          </EditorContext.Provider>
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </QueryParamProvider>

@@ -37,37 +37,37 @@ class MyDocument extends Document {
             defer
             src="//platform.twitter.com/widgets.js"
           ></script>
+          <style>{`
+            body {
+              font-family: Inter, sans-serif;
+              background-color: rgb(47, 47, 48);
+            }
+
+            * {
+              scrollbar-width: thin;
+              scrollbar-color: #2f2f30 #1c1c1c;
+            }
+            *::-webkit-scrollbar-track {
+              -webkit-box-shadow: inset 0 0 5px 0px #2f2f30;
+              border-radius: 10px;
+            }
+
+            *::-webkit-scrollbar {
+              width: 10px;
+              background-color: #1c1c1c;
+            }
+
+            *::-webkit-scrollbar-thumb {
+              border-radius: 15px;
+              -webkit-box-shadow: inset 0 0px 2px 1px #1c1c1c;
+              background-color: #5a5a5ad6;
+            }
+        `}</style>
         </Head>
         <body>
           <Main />
           <NextScript />
         </body>
-        <style jsx global>{`
-          body {
-            font-family: Inter, sans-serif;
-            background-color: rgb(47, 47, 48);
-          }
-
-          div {
-            scrollbar-width: thin;
-            scrollbar-color: #2f2f30 #1c1c1c;
-          }
-          div::-webkit-scrollbar-track {
-            -webkit-box-shadow: inset 0 0 5px 0px #2f2f30;
-            border-radius: 10px;
-          }
-
-          div::-webkit-scrollbar {
-            width: 10px;
-            background-color: #1c1c1c;
-          }
-
-          div::-webkit-scrollbar-thumb {
-            border-radius: 15px;
-            -webkit-box-shadow: inset 0 0px 2px 1px #1c1c1c;
-            background-color: #5a5a5ad6;
-          }
-        `}</style>
       </Html>
     );
   }
