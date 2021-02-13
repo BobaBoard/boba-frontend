@@ -6,6 +6,7 @@ import {
 } from "@bobaboard/ui-components";
 import { useAuth } from "./Auth";
 import classnames from "classnames";
+import { useHotkeys } from "react-hotkeys-hook";
 
 const LoginModal: React.FC<LoginModalProps> = (props) => {
   const {
@@ -17,26 +18,28 @@ const LoginModal: React.FC<LoginModalProps> = (props) => {
   } = useAuth();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const onSubmit = () => {
+    if (!isLoggedIn) {
+      attemptLogin(email, password).then((success: boolean) => {
+        setPassword("");
+        if (success) {
+          setEmail("");
+          props.onCloseModal();
+        }
+      });
+    } else {
+      attemptLogout().then(() => {
+        props.onCloseModal();
+      });
+    }
+  };
+  useHotkeys("enter", onSubmit, { enableOnTags: ["INPUT"] }, [email, password]);
 
   return (
     <ModalWithButtons
       isOpen={props.isOpen}
       onCloseModal={props.onCloseModal}
-      onSubmit={() => {
-        if (!isLoggedIn) {
-          attemptLogin(email, password).then((success: boolean) => {
-            setPassword("");
-            if (success) {
-              setEmail("");
-              props.onCloseModal();
-            }
-          });
-        } else {
-          attemptLogout().then(() => {
-            props.onCloseModal();
-          });
-        }
-      }}
+      onSubmit={onSubmit}
       color={props.color}
       primaryText={isLoggedIn ? "Logout" : "Login"}
       primaryDisabled={
