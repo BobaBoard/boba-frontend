@@ -63,7 +63,7 @@ const TimelineViewQueryParams = {
   all: ExistanceParam,
 };
 
-const ThreadViewQueryParams = {
+export const ThreadViewQueryParams = {
   gallery: ExistanceParam,
   timeline: ExistanceParam,
   thread: ExistanceParam,
@@ -335,8 +335,8 @@ function ThreadPage({
                     (
                       queryParamsViewMode == THREAD_VIEW_MODES.TIMELINE &&
                       queryParamsTimelineViewMode == TIMELINE_VIEW_MODE.NEW
-                        ? maxDisplay < newAnswersSequence.length
-                        : maxDisplay < chronologicalPostsSequence.length
+                        ? maxDisplay <= newAnswersSequence.length
+                        : maxDisplay <= chronologicalPostsSequence.length
                     )
                       ? "..."
                       : queryParamsViewMode == THREAD_VIEW_MODES.THREAD

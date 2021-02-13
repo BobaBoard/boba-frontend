@@ -1,3 +1,7 @@
+import { ThreadViewQueryParams } from "pages/[boardId]/thread/[...threadId]";
+import { stringify } from "query-string";
+import { PostData } from "types/Types";
+import { encodeQueryParams } from "use-query-params";
 import {
   BOARD_URL_PATTERN,
   THREAD_URL_PATTERN,
@@ -44,16 +48,26 @@ const THREADS_CACHE = new Map<string, LinkWithNotNullAction>();
 const getLinkToThread = ({
   slug,
   threadId,
+  view,
 }: {
   slug: string;
   threadId: string;
+  view?: PostData["defaultView"];
 }) => {
-  if (!THREADS_CACHE.has(threadId)) {
+  const id = view ? `${threadId}_${view}` : threadId;
+  if (!THREADS_CACHE.has(id)) {
     THREADS_CACHE.set(
-      threadId,
+      id,
       createLinkTo({
         urlPattern: THREAD_URL_PATTERN,
-        url: `/!${slug}/thread/${threadId}`,
+        url: view
+          ? `/!${slug}/thread/${threadId}?${stringify(
+              encodeQueryParams(ThreadViewQueryParams, { [view]: true })
+            )}`
+          : `/!${slug}/thread/${threadId}`,
+        queryParams: view && {
+          [view]: true,
+        },
       })
     );
   }

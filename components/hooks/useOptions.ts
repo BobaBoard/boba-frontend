@@ -11,6 +11,7 @@ import {
   faFilm,
   faImages,
   faLink,
+  faReply,
   faVolumeMute,
   faVolumeUp,
 } from "@fortawesome/free-solid-svg-icons";
@@ -25,6 +26,7 @@ import {
   useSetThreadHidden,
   useSetThreadView,
 } from "./queries/thread";
+import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
 
 export enum PostOptions {
   COPY_LINK = "COPY_LINK",
@@ -34,6 +36,7 @@ export enum PostOptions {
   MUTE = "MUTE",
   HIDE = "HIDE",
   UPDATE_VIEW = "UPDATE_VIEW",
+  OPEN_AS = "OPEN_AS",
 }
 
 const getCopyLinkOption = (href: string, text: string) => ({
@@ -89,6 +92,7 @@ const getHideThreadOption = (
     onClick: () => callback(!hidden),
   },
 });
+
 const getUpdateViewOption = (
   currentView: PostData["defaultView"],
   callback: (updatedView: PostData["defaultView"]) => void
@@ -118,6 +122,30 @@ const getUpdateViewOption = (
       },
     },
   ].filter((option) => option.name.toLowerCase() != currentView),
+});
+
+const getOpenAsOptions = (
+  getLink: (view: PostData["defaultView"]) => LinkWithAction
+) => ({
+  icon: faReply,
+  name: "Open as",
+  options: [
+    {
+      icon: faCodeBranch,
+      name: "Thread",
+      link: getLink("thread"),
+    },
+    {
+      icon: faImages,
+      name: "Gallery",
+      link: getLink("gallery"),
+    },
+    {
+      icon: faFilm,
+      name: "Timeline",
+      link: getLink("timeline"),
+    },
+  ],
 });
 
 const usePostOptions = ({
@@ -239,6 +267,14 @@ const usePostOptions = ({
           return null;
         }
         return getEditTagsOption(editTagsCallback);
+      case PostOptions.OPEN_AS:
+        return getOpenAsOptions((view) =>
+          getLinkToThread({
+            slug: slug,
+            threadId: threadId,
+            view,
+          })
+        );
     }
   };
 
