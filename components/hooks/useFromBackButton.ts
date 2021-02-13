@@ -1,49 +1,31 @@
 import React from "react";
 import { useRouter } from "next/router";
 
-export const BACK_BUTTON_STORAGE_KEY = "restored";
+export const BACK_BUTTON_STORAGE_KEY = "isBackButton";
+let isBackButton = false;
 
 export const isFromBackButton = () => {
-  return (
-    typeof window !== "undefined" &&
-    sessionStorage.getItem(BACK_BUTTON_STORAGE_KEY) !== "true"
-  );
+  if (typeof window === "undefined") {
+    return false;
+  }
+  return isBackButton;
 };
 
 const useFromBackButton = () => {
   const router = useRouter();
+
+  if (typeof window !== "undefined") {
+    window.onpopstate = () => {
+      isBackButton = true;
+    };
+  }
   React.useEffect(() => {
-    if ("scrollRestoration" in window.history) {
-      let isBack: boolean | null = null;
-
-      router.events.on("routeChangeStart", () => {
-        if (window.history.state["BACK_BUTTON_STORAGE_KEY"]) {
-          return;
-        }
-        sessionStorage.setItem(BACK_BUTTON_STORAGE_KEY, "false");
-        window.history.replaceState(
-          {
-            ...window.history.state,
-            [BACK_BUTTON_STORAGE_KEY]: true,
-          },
-          ""
-        );
-      });
-
-      router.events.on("routeChangeComplete", () => {
-        if (isBack) {
-          sessionStorage.setItem(BACK_BUTTON_STORAGE_KEY, "true");
-          isBack = null;
-        }
-      });
-
-      router.events.on("beforeHistoryChange", () => {
-        if (window.history.state[BACK_BUTTON_STORAGE_KEY]) {
-          isBack = window.history.state[BACK_BUTTON_STORAGE_KEY];
-        }
-        return true;
-      });
-    }
+    // This event seems to fire before onPopState, so we reset
+    // the status of the back button every time, and it will
+    // only be set to "true" if "onpopstate" fires.
+    router.events.on("routeChangeStart", () => {
+      isBackButton = false;
+    });
   }, []);
 };
 

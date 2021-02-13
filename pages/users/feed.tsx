@@ -27,6 +27,7 @@ function UserFeedPage() {
   const { isLoggedIn } = useAuth();
   const { boardsData } = useBoardContext();
 
+  console.log(isFromBackButton());
   const {
     data: userActivityData,
     isFetching: isFetchingUserActivity,
@@ -110,12 +111,16 @@ function UserFeedPage() {
                         </div>
                       );
                     })}
-                {!showEmptyMessage && userActivityData?.pages?.length && (
-                  <LoadingSpinner
-                    loading={isFetchingNextPage}
-                    idleMessage={hasNextPage ? "..." : "Nothing more to load."}
-                    loadingMessage={"Loading more"}
-                  />
+                {!showEmptyMessage && (
+                  <div className="spinner">
+                    <LoadingSpinner
+                      loading={isFetchingNextPage || isFetchingUserActivity}
+                      idleMessage={
+                        hasNextPage ? "..." : "Nothing more to load."
+                      }
+                      loadingMessage={"Loading more"}
+                    />
+                  </div>
                 )}
               </div>
             </FeedWithMenu.FeedContent>
@@ -152,6 +157,9 @@ function UserFeedPage() {
           display: block;
           opacity: 0.5;
           filter: grayscale(0.4);
+        }
+        .spinner {
+          margin-top: 20px;
         }
       `}</style>
     </div>
