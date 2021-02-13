@@ -72,6 +72,7 @@ const LoadingSpinner: React.FC<{
         }
         .bobadab.refetching {
           animation: rotation 2s infinite linear;
+          transform-origin: center;
         }
         @keyframes rotation {
           from {
