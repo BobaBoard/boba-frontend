@@ -25,6 +25,7 @@ import {
   useBoardOptions,
   BoardOptions,
 } from "components/hooks/useBoardOptions";
+import { ArrayParam, useQueryParams } from "use-query-params";
 
 const log = debug("bobafrontend:boardPage-log");
 const info = debug("bobafrontend:boardPage-info");
@@ -46,6 +47,10 @@ const NewThreadButton = withEditors<{ slug: string }>((props) => {
   );
 });
 
+const BoardParams = {
+  filter: ArrayParam,
+};
+
 const MemoizedThreadPreview = React.memo(ThreadPreview);
 const MemoizedActionButton = React.memo(PostingActionButton);
 const MemoizedBoardSidebar = React.memo(BoardSidebar);
@@ -60,9 +65,7 @@ function BoardPage() {
   ]);
   const [editingSidebar, setEditingSidebar] = React.useState(false);
   const stopEditing = React.useCallback(() => setEditingSidebar(false), []);
-  const [categoryFilter, setCategoryFilter] = React.useState<string | null>(
-    null
-  );
+  const [{ filter: categoryFilter }, setQuery] = useQueryParams(BoardParams);
   const boardOptions = useBoardOptions({
     options: [
       BoardOptions.MUTE,
@@ -76,7 +79,9 @@ function BoardPage() {
     },
   });
   React.useEffect(() => {
-    setCategoryFilter(null);
+    setQuery({
+      filter: undefined,
+    });
   }, [slug]);
   const updateBoardMetadata = useUpdateBoardMetadata({
     onSuccess: () => {
@@ -93,7 +98,10 @@ function BoardPage() {
   } = useInfiniteQuery(
     ["boardActivityData", { slug, categoryFilter }],
     ({ pageParam = undefined }) =>
-      getBoardActivityData({ slug, categoryFilter }, pageParam),
+      getBoardActivityData(
+        { slug, categoryFilter: categoryFilter?.[0] || null },
+        pageParam
+      ),
     {
       getNextPageParam: (lastGroup) => {
         return lastGroup?.nextPageCursor;
@@ -116,8 +124,14 @@ function BoardPage() {
   const onCategoriesStateChange = React.useCallback(
     (categories: { name: string; active: boolean }[]) => {
       const activeCategories = categories.filter((category) => category.active);
-      setCategoryFilter(
-        activeCategories.length == 1 ? activeCategories[0].name : null
+      setQuery(
+        {
+          filter:
+            activeCategories.length == 1
+              ? [activeCategories[0].name]
+              : undefined,
+        },
+        "replace"
       );
     },
     []
@@ -169,7 +183,7 @@ function BoardPage() {
                   editing={editingSidebar}
                   onCancelEditing={stopEditing}
                   onUpdateMetadata={updateBoardMetadata}
-                  activeCategory={categoryFilter}
+                  activeCategory={categoryFilter?.[0]}
                   onCategoriesStateChange={onCategoriesStateChange}
                 />
                 {!boardsData[slug]?.descriptions && !editingSidebar && (
@@ -203,7 +217,9 @@ function BoardPage() {
                           <MemoizedThreadPreview
                             thread={thread}
                             isLoggedIn={isLoggedIn}
-                            onSetCategoryFilter={setCategoryFilter}
+                            onSetCategoryFilter={(filter) => {
+                              setQuery({ filter: [filter] }, "replace");
+                            }}
                           />
                         </div>
                       );
