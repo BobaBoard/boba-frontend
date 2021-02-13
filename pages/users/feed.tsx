@@ -27,6 +27,7 @@ function UserFeedPage() {
   const { isLoggedIn } = useAuth();
   const { boardsData } = useBoardContext();
 
+  console.log(isFromBackButton());
   const {
     data: userActivityData,
     isFetching: isFetchingUserActivity,
