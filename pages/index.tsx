@@ -15,6 +15,7 @@ function HomePage(props: any) {
   const { styles } = useBoos();
   const { boardsData } = useBoardContext();
 
+  const updatesThreadUrl = `${process.env.NEXT_PUBLIC_RELEASE_THREAD_URL}/${props?.lastUpdate.latest_post_string_id}`;
   return (
     <div className="main">
       <Layout title={`Hello!`}>
@@ -60,7 +61,7 @@ function HomePage(props: any) {
                         .utc(props?.lastUpdate.last_updated)
                         .fromNow()}
                       createdTimeLink={{
-                        href: process.env.NEXT_PUBLIC_RELEASE_THREAD_URL,
+                        href: updatesThreadUrl,
                       }}
                       text={props?.lastUpdate.post_content}
                       secretIdentity={{
