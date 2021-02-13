@@ -6,7 +6,7 @@ import { useAuth } from "../../components/Auth";
 import { getUserActivityData } from "../../utils/queries/user";
 import debug from "debug";
 import { ThreadType } from "../../types/Types";
-import FeedSidebar, { FeedOptions } from "../../components/feed/FeedSidebar";
+import FeedSidebar from "../../components/feed/FeedSidebar";
 
 import { createLinkTo } from "utils/link-utils";
 import LoadingSpinner from "components/LoadingSpinner";
@@ -14,18 +14,40 @@ import ThreadPreview from "components/ThreadPreview";
 import { withEditors } from "components/editors/withEditors";
 import { useBoardContext } from "components/BoardContext";
 import { isFromBackButton } from "components/hooks/useFromBackButton";
+import { ExistanceParam } from "components/QueryParamNextProvider";
+import { useQueryParams } from "use-query-params";
 
 const info = debug("bobafrontend:boardPage-info");
 info.log = console.info.bind(console);
 
+const FeedParams = {
+  showRead: ExistanceParam,
+  ownOnly: ExistanceParam,
+};
+
 function UserFeedPage() {
   const [isShowingSidebar, setShowSidebar] = React.useState(false);
-  const [feedOptions, setFeedOptions] = React.useState<FeedOptions>({
-    updatedOnly: true,
-    ownOnly: false,
-  });
+  const [{ showRead, ownOnly }, setQuery] = useQueryParams(FeedParams);
   const { isLoggedIn } = useAuth();
   const { boardsData } = useBoardContext();
+
+  const feedOptions = React.useMemo(
+    () => ({
+      ownOnly,
+      updatedOnly: !showRead,
+    }),
+    [showRead, ownOnly]
+  );
+
+  const onOptionsChange = React.useCallback((options) => {
+    setQuery(
+      {
+        ownOnly: options.ownOnly,
+        showRead: !options.updatedOnly,
+      },
+      "replace"
+    );
+  }, []);
 
   const {
     data: userActivityData,
@@ -34,7 +56,7 @@ function UserFeedPage() {
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery(
-    ["userActivityData", { ...feedOptions }],
+    ["userActivityData", feedOptions],
     ({ pageParam = undefined }) => getUserActivityData(feedOptions, pageParam),
     {
       getNextPageParam: (lastGroup) => {
@@ -84,7 +106,7 @@ function UserFeedPage() {
             <FeedWithMenu.Sidebar>
               <FeedSidebar
                 currentOptions={feedOptions}
-                onOptionsChange={setFeedOptions}
+                onOptionsChange={onOptionsChange}
                 open={isShowingSidebar}
               />
             </FeedWithMenu.Sidebar>
