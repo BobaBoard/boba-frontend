@@ -328,23 +328,25 @@ function ThreadPage({
                     />
                   )}
                 </div>
-                <LoadingSpinner
-                  loading={isFetchingThread || isRefetchingThread}
-                  idleMessage={
-                    // Check whether there's more posts to display
-                    (
-                      queryParamsViewMode == THREAD_VIEW_MODES.TIMELINE &&
-                      queryParamsTimelineViewMode == TIMELINE_VIEW_MODE.NEW
-                        ? maxDisplay <= newAnswersSequence.length
-                        : maxDisplay <= chronologicalPostsSequence.length
-                    )
-                      ? "..."
-                      : queryParamsViewMode == THREAD_VIEW_MODES.THREAD
-                      ? ""
-                      : "Nothing more to load."
-                  }
-                  loadingMessage="Loading"
-                />
+                <div className="spinner">
+                  <LoadingSpinner
+                    loading={isFetchingThread || isRefetchingThread}
+                    idleMessage={
+                      // Check whether there's more posts to display
+                      (
+                        queryParamsViewMode == THREAD_VIEW_MODES.TIMELINE &&
+                        queryParamsTimelineViewMode == TIMELINE_VIEW_MODE.NEW
+                          ? maxDisplay <= newAnswersSequence.length
+                          : maxDisplay <= chronologicalPostsSequence.length
+                      )
+                        ? "..."
+                        : queryParamsViewMode == THREAD_VIEW_MODES.THREAD
+                        ? ""
+                        : "Nothing more to load."
+                    }
+                    loadingMessage="Loading"
+                  />
+                </div>
               </div>
             </FeedWithMenu.FeedContent>
           </FeedWithMenu>
@@ -367,7 +369,6 @@ function ThreadPage({
         {`
           .feed {
             max-width: 100%;
-            padding-bottom: 70px;
             position: relative;
           }
           .feed.loading .view-modes {
@@ -379,6 +380,9 @@ function ThreadPage({
           .feed.masonry {
             width: 100%;
             position: relative;
+            margin-top: 20px;
+          }
+          .spinner {
             margin-top: 20px;
           }
         `}
