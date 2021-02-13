@@ -121,12 +121,12 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
             avatar: `${board.avatarUrl}`,
             description: board.tagline,
             color: board.accentColor,
-            lastUpdate: board.lastUpdate,
+            lastUpdate: board.lastUpdateFromOthers,
             updates: !!(isLoggedIn && board.hasUpdates),
             outdated:
-              board.lastUpdate &&
+              board.lastUpdateFromOthers &&
               board.lastVisit &&
-              board.lastUpdate < board.lastVisit,
+              board.lastUpdateFromOthers < board.lastVisit,
             muted: board.muted,
             link: getLinkToBoard(board.slug, onBoardChange),
             pinnedOrder: board.pinnedOrder,

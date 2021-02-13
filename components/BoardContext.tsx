@@ -46,6 +46,10 @@ const updateBoardData = (
       typeof newBoardData.lastUpdate !== "undefined"
         ? newBoardData.lastUpdate
         : oldBoardData?.lastUpdate,
+    lastUpdateFromOthers:
+      typeof newBoardData.lastUpdateFromOthers !== "undefined"
+        ? newBoardData.lastUpdateFromOthers
+        : oldBoardData?.lastUpdateFromOthers,
     lastVisit:
       typeof newBoardData.lastVisit !== "undefined"
         ? newBoardData.lastVisit
