@@ -29,7 +29,6 @@ export const useMarkThreadAsRead = () => {
         log(`Optimistically marking thread ${threadId} as visited.`);
         removeThreadActivityFromCache(queryClient, {
           slug,
-          categoryFilter: null,
           threadId,
         });
       },
@@ -62,7 +61,6 @@ export const useMuteThread = () => {
         // caches.
         setThreadMutedInCache(queryClient, {
           slug,
-          categoryFilter: null,
           threadId,
           mute,
         });
@@ -143,7 +141,6 @@ export const useSetThreadHidden = () => {
         );
         setThreadHiddenInCache(queryClient, {
           slug,
-          categoryFilter: null,
           threadId,
           hide,
         });
@@ -191,7 +188,6 @@ export const useReadThread = () => {
         removeThreadActivityFromCache(queryClient, {
           threadId,
           slug,
-          categoryFilter: null,
         });
       },
     }
