@@ -13,6 +13,7 @@ const THREAD_OPTIONS = [
   PostOptions.MARK_READ,
   PostOptions.HIDE,
   PostOptions.MUTE,
+  PostOptions.OPEN_AS,
   PostOptions.UPDATE_VIEW,
   PostOptions.EDIT_TAGS,
 ];

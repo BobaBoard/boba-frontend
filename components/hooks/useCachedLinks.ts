@@ -72,7 +72,7 @@ const getLinkToThread = ({
     );
   }
 
-  return THREADS_CACHE.get(threadId) as LinkWithNotNullAction;
+  return THREADS_CACHE.get(id) as LinkWithNotNullAction;
 };
 
 const POSTS_CACHE = new Map<string, LinkWithNotNullAction>();
