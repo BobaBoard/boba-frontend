@@ -25,7 +25,7 @@ const updateBoardData = (
   oldBoardData: BoardData | null
 ): BoardData => {
   const descriptions =
-    newBoardData.descriptions.length > 0
+    newBoardData.descriptions?.length > 0
       ? newBoardData.descriptions
       : oldBoardData?.descriptions || [];
 
