@@ -322,7 +322,7 @@ function ThreadPage({
             reachToBottom={maxDisplay < maxVisible}
             onReachEnd={React.useCallback((more) => {
               setMaxDisplay(
-                (maxDisplay) => maxDisplay + 2,
+                (maxDisplay) => maxDisplay + 4,
                 (maxDisplay) => {
                   more(maxDisplay < maxVisible);
                 }
