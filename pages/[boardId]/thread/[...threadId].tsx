@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import {
   FeedWithMenu,
   CycleNewButton,
@@ -39,6 +39,7 @@ import {
 import { useReadThread } from "components/hooks/queries/thread";
 import { clearThreadData } from "utils/queries/cache";
 import { useQueryClient } from "react-query";
+
 const log = debug("bobafrontend:threadPage-log");
 
 const getViewTypeFromString = (
@@ -96,6 +97,29 @@ const getQueryParamsViewMode = (
   return getViewTypeFromString(defaultView) || THREAD_VIEW_MODES.THREAD;
 };
 
+const useStateWithCallback = <T extends any>(
+  initialState: T
+): [T, (value: SetStateAction<T>, callback: (state: T) => void) => void] => {
+  const callbackRef = React.useRef<(state: T) => void>(null);
+
+  const [value, setValue] = React.useState(initialState);
+
+  React.useEffect(() => {
+    callbackRef.current?.(value);
+    // @ts-ignore
+    callbackRef.current = null;
+  }, [value]);
+
+  const setValueWithCallback = React.useCallback((newValue, callback) => {
+    // @ts-ignore
+    callbackRef.current = callback;
+
+    return setValue(newValue);
+  }, []);
+
+  return [value, setValueWithCallback];
+};
+
 const MemoizedThreadSidebar = React.memo(ThreadSidebar);
 const MemoizedThreadView = React.memo(ThreadView);
 const MemoizedGalleryThreadView = React.memo(GalleryThreadView);
@@ -117,7 +141,7 @@ function ThreadPage({
   const router = useRouter();
   const { boardsData } = useBoardContext();
   const currentBoardData = boardsData?.[slug];
-  const [maxDisplay, setMaxDisplay] = React.useState(2);
+  const [maxDisplay, setMaxDisplay] = useStateWithCallback(2);
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
   const onCompassClick = React.useCallback(() => setShowSidebar(!showSidebar), [
@@ -278,7 +302,11 @@ function ThreadPage({
     isLoggedIn &&
     (queryParamsViewMode == THREAD_VIEW_MODES.MASONRY ||
       queryParamsViewMode == THREAD_VIEW_MODES.TIMELINE);
-
+  const maxVisible =
+    queryParamsViewMode == THREAD_VIEW_MODES.TIMELINE &&
+    queryParamsTimelineViewMode == TIMELINE_VIEW_MODE.NEW
+      ? newAnswersSequence.length
+      : chronologicalPostsSequence.length;
   return (
     <div className="main">
       <Layout
@@ -291,8 +319,14 @@ function ThreadPage({
             forceHideSidebar={router.query.hideSidebar !== undefined}
             showSidebar={showSidebar}
             onCloseSidebar={closeSidebar}
-            onReachEnd={React.useCallback(() => {
-              setMaxDisplay((maxDisplay) => maxDisplay + 2);
+            reachToBottom={maxDisplay < maxVisible}
+            onReachEnd={React.useCallback((more) => {
+              setMaxDisplay(
+                (maxDisplay) => maxDisplay + 2,
+                (maxDisplay) => {
+                  more(maxDisplay < maxVisible);
+                }
+              );
             }, [])}
           >
             <FeedWithMenu.Sidebar>
