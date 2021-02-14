@@ -16,6 +16,7 @@ import { useBoardContext } from "components/BoardContext";
 import { isFromBackButton } from "components/hooks/useFromBackButton";
 import { ExistanceParam } from "components/QueryParamNextProvider";
 import { useQueryParams } from "use-query-params";
+import { useCachedLinks } from "components/hooks/useCachedLinks";
 
 const info = debug("bobafrontend:boardPage-info");
 info.log = console.info.bind(console);
@@ -28,8 +29,15 @@ const FeedParams = {
 function UserFeedPage() {
   const [isShowingSidebar, setShowSidebar] = React.useState(false);
   const [{ showRead, ownOnly }, setQuery] = useQueryParams(FeedParams);
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isAuthPending } = useAuth();
   const { boardsData } = useBoardContext();
+  const { linkToHome } = useCachedLinks();
+
+  React.useEffect(() => {
+    if (!isAuthPending && !isLoggedIn) {
+      linkToHome.onClick?.();
+    }
+  }, [isAuthPending, isLoggedIn]);
 
   const feedOptions = React.useMemo(
     () => ({
