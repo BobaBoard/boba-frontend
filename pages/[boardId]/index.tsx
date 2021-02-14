@@ -89,6 +89,10 @@ function BoardPage() {
     },
   });
 
+  const onSetFilter = React.useCallback((filter) => {
+    setQuery({ filter: [filter] }, "replace");
+  }, []);
+
   const {
     data: boardActivityData,
     isFetching: isFetchingBoardActivity,
@@ -217,9 +221,7 @@ function BoardPage() {
                           <MemoizedThreadPreview
                             thread={thread}
                             isLoggedIn={isLoggedIn}
-                            onSetCategoryFilter={(filter) => {
-                              setQuery({ filter: [filter] }, "replace");
-                            }}
+                            onSetCategoryFilter={onSetFilter}
                           />
                         </div>
                       );
