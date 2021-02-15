@@ -3,6 +3,7 @@ import { MasonryView, ThreadIndent } from "@bobaboard/ui-components";
 import TemporarySegmentedButton from "./TemporarySegmentedButton";
 import {
   ThreadContextType,
+  useThread,
   withThreadData,
 } from "components/thread/ThreadQueryHook";
 import CommentsThread from "./CommentsThread";
@@ -14,11 +15,14 @@ import {
   useEditorsDispatch,
 } from "components/editors/EditorsContext";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
+import { ExistanceParam } from "components/QueryParamNextProvider";
+import { useQueryParams } from "use-query-params";
 
-enum TIMELINE_VIEW_MODE {
-  UPDATED,
-  ALL,
-}
+export const GalleryViewQueryParams = {
+  new: ExistanceParam,
+  all: ExistanceParam,
+  showCover: ExistanceParam,
+};
 
 const EmptyGalleryView = ({
   cover,
@@ -31,7 +35,7 @@ const EmptyGalleryView = ({
       <ShowCover
         cover={cover}
         setShowCover={setShowCover}
-        isShown={showCover}
+        showCover={showCover}
       />
     )}
     <div className="image">
@@ -64,16 +68,24 @@ const EmptyGalleryView = ({
 );
 
 // This is just a temporary component until we get a better handler here.
-const ShowCover = ({ cover, isShown, setShowCover }: any) => (
+const ShowCover = ({
+  cover,
+  showCover,
+  setShowCover,
+}: {
+  cover: PostType;
+  showCover: boolean;
+  setShowCover: (show: boolean) => void;
+}) => (
   <>
     <a
       href="#"
       onClick={(e) => {
-        setShowCover(!isShown);
+        setShowCover(!showCover);
         e.preventDefault();
       }}
     >
-      {isShown ? "Hide" : "Show"} cover (
+      {showCover ? "Hide" : "Show"} cover (
       {cover?.commentsAmount || 0 /*TODO: wtf?? why do we need this??*/}{" "}
       comments, {cover?.newCommentsAmount} new)
     </a>
@@ -96,17 +108,18 @@ interface GalleryThreadViewProps extends ThreadContextType {
 const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   chronologicalPostsSequence,
   postCommentsMap,
+  isRefetching,
+  hasNewReplies,
   ...props
 }) => {
   const masonryRef = React.createRef<{ reposition: () => void }>();
-  const [showCover, setShowCover] = React.useState(false);
-  const [timelineView, setTimelineView] = React.useState(
-    TIMELINE_VIEW_MODE.ALL
-  );
   const [showComments, setShowComments] = React.useState<string[]>([]);
   const { isLoggedIn } = useAuth();
   const dispatch = useEditorsDispatch();
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
+  const [galleryView, setGalleryView] = useQueryParams({
+    ...GalleryViewQueryParams,
+  });
 
   // const activeCategories = categoryFilterState.filter(
   //   (category) => category.active
@@ -128,8 +141,20 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   // }
 
   React.useEffect(() => {
+    if (!isRefetching && hasNewReplies) {
+      setGalleryView(
+        {
+          new: true,
+          all: false,
+        },
+        "pushIn"
+      );
+    }
+  }, [isRefetching]);
+
+  React.useEffect(() => {
     requestAnimationFrame(() => masonryRef.current?.reposition());
-  }, [showComments, showCover]);
+  }, [showComments, galleryView.showCover]);
   const onNotesClick = React.useCallback((postId) => {
     setShowComments(
       showComments.includes(postId)
@@ -157,11 +182,12 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
       updatedPosts,
     };
   }, [chronologicalPostsSequence, postCommentsMap]);
-  const toDisplay = (TIMELINE_VIEW_MODE.ALL == timelineView
-    ? showCover
+  const toDisplay = (!galleryView.new
+    ? galleryView.showCover
       ? [coverPost, ...allGalleryPosts]
       : allGalleryPosts
-    : showCover && (coverPost.isNew || coverPost.newCommentsAmount > 0)
+    : galleryView.showCover &&
+      (coverPost.isNew || coverPost.newCommentsAmount > 0)
     ? [coverPost, ...updatedPosts]
     : updatedPosts
   ).filter((_, index) => index < props.displayAtMost);
@@ -209,11 +235,18 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
     [boardSlug, threadId]
   );
 
-  if (!showCover && !allGalleryPosts.length) {
+  if (!galleryView.showCover && !allGalleryPosts.length) {
     return (
       <EmptyGalleryView
-        showCover={showCover}
-        setShowCover={setShowCover}
+        showCover={!!galleryView.showCover}
+        setShowCover={(show: boolean) => {
+          setGalleryView(
+            {
+              showCover: show,
+            },
+            "replaceIn"
+          );
+        }}
         cover={coverPost}
         emptyMessage={"The gallery is empty :("}
       />
@@ -225,25 +258,44 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
       <div className="view-controls">
         <ShowCover
           cover={coverPost}
-          setShowCover={setShowCover}
-          isShown={showCover}
+          showCover={!!galleryView.showCover}
+          setShowCover={(show: boolean) => {
+            setGalleryView(
+              {
+                showCover: show,
+              },
+              "replaceIn"
+            );
+          }}
         />
         <TemporarySegmentedButton
           options={[
             {
-              id: TIMELINE_VIEW_MODE.UPDATED,
+              id: "updated",
               label: "New & Updated",
               updates:
                 updatedPosts.length > 0 ? updatedPosts.length : undefined,
-              onClick: () => setTimelineView(TIMELINE_VIEW_MODE.UPDATED),
+              onClick: () =>
+                setGalleryView(
+                  {
+                    new: true,
+                  },
+                  "replaceIn"
+                ),
             },
             {
-              id: TIMELINE_VIEW_MODE.ALL,
+              id: "all",
               label: `All Posts (${allGalleryPosts.length})`,
-              onClick: () => setTimelineView(TIMELINE_VIEW_MODE.ALL),
+              onClick: () =>
+                setGalleryView(
+                  {
+                    new: false,
+                  },
+                  "replaceIn"
+                ),
             },
           ]}
-          selected={timelineView}
+          selected={galleryView.new ? "updated" : "all"}
         />
       </div>
       {toDisplay.length == 0 && (
