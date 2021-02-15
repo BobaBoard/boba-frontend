@@ -3,7 +3,6 @@ import { MasonryView, ThreadIndent } from "@bobaboard/ui-components";
 import TemporarySegmentedButton from "./TemporarySegmentedButton";
 import {
   ThreadContextType,
-  useThread,
   withThreadData,
 } from "components/thread/ThreadQueryHook";
 import CommentsThread from "./CommentsThread";
