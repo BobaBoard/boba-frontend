@@ -209,11 +209,14 @@ const ThreadLevel: React.FC<{
   );
 };
 
-interface ThreadViewProps extends ThreadContextType {}
+interface ThreadViewProps extends ThreadContextType {
+  onTotalPostsChange: (total: number) => void;
+}
 const MemoizedThreadLevel = React.memo(ThreadLevel);
 const ThreadView: React.FC<ThreadViewProps> = ({
   currentRoot,
   parentChildrenMap,
+  chronologicalPostsSequence,
   ...props
 }) => {
   const {
@@ -268,6 +271,10 @@ const ThreadView: React.FC<ThreadViewProps> = ({
     },
     [boardSlug, threadId]
   );
+
+  React.useEffect(() => {
+    props.onTotalPostsChange(chronologicalPostsSequence.length);
+  }, [chronologicalPostsSequence]);
 
   if (!currentRoot) {
     return <div />;

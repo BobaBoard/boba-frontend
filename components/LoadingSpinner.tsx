@@ -20,7 +20,7 @@ const LoadingSpinner: React.FC<{
             loading: props.loading,
           })}
         >
-          {props.loadingMessage}...
+          {props.loadingMessage}
         </div>
         <div className="bobadab-container">
           <div

@@ -1,4 +1,4 @@
-import React, { SetStateAction } from "react";
+import React, { SetStateAction, useState } from "react";
 import {
   FeedWithMenu,
   CycleNewButton,
@@ -17,9 +17,7 @@ import ThreadView, {
 } from "components/thread/ThreadView";
 import ThreadSidebar from "components/thread/ThreadSidebar";
 import GalleryThreadView from "components/thread/GalleryThreadView";
-import TimelineThreadView, {
-  TIMELINE_VIEW_MODE,
-} from "components/thread/TimelineThreadView";
+import TimelineThreadView from "components/thread/TimelineThreadView";
 import {
   ThreadContextType,
   withThreadData,
@@ -58,28 +56,10 @@ const getViewTypeFromString = (
   }
 };
 
-const TimelineViewQueryParams = {
-  new: ExistanceParam,
-  latest: ExistanceParam,
-  all: ExistanceParam,
-};
-
 export const ThreadViewQueryParams = {
   gallery: ExistanceParam,
   timeline: ExistanceParam,
   thread: ExistanceParam,
-};
-
-const getQueryParamsTimelineViewMode = () => {
-  const [query] = useQueryParams(TimelineViewQueryParams);
-  if (query.new) {
-    return TIMELINE_VIEW_MODE.NEW;
-  } else if (query.latest) {
-    return TIMELINE_VIEW_MODE.LATEST;
-  } else if (query.all) {
-    return TIMELINE_VIEW_MODE.ALL;
-  }
-  return TIMELINE_VIEW_MODE.NEW;
 };
 
 const getQueryParamsViewMode = (
@@ -142,6 +122,7 @@ function ThreadPage({
   const { boardsData } = useBoardContext();
   const currentBoardData = boardsData?.[slug];
   const [maxDisplay, setMaxDisplay] = useStateWithCallback(2);
+  const [totalPosts, setTotalPosts] = useState(Infinity);
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
   const onCompassClick = React.useCallback(() => setShowSidebar(!showSidebar), [
@@ -177,53 +158,17 @@ function ThreadPage({
 
   // URL params management
   const queryParamsViewMode = getQueryParamsViewMode(threadDefaultView);
-  const [threadViewQuery, setQuery] = useQueryParams({
-    ...ThreadViewQueryParams,
-    ...TimelineViewQueryParams,
-  });
-  const queryParamsTimelineViewMode = getQueryParamsTimelineViewMode();
+  const [threadViewQuery, setQuery] = useQueryParams(ThreadViewQueryParams);
 
   const onThreadViewModeChange = React.useCallback(
     (viewMode: THREAD_VIEW_MODES) => {
       const isDefaultView =
         getViewTypeFromString(threadDefaultView) === viewMode;
-      const isTimeline = isDefaultView
-        ? getViewTypeFromString(threadDefaultView) ===
-          THREAD_VIEW_MODES.TIMELINE
-        : viewMode === THREAD_VIEW_MODES.TIMELINE;
       setQuery({
         gallery: !isDefaultView && viewMode == THREAD_VIEW_MODES.MASONRY,
-        timeline: viewMode == THREAD_VIEW_MODES.TIMELINE,
+        timeline: !isDefaultView && viewMode == THREAD_VIEW_MODES.TIMELINE,
         thread: !isDefaultView && viewMode == THREAD_VIEW_MODES.THREAD,
-        all:
-          isTimeline && queryParamsTimelineViewMode == TIMELINE_VIEW_MODE.ALL,
-        new:
-          isTimeline && hasNewReplies
-            ? queryParamsTimelineViewMode == TIMELINE_VIEW_MODE.NEW
-            : false,
-        latest:
-          isTimeline &&
-          (queryParamsTimelineViewMode == TIMELINE_VIEW_MODE.LATEST ||
-            (!hasNewReplies &&
-              queryParamsTimelineViewMode == TIMELINE_VIEW_MODE.NEW)),
       });
-    },
-    [threadDefaultView]
-  );
-
-  const onTimelineViewModeChange = React.useCallback(
-    (viewMode) => {
-      setQuery(
-        {
-          thread: false,
-          gallery: false,
-          timeline: true,
-          all: viewMode == TIMELINE_VIEW_MODE.ALL,
-          new: viewMode == TIMELINE_VIEW_MODE.NEW,
-          latest: viewMode == TIMELINE_VIEW_MODE.LATEST,
-        },
-        "replaceIn"
-      );
     },
     [threadDefaultView]
   );
@@ -302,11 +247,6 @@ function ThreadPage({
     isLoggedIn &&
     (queryParamsViewMode == THREAD_VIEW_MODES.MASONRY ||
       queryParamsViewMode == THREAD_VIEW_MODES.TIMELINE);
-  const maxVisible =
-    queryParamsViewMode == THREAD_VIEW_MODES.TIMELINE &&
-    queryParamsTimelineViewMode == TIMELINE_VIEW_MODE.NEW
-      ? newAnswersSequence.length
-      : chronologicalPostsSequence.length;
   return (
     <div className="main">
       <Layout
@@ -319,12 +259,12 @@ function ThreadPage({
             forceHideSidebar={router.query.hideSidebar !== undefined}
             showSidebar={showSidebar}
             onCloseSidebar={closeSidebar}
-            reachToBottom={maxDisplay < maxVisible}
+            reachToBottom={maxDisplay < totalPosts}
             onReachEnd={React.useCallback((more) => {
               setMaxDisplay(
                 (maxDisplay) => maxDisplay + 4,
                 (maxDisplay) => {
-                  more(maxDisplay < maxVisible);
+                  more(maxDisplay < totalPosts);
                 }
               );
             }, [])}
@@ -344,14 +284,16 @@ function ThreadPage({
               >
                 <div className="view-modes">
                   {queryParamsViewMode == THREAD_VIEW_MODES.THREAD || postId ? (
-                    <MemoizedThreadView />
+                    <MemoizedThreadView onTotalPostsChange={setTotalPosts} />
                   ) : queryParamsViewMode == THREAD_VIEW_MODES.MASONRY ? (
-                    <MemoizedGalleryThreadView displayAtMost={maxDisplay} />
+                    <MemoizedGalleryThreadView
+                      displayAtMost={maxDisplay}
+                      onTotalPostsChange={setTotalPosts}
+                    />
                   ) : (
                     <MemoizedTimelineThreadView
                       displayAtMost={maxDisplay}
-                      viewMode={queryParamsTimelineViewMode}
-                      onViewModeChange={onTimelineViewModeChange}
+                      onTotalPostsChange={setTotalPosts}
                     />
                   )}
                 </div>
@@ -360,18 +302,13 @@ function ThreadPage({
                 loading={isFetchingThread || isRefetchingThread}
                 idleMessage={
                   // Check whether there's more posts to display
-                  (
-                    queryParamsViewMode == THREAD_VIEW_MODES.TIMELINE &&
-                    queryParamsTimelineViewMode == TIMELINE_VIEW_MODE.NEW
-                      ? maxDisplay <= newAnswersSequence.length
-                      : maxDisplay <= chronologicalPostsSequence.length
-                  )
+                  maxDisplay < totalPosts
                     ? "..."
                     : queryParamsViewMode == THREAD_VIEW_MODES.THREAD
                     ? ""
                     : "Nothing more to load."
                 }
-                loadingMessage="Loading"
+                loadingMessage="~*loading*~"
               />
             </FeedWithMenu.FeedContent>
           </FeedWithMenu>

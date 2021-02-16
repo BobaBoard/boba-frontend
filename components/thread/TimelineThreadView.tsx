@@ -16,6 +16,8 @@ import {
   EditorActions,
   useEditorsDispatch,
 } from "components/editors/EditorsContext";
+import { ExistanceParam } from "components/QueryParamNextProvider";
+import { DecodedValueMap, useQueryParams } from "use-query-params";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // @ts-ignore
@@ -27,10 +29,28 @@ export enum TIMELINE_VIEW_MODE {
   ALL,
 }
 
+const TimelineViewQueryParams = {
+  new: ExistanceParam,
+  latest: ExistanceParam,
+  all: ExistanceParam,
+};
+
+const getTimelineViewMode = (
+  timelineQuery: DecodedValueMap<typeof TimelineViewQueryParams>
+) => {
+  if (timelineQuery.new) {
+    return TIMELINE_VIEW_MODE.NEW;
+  } else if (timelineQuery.latest) {
+    return TIMELINE_VIEW_MODE.LATEST;
+  } else if (timelineQuery.all) {
+    return TIMELINE_VIEW_MODE.ALL;
+  }
+  return TIMELINE_VIEW_MODE.ALL;
+};
+
 interface TimelineViewProps extends ThreadContextType {
   displayAtMost: number;
-  viewMode: TIMELINE_VIEW_MODE;
-  onViewModeChange: (newMode: TIMELINE_VIEW_MODE) => void;
+  onTotalPostsChange: (total: number) => void;
 }
 
 const TimelineView: React.FC<TimelineViewProps> = ({
@@ -38,13 +58,11 @@ const TimelineView: React.FC<TimelineViewProps> = ({
   newAnswersSequence,
   postCommentsMap,
   isLoading,
-  viewMode,
-  onViewModeChange,
+  isRefetching,
+  hasNewReplies,
   ...props
 }) => {
   const { updatedPosts, allPosts } = React.useMemo(() => {
-    // @ts-ignore
-    let [unusedFirstElement, ...allPosts] = chronologicalPostsSequence;
     const updatedPosts = chronologicalPostsSequence.filter(
       (post) => post.isNew || post.newCommentsAmount > 0
     );
@@ -54,6 +72,34 @@ const TimelineView: React.FC<TimelineViewProps> = ({
       updatedPosts,
     };
   }, [chronologicalPostsSequence, postCommentsMap]);
+
+  const [timelineViewParams, setTimelineViewParams] = useQueryParams(
+    TimelineViewQueryParams
+  );
+  const viewMode = getTimelineViewMode(timelineViewParams);
+
+  React.useEffect(() => {
+    if (isRefetching || isLoading) {
+      return;
+    }
+    if (
+      timelineViewParams.new ||
+      timelineViewParams.latest ||
+      timelineViewParams.all
+    ) {
+      // A default view has already been set. Bail.
+      return;
+    }
+    setTimelineViewParams(
+      {
+        new: hasNewReplies,
+        all: false,
+        latest: false,
+      },
+      "replaceIn"
+    );
+  }, [isRefetching, isLoading]);
+
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
   const { isLoggedIn } = useAuth();
   const dispatch = useEditorsDispatch();
@@ -108,6 +154,10 @@ const TimelineView: React.FC<TimelineViewProps> = ({
       ? [...allPosts].reverse()
       : updatedPosts;
 
+  React.useEffect(() => {
+    props.onTotalPostsChange(displayPosts.length);
+  }, [displayPosts.length]);
+
   return (
     <div
       className={classnames("timeline-container", {
@@ -122,17 +172,41 @@ const TimelineView: React.FC<TimelineViewProps> = ({
               label: "New",
               updates:
                 updatedPosts.length > 0 ? updatedPosts.length : undefined,
-              onClick: () => onViewModeChange(TIMELINE_VIEW_MODE.NEW),
+              onClick: () =>
+                setTimelineViewParams(
+                  {
+                    new: true,
+                    latest: false,
+                    all: false,
+                  },
+                  "replaceIn"
+                ),
             },
             {
               id: TIMELINE_VIEW_MODE.LATEST,
               label: "Latest",
-              onClick: () => onViewModeChange(TIMELINE_VIEW_MODE.LATEST),
+              onClick: () =>
+                setTimelineViewParams(
+                  {
+                    new: false,
+                    latest: true,
+                    all: false,
+                  },
+                  "replaceIn"
+                ),
             },
             {
               id: TIMELINE_VIEW_MODE.ALL,
               label: `All (${allPosts.length})`,
-              onClick: () => onViewModeChange(TIMELINE_VIEW_MODE.ALL),
+              onClick: () =>
+                setTimelineViewParams(
+                  {
+                    new: false,
+                    latest: false,
+                    all: true,
+                  },
+                  "replaceIn"
+                ),
             },
           ]}
           selected={viewMode}
@@ -140,7 +214,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({
       </div>
       <div>
         {displayPosts.length == 0 && (
-          <div className="empty">No post available.</div>
+          <div className="empty">No new or updated post!</div>
         )}
         {displayPosts
           .filter((_, index) => index < props.displayAtMost)

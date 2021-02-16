@@ -110,8 +110,7 @@ const getPostsToDisplay = (
     updatedPosts: PostType[];
     allGalleryPosts: PostType[];
   },
-  galleryView: DecodedValueMap<typeof GalleryViewQueryParams>,
-  displayAtMost: number
+  galleryView: DecodedValueMap<typeof GalleryViewQueryParams>
 ) => {
   const { coverPost, updatedPosts, allGalleryPosts } = posts;
   const toDisplay = [...(galleryView.new ? updatedPosts : allGalleryPosts)];
@@ -119,16 +118,18 @@ const getPostsToDisplay = (
   if (coverPost && galleryView.showCover) {
     toDisplay.unshift(coverPost);
   }
-  return toDisplay.filter((_, index) => index < displayAtMost);
+  return toDisplay;
 };
 
 interface GalleryThreadViewProps extends ThreadContextType {
   displayAtMost: number;
+  onTotalPostsChange: (total: number) => void;
 }
 const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   chronologicalPostsSequence,
   postCommentsMap,
   isRefetching,
+  isLoading,
   hasNewReplies,
   ...props
 }) => {
@@ -137,9 +138,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   const { isLoggedIn } = useAuth();
   const dispatch = useEditorsDispatch();
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
-  const [galleryView, setGalleryView] = useQueryParams({
-    ...GalleryViewQueryParams,
-  });
+  const [galleryView, setGalleryView] = useQueryParams(GalleryViewQueryParams);
 
   // const activeCategories = categoryFilterState.filter(
   //   (category) => category.active
@@ -161,7 +160,10 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   // }
 
   React.useEffect(() => {
-    if (!isRefetching && hasNewReplies) {
+    if (isRefetching || isLoading) {
+      return;
+    }
+    if (hasNewReplies) {
       setGalleryView(
         {
           new: true,
@@ -171,15 +173,15 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
         },
         "replaceIn"
       );
-    } else if (!isRefetching && allGalleryPosts.length == 0) {
+    } else if (allGalleryPosts.length == 0) {
       setGalleryView(
         {
           showCover: true,
         },
-        "pushIn"
+        "replaceIn"
       );
     }
-  }, [isRefetching]);
+  }, [isRefetching, isLoading]);
 
   React.useEffect(() => {
     requestAnimationFrame(() => masonryRef.current?.reposition());
@@ -213,9 +215,12 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   }, [chronologicalPostsSequence, postCommentsMap]);
 
   const toDisplay = React.useMemo(
-    () => getPostsToDisplay(postTypes, galleryView, props.displayAtMost),
-    [postTypes, galleryView, props.displayAtMost]
+    () => getPostsToDisplay(postTypes, galleryView),
+    [postTypes, galleryView]
   );
+  React.useEffect(() => {
+    props.onTotalPostsChange(toDisplay.length);
+  }, [toDisplay.length]);
 
   const { coverPost, updatedPosts, allGalleryPosts } = postTypes;
 
@@ -334,43 +339,45 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
       {toDisplay.length > 0 && (
         <MasonryView ref={masonryRef}>
           {
-            toDisplay.map((post, index) => (
-              <div
-                className="thread"
-                key={post.postId}
-                // TODO: figure out why this is necessary.
-                // Right now it's here because there is a bug in the masonry view where
-                // when the elements are changed the positions are recalculated but, for some reason,
-                // position: absolute isn't maintained in certain divs. I assume it has somethign to do
-                // with react and re-rendering, but honestly I have no idea.
-                style={{ position: "absolute" }}
-              >
-                <div className="post">
-                  <ThreadPost
-                    post={post}
-                    isLoggedIn={isLoggedIn}
-                    onNewContribution={onNewContribution}
-                    onNewComment={onNewComment}
-                    onEditPost={onEditContribution}
-                    onNotesClick={onNotesClick}
-                    onEmbedLoaded={() => masonryRef.current?.reposition()}
-                  />
-                </div>
-                {post.comments && showComments.includes(post.postId) && (
-                  <ThreadIndent level={1} key={`0_${post.postId}`} ends={[]}>
-                    <CommentsThread
+            toDisplay
+              .filter((_, index) => index < props.displayAtMost)
+              .map((post, index) => (
+                <div
+                  className="thread"
+                  key={post.postId}
+                  // TODO: figure out why this is necessary.
+                  // Right now it's here because there is a bug in the masonry view where
+                  // when the elements are changed the positions are recalculated but, for some reason,
+                  // position: absolute isn't maintained in certain divs. I assume it has somethign to do
+                  // with react and re-rendering, but honestly I have no idea.
+                  style={{ position: "absolute" }}
+                >
+                  <div className="post">
+                    <ThreadPost
+                      post={post}
                       isLoggedIn={isLoggedIn}
-                      parentPostId={post.postId}
-                      parentCommentId={null}
-                      level={0}
-                      onReplyTo={(replyToCommentId: string) =>
-                        onNewComment(post.postId, replyToCommentId)
-                      }
+                      onNewContribution={onNewContribution}
+                      onNewComment={onNewComment}
+                      onEditPost={onEditContribution}
+                      onNotesClick={onNotesClick}
+                      onEmbedLoaded={() => masonryRef.current?.reposition()}
                     />
-                  </ThreadIndent>
-                )}
-              </div>
-            )) as any // TODO: figure out why it doesn't work without casting
+                  </div>
+                  {post.comments && showComments.includes(post.postId) && (
+                    <ThreadIndent level={1} key={`0_${post.postId}`} ends={[]}>
+                      <CommentsThread
+                        isLoggedIn={isLoggedIn}
+                        parentPostId={post.postId}
+                        parentCommentId={null}
+                        level={0}
+                        onReplyTo={(replyToCommentId: string) =>
+                          onNewComment(post.postId, replyToCommentId)
+                        }
+                      />
+                    </ThreadIndent>
+                  )}
+                </div>
+              )) as any // TODO: figure out why it doesn't work without casting
           }
         </MasonryView>
       )}
