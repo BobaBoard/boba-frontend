@@ -100,9 +100,11 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
       setChangingRoute(false);
     };
     router.events.on("routeChangeStart", changeStartHandler);
+    router.events.on("beforeHistoryChange", changeStartHandler);
     router.events.on("routeChangeComplete", changeEndHandler);
     return () => {
       router.events.off("routeChangeStart", changeStartHandler);
+      router.events.off("beforeHistoryChange", changeStartHandler);
       router.events.off("routeChangeComplete", changeEndHandler);
     };
   }, []);
