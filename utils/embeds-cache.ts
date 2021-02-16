@@ -31,7 +31,9 @@ setTimeout(function clearCache() {
   const toClear: string[] = [];
   if (TIMESTAMPS.size > SIZE_LIMIT) {
     TIMESTAMPS.forEach((timestamp, key) => {
-      if (timestamp - Date.now() > TIMEOUT) {
+      // Make sure that the node is not attached to the dom when clearing
+      // it out.
+      if (timestamp - Date.now() > TIMEOUT && !CACHE.get(key)?.parentElement) {
         toClear.push(key);
       }
     });
