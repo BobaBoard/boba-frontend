@@ -6,37 +6,44 @@ const LoadingSpinner: React.FC<{
   idleMessage?: string;
 }> = (props) => {
   return (
-    <div className="container">
-      <div
-        className={classnames("idle-indicator", {
-          idle: !props.loading,
-        })}
-      >
-        {props.idleMessage}
-      </div>
-      <div
-        className={classnames("loading-indicator", {
-          loading: props.loading,
-        })}
-      >
-        {props.loadingMessage}...
-      </div>
-      <div className="bobadab-container">
+    <>
+      <div className="container">
         <div
-          className={classnames("bobadab", {
-            refetching: props.loading,
+          className={classnames("idle-indicator", {
+            idle: !props.loading,
           })}
-          onClick={() => {
-            window.scroll({
-              top: 0,
-              behavior: "smooth",
-            });
-          }}
-        />
+        >
+          {props.idleMessage}
+        </div>
+        <div
+          className={classnames("loading-indicator", {
+            loading: props.loading,
+          })}
+        >
+          {props.loadingMessage}...
+        </div>
+        <div className="bobadab-container">
+          <div
+            className={classnames("bobadab", {
+              refetching: props.loading,
+            })}
+            onClick={() => {
+              window.scroll({
+                top: 0,
+                behavior: "smooth",
+              });
+            }}
+          />
+        </div>
       </div>
+      <div className="spacer" />
       <style jsx>{`
         .container {
-          position: relative;
+          position: absolute;
+          bottom: 0;
+        }
+        .spacer {
+          height: 90px;
         }
         .idle-indicator,
         .loading-indicator {
@@ -89,7 +96,7 @@ const LoadingSpinner: React.FC<{
           display: block;
         }
       `}</style>
-    </div>
+    </>
   );
 };
 

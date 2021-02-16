@@ -111,7 +111,7 @@ export const useThreadWithNull = ({
         });
       },
       staleTime: 30 * 1000,
-      notifyOnChangeProps: ["data"],
+      notifyOnChangeProps: ["data", "isLoading", "isFetching"],
       refetchOnMount: !!fetch,
       onSuccess: (data) => {
         log(`Retrieved thread data for thread with id ${threadId}`);

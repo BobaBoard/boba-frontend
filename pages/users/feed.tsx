@@ -94,7 +94,8 @@ function UserFeedPage() {
   const showSidebar = React.useCallback(() => setShowSidebar(true), []);
 
   const showEmptyMessage =
-    !isFetchingUserActivity && userActivityData?.[0]?.activity?.length === 0;
+    !isFetchingUserActivity &&
+    userActivityData?.pages?.[0]?.activity?.length === 0;
 
   return (
     <div className="main">
@@ -140,18 +141,14 @@ function UserFeedPage() {
                         </div>
                       );
                     })}
-                {!showEmptyMessage && (
-                  <div className="spinner">
-                    <LoadingSpinner
-                      loading={isFetchingNextPage || isFetchingUserActivity}
-                      idleMessage={
-                        hasNextPage ? "..." : "Nothing more to load."
-                      }
-                      loadingMessage={"Loading more"}
-                    />
-                  </div>
-                )}
               </div>
+              {!showEmptyMessage && (
+                <LoadingSpinner
+                  loading={isFetchingNextPage || isFetchingUserActivity}
+                  idleMessage={hasNextPage ? "..." : "Nothing more to load."}
+                  loadingMessage={"Loading more"}
+                />
+              )}
             </FeedWithMenu.FeedContent>
           </FeedWithMenu>
         </Layout.MainContent>
@@ -186,9 +183,6 @@ function UserFeedPage() {
           display: block;
           opacity: 0.5;
           filter: grayscale(0.4);
-        }
-        .spinner {
-          margin-top: 20px;
         }
       `}</style>
     </div>

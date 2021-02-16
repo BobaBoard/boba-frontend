@@ -362,26 +362,24 @@ function ThreadPage({
                     />
                   )}
                 </div>
-                <div className="spinner">
-                  <LoadingSpinner
-                    loading={isFetchingThread || isRefetchingThread}
-                    idleMessage={
-                      // Check whether there's more posts to display
-                      (
-                        queryParamsViewMode == THREAD_VIEW_MODES.TIMELINE &&
-                        queryParamsTimelineViewMode == TIMELINE_VIEW_MODE.NEW
-                          ? maxDisplay <= newAnswersSequence.length
-                          : maxDisplay <= chronologicalPostsSequence.length
-                      )
-                        ? "..."
-                        : queryParamsViewMode == THREAD_VIEW_MODES.THREAD
-                        ? ""
-                        : "Nothing more to load."
-                    }
-                    loadingMessage="Loading"
-                  />
-                </div>
               </div>
+              <LoadingSpinner
+                loading={isFetchingThread || isRefetchingThread}
+                idleMessage={
+                  // Check whether there's more posts to display
+                  (
+                    queryParamsViewMode == THREAD_VIEW_MODES.TIMELINE &&
+                    queryParamsTimelineViewMode == TIMELINE_VIEW_MODE.NEW
+                      ? maxDisplay <= newAnswersSequence.length
+                      : maxDisplay <= chronologicalPostsSequence.length
+                  )
+                    ? "..."
+                    : queryParamsViewMode == THREAD_VIEW_MODES.THREAD
+                    ? ""
+                    : "Nothing more to load."
+                }
+                loadingMessage="Loading"
+              />
             </FeedWithMenu.FeedContent>
           </FeedWithMenu>
         </Layout.MainContent>
@@ -414,9 +412,6 @@ function ThreadPage({
           .feed.masonry {
             width: 100%;
             position: relative;
-            margin-top: 20px;
-          }
-          .spinner {
             margin-top: 20px;
           }
         `}

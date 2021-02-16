@@ -226,18 +226,16 @@ function BoardPage() {
                         </div>
                       );
                     })}
-                {!showLockedMessage &&
-                  !showEmptyMessage &&
-                  boardActivityData?.pages?.length && (
-                    <LoadingSpinner
-                      loading={isFetchingNextPage}
-                      idleMessage={
-                        hasNextPage ? "..." : "Nothing more to load."
-                      }
-                      loadingMessage={"Loading more"}
-                    />
-                  )}
               </div>
+              {!showLockedMessage &&
+                !showEmptyMessage &&
+                boardActivityData?.pages?.length && (
+                  <LoadingSpinner
+                    loading={isFetchingNextPage}
+                    idleMessage={hasNextPage ? "..." : "Nothing more to load."}
+                    loadingMessage={"Loading more"}
+                  />
+                )}
             </FeedWithMenu.FeedContent>
           </FeedWithMenu>
         </Layout.MainContent>
