@@ -15,7 +15,10 @@ import {
 } from "components/editors/EditorsContext";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import { ExistanceParam } from "components/QueryParamNextProvider";
-import { useQueryParams } from "use-query-params";
+import { DecodedValueMap, useQueryParams } from "use-query-params";
+
+import debug from "debug";
+const log = debug("bobafrontend:threadPage:GalleryView-log");
 
 export const GalleryViewQueryParams = {
   new: ExistanceParam,
@@ -101,6 +104,24 @@ const ShowCover = ({
   </>
 );
 
+const getPostsToDisplay = (
+  posts: {
+    coverPost: PostType;
+    updatedPosts: PostType[];
+    allGalleryPosts: PostType[];
+  },
+  galleryView: DecodedValueMap<typeof GalleryViewQueryParams>,
+  displayAtMost: number
+) => {
+  const { coverPost, updatedPosts, allGalleryPosts } = posts;
+  const toDisplay = [...(galleryView.new ? updatedPosts : allGalleryPosts)];
+
+  if (coverPost && galleryView.showCover) {
+    toDisplay.unshift(coverPost);
+  }
+  return toDisplay.filter((_, index) => index < displayAtMost);
+};
+
 interface GalleryThreadViewProps extends ThreadContextType {
   displayAtMost: number;
 }
@@ -145,6 +166,15 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
         {
           new: true,
           all: false,
+          showCover:
+            coverPost && (coverPost.isNew || coverPost.newCommentsAmount > 0),
+        },
+        "replaceIn"
+      );
+    } else if (!isRefetching && allGalleryPosts.length == 0) {
+      setGalleryView(
+        {
+          showCover: true,
         },
         "pushIn"
       );
@@ -162,7 +192,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
     );
   }, []);
 
-  const { coverPost, updatedPosts, allGalleryPosts } = React.useMemo(() => {
+  const postTypes = React.useMemo(() => {
     let [coverPost, ...allGalleryPosts] = chronologicalPostsSequence;
     const updatedPosts = allGalleryPosts.filter(
       (post) => post.isNew || post.newCommentsAmount > 0
@@ -170,7 +200,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
     // We always automatically show all the posts when something posted there
     // is new.
     setShowComments(
-      allGalleryPosts
+      chronologicalPostsSequence
         .filter((post) => post.newCommentsAmount > 0)
         .map((post) => post.postId)
     );
@@ -181,15 +211,13 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
       updatedPosts,
     };
   }, [chronologicalPostsSequence, postCommentsMap]);
-  const toDisplay = (!galleryView.new
-    ? galleryView.showCover
-      ? [coverPost, ...allGalleryPosts]
-      : allGalleryPosts
-    : galleryView.showCover &&
-      (coverPost.isNew || coverPost.newCommentsAmount > 0)
-    ? [coverPost, ...updatedPosts]
-    : updatedPosts
-  ).filter((_, index) => index < props.displayAtMost);
+
+  const toDisplay = React.useMemo(
+    () => getPostsToDisplay(postTypes, galleryView, props.displayAtMost),
+    [postTypes, galleryView, props.displayAtMost]
+  );
+
+  const { coverPost, updatedPosts, allGalleryPosts } = postTypes;
 
   const onNewComment = React.useCallback(
     (replyToContributionId: string, replyToCommentId: string | null) => {
@@ -252,12 +280,13 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
     );
   }
 
+  log(toDisplay);
   return (
     <div className="gallery">
       <div className="view-controls">
         <ShowCover
           cover={coverPost}
-          showCover={!!galleryView.showCover}
+          showCover={galleryView.showCover}
           setShowCover={(show: boolean) => {
             setGalleryView(
               {
@@ -284,7 +313,9 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
             },
             {
               id: "all",
-              label: `All Posts (${allGalleryPosts.length})`,
+              label: `All Posts (${
+                allGalleryPosts.length + (galleryView.showCover ? 1 : 0)
+              })`,
               onClick: () =>
                 setGalleryView(
                   {
@@ -348,6 +379,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
           width: 100%;
           position: relative;
           margin-top: 20px;
+          margin-bottom: 20px;
         }
         .view-controls {
           max-width: min(350px, 100%);
