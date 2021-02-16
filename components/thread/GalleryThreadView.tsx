@@ -253,7 +253,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   }
 
   return (
-    <>
+    <div className="gallery">
       <div className="view-controls">
         <ShowCover
           cover={coverPost}
@@ -344,6 +344,11 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
         </MasonryView>
       )}
       <style jsx>{`
+        .gallery {
+          width: 100%;
+          position: relative;
+          margin-top: 20px;
+        }
         .view-controls {
           max-width: min(350px, 100%);
           margin: 0 auto;
@@ -362,7 +367,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
           }
         }
       `}</style>
-    </>
+    </div>
   );
 };
 

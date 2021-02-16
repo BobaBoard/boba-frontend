@@ -339,14 +339,7 @@ function ThreadPage({
             <FeedWithMenu.FeedContent>
               <div
                 className={classnames("feed", {
-                  thread:
-                    queryParamsViewMode == THREAD_VIEW_MODES.THREAD || postId,
-                  masonry:
-                    queryParamsViewMode == THREAD_VIEW_MODES.MASONRY && !postId,
-                  timeline:
-                    queryParamsViewMode == THREAD_VIEW_MODES.TIMELINE &&
-                    !postId,
-                  loading: isFetchingThread,
+                  loading: isFetchingThread || isRefetchingThread,
                 })}
               >
                 <div className="view-modes">
@@ -400,19 +393,12 @@ function ThreadPage({
       <style jsx>
         {`
           .feed {
+            width: 100%;
             max-width: 100%;
             position: relative;
           }
           .feed.loading .view-modes {
             display: none;
-          }
-          .feed.timeline {
-            width: 100%;
-          }
-          .feed.masonry {
-            width: 100%;
-            position: relative;
-            margin-top: 20px;
           }
         `}
       </style>
