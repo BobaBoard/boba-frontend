@@ -274,7 +274,7 @@ const ThreadView: React.FC<ThreadViewProps> = ({
   }
   const url = new URL(`${window.location.origin}${router.asPath}`);
   return (
-    <>
+    <div className="thread-container">
       <div
         className={classnames("whole-thread", {
           visible: !!postId,
@@ -310,8 +310,13 @@ const ThreadView: React.FC<ThreadViewProps> = ({
           color: white;
           font-size: 13px;
         }
+        .thread-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
       `}</style>
-    </>
+    </div>
   );
 };
 
