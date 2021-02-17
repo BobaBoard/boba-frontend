@@ -17,6 +17,8 @@ import {
   faComments,
   faInbox,
   faSignOutAlt,
+  faTh,
+  faClock,
 } from "@fortawesome/free-solid-svg-icons";
 import Head from "next/head";
 import { getTitle } from "pages/_app";
@@ -29,8 +31,6 @@ const getSelectedMenuOptionFromPath = (router: NextRouter) => {
   }
   return "";
 };
-
-const MemoizedSideMenu = React.memo(SideMenu);
 
 interface LayoutComposition {
   MainContent: React.FC<{}>;
@@ -52,6 +52,7 @@ const isActionButton = (node: React.ReactNode): node is typeof ActionButton => {
   return React.isValidElement(node) && node.type == ActionButton;
 };
 
+const MAX_UNREAD_BOARDS_DISPLAY = 4;
 const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const router = useRouter();
   const {
@@ -123,8 +124,10 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
             avatar: `${board.avatarUrl}`,
             description: board.tagline,
             color: board.accentColor,
-            lastUpdate: board.lastUpdateFromOthers,
-            updates: !!(isLoggedIn && board.hasUpdates),
+            lastUpdate: isLoggedIn
+              ? board.lastUpdateFromOthers
+              : board.lastUpdate,
+            updates: isLoggedIn ? board.hasUpdates : true,
             outdated:
               board.lastUpdateFromOthers &&
               board.lastVisit &&
@@ -164,15 +167,8 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
         ref={layoutRef}
         mainContent={mainContent}
         sideMenuContent={
-          <MemoizedSideMenu
+          <SideMenu
             pinnedBoards={pinnedBoards}
-            recentBoards={
-              React.useMemo(
-                () => recentBoards.filter((board, index) => index < 4),
-                [recentBoards]
-              ) as any[]
-            }
-            allBoards={allBoards}
             menuOptions={React.useMemo(
               () =>
                 isLoggedIn
@@ -186,10 +182,42 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
                   : [],
               [isLoggedIn, dismissNotifications]
             )}
-            showRecent={isLoggedIn}
-            showPinned={isLoggedIn}
+            showPinned={isUserPending || isLoggedIn}
             onFilterChange={setBoardFilter}
-          />
+            currentBoardSlug={slug}
+          >
+            <SideMenu.BoardsMenuSection
+              key="recent-unreads"
+              title={
+                isUserPending || isLoggedIn
+                  ? "recent unreads"
+                  : "recent updates"
+              }
+              icon={faClock}
+              boards={
+                React.useMemo(
+                  () =>
+                    recentBoards.filter(
+                      (board, index) => index < MAX_UNREAD_BOARDS_DISPLAY
+                    ),
+                  [recentBoards]
+                ) as any[]
+              }
+              emptyTitle="Congratulations!"
+              emptyDescription="You read 'em all."
+              placeholdersHeight={isUserPending ? MAX_UNREAD_BOARDS_DISPLAY : 0}
+              accentColor={boardData?.accentColor || "#f96680"}
+              loading={isUserPending}
+            />
+            <SideMenu.BoardsMenuSection
+              key="all-boards"
+              title="all boards"
+              icon={faTh}
+              boards={allBoards}
+              emptyTitle="There's no board here."
+              emptyDescription="Somehow, that feels wrong."
+            />
+          </SideMenu>
         }
         actionButton={actionButton}
         headerAccent={boardData?.accentColor || "#f96680"}
