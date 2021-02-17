@@ -209,7 +209,8 @@ function BoardPage() {
                 {showEmptyMessage && (
                   <img className="empty" src={"/nothing.jpg"} />
                 )}
-                {boardActivityData?.pages &&
+                {!showLockedMessage &&
+                  boardActivityData?.pages &&
                   boardActivityData.pages
                     .flatMap((activityData) => activityData?.activity)
                     .map((thread: ThreadType) => {
