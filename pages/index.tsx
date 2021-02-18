@@ -148,9 +148,10 @@ function HomePage(props: any) {
           text-align: center;
           margin: 0 auto;
           padding: 20px;
+          width: 100%;
         }
         .display {
-          max-width: 800px;
+          max-width: 749px;
           width: 90%;
           margin: 0 auto;
         }
