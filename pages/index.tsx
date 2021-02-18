@@ -15,7 +15,7 @@ function HomePage(props: any) {
   const { styles } = useBoos();
   const { boardsData } = useBoardContext();
 
-  const updatesThreadUrl = `${process.env.NEXT_PUBLIC_RELEASE_THREAD_URL}/${props?.lastUpdate.latest_post_string_id}`;
+  const updatesThreadUrl = `${process.env.NEXT_PUBLIC_RELEASE_THREAD_URL}/${props?.lastUpdate?.latest_post_string_id}`;
   return (
     <div className="main">
       <Layout title={`Hello!`}>
