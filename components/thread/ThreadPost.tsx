@@ -1,4 +1,4 @@
-import { Post, PostSizes } from "@bobaboard/ui-components";
+import { CompactPostThread, Post, PostSizes } from "@bobaboard/ui-components";
 import { PostProps } from "@bobaboard/ui-components/dist/post/Post";
 import moment from "moment";
 import { useRouter } from "next/router";
@@ -26,6 +26,8 @@ interface ThreadPostProps
   ) => void;
   onEditPost?: (post: PostType) => void;
   onNotesClick?: (id: string) => void;
+  showThread?: boolean;
+  showRoot?: boolean;
 }
 const REGULAR_POST_OPTIONS = [
   PostOptions.COPY_LINK,
@@ -47,6 +49,8 @@ const ThreadPost = React.memo(
       onEditPost,
       onNotesClick,
       parentChildrenMap,
+      showThread,
+      showRoot,
       ...extraProps
     }: ThreadPostProps) => {
       const {
@@ -76,48 +80,82 @@ const ThreadPost = React.memo(
         () => onNotesClick?.(post.postId),
         [post.postId, onNotesClick]
       );
-
-      return (
-        <Post
-          key={post.postId}
-          size={post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}
-          createdTime={moment.utc(post.created).fromNow()}
-          createdTimeLink={directLink}
-          notesLink={React.useMemo(
-            () => ({
-              href: directLink.href,
-              onClick: onNotesClick ? onNotesClickWithId : directLink.onClick,
-            }),
-            [directLink, onNotesClick]
-          )}
-          text={post.content}
-          secretIdentity={post.secretIdentity}
-          userIdentity={post.userIdentity}
-          accessory={post.accessory}
-          onNewContribution={React.useCallback(
-            () => onNewContribution(post.postId),
-            [onNewContribution, post.postId]
-          )}
-          onNewComment={React.useCallback(
-            () => onNewComment(post.postId, null),
-            [onNewComment, post.postId]
-          )}
-          totalComments={post.comments?.length}
-          directContributions={
-            parentChildrenMap.get(post.postId)?.children.length
-          }
-          totalContributions={getTotalContributions(post, parentChildrenMap)}
-          newPost={isLoggedIn && post.isNew}
-          newComments={isLoggedIn ? post.newCommentsAmount : 0}
-          newContributions={
-            isLoggedIn ? getTotalNewContributions(post, parentChildrenMap) : 0
-          }
-          tags={post.tags}
-          answerable={isLoggedIn}
-          menuOptions={options}
-          {...extraProps}
-        />
+      const threadLink = React.useMemo(
+        () => ({
+          href: directLink.href,
+          onClick: onNotesClick ? onNotesClickWithId : directLink.onClick,
+        }),
+        [directLink, onNotesClick]
       );
+      const onNewContributionCallback = React.useCallback(
+        () => onNewContribution(post.postId),
+        [onNewContribution, post.postId]
+      );
+
+      const onNewCommentCallback = React.useCallback(
+        () => onNewComment(post.postId, null),
+        [onNewComment, post.postId]
+      );
+
+      const postToPropsMap = (post: PostType): PostProps => {
+        const directLink = createLinkTo({
+          urlPattern: THREAD_URL_PATTERN,
+          url: `${threadBaseUrl}/${post.postId}${url.search}`,
+        });
+        return {
+          size: post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR,
+          createdTime: moment.utc(post.created).fromNow(),
+          text: post.content,
+          secretIdentity: post.secretIdentity,
+          userIdentity: post.userIdentity,
+          createdTimeLink: {
+            href: directLink.href,
+            onClick: onNotesClick ? onNotesClickWithId : directLink.onClick,
+          },
+          notesLink: threadLink,
+          accessory: post.accessory,
+          onNewContribution: onNewContributionCallback,
+          onNewComment: onNewCommentCallback,
+          totalComments: post.comments?.length,
+          directContributions: parentChildrenMap.get(post.postId)?.children
+            .length,
+          totalContributions: getTotalContributions(post, parentChildrenMap),
+          newPost: isLoggedIn && post.isNew,
+          newComments: isLoggedIn ? post.newCommentsAmount : 0,
+          newContributions: isLoggedIn
+            ? getTotalNewContributions(post, parentChildrenMap)
+            : 0,
+          tags: post.tags,
+          answerable: isLoggedIn,
+          menuOptions: options,
+          ...extraProps,
+        };
+      };
+      const posts = [post];
+      if (showThread) {
+        let nextParent: string | null = post.parentPostId;
+        while (
+          nextParent != null &&
+          nextParent != (showRoot ? undefined : extraProps.threadRoot?.postId)
+        ) {
+          const parentPost = extraProps.chronologicalPostsSequence.find(
+            (p) => p.postId == nextParent
+          );
+          if (parentPost) {
+            posts.unshift(parentPost);
+          }
+          nextParent = parentPost?.parentPostId || null;
+        }
+      }
+      if (posts.length > 1) {
+        return (
+          <CompactPostThread
+            key={post.postId}
+            posts={posts.map(postToPropsMap)}
+          />
+        );
+      }
+      return <Post key={post.postId} {...postToPropsMap(post)} />;
     }
   )
 );

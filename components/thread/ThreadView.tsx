@@ -89,6 +89,7 @@ const ThreadLevel: React.FC<{
   onEditPost: (post: PostType) => void;
   isLoggedIn: boolean;
   lastOf?: { level: number; postId: string }[];
+  showThread?: boolean;
 }> = (props) => {
   const router = useRouter();
   const slug = router.query.boardId?.slice(1) as string;
@@ -164,6 +165,8 @@ const ThreadLevel: React.FC<{
             onNewContribution={props.onNewContribution}
             onNewComment={props.onNewComment}
             onEditPost={props.onEditPost}
+            showThread={props.showThread}
+            showRoot={props.showThread}
           />
         </div>
       </MemoizedThreadIndent>
@@ -215,6 +218,7 @@ interface ThreadViewProps extends ThreadContextType {
 const MemoizedThreadLevel = React.memo(ThreadLevel);
 const ThreadView: React.FC<ThreadViewProps> = ({
   currentRoot,
+  threadRoot,
   parentChildrenMap,
   chronologicalPostsSequence,
   ...props
@@ -303,6 +307,7 @@ const ThreadView: React.FC<ThreadViewProps> = ({
         onNewContribution={onNewContribution}
         isLoggedIn={isLoggedIn}
         onEditPost={onEditContribution}
+        showThread={!!postId}
       />
       <style jsx>{`
         .whole-thread {

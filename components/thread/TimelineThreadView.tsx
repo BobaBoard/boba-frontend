@@ -227,6 +227,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({
                   onNewContribution={onNewContribution}
                   onNewComment={onNewComment}
                   onEditPost={onEditContribution}
+                  showThread
                 />
               </div>
               {post.comments && (
