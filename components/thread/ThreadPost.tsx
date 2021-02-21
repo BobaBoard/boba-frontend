@@ -1,4 +1,9 @@
-import { CompactPostThread, Post, PostSizes } from "@bobaboard/ui-components";
+import {
+  CompactPostThread,
+  Post,
+  PostSizes,
+  PostHandler,
+} from "@bobaboard/ui-components";
 import { PostProps } from "@bobaboard/ui-components/dist/post/Post";
 import moment from "moment";
 import { useRouter } from "next/router";
@@ -15,8 +20,7 @@ import { usePostOptions, PostOptions } from "../hooks/useOptions";
 
 interface ThreadPostProps
   // This type can add any prop from the original post type
-  extends Omit<Partial<PostProps>, "onNewContribution" | "onNewComment">,
-    ThreadContextType {
+  extends Omit<Partial<PostProps>, "onNewContribution" | "onNewComment"> {
   post: PostType;
   isLoggedIn: boolean;
   onNewContribution: (id: string) => void;
@@ -28,6 +32,7 @@ interface ThreadPostProps
   onNotesClick?: (id: string) => void;
   showThread?: boolean;
   showRoot?: boolean;
+  innerRef?: React.Ref<PostHandler>;
 }
 const REGULAR_POST_OPTIONS = [
   PostOptions.COPY_LINK,
@@ -52,7 +57,7 @@ const ThreadPost = React.memo(
       showThread,
       showRoot,
       ...extraProps
-    }: ThreadPostProps) => {
+    }: ThreadPostProps & ThreadContextType) => {
       const {
         slug,
         threadId,
@@ -148,6 +153,7 @@ const ThreadPost = React.memo(
         }
       }
       if (posts.length > 1) {
+        // TODO: also add a ref to this
         return (
           <CompactPostThread
             key={post.postId}
@@ -155,9 +161,17 @@ const ThreadPost = React.memo(
           />
         );
       }
-      return <Post key={post.postId} {...postToPropsMap(post)} />;
+      return (
+        <Post
+          key={post.postId}
+          {...postToPropsMap(post)}
+          ref={extraProps.innerRef}
+        />
+      );
     }
   )
 );
 
-export default ThreadPost;
+export default React.forwardRef<PostHandler, ThreadPostProps>((props, ref) => {
+  return <ThreadPost {...props} innerRef={ref} />;
+});
