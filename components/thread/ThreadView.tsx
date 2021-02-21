@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  ThreadIndent,
-  PostHandler,
-  DefaultTheme,
-} from "@bobaboard/ui-components";
+import { NewThread, PostHandler, DefaultTheme } from "@bobaboard/ui-components";
 import { useRouter } from "next/router";
 import ThreadPost from "./ThreadPost";
 import debug from "debug";
@@ -75,12 +71,12 @@ export const scrollToComment = (commentId: string, color: string) => {
   });
 };
 
-const MemoizedThreadIndent = React.memo(ThreadIndent);
+// const MemoizedThreadIndent = React.memo(ThreadIndent);
 const postHandlers = new Map<string, PostHandler>();
 const ThreadLevel: React.FC<{
   post: PostType;
   postsMap: Map<string, { children: PostType[]; parent: PostType | null }>;
-  level: number;
+  level?: number;
   onNewComment: (
     replyToPostId: string,
     replyToCommentId: string | null
@@ -90,6 +86,7 @@ const ThreadLevel: React.FC<{
   isLoggedIn: boolean;
   lastOf?: { level: number; postId: string }[];
   showThread?: boolean;
+  collapsedIndents: string[];
 }> = (props) => {
   const router = useRouter();
   const slug = router.query.boardId?.slice(1) as string;
@@ -113,88 +110,76 @@ const ThreadLevel: React.FC<{
         }))
       : [];
   info(`Ends array: %o`, endsArray);
-  const ends = React.useMemo(
-    () => [
-      ...(props.lastOf || []),
-      { level: props.level, postId: props.post.postId },
-    ],
-    [props.level, props.post.postId, props.lastOf]
-  );
-  const commentsEnds = React.useMemo(
-    () =>
-      isLeaf
-        ? [
-            ...endsArray,
-            {
-              level: props.level,
-              onBeamUpClick: () =>
-                scrollToPost(props.post.postId, boardsData[slug].accentColor),
-              showAddContribution: props.isLoggedIn,
-              onAddContributionClick: () => {
-                props.onNewContribution(props.post.postId);
-              },
-            },
-          ]
-        : [],
-    [
-      props.level,
-      props.post,
-      props.isLoggedIn,
-      props.onNewContribution,
-      scrollToPost,
-    ]
-  );
+  // const ends = React.useMemo(
+  //   () => [
+  //     ...(props.lastOf || []),
+  //     { level: props.level, postId: props.post.postId },
+  //   ],
+  //   [props.level, props.post.postId, props.lastOf]
+  // );
+  // const commentsEnds = React.useMemo(
+  //   () =>
+  //     isLeaf
+  //       ? [
+  //           ...endsArray,
+  //           {
+  //             level: props.level,
+  //             onBeamUpClick: () =>
+  //               scrollToPost(props.post.postId, boardsData[slug].accentColor),
+  //             showAddContribution: props.isLoggedIn,
+  //             onAddContributionClick: () => {
+  //               props.onNewContribution(props.post.postId);
+  //             },
+  //           },
+  //         ]
+  //       : [],
+  //   [
+  //     props.level,
+  //     props.post,
+  //     props.isLoggedIn,
+  //     props.onNewContribution,
+  //     scrollToPost,
+  //   ]
+  // );
 
-  const onReplyToComment = React.useCallback(
-    (replyToCommentId: string) =>
-      props.onNewComment(props.post.postId, replyToCommentId),
-    [props.onNewComment, props.post]
-  );
-
+  console.log(props.postsMap);
   return (
     <>
-      <MemoizedThreadIndent
-        level={props.level}
-        key={`${props.level}_${props.post.postId}`}
-        ends={props.post.comments ? undefined : endsArray}
-      >
-        <div className="post outline-hidden" data-post-id={props.post.postId}>
-          <ThreadPost
-            post={props.post}
-            isLoggedIn={props.isLoggedIn}
-            onNewContribution={props.onNewContribution}
-            onNewComment={props.onNewComment}
-            onEditPost={props.onEditPost}
-            showThread={props.showThread}
-            showRoot={props.showThread}
-          />
-        </div>
-      </MemoizedThreadIndent>
-      {props.post.comments && (
-        <MemoizedThreadIndent level={props.level + 1} ends={commentsEnds}>
-          <CommentsThread
-            isLoggedIn={props.isLoggedIn}
-            parentPostId={props.post.postId}
-            parentCommentId={null}
-            level={0}
-            onReplyTo={onReplyToComment}
-          />
-        </MemoizedThreadIndent>
-      )}
       {props.postsMap
         .get(props.post.postId)
         ?.children.flatMap((post: PostType, index: number, array) => (
-          <MemoizedThreadLevel
-            key={post.postId}
-            post={post}
-            postsMap={props.postsMap}
-            level={props.level + 1}
-            onNewComment={props.onNewComment}
-            onNewContribution={props.onNewContribution}
-            isLoggedIn={props.isLoggedIn}
-            lastOf={index == array.length - 1 ? ends : props.lastOf}
-            onEditPost={props.onEditPost}
-          />
+          <NewThread.Item key={post.postId}>
+            {(setHandler) => (
+              <>
+                <div className="post">
+                  <ThreadPost
+                    post={post}
+                    isLoggedIn={props.isLoggedIn}
+                    onNewContribution={props.onNewContribution}
+                    onNewComment={props.onNewComment}
+                    onEditPost={props.onEditPost}
+                    ref={(postRef) =>
+                      setHandler(postRef?.avatarRef?.current || null)
+                    }
+                  />
+                </div>
+                {props.postsMap.has(post.postId) && (
+                  <NewThread.Indent
+                    id={`indent_${post.postId}`}
+                    collapsed={props.collapsedIndents.some(
+                      (id) => id == `indent_${post.postId}`
+                    )}
+                  >
+                    <div style={{ marginLeft: "15px", marginTop: "15px" }}>
+                      <CommentsThread parentPostId={post.postId} />
+                    </div>
+                    <ThreadLevel {...props} post={post} />
+                    {/* <div>This is the end!</div> */}
+                  </NewThread.Indent>
+                )}
+              </>
+            )}
+          </NewThread.Item>
         ))}
       <style jsx>
         {`
@@ -202,9 +187,9 @@ const ThreadLevel: React.FC<{
             width: 100%;
           }
           .post {
-            margin-top: 15px;
-            scroll-margin: 10px;
+            margin-top: 25px;
             position: relative;
+            pointer-events: none !important;
           }
         `}
       </style>
@@ -215,7 +200,7 @@ const ThreadLevel: React.FC<{
 interface ThreadViewProps extends ThreadContextType {
   onTotalPostsChange: (total: number) => void;
 }
-const MemoizedThreadLevel = React.memo(ThreadLevel);
+//const MemoizedThreadLevel = React.memo(ThreadLevel);
 const ThreadView: React.FC<ThreadViewProps> = ({
   currentRoot,
   threadRoot,
@@ -232,6 +217,7 @@ const ThreadView: React.FC<ThreadViewProps> = ({
   const router = useRouter();
   const { isLoggedIn } = useAuth();
   const dispatch = useEditorsDispatch();
+  const [collapse, setCollapse] = React.useState<string[]>([]);
 
   const onNewComment = React.useCallback(
     (replyToContributionId: string, replyToCommentId: string | null) => {
@@ -299,16 +285,55 @@ const ThreadView: React.FC<ThreadViewProps> = ({
           <a>Show whole thread</a>
         </Link>
       </div>
-      <MemoizedThreadLevel
-        post={currentRoot}
-        postsMap={parentChildrenMap}
-        level={0}
-        onNewComment={onNewComment}
-        onNewContribution={onNewContribution}
-        isLoggedIn={isLoggedIn}
-        onEditPost={onEditContribution}
-        showThread={!!postId}
-      />
+      <NewThread
+        onCollapseLevel={(levelId) => {
+          setCollapse([...collapse, levelId]);
+        }}
+        onUncollapseLevel={(levelId) => {
+          setCollapse(collapse.filter((id) => id != levelId));
+        }}
+        getCollapseReason={(levelId) => {
+          return <div>Subthread manually hidden.</div>;
+        }}
+      >
+        {(setHandler) => (
+          <>
+            <ThreadPost
+              post={currentRoot}
+              isLoggedIn={isLoggedIn}
+              onNewContribution={onNewContribution}
+              onNewComment={onNewComment}
+              onEditPost={onEditContribution}
+              // TODO: change these to showToParent and showToRoot
+              showThread
+              showRoot
+              ref={(postRef) => setHandler(postRef?.avatarRef?.current || null)}
+            />
+            {parentChildrenMap.has(currentRoot.postId) && (
+              <NewThread.Indent
+                id={`indent_${currentRoot.postId}`}
+                collapsed={collapse.some(
+                  (id) => id == `indent_${currentRoot.postId}`
+                )}
+              >
+                <div style={{ marginLeft: "15px", marginTop: "15px" }}>
+                  <CommentsThread parentPostId={currentRoot.postId} />
+                </div>
+                <ThreadLevel
+                  onEditPost={onEditContribution}
+                  onNewContribution={onNewContribution}
+                  onNewComment={onNewComment}
+                  post={currentRoot}
+                  postsMap={parentChildrenMap}
+                  isLoggedIn={isLoggedIn}
+                  collapsedIndents={collapse}
+                />
+                {/* <div>This is the end!</div> */}
+              </NewThread.Indent>
+            )}
+          </>
+        )}
+      </NewThread>
       <style jsx>{`
         .whole-thread {
           margin-bottom: -5px;
