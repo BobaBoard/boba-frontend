@@ -49,6 +49,8 @@ export interface ThreadContextType {
     name: string;
     avatar: string;
   };
+  parentBoardSlug: string | null;
+  threadId: string | null;
 }
 
 export const useThread = (props: {
@@ -218,6 +220,8 @@ export const useThreadWithNull = ({
     isRefetching,
     hasNewReplies:
       !!threadData?.newCommentsAmount || !!threadData?.newPostsAmount,
+    parentBoardSlug: threadData?.boardSlug || null,
+    threadId: threadId,
   };
 };
 

@@ -25,7 +25,7 @@ export const makeClientComment = (serverComment: any): CommentType => ({
 
 export const makeClientPost = (serverPost: any): PostType => ({
   postId: serverPost.post_id,
-  threadId: serverPost.thread_id,
+  threadId: serverPost.parent_thread_id,
   parentPostId: serverPost.parent_post_id,
   secretIdentity: {
     name: serverPost.secret_identity.name,

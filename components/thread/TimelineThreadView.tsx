@@ -232,15 +232,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({
               </div>
               {post.comments && (
                 <ThreadIndent level={1} key={`0_${post.postId}`} ends={[]}>
-                  <CommentsThread
-                    isLoggedIn={isLoggedIn}
-                    parentPostId={post.postId}
-                    parentCommentId={null}
-                    level={0}
-                    onReplyTo={(replyToCommentId: string) =>
-                      onNewComment(post.postId, replyToCommentId)
-                    }
-                  />
+                  <CommentsThread parentPostId={post.postId} />
                 </ThreadIndent>
               )}
             </div>

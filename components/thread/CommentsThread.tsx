@@ -10,6 +10,11 @@ import { ThreadContextType, withThreadData } from "./ThreadQueryHook";
 
 import debug from "debug";
 import moment from "moment";
+import { useAuth } from "components/Auth";
+import {
+  EditorActions,
+  useEditorsDispatch,
+} from "components/editors/EditorsContext";
 // @ts-expect-error
 const log = debug("bobafrontend:threadLevel-log");
 // @ts-expect-error
@@ -20,12 +25,12 @@ const CommentsThreadLevel: React.FC<{
   parentChainMap: Map<string, CommentType>;
   parentChildrenMap: Map<string, CommentType[]>;
   parentPostId: string;
-  parentCommentId: string | null;
-  isLoggedIn: boolean;
-  level: number;
+  parentCommentId?: string | null;
+  level?: number;
   onReplyTo: (replyTo: string) => void;
 }> = (props) => {
   const indent = useIndent();
+  const { isLoggedIn } = useAuth();
   const chain = [props.comment];
   let currentChainId = props.comment.commentId;
   while (props.parentChainMap.has(currentChainId)) {
@@ -40,7 +45,7 @@ const CommentsThreadLevel: React.FC<{
   ]);
   return (
     <CompactThreadIndent
-      level={props.level}
+      level={props.level || 0}
       startsFromViewport={indent.bounds}
       hideLine={!children}
     >
@@ -62,17 +67,15 @@ const CommentsThreadLevel: React.FC<{
             id: el.commentId,
             text: el.content,
           }))}
-          muted={props.isLoggedIn && !props.comment.isNew}
-          onExtraAction={props.isLoggedIn ? replyToLast : undefined}
+          muted={isLoggedIn && !props.comment.isNew}
+          onExtraAction={isLoggedIn ? replyToLast : undefined}
         />
       </div>
       {children ? (
         <CommentsThread
-          level={props.level + 1}
+          level={props.level ? props.level + 1 : 1}
           parentCommentId={lastCommentId}
           parentPostId={props.parentPostId}
-          isLoggedIn={props.isLoggedIn}
-          onReplyTo={props.onReplyTo}
         />
       ) : (
         <></>
@@ -83,15 +86,32 @@ const CommentsThreadLevel: React.FC<{
 
 interface CommentsThreadProps extends ThreadContextType {
   parentPostId: string;
-  parentCommentId: string | null;
-  isLoggedIn: boolean;
-  level: number;
-  onReplyTo: (replyTo: string) => void;
+  parentCommentId?: string | null;
+  level?: number;
 }
 
 // TODO: clear commentHandlers when changing thread
 export const commentHandlers = new Map<string, CommentHandler>();
 const CommentsThread = withThreadData<CommentsThreadProps>((props) => {
+  const dispatch = useEditorsDispatch();
+  const onReplyToComment = React.useCallback(
+    (replyToCommentId: string) => {
+      if (!props.parentBoardSlug || !props.threadId) {
+        return;
+      }
+      dispatch({
+        type: EditorActions.NEW_COMMENT,
+        payload: {
+          boardSlug: props.parentBoardSlug,
+          threadId: props.threadId,
+          replyToContributionId: props.parentPostId,
+          replyToCommentId,
+        },
+      });
+    },
+    [props.threadId, props.parentBoardSlug, props.parentPostId, dispatch]
+  );
+
   if (!props.postCommentsMap.has(props.parentPostId)) {
     return <div />;
   }
@@ -114,6 +134,7 @@ const CommentsThread = withThreadData<CommentsThreadProps>((props) => {
             parentChainMap={parentChainMap}
             {...props}
             parentChildrenMap={parentChildrenMap}
+            onReplyTo={onReplyToComment}
           />
         );
       })}
