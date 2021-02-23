@@ -141,53 +141,62 @@ const ThreadLevel: React.FC<{
   //     scrollToPost,
   //   ]
   // );
-
-  console.log(props.postsMap);
   return (
     <>
-      {props.postsMap
-        .get(props.post.postId)
-        ?.children.flatMap((post: PostType, index: number, array) => (
-          <NewThread.Item key={post.postId}>
-            {(setHandler) => (
-              <>
-                <div className="post">
-                  <ThreadPost
-                    post={post}
-                    isLoggedIn={props.isLoggedIn}
-                    onNewContribution={props.onNewContribution}
-                    onNewComment={props.onNewComment}
-                    onEditPost={props.onEditPost}
-                    ref={(postRef) =>
-                      setHandler(postRef?.avatarRef?.current || null)
-                    }
-                  />
-                </div>
-                {props.postsMap.has(post.postId) && (
-                  <NewThread.Indent
-                    id={`indent_${post.postId}`}
-                    collapsed={props.collapsedIndents.some(
-                      (id) => id == `indent_${post.postId}`
-                    )}
-                  >
-                    <div style={{ marginLeft: "15px", marginTop: "15px" }}>
-                      <CommentsThread parentPostId={post.postId} />
-                    </div>
-                    <ThreadLevel {...props} post={post} />
-                    {/* <div>This is the end!</div> */}
-                  </NewThread.Indent>
+      <NewThread.Item key={props.post.postId}>
+        {(setHandler) => (
+          <>
+            <div
+              className={classnames("post", {
+                "with-indent": props.postsMap.has(props.post.postId),
+              })}
+            >
+              <ThreadPost
+                post={props.post}
+                isLoggedIn={props.isLoggedIn}
+                onNewContribution={props.onNewContribution}
+                onNewComment={props.onNewComment}
+                onEditPost={props.onEditPost}
+                ref={(postRef) =>
+                  setHandler(postRef?.avatarRef?.current || null)
+                }
+              />
+            </div>
+            {(props.postsMap.has(props.post.postId) ||
+              props.post.comments?.length) && (
+              <NewThread.Indent
+                id={`indent_${props.post.postId}`}
+                collapsed={props.collapsedIndents.some(
+                  (id) => id == `indent_${props.post.postId}`
                 )}
-              </>
+              >
+                <div className="comments">
+                  <CommentsThread parentPostId={props.post.postId} />
+                </div>
+                {props.postsMap
+                  .get(props.post.postId)
+                  ?.children.flatMap((post: PostType, index: number, array) => (
+                    <ThreadLevel key={post.postId} {...props} post={post} />
+                  ))}
+              </NewThread.Indent>
             )}
-          </NewThread.Item>
-        ))}
+          </>
+        )}
+      </NewThread.Item>
       <style jsx>
         {`
           .level {
             width: 100%;
           }
+          .comments {
+            pointer-events: all;
+            margin-left: 10px;
+            margin-top: -5px;
+            margin-right: 10px;
+          }
           .post {
-            margin-top: 25px;
+            margin-top: 30px;
+            margin-bottom: 15px;
             position: relative;
             pointer-events: none !important;
           }
@@ -296,43 +305,15 @@ const ThreadView: React.FC<ThreadViewProps> = ({
           return <div>Subthread manually hidden.</div>;
         }}
       >
-        {(setHandler) => (
-          <>
-            <ThreadPost
-              post={currentRoot}
-              isLoggedIn={isLoggedIn}
-              onNewContribution={onNewContribution}
-              onNewComment={onNewComment}
-              onEditPost={onEditContribution}
-              // TODO: change these to showToParent and showToRoot
-              showThread
-              showRoot
-              ref={(postRef) => setHandler(postRef?.avatarRef?.current || null)}
-            />
-            {parentChildrenMap.has(currentRoot.postId) && (
-              <NewThread.Indent
-                id={`indent_${currentRoot.postId}`}
-                collapsed={collapse.some(
-                  (id) => id == `indent_${currentRoot.postId}`
-                )}
-              >
-                <div style={{ marginLeft: "15px", marginTop: "15px" }}>
-                  <CommentsThread parentPostId={currentRoot.postId} />
-                </div>
-                <ThreadLevel
-                  onEditPost={onEditContribution}
-                  onNewContribution={onNewContribution}
-                  onNewComment={onNewComment}
-                  post={currentRoot}
-                  postsMap={parentChildrenMap}
-                  isLoggedIn={isLoggedIn}
-                  collapsedIndents={collapse}
-                />
-                {/* <div>This is the end!</div> */}
-              </NewThread.Indent>
-            )}
-          </>
-        )}
+        <ThreadLevel
+          onEditPost={onEditContribution}
+          onNewContribution={onNewContribution}
+          onNewComment={onNewComment}
+          post={currentRoot}
+          postsMap={parentChildrenMap}
+          isLoggedIn={isLoggedIn}
+          collapsedIndents={collapse}
+        />
       </NewThread>
       <style jsx>{`
         .whole-thread {
@@ -351,6 +332,7 @@ const ThreadView: React.FC<ThreadViewProps> = ({
           display: flex;
           flex-direction: column;
           align-items: center;
+          margin-top: 10px;
         }
       `}</style>
     </div>
