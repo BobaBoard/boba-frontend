@@ -150,6 +150,7 @@ const ThreadLevel: React.FC<{
               className={classnames("post", {
                 "with-indent": props.postsMap.has(props.post.postId),
               })}
+              data-post-id={props.post.postId}
             >
               <ThreadPost
                 post={props.post}
@@ -157,9 +158,12 @@ const ThreadLevel: React.FC<{
                 onNewContribution={props.onNewContribution}
                 onNewComment={props.onNewComment}
                 onEditPost={props.onEditPost}
-                ref={(postRef) =>
-                  setHandler(postRef?.avatarRef?.current || null)
-                }
+                ref={(postRef) => {
+                  if (postRef) {
+                    postHandlers.set(props.post.postId, postRef);
+                  }
+                  setHandler(postRef?.avatarRef?.current || null);
+                }}
               />
             </div>
             {(props.postsMap.has(props.post.postId) ||
