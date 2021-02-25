@@ -9,12 +9,14 @@ import { useAuth } from "./Auth";
 interface BoardContextType {
   boardsData: { [key: string]: BoardData };
   nextPinnedOrder: number;
+  hasLoggedInData: boolean;
   refetch: () => void;
 }
 
 const BoardContext = React.createContext<BoardContextType>({
   boardsData: {},
   nextPinnedOrder: 1,
+  hasLoggedInData: false,
   refetch: noop,
 });
 
@@ -85,21 +87,20 @@ const BoardContextProvider: React.FC<{
   const [nextPinnedOrder, setNextPinnedOrder] = React.useState(
     getNextPinnedOrder(props.initialData || [])
   );
+  const [hasLoggedInData, setHasLoggedInData] = React.useState(false);
 
   // This handler takes care of transforming the board result returned from a query
   // to the /boards endpoint (i.e. the one returning details for ALL boards).
   // Note that, at least for now, this handler returns ALL the board, so boards that were there but
   // aren't anymore can be safely removed.
-  const { data: allBoardsData, refetch: refetchAllBoards } = useQuery(
-    "allBoardsData",
-    () => getAllBoardsData(),
-    {
-      initialData: () => Object.values(boardsData),
-      staleTime: 1000 * 30, // Make stale after 30s
-      refetchInterval: 1000 * 60 * 1, // Refetch automatically every minute
-      refetchOnWindowFocus: true,
-    }
-  );
+  const { data: allBoardsData, refetch: refetchAllBoards } = useQuery<
+    BoardData[] | undefined
+  >("allBoardsData", () => getAllBoardsData(), {
+    initialData: () => Object.values(boardsData),
+    staleTime: 1000 * 30, // Make stale after 30s
+    refetchInterval: 1000 * 60 * 1, // Refetch automatically every minute
+    refetchOnWindowFocus: true,
+  });
   React.useEffect(() => {
     if (!allBoardsData) {
       return;
@@ -153,7 +154,9 @@ const BoardContextProvider: React.FC<{
 
   React.useEffect(() => {
     if (isLoggedIn) {
-      refetchCurrentBoard();
+      refetchCurrentBoard().then(() => {
+        setHasLoggedInData(true);
+      });
     }
   }, [isLoggedIn]);
 
@@ -163,6 +166,7 @@ const BoardContextProvider: React.FC<{
         boardsData,
         nextPinnedOrder,
         refetch: refetchAllBoards,
+        hasLoggedInData,
       }}
       {
         ...props /* this is here for props.children */

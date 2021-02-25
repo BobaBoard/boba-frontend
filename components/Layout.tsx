@@ -66,7 +66,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const [loginOpen, setLoginOpen] = React.useState(false);
   const layoutRef = React.useRef<{ closeSideMenu: () => void }>(null);
   const slug: string = router.query.boardId?.slice(1) as string;
-  const { boardsData, refetch } = useBoardContext();
+  const { boardsData, refetch, hasLoggedInData } = useBoardContext();
   const [boardFilter, setBoardFilter] = React.useState("");
   const queryClient = useQueryClient();
   const { mutate: dismissNotifications } = useMutation(
@@ -74,7 +74,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
     {
       onSuccess: () => {
         log(`Successfully dismissed all notifications. Refetching...`);
-        queryClient.invalidateQueries("allBoardsData");
+        queryClient.invalidateQueries(["allBoardsData", { isLoggedIn }]);
         if (slug) {
           queryClient.invalidateQueries(["boardActivityData", { slug }]);
         }
@@ -127,7 +127,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
             lastUpdate: isLoggedIn
               ? board.lastUpdateFromOthers
               : board.lastUpdate,
-            updates: isLoggedIn ? board.hasUpdates : true,
+            updates: isLoggedIn && board.hasUpdates,
             outdated:
               board.lastUpdateFromOthers &&
               board.lastVisit &&
@@ -138,9 +138,10 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
           };
           return agg;
         }, {} as Parameters<typeof processBoardsUpdates>[0]),
-        boardFilter
+        boardFilter,
+        isLoggedIn
       ),
-    [boardFilter, boardsData]
+    [boardFilter, boardsData, isLoggedIn]
   );
 
   const boardData = boardsData[slug];
@@ -186,29 +187,32 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
             onFilterChange={setBoardFilter}
             currentBoardSlug={slug}
           >
-            <SideMenu.BoardsMenuSection
-              key="recent-unreads"
-              title={
-                isUserPending || isLoggedIn
-                  ? "recent unreads"
-                  : "recent updates"
-              }
-              icon={faClock}
-              boards={
-                React.useMemo(
-                  () =>
-                    recentBoards.filter(
-                      (board, index) => index < MAX_UNREAD_BOARDS_DISPLAY
-                    ),
-                  [recentBoards]
-                ) as any[]
-              }
-              emptyTitle="Congratulations!"
-              emptyDescription="You read 'em all."
-              placeholdersHeight={isUserPending ? MAX_UNREAD_BOARDS_DISPLAY : 0}
-              accentColor={boardData?.accentColor || "#f96680"}
-              loading={isUserPending}
-            />
+            {(isUserPending || isLoggedIn) && (
+              <SideMenu.BoardsMenuSection
+                key="recent-unreads"
+                title={
+                  // TODO: this board is hidden cause the last update data
+                  // comes from the cache for logged out users, which
+                  // means we can't show them in order of update
+                  isUserPending || isLoggedIn
+                    ? "recent unreads"
+                    : "recent updates"
+                }
+                icon={faClock}
+                boards={recentBoards.filter(
+                  (board, index) => index < MAX_UNREAD_BOARDS_DISPLAY
+                )}
+                emptyTitle="Congratulations!"
+                emptyDescription="You read 'em all."
+                placeholdersHeight={
+                  isUserPending || !hasLoggedInData
+                    ? MAX_UNREAD_BOARDS_DISPLAY
+                    : 0
+                }
+                accentColor={boardData?.accentColor || "#f96680"}
+                loading={isUserPending || (isLoggedIn && !hasLoggedInData)}
+              />
+            )}
             <SideMenu.BoardsMenuSection
               key="all-boards"
               title="all boards"

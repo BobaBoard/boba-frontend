@@ -12,7 +12,8 @@ const maybeApplyBoardsFilter = ({ slug }: BoardUpdateData, filter: string) => {
 
 export const processBoardsUpdates = (
   boardsData: { [slug: string]: BoardUpdateData },
-  boardsFilter: string
+  boardsFilter: string,
+  isLoggedIn: boolean
 ) => {
   let recentBoards: BoardUpdateData[] = [];
   let pinnedBoards: BoardUpdateData[] = [];
@@ -26,7 +27,7 @@ export const processBoardsUpdates = (
   allBoards = availableBoards.sort((b1, b2) => b1.slug.localeCompare(b2.slug));
 
   recentBoards = allBoards
-    .filter((board) => board.lastUpdate !== null && !!board.updates)
+    .filter((board) => board.lastUpdate && (!isLoggedIn || !!board.updates))
     .sort((b1, b2) => {
       if (moment.utc(b1.lastUpdate).isBefore(moment.utc(b2.lastUpdate))) {
         return 1;
