@@ -89,7 +89,6 @@ function HomePage(props: any) {
                       url: `/!${board.slug.replace(" ", "_")}`,
                     }),
                   }))}
-                minSizePx={180}
               />
             </div>
             {styles}
@@ -149,6 +148,8 @@ function HomePage(props: any) {
           margin: 0 auto;
           padding: 20px;
           width: 100%;
+          box-sizing: content-box;
+          --board-display-min-size: 180px;
         }
         .display {
           max-width: 749px;
@@ -178,9 +179,17 @@ function HomePage(props: any) {
         .intro .christmas {
           height: 250px;
         }
+        @media only screen and (max-width: 700px) {
+          .content {
+            --board-display-min-size: 150px;
+          }
+        }
         @media only screen and (max-width: 400px) {
           h1 {
             font-size: 25px;
+          }
+          .content {
+            --board-display-min-size: 120px;
           }
         }
       `}</style>
