@@ -1,3 +1,5 @@
+import "../wdyr";
+
 import "@bobaboard/ui-components/dist/main.css";
 import "normalize.css";
 import smoothscroll from "smoothscroll-polyfill";

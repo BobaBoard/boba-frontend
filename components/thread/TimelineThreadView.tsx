@@ -1,5 +1,5 @@
 import React from "react";
-import { ThreadIndent } from "@bobaboard/ui-components";
+import { NewThread } from "@bobaboard/ui-components";
 import debug from "debug";
 import {
   ThreadContextType,
@@ -158,6 +158,12 @@ const TimelineView: React.FC<TimelineViewProps> = ({
     props.onTotalPostsChange(displayPosts.length);
   }, [displayPosts.length]);
 
+  const onCollapseLevel = React.useCallback((levelId) => {}, []);
+  const onUncollapseLevel = React.useCallback((levelId) => {}, []);
+  const getCollapseReason = React.useCallback((levelId) => {
+    return <div>Subthread manually hidden.</div>;
+  }, []);
+
   return (
     <div
       className={classnames("timeline-container", {
@@ -220,21 +226,36 @@ const TimelineView: React.FC<TimelineViewProps> = ({
           .filter((_, index) => index < props.displayAtMost)
           .map((post) => (
             <div className="thread" key={post.postId}>
-              <div className="post" key={post.postId}>
-                <ThreadPost
-                  post={post}
-                  isLoggedIn={isLoggedIn}
-                  onNewContribution={onNewContribution}
-                  onNewComment={onNewComment}
-                  onEditPost={onEditContribution}
-                  showThread
-                />
-              </div>
-              {post.comments && (
-                <ThreadIndent level={1} key={`0_${post.postId}`} ends={[]}>
-                  <CommentsThread parentPostId={post.postId} />
-                </ThreadIndent>
-              )}
+              <NewThread
+                onCollapseLevel={onCollapseLevel}
+                onUncollapseLevel={onUncollapseLevel}
+                getCollapseReason={getCollapseReason}
+              >
+                {(setThreadBoundary) => (
+                  <>
+                    <div className="post" key={post.postId}>
+                      <ThreadPost
+                        post={post}
+                        isLoggedIn={isLoggedIn}
+                        onNewContribution={onNewContribution}
+                        onNewComment={onNewComment}
+                        onEditPost={onEditContribution}
+                        showThread
+                        ref={(ref) =>
+                          setThreadBoundary(ref?.avatarRef?.current || null)
+                        }
+                      />
+                    </div>
+                    {post.comments && (
+                      <NewThread.Indent id={post.postId}>
+                        <div className="comments-thread">
+                          <CommentsThread parentPostId={post.postId} />
+                        </div>
+                      </NewThread.Indent>
+                    )}
+                  </>
+                )}
+              </NewThread>
             </div>
           ))}
       </div>
@@ -264,6 +285,9 @@ const TimelineView: React.FC<TimelineViewProps> = ({
         }
         .logged-in .button {
           display: block;
+        }
+        .comments-thread {
+          margin-left: 15px;
         }
       `}</style>
     </div>

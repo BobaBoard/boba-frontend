@@ -333,6 +333,7 @@ function ThreadPage({
             width: 100%;
             max-width: 100%;
             position: relative;
+            box-sizing: border-box;
           }
           .feed.loading .view-modes {
             display: none;

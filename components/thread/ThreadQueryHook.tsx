@@ -210,7 +210,9 @@ export const useThreadWithNull = ({
     filteredRoot,
     parentChildrenMap,
     filteredParentChildrenMap,
-    categories: extractCategories(threadData?.posts),
+    categories: React.useMemo(() => extractCategories(threadData?.posts), [
+      threadData?.posts,
+    ]),
     categoryFilterState,
     setCategoryFilterState,
     postCommentsMap,
@@ -245,6 +247,6 @@ export const withThreadData = <P extends ThreadContextType>(
     });
     return <WrappedComponent {...threadData} {...props} />;
   };
-  ReturnedComponent.displayName = `${WrappedComponent.displayName}_withThreadData`;
+  ReturnedComponent.displayName = `${WrappedComponent.name}_withThreadData`;
   return ReturnedComponent;
 };

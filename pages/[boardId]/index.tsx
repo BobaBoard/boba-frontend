@@ -249,6 +249,7 @@ function BoardPage() {
       <style jsx>{`
         .main {
           width: 100%;
+          box-sizing: border-box;
         }
         .post.hidden {
           max-width: 500px;

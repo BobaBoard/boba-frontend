@@ -299,15 +299,15 @@ const ThreadView: React.FC<ThreadViewProps> = ({
         </Link>
       </div>
       <NewThread
-        onCollapseLevel={(levelId) => {
-          setCollapse([...collapse, levelId]);
-        }}
-        onUncollapseLevel={(levelId) => {
-          setCollapse(collapse.filter((id) => id != levelId));
-        }}
-        getCollapseReason={(levelId) => {
+        onCollapseLevel={React.useCallback((levelId) => {
+          setCollapse((collapse) => [...collapse, levelId]);
+        }, [])}
+        onUncollapseLevel={React.useCallback((levelId) => {
+          setCollapse((collapse) => collapse.filter((id) => id != levelId));
+        }, [])}
+        getCollapseReason={React.useCallback((levelId) => {
           return <div>Subthread manually hidden.</div>;
-        }}
+        }, [])}
       >
         <ThreadLevel
           onEditPost={onEditContribution}

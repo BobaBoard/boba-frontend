@@ -148,7 +148,7 @@ function HomePage(props: any) {
           margin: 0 auto;
           padding: 20px;
           width: 100%;
-          box-sizing: content-box;
+          box-sizing: border-box;
           --board-display-min-size: 180px;
         }
         .display {
