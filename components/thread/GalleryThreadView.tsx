@@ -1,5 +1,5 @@
 import React from "react";
-import { MasonryView, ThreadIndent } from "@bobaboard/ui-components";
+import { MasonryView, NewThread } from "@bobaboard/ui-components";
 import TemporarySegmentedButton from "./TemporarySegmentedButton";
 import {
   ThreadContextType,
@@ -187,7 +187,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
     requestAnimationFrame(() => masonryRef.current?.reposition());
   }, [showComments, galleryView.showCover]);
   const onNotesClick = React.useCallback((postId) => {
-    setShowComments(
+    setShowComments((showComments) =>
       showComments.includes(postId)
         ? showComments.filter((id) => postId != id)
         : [...showComments, postId]
@@ -221,6 +221,12 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   React.useEffect(() => {
     props.onTotalPostsChange(toDisplay.length);
   }, [toDisplay.length]);
+
+  const onCollapseLevel = React.useCallback((levelId) => {}, []);
+  const onUncollapseLevel = React.useCallback((levelId) => {}, []);
+  const getCollapseReason = React.useCallback((levelId) => {
+    return <div>Subthread manually hidden.</div>;
+  }, []);
 
   const { coverPost, updatedPosts, allGalleryPosts } = postTypes;
 
@@ -352,22 +358,37 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
                   // with react and re-rendering, but honestly I have no idea.
                   style={{ position: "absolute" }}
                 >
-                  <div className="post">
-                    <ThreadPost
-                      post={post}
-                      isLoggedIn={isLoggedIn}
-                      onNewContribution={onNewContribution}
-                      onNewComment={onNewComment}
-                      onEditPost={onEditContribution}
-                      onNotesClick={onNotesClick}
-                      onEmbedLoaded={() => masonryRef.current?.reposition()}
-                    />
-                  </div>
-                  {post.comments && showComments.includes(post.postId) && (
-                    <ThreadIndent level={1} key={`0_${post.postId}`} ends={[]}>
-                      <CommentsThread parentPostId={post.postId} />
-                    </ThreadIndent>
-                  )}
+                  <NewThread
+                    onCollapseLevel={onCollapseLevel}
+                    onUncollapseLevel={onUncollapseLevel}
+                    getCollapseReason={getCollapseReason}
+                  >
+                    {(setThreadBoundary) => (
+                      <>
+                        <div className="post">
+                          <ThreadPost
+                            post={post}
+                            isLoggedIn={isLoggedIn}
+                            onNewContribution={onNewContribution}
+                            onNewComment={onNewComment}
+                            onEditPost={onEditContribution}
+                            onNotesClick={onNotesClick}
+                            onEmbedLoaded={() =>
+                              masonryRef.current?.reposition()
+                            }
+                            ref={(ref) =>
+                              setThreadBoundary(ref?.avatarRef?.current || null)
+                            }
+                          />
+                        </div>
+                        {post.comments && showComments.includes(post.postId) && (
+                          <NewThread.Indent id={post.postId}>
+                            <CommentsThread parentPostId={post.postId} />
+                          </NewThread.Indent>
+                        )}
+                      </>
+                    )}
+                  </NewThread>
                 </div>
               )) as any // TODO: figure out why it doesn't work without casting
           }

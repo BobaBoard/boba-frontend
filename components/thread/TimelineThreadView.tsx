@@ -286,9 +286,6 @@ const TimelineView: React.FC<TimelineViewProps> = ({
         .logged-in .button {
           display: block;
         }
-        .comments-thread {
-          margin-left: 15px;
-        }
       `}</style>
     </div>
   );

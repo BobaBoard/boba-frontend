@@ -174,9 +174,7 @@ const ThreadLevel: React.FC<{
                   (id) => id == `indent_${props.post.postId}`
                 )}
               >
-                <div className="comments">
-                  <CommentsThread parentPostId={props.post.postId} />
-                </div>
+                <CommentsThread parentPostId={props.post.postId} />
                 {props.postsMap
                   .get(props.post.postId)
                   ?.children.flatMap((post: PostType, index: number, array) => (
@@ -191,12 +189,6 @@ const ThreadLevel: React.FC<{
         {`
           .level {
             width: 100%;
-          }
-          .comments {
-            pointer-events: all;
-            margin-left: 10px;
-            margin-top: -5px;
-            margin-right: 10px;
           }
           .post {
             margin-top: 30px;
@@ -308,7 +300,6 @@ const ThreadView: React.FC<ThreadViewProps> = ({
           <a>Show whole thread</a>
         </Link>
       </div>
-      `
       <NewThread
         onCollapseLevel={onCollapseLevel}
         onUncollapseLevel={onUncollapseLevel}

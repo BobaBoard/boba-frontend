@@ -148,7 +148,11 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
   if (posts.length > 1) {
     // TODO: also add a ref to this
     return (
-      <CompactPostThread key={post.postId} posts={posts.map(postToPropsMap)} />
+      <CompactPostThread
+        key={post.postId}
+        posts={posts.map(postToPropsMap)}
+        ref={extraProps.innerRef}
+      />
     );
   }
   return (
