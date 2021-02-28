@@ -279,6 +279,16 @@ const ThreadView: React.FC<ThreadViewProps> = ({
     props.onTotalPostsChange(chronologicalPostsSequence.length);
   }, [chronologicalPostsSequence]);
 
+  const onCollapseLevel = React.useCallback((levelId) => {
+    setCollapse((collapse) => [...collapse, levelId]);
+  }, []);
+  const onUncollapseLevel = React.useCallback((levelId) => {
+    setCollapse((collapse) => collapse.filter((id) => id != levelId));
+  }, []);
+  const getCollapseReason = React.useCallback((levelId) => {
+    return <div>Subthread manually hidden.</div>;
+  }, []);
+
   if (!currentRoot) {
     return <div />;
   }
@@ -298,16 +308,11 @@ const ThreadView: React.FC<ThreadViewProps> = ({
           <a>Show whole thread</a>
         </Link>
       </div>
+      `
       <NewThread
-        onCollapseLevel={React.useCallback((levelId) => {
-          setCollapse((collapse) => [...collapse, levelId]);
-        }, [])}
-        onUncollapseLevel={React.useCallback((levelId) => {
-          setCollapse((collapse) => collapse.filter((id) => id != levelId));
-        }, [])}
-        getCollapseReason={React.useCallback((levelId) => {
-          return <div>Subthread manually hidden.</div>;
-        }, [])}
+        onCollapseLevel={onCollapseLevel}
+        onUncollapseLevel={onUncollapseLevel}
+        getCollapseReason={getCollapseReason}
       >
         <ThreadLevel
           onEditPost={onEditContribution}
@@ -343,4 +348,5 @@ const ThreadView: React.FC<ThreadViewProps> = ({
   );
 };
 
-export default withThreadData(ThreadView);
+const MemoizedThreadView = React.memo(ThreadView);
+export default withThreadData(MemoizedThreadView);

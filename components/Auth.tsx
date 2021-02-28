@@ -100,7 +100,9 @@ const AuthProvider: React.FC<{}> = (props) => {
     });
   }, []);
 
-  const getAuthIdToken: () => Promise<string | undefined> = () => {
+  const getAuthIdToken: () => Promise<
+    string | undefined
+  > = React.useCallback(() => {
     return firebaseUserPromise.then((user) => {
       log(`Firebase is done authenticating! Getting token...`);
       return user?.getIdTokenResult().then((token) => {
@@ -110,63 +112,70 @@ const AuthProvider: React.FC<{}> = (props) => {
         return token.token;
       });
     });
-  };
+  }, []);
 
-  const refreshUserData = (data: { username: string; avatarUrl: string }) => {
-    setStatus({
-      ...status,
-      user: { username: data.username, avatarUrl: data.avatarUrl },
-    });
-  };
-
-  const attemptLogin = (
-    username: string,
-    password: string
-  ): Promise<boolean> => {
-    setStatus({
-      ...status,
-      authError: undefined,
-      isPending: true,
-    });
-    firebaseUserPromise = newFirebaseUserPromise();
-    return firebase
-      .auth()
-      .signInWithEmailAndPassword(username, password)
-      .then((user) => {
-        log(`Login succesful, found user:`);
-        log(user);
-        return !!user;
-      })
-      .catch((e) => {
-        log(`Error occurred during login:`);
-        log(e);
-        setStatus({
-          isLoggedIn: false,
-          isPending: false,
-          authError: e.message,
-        });
-        resolveFirebaseUserPromise(null);
-        return false;
+  const refreshUserData = React.useCallback(
+    (data: { username: string; avatarUrl: string }) => {
+      setStatus({
+        ...status,
+        user: { username: data.username, avatarUrl: data.avatarUrl },
       });
-  };
+    },
+    []
+  );
 
-  const attemptLogout = () => {
+  const attemptLogin = React.useCallback(
+    (username: string, password: string): Promise<boolean> => {
+      setStatus({
+        ...status,
+        authError: undefined,
+        isPending: true,
+      });
+      firebaseUserPromise = newFirebaseUserPromise();
+      return firebase
+        .auth()
+        .signInWithEmailAndPassword(username, password)
+        .then((user) => {
+          log(`Login succesful, found user:`);
+          log(user);
+          return !!user;
+        })
+        .catch((e) => {
+          log(`Error occurred during login:`);
+          log(e);
+          setStatus({
+            isLoggedIn: false,
+            isPending: false,
+            authError: e.message,
+          });
+          resolveFirebaseUserPromise(null);
+          return false;
+        });
+    },
+    []
+  );
+
+  const attemptLogout = React.useCallback(() => {
     firebaseUserPromise = newFirebaseUserPromise();
     log(`Attempting to log out user...`);
     return firebase.auth().signOut();
-  };
+  }, []);
 
   return (
     <AuthContext.Provider
-      value={{
-        ...status,
-        getAuthIdToken,
-        attemptLogin,
-        attemptLogout,
-        refreshUserData,
-      }}
-      {...props}
-    />
+      value={React.useMemo(
+        () => ({
+          ...status,
+          getAuthIdToken,
+          attemptLogin,
+          attemptLogout,
+          refreshUserData,
+        }),
+        [status, getAuthIdToken, attemptLogin, attemptLogout, refreshUserData]
+      )}
+    >
+      {props.children}
+    </AuthContext.Provider>
   );
 };
 

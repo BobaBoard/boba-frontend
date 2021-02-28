@@ -160,8 +160,6 @@ const CommentsThread: React.FC<CommentsThreadProps> = (props) => {
   );
 };
 
-CommentsThread.whyDidYouRender = true;
-
 const MemoizedCommentsThread = React.memo(CommentsThread);
 
 export default withThreadData(MemoizedCommentsThread);

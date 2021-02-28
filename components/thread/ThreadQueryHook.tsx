@@ -173,7 +173,9 @@ export const useThreadWithNull = ({
   >([]);
   React.useEffect(() => {
     if (!threadData) {
-      setCategoryFilterState([]);
+      if (categoryFilterState.length) {
+        setCategoryFilterState([]);
+      }
       return;
     }
     const currentCategories = extractCategories(threadData.posts);
