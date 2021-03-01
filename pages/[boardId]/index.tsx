@@ -37,12 +37,12 @@ const NewThreadButton = withEditors<{ slug: string }>((props) => {
   return (
     <MemoizedActionButton
       accentColor={boardsData[props.slug]?.accentColor || "#f96680"}
-      onNewPost={() => {
+      onNewPost={React.useCallback(() => {
         editorDispatch({
           type: EditorActions.NEW_THREAD,
           payload: { boardSlug: props.slug },
         });
-      }}
+      }, [editorDispatch, props.slug])}
     />
   );
 });
@@ -53,7 +53,7 @@ const BoardParams = {
 
 const MemoizedThreadPreview = React.memo(ThreadPreview);
 const MemoizedActionButton = React.memo(PostingActionButton);
-const MemoizedBoardSidebar = React.memo(BoardSidebar);
+const MemoizedBoardSidebar = () => <div />; //React.memo(BoardSidebar);
 function BoardPage() {
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);

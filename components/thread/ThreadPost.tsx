@@ -17,6 +17,7 @@ import {
   getTotalNewContributions,
 } from "../../utils/thread-utils";
 import { usePostOptions, PostOptions } from "../hooks/useOptions";
+import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
 
 interface ThreadPostProps
   // This type can add any prop from the original post type
@@ -43,6 +44,26 @@ const TOP_POST_OPTIONS = [
   ...REGULAR_POST_OPTIONS.filter((option) => option != PostOptions.COPY_LINK),
   PostOptions.UPDATE_VIEW,
 ];
+
+const getPostAncestors = (
+  post: PostType,
+  allPosts: PostType[],
+  rootData: { showRoot?: boolean; rootId?: string }
+) => {
+  const posts = [post];
+  let nextParent: string | null = post.parentPostId;
+  while (
+    nextParent != null &&
+    nextParent != (rootData?.showRoot ? rootData.rootId : undefined)
+  ) {
+    const parentPost = allPosts.find((p) => p.postId == nextParent);
+    if (parentPost) {
+      posts.unshift(parentPost);
+    }
+    nextParent = parentPost?.parentPostId || null;
+  }
+  return posts;
+};
 
 const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
   post,
@@ -95,62 +116,65 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
     () => onNewComment(post.postId, null),
     [onNewComment, post.postId]
   );
+  const posts = React.useMemo(
+    () =>
+      showThread
+        ? getPostAncestors(post, extraProps.chronologicalPostsSequence, {
+            showRoot,
+            rootId: extraProps.threadRoot?.postId,
+          })
+        : [post],
+    [
+      post,
+      extraProps.chronologicalPostsSequence,
+      extraProps?.threadRoot?.postId,
+    ]
+  );
 
-  const postToPropsMap = (post: PostType): PostProps => {
-    const directLink = createLinkTo({
-      urlPattern: THREAD_URL_PATTERN,
-      url: `${threadBaseUrl}/${post.postId}${url.search}`,
-    });
-    return {
-      size: post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR,
-      createdTime: moment.utc(post.created).fromNow(),
-      text: post.content,
-      secretIdentity: post.secretIdentity,
-      userIdentity: post.userIdentity,
-      createdTimeLink: {
-        href: directLink.href,
-        onClick: onNotesClick ? onNotesClickWithId : directLink.onClick,
-      },
-      notesLink: threadLink,
-      accessory: post.accessory,
-      onNewContribution: onNewContributionCallback,
-      onNewComment: onNewCommentCallback,
-      totalComments: post.comments?.length,
-      directContributions: parentChildrenMap.get(post.postId)?.children.length,
-      totalContributions: getTotalContributions(post, parentChildrenMap),
-      newPost: isLoggedIn && post.isNew,
-      newComments: isLoggedIn ? post.newCommentsAmount : 0,
-      newContributions: isLoggedIn
-        ? getTotalNewContributions(post, parentChildrenMap)
-        : 0,
-      tags: post.tags,
-      answerable: isLoggedIn,
-      menuOptions: options,
-      ...extraProps,
-    };
-  };
-  const posts = [post];
-  if (showThread) {
-    let nextParent: string | null = post.parentPostId;
-    while (
-      nextParent != null &&
-      nextParent != (showRoot ? undefined : extraProps.threadRoot?.postId)
-    ) {
-      const parentPost = extraProps.chronologicalPostsSequence.find(
-        (p) => p.postId == nextParent
-      );
-      if (parentPost) {
-        posts.unshift(parentPost);
+  const memoizedPropsMap = React.useMemo(() => {
+    return posts.map(
+      (post): PostProps => {
+        const directLink = createLinkTo({
+          urlPattern: THREAD_URL_PATTERN,
+          url: `${threadBaseUrl}/${post.postId}${url.search}`,
+        });
+        return {
+          size: post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR,
+          createdTime: moment.utc(post.created).fromNow(),
+          text: post.content,
+          secretIdentity: post.secretIdentity,
+          userIdentity: post.userIdentity,
+          createdTimeLink: {
+            href: directLink.href,
+            onClick: onNotesClick ? onNotesClickWithId : directLink.onClick,
+          },
+          notesLink: threadLink,
+          accessory: post.accessory,
+          onNewContribution: onNewContributionCallback,
+          onNewComment: onNewCommentCallback,
+          totalComments: post.comments?.length,
+          directContributions: parentChildrenMap.get(post.postId)?.children
+            .length,
+          totalContributions: getTotalContributions(post, parentChildrenMap),
+          newPost: isLoggedIn && post.isNew,
+          newComments: isLoggedIn ? post.newCommentsAmount : 0,
+          newContributions: isLoggedIn
+            ? getTotalNewContributions(post, parentChildrenMap)
+            : 0,
+          tags: post.tags,
+          answerable: isLoggedIn,
+          menuOptions: options,
+          ...extraProps,
+        };
       }
-      nextParent = parentPost?.parentPostId || null;
-    }
-  }
+    );
+  }, [posts]);
+
   if (posts.length > 1) {
-    // TODO: also add a ref to this
     return (
       <CompactPostThread
         key={post.postId}
-        posts={posts.map(postToPropsMap)}
+        posts={memoizedPropsMap}
         ref={extraProps.innerRef}
       />
     );
@@ -158,7 +182,7 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
   return (
     <Post
       key={post.postId}
-      {...postToPropsMap(post)}
+      {...memoizedPropsMap[0]}
       ref={extraProps.innerRef}
     />
   );

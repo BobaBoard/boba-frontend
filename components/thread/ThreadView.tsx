@@ -88,59 +88,10 @@ const ThreadLevel: React.FC<{
   showThread?: boolean;
   collapsedIndents: string[];
 }> = (props) => {
-  const router = useRouter();
-  const slug = router.query.boardId?.slice(1) as string;
-  const { boardsData } = useBoardContext();
   info(
     `Rendering subtree at level ${props.level} starting with post with id ${props.post.postId}`
   );
-  const isLeaf = !props.postsMap.get(props.post.postId)?.children?.length;
-  info(`Leaf post? ${isLeaf}`);
-  const endsArray =
-    isLeaf && props.lastOf
-      ? props.lastOf.map((ends) => ({
-          level: ends.level,
-          onBeamUpClick: () => {
-            scrollToPost(ends.postId, boardsData[slug].accentColor);
-          },
-          showAddContribution: props.isLoggedIn,
-          onAddContributionClick: () => {
-            props.onNewContribution(ends.postId);
-          },
-        }))
-      : [];
-  info(`Ends array: %o`, endsArray);
-  // const ends = React.useMemo(
-  //   () => [
-  //     ...(props.lastOf || []),
-  //     { level: props.level, postId: props.post.postId },
-  //   ],
-  //   [props.level, props.post.postId, props.lastOf]
-  // );
-  // const commentsEnds = React.useMemo(
-  //   () =>
-  //     isLeaf
-  //       ? [
-  //           ...endsArray,
-  //           {
-  //             level: props.level,
-  //             onBeamUpClick: () =>
-  //               scrollToPost(props.post.postId, boardsData[slug].accentColor),
-  //             showAddContribution: props.isLoggedIn,
-  //             onAddContributionClick: () => {
-  //               props.onNewContribution(props.post.postId);
-  //             },
-  //           },
-  //         ]
-  //       : [],
-  //   [
-  //     props.level,
-  //     props.post,
-  //     props.isLoggedIn,
-  //     props.onNewContribution,
-  //     scrollToPost,
-  //   ]
-  // );
+
   return (
     <>
       <NewThread.Item key={props.post.postId}>
@@ -158,12 +109,12 @@ const ThreadLevel: React.FC<{
                 onNewContribution={props.onNewContribution}
                 onNewComment={props.onNewComment}
                 onEditPost={props.onEditPost}
-                ref={(postRef) => {
+                ref={React.useCallback((postRef) => {
                   if (postRef) {
                     postHandlers.set(props.post.postId, postRef);
                   }
                   setHandler(postRef?.avatarRef?.current || null);
-                }}
+                }, [])}
               />
             </div>
             {(props.postsMap.has(props.post.postId) ||

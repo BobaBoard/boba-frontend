@@ -44,7 +44,11 @@ const Editors = () => {
     (empty) => (empty ? onClose() : setAskConfirmation(true)),
     []
   );
-
+  const onCloseModal = React.useCallback(() => setAskConfirmation(false), []);
+  const onSubmit = React.useCallback(() => {
+    setAskConfirmation(false);
+    onClose();
+  }, [onClose]);
   if (!isLoggedIn || isAuthPending || !state.isOpen) {
     return null;
   }
@@ -124,11 +128,8 @@ const Editors = () => {
       </Modal>
       <ModalWithButtons
         isOpen={askConfirmation}
-        onCloseModal={() => setAskConfirmation(false)}
-        onSubmit={() => {
-          setAskConfirmation(false);
-          onClose();
-        }}
+        onCloseModal={onCloseModal}
+        onSubmit={onSubmit}
         primaryText={"Exterminate!"}
         secondaryText={"Nevermind"}
         shouldCloseOnOverlayClick={false}
@@ -146,6 +147,6 @@ export const withEditors = function <T>(WrappedComponent: React.FC<T>) {
       <WrappedComponent {...props} />
     </EditorsProvider>
   );
-  ReturnedComponent.displayName = `${WrappedComponent.displayName}_withEditors`;
+  ReturnedComponent.displayName = `${WrappedComponent.name}_withEditors`;
   return ReturnedComponent;
 };

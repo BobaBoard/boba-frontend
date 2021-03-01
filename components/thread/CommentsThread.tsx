@@ -29,14 +29,21 @@ const CommentsThreadLevel: React.FC<{
   onReplyTo: (replyTo: string) => void;
 }> = (props) => {
   const { isLoggedIn } = useAuth();
-  const chain = [props.comment];
+  const chain = React.useMemo(() => {
+    const chain = [props.comment];
+    while (props.parentChainMap.has(currentChainId)) {
+      const next = props.parentChainMap.get(currentChainId) as CommentType;
+      chain.push(next);
+      currentChainId = next.commentId;
+    }
+    return chain.map((el) => ({
+      id: el.commentId,
+      text: el.content,
+    }));
+  }, [props.comment, props.parentChainMap]);
   let currentChainId = props.comment.commentId;
-  while (props.parentChainMap.has(currentChainId)) {
-    const next = props.parentChainMap.get(currentChainId) as CommentType;
-    chain.push(next);
-    currentChainId = next.commentId;
-  }
-  const lastCommentId = chain[chain.length - 1].commentId;
+
+  const lastCommentId = chain[chain.length - 1].id;
   const children = props.parentChildrenMap.get(lastCommentId);
   const replyToLast = React.useCallback(() => props.onReplyTo(lastCommentId), [
     lastCommentId,
@@ -47,24 +54,22 @@ const CommentsThreadLevel: React.FC<{
         <>
           <div className="comment" data-comment-id={props.comment.commentId}>
             <CommentChain
-              ref={(handler: CommentHandler | null) => {
-                if (handler == null) {
-                  return;
-                }
-                chain.forEach((el) =>
-                  commentHandlers.set(el.commentId, handler)
-                );
-                setBoundaryElement(handler.avatarRef?.current || null);
-              }}
+              ref={React.useCallback(
+                (handler: CommentHandler | null) => {
+                  if (handler == null) {
+                    return;
+                  }
+                  chain.forEach((el) => commentHandlers.set(el.id, handler));
+                  setBoundaryElement(handler.avatarRef?.current || null);
+                },
+                [chain]
+              )}
               key={props.comment.commentId}
               secretIdentity={props.comment.secretIdentity}
               userIdentity={props.comment.userIdentity}
               createdTime={moment.utc(props.comment.created).fromNow()}
               accessory={props.comment.accessory}
-              comments={chain.map((el) => ({
-                id: el.commentId,
-                text: el.content,
-              }))}
+              comments={chain}
               muted={isLoggedIn && !props.comment.isNew}
               onExtraAction={isLoggedIn ? replyToLast : undefined}
             />
