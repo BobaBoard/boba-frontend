@@ -53,7 +53,7 @@ const BoardParams = {
 
 const MemoizedThreadPreview = React.memo(ThreadPreview);
 const MemoizedActionButton = React.memo(PostingActionButton);
-const MemoizedBoardSidebar = () => <div />; //React.memo(BoardSidebar);
+const MemoizedBoardSidebar = React.memo(BoardSidebar);
 function BoardPage() {
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);

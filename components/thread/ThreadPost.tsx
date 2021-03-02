@@ -6,10 +6,8 @@ import {
 } from "@bobaboard/ui-components";
 import { PostProps } from "@bobaboard/ui-components/dist/post/Post";
 import moment from "moment";
-import { useRouter } from "next/router";
 import React from "react";
 import { PostType } from "../../types/Types";
-import { createLinkTo, THREAD_URL_PATTERN } from "../../utils/link-utils";
 import { ThreadPageDetails, usePageDetails } from "../../utils/router-utils";
 import { ThreadContextType, withThreadData } from "./ThreadQueryHook";
 import {
@@ -17,7 +15,7 @@ import {
   getTotalNewContributions,
 } from "../../utils/thread-utils";
 import { usePostOptions, PostOptions } from "../hooks/useOptions";
-import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
+import { useCachedLinks } from "components/hooks/useCachedLinks";
 
 interface ThreadPostProps
   // This type can add any prop from the original post type
@@ -77,7 +75,8 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
   showRoot,
   ...extraProps
 }) => {
-  const { slug, threadId, threadBaseUrl } = usePageDetails<ThreadPageDetails>();
+  const { slug, threadId } = usePageDetails<ThreadPageDetails>();
+  const cachedLinks = useCachedLinks();
   const options = usePostOptions({
     options:
       post.parentPostId == null ? TOP_POST_OPTIONS : REGULAR_POST_OPTIONS,
@@ -90,11 +89,10 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
       currentView: extraProps.defaultView!,
     },
   });
-  const router = useRouter();
-  const url = new URL(`${window.location.origin}${router.asPath}`);
-  const directLink = createLinkTo({
-    urlPattern: THREAD_URL_PATTERN,
-    url: `${threadBaseUrl}/${post.postId}${url.search}`,
+  const directLink = cachedLinks.getLinkToPost({
+    slug,
+    threadId,
+    postId: post.postId,
   });
   const onNotesClickWithId = React.useCallback(
     () => onNotesClick?.(post.postId),
@@ -102,10 +100,10 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
   );
   const threadLink = React.useMemo(
     () => ({
-      href: directLink.href,
+      href: `${directLink.href}${window.location.search}`,
       onClick: onNotesClick ? onNotesClickWithId : directLink.onClick,
     }),
-    [directLink, onNotesClick]
+    [directLink, onNotesClick, window.location.search]
   );
   const onNewContributionCallback = React.useCallback(
     () => onNewContribution(post.postId),
@@ -134,9 +132,10 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
   const memoizedPropsMap = React.useMemo(() => {
     return posts.map(
       (post): PostProps => {
-        const directLink = createLinkTo({
-          urlPattern: THREAD_URL_PATTERN,
-          url: `${threadBaseUrl}/${post.postId}${url.search}`,
+        const directLink = cachedLinks.getLinkToPost({
+          slug,
+          threadId,
+          postId: post.postId,
         });
         return {
           size: post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR,
@@ -145,7 +144,7 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
           secretIdentity: post.secretIdentity,
           userIdentity: post.userIdentity,
           createdTimeLink: {
-            href: directLink.href,
+            href: `${directLink.href}${window.location.search}`,
             onClick: onNotesClick ? onNotesClickWithId : directLink.onClick,
           },
           notesLink: threadLink,
@@ -168,7 +167,7 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
         };
       }
     );
-  }, [posts]);
+  }, [posts, window.location.search]);
 
   if (posts.length > 1) {
     return (

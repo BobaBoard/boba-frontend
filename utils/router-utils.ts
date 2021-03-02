@@ -1,4 +1,5 @@
 import { NextRouter, useRouter } from "next/router";
+import React from "react";
 
 interface PageDetails {
   slug: string | null;
@@ -23,7 +24,7 @@ export interface BoardPageDetails {
 
 export const usePageDetails = <T extends PageDetails>() => {
   const router = useRouter();
-  return getPageDetails<T>(router);
+  return React.useMemo(() => getPageDetails<T>(router), [router.query]);
 };
 
 export const getPageDetails = <T extends PageDetails>(router: NextRouter) => {

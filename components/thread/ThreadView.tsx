@@ -9,7 +9,6 @@ import {
 } from "components/thread/ThreadQueryHook";
 import { PostType } from "../../types/Types";
 import Link from "next/link";
-import { useBoardContext } from "../BoardContext";
 import classnames from "classnames";
 import CommentsThread, { commentHandlers } from "./CommentsThread";
 import { usePageDetails, ThreadPageDetails } from "utils/router-utils";
