@@ -17,6 +17,12 @@ import {
   useEditorsDispatch,
 } from "components/editors/EditorsContext";
 import { useAuth } from "components/Auth";
+import {
+  faAngleDoubleUp,
+  faCompressArrowsAlt,
+  faPlusSquare,
+} from "@fortawesome/free-solid-svg-icons";
+import { useBoardContext } from "components/BoardContext";
 
 const log = debug("bobafrontend:threadLevel-log");
 const info = debug("bobafrontend:threadLevel-info");
@@ -119,7 +125,7 @@ const ThreadLevel: React.FC<{
             {(props.postsMap.has(props.post.postId) ||
               props.post.comments?.length) && (
               <NewThread.Indent
-                id={`indent_${props.post.postId}`}
+                id={props.post.postId}
                 collapsed={props.collapsedIndents.some(
                   (id) => id == `indent_${props.post.postId}`
                 )}
@@ -173,6 +179,7 @@ const ThreadView: React.FC<ThreadViewProps> = ({
   const { isLoggedIn } = useAuth();
   const dispatch = useEditorsDispatch();
   const [collapse, setCollapse] = React.useState<string[]>([]);
+  const { boardsData } = useBoardContext();
 
   const onNewComment = React.useCallback(
     (replyToContributionId: string, replyToCommentId: string | null) => {
@@ -231,6 +238,45 @@ const ThreadView: React.FC<ThreadViewProps> = ({
     return <div>Subthread manually hidden.</div>;
   }, []);
 
+  const getStemOptions = React.useCallback((levelId) => {
+    return [
+      {
+        name: "collapse",
+        icon: faCompressArrowsAlt,
+        link: {
+          onClick: () => {
+            onCollapseLevel(levelId);
+          },
+        },
+      },
+      {
+        name: "beam up",
+        icon: faAngleDoubleUp,
+        link: {
+          onClick: () => {
+            if (!levelId) {
+              return;
+            }
+            console.log(levelId);
+            scrollToPost(levelId, boardsData[boardSlug].accentColor);
+          },
+        },
+      },
+      {
+        name: "reply up",
+        icon: faPlusSquare,
+        link: {
+          onClick: () => {
+            if (!levelId) {
+              return;
+            }
+            onNewContribution(levelId);
+          },
+        },
+      },
+    ];
+  }, []);
+
   if (!currentRoot) {
     return <div />;
   }
@@ -254,6 +300,7 @@ const ThreadView: React.FC<ThreadViewProps> = ({
         onCollapseLevel={onCollapseLevel}
         onUncollapseLevel={onUncollapseLevel}
         getCollapseReason={getCollapseReason}
+        getStemOptions={getStemOptions}
       >
         <ThreadLevel
           onEditPost={onEditContribution}

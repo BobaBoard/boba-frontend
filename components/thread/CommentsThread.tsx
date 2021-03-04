@@ -125,12 +125,6 @@ const CommentsThread: React.FC<CommentsThreadProps> = (props) => {
     [props.threadId, props.parentBoardSlug, props.parentPostId, dispatch]
   );
 
-  const onCollapseLevel = React.useCallback(() => {}, []);
-  const onUncollapseLevel = React.useCallback(() => {}, []);
-  const getCollapseReason = React.useCallback(() => {
-    return <div>Subthread manually hidden.</div>;
-  }, []);
-
   if (!props.postCommentsMap.has(props.parentPostId)) {
     return <div />;
   }
@@ -149,11 +143,7 @@ const CommentsThread: React.FC<CommentsThreadProps> = (props) => {
       {actualRoots.map((comment: CommentType, i: number) => {
         return (
           <div className="comments-thread" key={comment.commentId}>
-            <NewCommentsThread
-              onCollapseLevel={onCollapseLevel}
-              onUncollapseLevel={onUncollapseLevel}
-              getCollapseReason={getCollapseReason}
-            >
+            <NewCommentsThread>
               <MemoizedThreadLevel
                 key={comment.commentId}
                 comment={comment}
