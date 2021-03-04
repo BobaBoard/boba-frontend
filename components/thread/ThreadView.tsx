@@ -272,50 +272,53 @@ const ThreadView: React.FC<ThreadViewProps> = ({
     return <div>Subthread manually hidden.</div>;
   }, []);
 
-  const getStemOptions = React.useCallback((levelId) => {
-    const options = [
-      {
-        name: "collapse",
-        icon: faCompressArrowsAlt,
-        link: {
-          onClick: () => {
-            onCollapseLevel(levelId);
+  const getStemOptions = React.useCallback(
+    (levelId) => {
+      const options = [
+        {
+          name: "collapse",
+          icon: faCompressArrowsAlt,
+          link: {
+            onClick: () => {
+              onCollapseLevel(levelId);
+            },
           },
         },
-      },
-      {
-        name: "beam up",
-        icon: faAngleDoubleUp,
-        link: {
-          onClick: () => {
-            if (!levelId) {
-              return;
-            }
-            scrollToPost(
-              extractPostId(levelId),
-              boardsData[boardSlug].accentColor
-            );
+        {
+          name: "beam up",
+          icon: faAngleDoubleUp,
+          link: {
+            onClick: () => {
+              if (!levelId) {
+                return;
+              }
+              scrollToPost(
+                extractPostId(levelId),
+                boardsData[boardSlug].accentColor
+              );
+            },
           },
         },
-      },
-    ];
+      ];
 
-    if (isLoggedIn) {
-      options.push({
-        name: "reply up",
-        icon: faPlusSquare,
-        link: {
-          onClick: () => {
-            if (!levelId) {
-              return;
-            }
-            onNewContribution(extractPostId(levelId));
+      if (isLoggedIn) {
+        options.push({
+          name: "reply up",
+          icon: faPlusSquare,
+          link: {
+            onClick: () => {
+              if (!levelId) {
+                return;
+              }
+              onNewContribution(extractPostId(levelId));
+            },
           },
-        },
-      });
-    }
-    return options;
-  }, []);
+        });
+      }
+      return options;
+    },
+    [isLoggedIn]
+  );
 
   if (!currentRoot) {
     return <div />;

@@ -362,6 +362,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
                     onCollapseLevel={onCollapseLevel}
                     onUncollapseLevel={onUncollapseLevel}
                     getCollapseReason={getCollapseReason}
+                    getStemOptions={() => []}
                   >
                     {(setThreadBoundary) => (
                       <>

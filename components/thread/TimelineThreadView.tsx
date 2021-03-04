@@ -230,6 +230,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({
                 onCollapseLevel={onCollapseLevel}
                 onUncollapseLevel={onUncollapseLevel}
                 getCollapseReason={getCollapseReason}
+                getStemOptions={() => []}
               >
                 {(setThreadBoundary) => (
                   <>
