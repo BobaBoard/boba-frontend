@@ -29,7 +29,7 @@ const FeedParams = {
 function UserFeedPage() {
   const [isShowingSidebar, setShowSidebar] = React.useState(false);
   const [{ showRead, ownOnly }, setQuery] = useQueryParams(FeedParams);
-  const { isLoggedIn, isAuthPending } = useAuth();
+  const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const { boardsData } = useBoardContext();
   const { linkToHome } = useCachedLinks();
 

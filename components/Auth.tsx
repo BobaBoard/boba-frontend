@@ -19,7 +19,41 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-const AuthContext = React.createContext({} as any);
+interface LoggedOutAuthContextType {
+  isLoggedIn: false;
+  isPending: boolean;
+  user: undefined;
+  idToken?: string;
+  authError?: string;
+  // TODO: rather than making these optional, define context export so we don't need to.
+  getAuthIdToken?: () => Promise<string | undefined>;
+  attemptLogin?: (username: string, password: string) => Promise<boolean>;
+  attemptLogout?: () => Promise<void>;
+  refreshUserData?: (data: { username: string; avatarUrl: string }) => void;
+}
+interface LoggedInAuthContextType {
+  isLoggedIn: true;
+  isPending: boolean;
+  idToken?: string;
+  user: {
+    username: string;
+    avatarUrl: string;
+  };
+  authError?: string;
+  // TODO: rather than making these optional, define context export so we don't need to.
+  getAuthIdToken?: () => Promise<string | undefined>;
+  attemptLogin?: (username: string, password: string) => Promise<boolean>;
+  attemptLogout?: () => Promise<void>;
+  refreshUserData?: (data: { username: string; avatarUrl: string }) => void;
+}
+
+type AuthContextType = LoggedInAuthContextType | LoggedOutAuthContextType;
+
+const AuthContext = React.createContext<AuthContextType>({
+  isLoggedIn: false,
+  isPending: true,
+  user: undefined,
+});
 
 const useAuth = () => React.useContext(AuthContext);
 const log = debug("bobafrontend:auth-log");
@@ -164,13 +198,14 @@ const AuthProvider: React.FC<{}> = (props) => {
   return (
     <AuthContext.Provider
       value={React.useMemo(
-        () => ({
-          ...status,
-          getAuthIdToken,
-          attemptLogin,
-          attemptLogout,
-          refreshUserData,
-        }),
+        () =>
+          ({
+            getAuthIdToken,
+            attemptLogin,
+            attemptLogout,
+            refreshUserData,
+            ...status,
+          } as AuthContextType),
         [status, getAuthIdToken, attemptLogin, attemptLogout, refreshUserData]
       )}
     >

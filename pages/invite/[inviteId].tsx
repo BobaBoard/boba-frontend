@@ -29,7 +29,7 @@ function InvitesPage() {
       acceptInvite(data),
     {
       onSuccess: () => {
-        attemptLogin(email, password);
+        attemptLogin!(email, password);
       },
       onError: (e) => {
         log(`Error while accepting invite:`);

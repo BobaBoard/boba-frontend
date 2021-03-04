@@ -79,10 +79,12 @@ export const useThreadDetails = (
     suggestedCategories: isNewThread(state)
       ? currentBoardData.suggestedCategories
       : threadData.categories,
-    userIdentity: {
-      name: user?.username,
-      avatar: user?.avatarUrl,
-    },
+    userIdentity: user
+      ? {
+          name: user.username,
+          avatar: user.avatarUrl,
+        }
+      : undefined,
     secretIdentity: threadData.personalIdentity,
   };
 };

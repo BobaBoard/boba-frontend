@@ -140,7 +140,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
     [boardsData]
   );
 
-  if (!isLoggedIn) {
+  if (!isLoggedIn || !userIdentity) {
     return <div />;
   }
 

@@ -20,7 +20,7 @@ const LoginModal: React.FC<LoginModalProps> = (props) => {
   const [password, setPassword] = React.useState("");
   const onSubmit = () => {
     if (!isLoggedIn) {
-      attemptLogin(email, password).then((success: boolean) => {
+      attemptLogin!(email, password).then((success: boolean) => {
         setPassword("");
         if (success) {
           setEmail("");
@@ -28,7 +28,7 @@ const LoginModal: React.FC<LoginModalProps> = (props) => {
         }
       });
     } else {
-      attemptLogout().then(() => {
+      attemptLogout!().then(() => {
         props.onCloseModal();
       });
     }

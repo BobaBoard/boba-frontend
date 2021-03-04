@@ -187,40 +187,42 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
             onFilterChange={setBoardFilter}
             currentBoardSlug={slug}
           >
-            {(isUserPending || isLoggedIn) && (
+            <>
+              {(isUserPending || isLoggedIn) && (
+                <SideMenu.BoardsMenuSection
+                  key="recent-unreads"
+                  title={
+                    // TODO: this board is hidden cause the last update data
+                    // comes from the cache for logged out users, which
+                    // means we can't show them in order of update
+                    isUserPending || isLoggedIn
+                      ? "recent unreads"
+                      : "recent updates"
+                  }
+                  icon={faClock}
+                  boards={recentBoards.filter(
+                    (board, index) => index < MAX_UNREAD_BOARDS_DISPLAY
+                  )}
+                  emptyTitle="Congratulations!"
+                  emptyDescription="You read 'em all."
+                  placeholdersHeight={
+                    isUserPending || !hasLoggedInData
+                      ? MAX_UNREAD_BOARDS_DISPLAY
+                      : 0
+                  }
+                  accentColor={boardData?.accentColor || "#f96680"}
+                  loading={isUserPending || (isLoggedIn && !hasLoggedInData)}
+                />
+              )}
               <SideMenu.BoardsMenuSection
-                key="recent-unreads"
-                title={
-                  // TODO: this board is hidden cause the last update data
-                  // comes from the cache for logged out users, which
-                  // means we can't show them in order of update
-                  isUserPending || isLoggedIn
-                    ? "recent unreads"
-                    : "recent updates"
-                }
-                icon={faClock}
-                boards={recentBoards.filter(
-                  (board, index) => index < MAX_UNREAD_BOARDS_DISPLAY
-                )}
-                emptyTitle="Congratulations!"
-                emptyDescription="You read 'em all."
-                placeholdersHeight={
-                  isUserPending || !hasLoggedInData
-                    ? MAX_UNREAD_BOARDS_DISPLAY
-                    : 0
-                }
-                accentColor={boardData?.accentColor || "#f96680"}
-                loading={isUserPending || (isLoggedIn && !hasLoggedInData)}
+                key="all-boards"
+                title="all boards"
+                icon={faTh}
+                boards={allBoards}
+                emptyTitle="There's no board here."
+                emptyDescription="Somehow, that feels wrong."
               />
-            )}
-            <SideMenu.BoardsMenuSection
-              key="all-boards"
-              title="all boards"
-              icon={faTh}
-              boards={allBoards}
-              emptyTitle="There's no board here."
-              emptyDescription="Somehow, that feels wrong."
-            />
+            </>
           </SideMenu>
         }
         actionButton={actionButton}
@@ -230,40 +232,39 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
           [isUserPending, isLoggedIn]
         )}
         loggedInMenuOptions={React.useMemo(
-          () =>
-            isLoggedIn && [
-              {
-                icon: faArchive,
-                name: "Logs Archive",
-                link: linkToLogs,
+          () => [
+            {
+              icon: faArchive,
+              name: "Logs Archive",
+              link: linkToLogs,
+            },
+            {
+              icon: faCogs,
+              name: "User Settings",
+              link: linkToPersonalSettings,
+            },
+            {
+              icon: faBook,
+              name: "Welcome Guide",
+              link: {
+                href:
+                  "https://www.notion.so/BobaBoard-s-Welcome-Packet-b0641466bfdf4a1cab8575083459d6a2",
               },
-              {
-                icon: faCogs,
-                name: "User Settings",
-                link: linkToPersonalSettings,
+            },
+            {
+              icon: faComments,
+              name: "Leave Feedback!",
+              link: {
+                href:
+                  "https://docs.google.com/forms/d/e/1FAIpQLSfyMENg9eDNmRj-jIvIG5_ElJFwpGZ_VPvzAskarqu5kf0MSA/viewform",
               },
-              {
-                icon: faBook,
-                name: "Welcome Guide",
-                link: {
-                  href:
-                    "https://www.notion.so/BobaBoard-s-Welcome-Packet-b0641466bfdf4a1cab8575083459d6a2",
-                },
-              },
-              {
-                icon: faComments,
-                name: "Leave Feedback!",
-                link: {
-                  href:
-                    "https://docs.google.com/forms/d/e/1FAIpQLSfyMENg9eDNmRj-jIvIG5_ElJFwpGZ_VPvzAskarqu5kf0MSA/viewform",
-                },
-              },
-              {
-                icon: faSignOutAlt,
-                name: "Logout",
-                link: { onClick: () => setLoginOpen(true) },
-              },
-            ],
+            },
+            {
+              icon: faSignOutAlt,
+              name: "Logout",
+              link: { onClick: () => setLoginOpen(true) },
+            },
+          ],
           [isLoggedIn]
         )}
         user={user}

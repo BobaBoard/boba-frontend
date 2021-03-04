@@ -76,7 +76,7 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
     }
   );
 
-  if (!isLoggedIn) {
+  if (!isLoggedIn || !userIdentity) {
     return <div />;
   }
 

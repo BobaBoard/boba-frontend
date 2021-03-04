@@ -31,7 +31,7 @@ function UserPage() {
       onSuccess: ({ avatarUrl, username }) => {
         setAvatar(avatarUrl);
         setUsername(username);
-        refreshUserData({ username, avatarUrl });
+        refreshUserData?.({ username, avatarUrl });
         setEditing(false);
         setLoading(false);
       },
@@ -45,8 +45,8 @@ function UserPage() {
 
   useEffect(() => {
     if (!isUserPending && isLoggedIn) {
-      setUsername(user.username);
-      setAvatar(user.avatarUrl);
+      setUsername(user!.username);
+      setAvatar(user!.avatarUrl);
     }
     if (!isUserPending && !isLoggedIn) {
       router.push("/").then(() => window.scrollTo(0, 0));
