@@ -46,13 +46,15 @@ const TOP_POST_OPTIONS = [
 const getPostAncestors = (
   post: PostType,
   allPosts: PostType[],
-  rootData: { showRoot?: boolean; rootId?: string }
+  rootId?: string,
+  showRoot?: boolean
 ) => {
   const posts = [post];
   let nextParent: string | null = post.parentPostId;
   while (
     nextParent != null &&
-    nextParent != (rootData?.showRoot ? rootData.rootId : undefined)
+    // TODO: rather than pass rootId, just check grandparent
+    nextParent != (showRoot ? undefined : rootId)
   ) {
     const parentPost = allPosts.find((p) => p.postId == nextParent);
     if (parentPost) {
@@ -117,10 +119,12 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
   const posts = React.useMemo(
     () =>
       showThread
-        ? getPostAncestors(post, extraProps.chronologicalPostsSequence, {
-            showRoot,
-            rootId: extraProps.threadRoot?.postId,
-          })
+        ? getPostAncestors(
+            post,
+            extraProps.chronologicalPostsSequence,
+            extraProps.threadRoot?.postId,
+            showRoot
+          )
         : [post],
     [
       post,

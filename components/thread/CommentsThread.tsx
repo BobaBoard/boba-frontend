@@ -30,6 +30,7 @@ const CommentsThreadLevel: React.FC<{
 }> = (props) => {
   const { isLoggedIn } = useAuth();
   const chain = React.useMemo(() => {
+    let currentChainId = props.comment.commentId;
     const chain = [props.comment];
     while (props.parentChainMap.has(currentChainId)) {
       const next = props.parentChainMap.get(currentChainId) as CommentType;
@@ -41,7 +42,6 @@ const CommentsThreadLevel: React.FC<{
       text: el.content,
     }));
   }, [props.comment, props.parentChainMap]);
-  let currentChainId = props.comment.commentId;
 
   const lastCommentId = chain[chain.length - 1].id;
   const children = props.parentChildrenMap.get(lastCommentId);
@@ -143,6 +143,7 @@ const CommentsThread: React.FC<CommentsThreadProps> = (props) => {
   let actualRoots = props.parentCommentId
     ? parentChildrenMap.get(props.parentCommentId) || []
     : roots;
+
   return (
     <div className="comments-thread-container">
       {actualRoots.map((comment: CommentType, i: number) => {
