@@ -1,7 +1,7 @@
 import React from "react";
-import { NewThread, PostHandler, DefaultTheme } from "@bobaboard/ui-components";
+import { NewThread, DefaultTheme } from "@bobaboard/ui-components";
 import { useRouter } from "next/router";
-import ThreadPost from "./ThreadPost";
+import ThreadPost, { scrollToPost } from "./ThreadPost";
 import debug from "debug";
 import {
   ThreadContextType,
@@ -23,39 +23,14 @@ import { useBoardContext } from "components/BoardContext";
 const log = debug("bobafrontend:threadLevel-log");
 const info = debug("bobafrontend:threadLevel-info");
 
-const getCommentThreadId = (postId: string) => {
+export const getCommentThreadId = (postId: string) => {
   return `${postId}_comment`;
 };
-const extractPostId = (levelId: string) => {
+export const extractPostId = (levelId: string) => {
   if (levelId.indexOf(`_comment`) === -1) {
     return levelId;
   }
   return levelId.substring(0, levelId.indexOf(`_comment`));
-};
-
-// TODO: unify1 this and scrollToComment
-export const scrollToPost = (postId: string, color: string) => {
-  log(`Beaming up to post with id ${postId}`);
-  const element: HTMLElement | null = document.querySelector(
-    `.post[data-post-id='${postId}']`
-  );
-  if (!element) {
-    return;
-  }
-  const observer = new IntersectionObserver((observed) => {
-    if (observed[0].isIntersecting) {
-      postHandlers.get(postId)?.highlight(color), observer.disconnect();
-    }
-  });
-  observer.observe(element);
-  element.classList.add("outline-hidden");
-  window.scroll({
-    top:
-      element.getBoundingClientRect().top +
-      window.pageYOffset -
-      (DefaultTheme.HEADER_HEIGHT_PX + 2),
-    behavior: "smooth",
-  });
 };
 
 export const scrollToComment = (commentId: string, color: string) => {
@@ -83,7 +58,6 @@ export const scrollToComment = (commentId: string, color: string) => {
 };
 
 // const MemoizedThreadIndent = React.memo(ThreadIndent);
-const postHandlers = new Map<string, PostHandler>();
 const ThreadLevel: React.FC<{
   post: PostType;
   postsMap: Map<string, { children: PostType[]; parent: PostType | null }>;
@@ -132,7 +106,6 @@ const ThreadLevel: React.FC<{
               className={classnames("post", {
                 "with-indent": props.postsMap.has(props.post.postId),
               })}
-              data-post-id={props.post.postId}
             >
               <ThreadPost
                 post={props.post}
@@ -141,9 +114,6 @@ const ThreadLevel: React.FC<{
                 onNewComment={props.onNewComment}
                 onEditPost={props.onEditPost}
                 ref={React.useCallback((postRef) => {
-                  if (postRef) {
-                    postHandlers.set(props.post.postId, postRef);
-                  }
                   setHandler(postRef?.avatarRef?.current || null);
                 }, [])}
               />

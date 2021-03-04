@@ -3,6 +3,7 @@ import {
   Post,
   PostSizes,
   PostHandler,
+  DefaultTheme,
 } from "@bobaboard/ui-components";
 import { PostProps } from "@bobaboard/ui-components/dist/post/Post";
 import moment from "moment";
@@ -16,6 +17,7 @@ import {
 } from "../../utils/thread-utils";
 import { usePostOptions, PostOptions } from "../hooks/useOptions";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
+import { log } from "debug";
 
 interface ThreadPostProps
   // This type can add any prop from the original post type
@@ -42,6 +44,32 @@ const TOP_POST_OPTIONS = [
   ...REGULAR_POST_OPTIONS.filter((option) => option != PostOptions.COPY_LINK),
   PostOptions.UPDATE_VIEW,
 ];
+
+// TODO: unify1 this and scrollToComment
+const postHandlers = new Map<string, PostHandler>();
+export const scrollToPost = (postId: string, color: string) => {
+  log(`Beaming up to post with id ${postId}`);
+  const element: HTMLElement | null = document.querySelector(
+    `.post[data-post-id='${postId}']`
+  );
+  if (!element) {
+    return;
+  }
+  const observer = new IntersectionObserver((observed) => {
+    if (observed[0].isIntersecting) {
+      postHandlers.get(postId)?.highlight(color), observer.disconnect();
+    }
+  });
+  observer.observe(element);
+  element.classList.add("outline-hidden");
+  window.scroll({
+    top:
+      element.getBoundingClientRect().top +
+      window.pageYOffset -
+      (DefaultTheme.HEADER_HEIGHT_PX + 2),
+    behavior: "smooth",
+  });
+};
 
 const getPostAncestors = (
   post: PostType,
@@ -133,6 +161,21 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
     ]
   );
 
+  const callbackRef = (postRef: PostHandler | undefined | null) => {
+    if (postRef) {
+      postHandlers.set(post.postId, postRef);
+    }
+    if (!extraProps.innerRef) {
+      return;
+    }
+    if (typeof extraProps.innerRef === "function") {
+      extraProps.innerRef(postRef || null);
+    } else {
+      // @ts-ignore
+      extraProps.innerRef.current = postRef || null;
+    }
+  };
+
   const memoizedPropsMap = React.useMemo(() => {
     return posts.map(
       (post): PostProps => {
@@ -175,19 +218,19 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
 
   if (posts.length > 1) {
     return (
-      <CompactPostThread
-        key={post.postId}
-        posts={memoizedPropsMap}
-        ref={extraProps.innerRef}
-      />
+      <div className="post" data-post-id={post.postId}>
+        <CompactPostThread
+          key={post.postId}
+          posts={memoizedPropsMap}
+          ref={callbackRef}
+        />
+      </div>
     );
   }
   return (
-    <Post
-      key={post.postId}
-      {...memoizedPropsMap[0]}
-      ref={extraProps.innerRef}
-    />
+    <div className="post" data-post-id={post.postId}>
+      <Post key={post.postId} {...memoizedPropsMap[0]} ref={callbackRef} />
+    </div>
   );
 };
 

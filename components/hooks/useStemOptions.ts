@@ -1,6 +1,5 @@
 import React from "react";
 import { useAuth } from "../Auth";
-import { EditorActions, useEditorsDispatch } from "../editors/EditorsContext";
 import {
   faAngleDoubleUp,
   faCompressArrowsAlt,
@@ -21,21 +20,6 @@ export const useStemOptions = ({
   onReply: (levelId: string) => void;
 }) => {
   const { isLoggedIn } = useAuth();
-  const dispatch = useEditorsDispatch();
-
-  const onNewContribution = React.useCallback(
-    (replyToContributionId: string) => {
-      dispatch({
-        type: EditorActions.NEW_CONTRIBUTION,
-        payload: {
-          boardSlug,
-          threadId,
-          replyToContributionId,
-        },
-      });
-    },
-    [boardSlug, threadId]
-  );
 
   return React.useCallback(
     (levelId) => {

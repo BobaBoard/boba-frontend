@@ -11,10 +11,8 @@ import { THREAD_VIEW_MODES, ThreadType } from "types/Types";
 import classnames from "classnames";
 import { useBoardContext } from "components/BoardContext";
 //import { useHotkeys } from "react-hotkeys-hook";
-import ThreadView, {
-  scrollToComment,
-  scrollToPost,
-} from "components/thread/ThreadView";
+import ThreadView, { scrollToComment } from "components/thread/ThreadView";
+import { scrollToPost } from "components/thread/ThreadPost";
 import ThreadSidebar from "components/thread/ThreadSidebar";
 import GalleryThreadView from "components/thread/GalleryThreadView";
 import TimelineThreadView from "components/thread/TimelineThreadView";

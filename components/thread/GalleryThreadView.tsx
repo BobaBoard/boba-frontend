@@ -7,7 +7,7 @@ import {
 } from "components/thread/ThreadQueryHook";
 import CommentsThread from "./CommentsThread";
 import { PostType } from "types/Types";
-import ThreadPost from "./ThreadPost";
+import ThreadPost, { scrollToPost } from "./ThreadPost";
 import { useAuth } from "components/Auth";
 import {
   EditorActions,
@@ -16,8 +16,11 @@ import {
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import { ExistanceParam } from "components/QueryParamNextProvider";
 import { DecodedValueMap, useQueryParams } from "use-query-params";
+import { useStemOptions } from "components/hooks/useStemOptions";
+import { useBoardContext } from "components/BoardContext";
 
 import debug from "debug";
+import { extractPostId, getCommentThreadId } from "./ThreadView";
 const log = debug("bobafrontend:threadPage:GalleryView-log");
 
 export const GalleryViewQueryParams = {
@@ -139,6 +142,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   const dispatch = useEditorsDispatch();
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
   const [galleryView, setGalleryView] = useQueryParams(GalleryViewQueryParams);
+  const { boardsData } = useBoardContext();
 
   // const activeCategories = categoryFilterState.filter(
   //   (category) => category.active
@@ -222,11 +226,41 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
     props.onTotalPostsChange(toDisplay.length);
   }, [toDisplay.length]);
 
-  const onCollapseLevel = React.useCallback((levelId) => {}, []);
-  const onUncollapseLevel = React.useCallback((levelId) => {}, []);
+  const onCollapseLevel = React.useCallback(
+    (levelId) => {
+      onNotesClick(extractPostId(levelId));
+    },
+    [onNotesClick]
+  );
+  const onUncollapseLevel = React.useCallback(
+    (levelId) => {
+      onNotesClick(extractPostId(levelId));
+    },
+    [onNotesClick]
+  );
   const getCollapseReason = React.useCallback((levelId) => {
     return <div>Subthread manually hidden.</div>;
   }, []);
+
+  const getStemOptions = useStemOptions({
+    boardSlug,
+    threadId,
+    onCollapse: (levelId) => {
+      onCollapseLevel(levelId);
+    },
+    onScrollTo: (levelId) => {
+      if (!levelId) {
+        return;
+      }
+      scrollToPost(extractPostId(levelId), boardsData[boardSlug].accentColor);
+    },
+    onReply: (levelId) => {
+      if (!levelId) {
+        return;
+      }
+      onNewContribution(extractPostId(levelId));
+    },
+  });
 
   const { coverPost, updatedPosts, allGalleryPosts } = postTypes;
 
@@ -362,7 +396,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
                     onCollapseLevel={onCollapseLevel}
                     onUncollapseLevel={onUncollapseLevel}
                     getCollapseReason={getCollapseReason}
-                    getStemOptions={() => []}
+                    getStemOptions={getStemOptions}
                   >
                     {(setThreadBoundary) => (
                       <>
@@ -383,7 +417,9 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
                           />
                         </div>
                         {post.comments && showComments.includes(post.postId) && (
-                          <NewThread.Indent id={post.postId}>
+                          <NewThread.Indent
+                            id={getCommentThreadId(post.postId)}
+                          >
                             <CommentsThread parentPostId={post.postId} />
                           </NewThread.Indent>
                         )}

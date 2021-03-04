@@ -9,7 +9,7 @@ import classnames from "classnames";
 import TemporarySegmentedButton from "./TemporarySegmentedButton";
 import CommentsThread from "./CommentsThread";
 import { PostType } from "types/Types";
-import ThreadPost from "./ThreadPost";
+import ThreadPost, { scrollToPost } from "./ThreadPost";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import { useAuth } from "components/Auth";
 import {
@@ -18,6 +18,9 @@ import {
 } from "components/editors/EditorsContext";
 import { ExistanceParam } from "components/QueryParamNextProvider";
 import { DecodedValueMap, useQueryParams } from "use-query-params";
+import { useStemOptions } from "components/hooks/useStemOptions";
+import { extractPostId } from "./ThreadView";
+import { useBoardContext } from "components/BoardContext";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // @ts-ignore
@@ -77,6 +80,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({
     TimelineViewQueryParams
   );
   const viewMode = getTimelineViewMode(timelineViewParams);
+  const { boardsData } = useBoardContext();
 
   React.useEffect(() => {
     if (isRefetching || isLoading) {
@@ -158,11 +162,36 @@ const TimelineView: React.FC<TimelineViewProps> = ({
     props.onTotalPostsChange(displayPosts.length);
   }, [displayPosts.length]);
 
-  const onCollapseLevel = React.useCallback((levelId) => {}, []);
-  const onUncollapseLevel = React.useCallback((levelId) => {}, []);
+  const [collapse, setCollapse] = React.useState<string[]>([]);
+  const onCollapseLevel = React.useCallback((levelId) => {
+    setCollapse((collapse) => [...collapse, levelId]);
+  }, []);
+  const onUncollapseLevel = React.useCallback((levelId) => {
+    setCollapse((collapse) => collapse.filter((id) => id != levelId));
+  }, []);
   const getCollapseReason = React.useCallback((levelId) => {
     return <div>Subthread manually hidden.</div>;
   }, []);
+
+  const getStemOptions = useStemOptions({
+    boardSlug,
+    threadId,
+    onCollapse: (levelId) => {
+      onCollapseLevel(levelId);
+    },
+    onScrollTo: (levelId) => {
+      if (!levelId) {
+        return;
+      }
+      scrollToPost(extractPostId(levelId), boardsData[boardSlug].accentColor);
+    },
+    onReply: (levelId) => {
+      if (!levelId) {
+        return;
+      }
+      onNewContribution(extractPostId(levelId));
+    },
+  });
 
   return (
     <div
@@ -230,7 +259,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({
                 onCollapseLevel={onCollapseLevel}
                 onUncollapseLevel={onUncollapseLevel}
                 getCollapseReason={getCollapseReason}
-                getStemOptions={() => []}
+                getStemOptions={getStemOptions}
               >
                 {(setThreadBoundary) => (
                   <>
@@ -248,7 +277,10 @@ const TimelineView: React.FC<TimelineViewProps> = ({
                       />
                     </div>
                     {post.comments && (
-                      <NewThread.Indent id={post.postId}>
+                      <NewThread.Indent
+                        id={post.postId}
+                        collapsed={collapse.includes(post.postId)}
+                      >
                         <div className="comments-thread">
                           <CommentsThread parentPostId={post.postId} />
                         </div>
