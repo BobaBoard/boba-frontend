@@ -17,11 +17,7 @@ import {
   useEditorsDispatch,
 } from "components/editors/EditorsContext";
 import { useAuth } from "components/Auth";
-import {
-  faAngleDoubleUp,
-  faCompressArrowsAlt,
-  faPlusSquare,
-} from "@fortawesome/free-solid-svg-icons";
+import { useStemOptions } from "components/hooks/useStemOptions";
 import { useBoardContext } from "components/BoardContext";
 
 const log = debug("bobafrontend:threadLevel-log");
@@ -258,6 +254,26 @@ const ThreadView: React.FC<ThreadViewProps> = ({
     [boardSlug, threadId]
   );
 
+  const getStemOptions = useStemOptions({
+    boardSlug,
+    threadId,
+    onCollapse: (levelId) => {
+      onCollapseLevel(levelId);
+    },
+    onScrollTo: (levelId) => {
+      if (!levelId) {
+        return;
+      }
+      scrollToPost(extractPostId(levelId), boardsData[boardSlug].accentColor);
+    },
+    onReply: (levelId) => {
+      if (!levelId) {
+        return;
+      }
+      onNewContribution(extractPostId(levelId));
+    },
+  });
+
   React.useEffect(() => {
     props.onTotalPostsChange(chronologicalPostsSequence.length);
   }, [chronologicalPostsSequence]);
@@ -271,54 +287,6 @@ const ThreadView: React.FC<ThreadViewProps> = ({
   const getCollapseReason = React.useCallback((levelId) => {
     return <div>Subthread manually hidden.</div>;
   }, []);
-
-  const getStemOptions = React.useCallback(
-    (levelId) => {
-      const options = [
-        {
-          name: "collapse",
-          icon: faCompressArrowsAlt,
-          link: {
-            onClick: () => {
-              onCollapseLevel(levelId);
-            },
-          },
-        },
-        {
-          name: "beam up",
-          icon: faAngleDoubleUp,
-          link: {
-            onClick: () => {
-              if (!levelId) {
-                return;
-              }
-              scrollToPost(
-                extractPostId(levelId),
-                boardsData[boardSlug].accentColor
-              );
-            },
-          },
-        },
-      ];
-
-      if (isLoggedIn) {
-        options.push({
-          name: "reply up",
-          icon: faPlusSquare,
-          link: {
-            onClick: () => {
-              if (!levelId) {
-                return;
-              }
-              onNewContribution(extractPostId(levelId));
-            },
-          },
-        });
-      }
-      return options;
-    },
-    [isLoggedIn]
-  );
 
   if (!currentRoot) {
     return <div />;
