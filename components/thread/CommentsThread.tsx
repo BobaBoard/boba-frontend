@@ -6,6 +6,7 @@ import {
 } from "@bobaboard/ui-components";
 import { CommentType, ThreadCommentInfoType } from "../../types/Types";
 import { ThreadContextType, withThreadData } from "./ThreadQueryHook";
+import { faComment } from "@fortawesome/free-regular-svg-icons";
 
 import debug from "debug";
 import moment from "moment";
@@ -48,6 +49,21 @@ const CommentsThreadLevel: React.FC<{
   const replyToLast = React.useCallback(() => props.onReplyTo(lastCommentId), [
     lastCommentId,
   ]);
+  const options = React.useMemo(
+    () =>
+      isLoggedIn
+        ? [
+            {
+              name: "Reply",
+              icon: faComment,
+              link: {
+                onClick: () => replyToLast(),
+              },
+            },
+          ]
+        : undefined,
+    [replyToLast, isLoggedIn]
+  );
   return (
     <NewCommentsThread.Item>
       {(setBoundaryElement) => (
@@ -72,6 +88,7 @@ const CommentsThreadLevel: React.FC<{
               comments={chain}
               muted={isLoggedIn && !props.comment.isNew}
               onExtraAction={isLoggedIn ? replyToLast : undefined}
+              options={options}
             />
           </div>
           {children && (
