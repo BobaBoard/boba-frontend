@@ -27,6 +27,16 @@ import { useBoardContext } from "components/BoardContext";
 const log = debug("bobafrontend:threadLevel-log");
 const info = debug("bobafrontend:threadLevel-info");
 
+const getCommentThreadId = (postId: string) => {
+  return `${postId}_comment`;
+};
+const extractPostId = (levelId: string) => {
+  if (levelId.indexOf(`_comment`) === -1) {
+    return levelId;
+  }
+  return levelId.substring(0, levelId.indexOf(`_comment`));
+};
+
 // TODO: unify1 this and scrollToComment
 export const scrollToPost = (postId: string, color: string) => {
   log(`Beaming up to post with id ${postId}`);
@@ -97,10 +107,30 @@ const ThreadLevel: React.FC<{
     `Rendering subtree at level ${props.level} starting with post with id ${props.post.postId}`
   );
 
+  // When there's only comments replying to the post, then the indentation is just made of
+  // the comments themselves.
+  // If there's comments and contributions, then the contributions are indented immediately
+  // underneath this post, and the comments thread, is another extra indent at the beginning
+  // of the contributions indent.
+  // It's easier to reason about this when realizing that comments can be collapsed independently
+  // from other contributions, and thus need their own special "indent level".
+  const commentsThread = (
+    <NewThread.Indent
+      id={getCommentThreadId(props.post.postId)}
+      collapsed={props.collapsedIndents.some(
+        (id) => id == getCommentThreadId(props.post.postId)
+      )}
+    >
+      <CommentsThread parentPostId={props.post.postId} />
+    </NewThread.Indent>
+  );
+
+  const hasNestedContributions = props.postsMap.has(props.post.postId);
+  const hasComments = !!props.post.comments?.length;
   return (
     <>
       <NewThread.Item key={props.post.postId}>
-        {(setHandler) => (
+        {(setHandler, boundaryId) => (
           <>
             <div
               className={classnames("post", {
@@ -122,15 +152,19 @@ const ThreadLevel: React.FC<{
                 }, [])}
               />
             </div>
-            {(props.postsMap.has(props.post.postId) ||
-              props.post.comments?.length) && (
+            {!hasNestedContributions && hasComments && commentsThread}
+            {hasNestedContributions && (
               <NewThread.Indent
                 id={props.post.postId}
                 collapsed={props.collapsedIndents.some(
-                  (id) => id == `indent_${props.post.postId}`
+                  (id) => id == props.post.postId
                 )}
               >
-                <CommentsThread parentPostId={props.post.postId} />
+                {hasComments && (
+                  <NewThread.Item parentBoundary={boundaryId}>
+                    {commentsThread}
+                  </NewThread.Item>
+                )}
                 {props.postsMap
                   .get(props.post.postId)
                   ?.children.flatMap((post: PostType, index: number, array) => (
@@ -239,7 +273,7 @@ const ThreadView: React.FC<ThreadViewProps> = ({
   }, []);
 
   const getStemOptions = React.useCallback((levelId) => {
-    return [
+    const options = [
       {
         name: "collapse",
         icon: faCompressArrowsAlt,
@@ -257,12 +291,17 @@ const ThreadView: React.FC<ThreadViewProps> = ({
             if (!levelId) {
               return;
             }
-            console.log(levelId);
-            scrollToPost(levelId, boardsData[boardSlug].accentColor);
+            scrollToPost(
+              extractPostId(levelId),
+              boardsData[boardSlug].accentColor
+            );
           },
         },
       },
-      {
+    ];
+
+    if (isLoggedIn) {
+      options.push({
         name: "reply up",
         icon: faPlusSquare,
         link: {
@@ -270,11 +309,12 @@ const ThreadView: React.FC<ThreadViewProps> = ({
             if (!levelId) {
               return;
             }
-            onNewContribution(levelId);
+            onNewContribution(extractPostId(levelId));
           },
         },
-      },
-    ];
+      });
+    }
+    return options;
   }, []);
 
   if (!currentRoot) {
