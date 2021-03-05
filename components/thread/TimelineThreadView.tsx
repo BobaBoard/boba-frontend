@@ -1,12 +1,11 @@
 import React from "react";
-import { NewThread } from "@bobaboard/ui-components";
+import { NewThread, SegmentedButton } from "@bobaboard/ui-components";
 import debug from "debug";
 import {
   ThreadContextType,
   withThreadData,
 } from "components/thread/ThreadQueryHook";
 import classnames from "classnames";
-import TemporarySegmentedButton from "./TemporarySegmentedButton";
 import CommentsThread from "./CommentsThread";
 import { PostType } from "types/Types";
 import ThreadPost, { scrollToPost } from "./ThreadPost";
@@ -27,9 +26,9 @@ import { useBoardContext } from "components/BoardContext";
 const log = debug("bobafrontend:threadLevel-log");
 
 export enum TIMELINE_VIEW_MODE {
-  NEW,
-  LATEST,
-  ALL,
+  NEW = "NEW",
+  LATEST = "LATEST",
+  ALL = "ALL",
 }
 
 const TimelineViewQueryParams = {
@@ -193,6 +192,52 @@ const TimelineView: React.FC<TimelineViewProps> = ({
     },
   });
 
+  const viewChangeOptions = React.useMemo(
+    () => [
+      {
+        id: TIMELINE_VIEW_MODE.NEW,
+        label: "New",
+        updates: updatedPosts.length > 0 ? updatedPosts.length : undefined,
+        onClick: () =>
+          setTimelineViewParams(
+            {
+              new: true,
+              latest: false,
+              all: false,
+            },
+            "replaceIn"
+          ),
+      },
+      {
+        id: TIMELINE_VIEW_MODE.LATEST,
+        label: "Latest",
+        onClick: () =>
+          setTimelineViewParams(
+            {
+              new: false,
+              latest: true,
+              all: false,
+            },
+            "replaceIn"
+          ),
+      },
+      {
+        id: TIMELINE_VIEW_MODE.ALL,
+        label: `All (${allPosts.length})`,
+        onClick: () =>
+          setTimelineViewParams(
+            {
+              new: false,
+              latest: false,
+              all: true,
+            },
+            "replaceIn"
+          ),
+      },
+    ],
+    [updatedPosts]
+  );
+
   return (
     <div
       className={classnames("timeline-container", {
@@ -200,52 +245,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({
       })}
     >
       <div className="timeline-views">
-        <TemporarySegmentedButton
-          options={[
-            {
-              id: TIMELINE_VIEW_MODE.NEW,
-              label: "New",
-              updates:
-                updatedPosts.length > 0 ? updatedPosts.length : undefined,
-              onClick: () =>
-                setTimelineViewParams(
-                  {
-                    new: true,
-                    latest: false,
-                    all: false,
-                  },
-                  "replaceIn"
-                ),
-            },
-            {
-              id: TIMELINE_VIEW_MODE.LATEST,
-              label: "Latest",
-              onClick: () =>
-                setTimelineViewParams(
-                  {
-                    new: false,
-                    latest: true,
-                    all: false,
-                  },
-                  "replaceIn"
-                ),
-            },
-            {
-              id: TIMELINE_VIEW_MODE.ALL,
-              label: `All (${allPosts.length})`,
-              onClick: () =>
-                setTimelineViewParams(
-                  {
-                    new: false,
-                    latest: false,
-                    all: true,
-                  },
-                  "replaceIn"
-                ),
-            },
-          ]}
-          selected={viewMode}
-        />
+        <SegmentedButton options={viewChangeOptions} selected={viewMode} />
       </div>
       <div>
         {displayPosts.length == 0 && (
@@ -311,7 +311,8 @@ const TimelineView: React.FC<TimelineViewProps> = ({
           width: 100%;
         }
         .timeline-views {
-          margin: 20px 30px;
+          margin: 20px auto;
+          max-width: 300px;
         }
         .button {
           display: none;

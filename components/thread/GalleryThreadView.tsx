@@ -1,6 +1,9 @@
 import React from "react";
-import { MasonryView, NewThread } from "@bobaboard/ui-components";
-import TemporarySegmentedButton from "./TemporarySegmentedButton";
+import {
+  MasonryView,
+  NewThread,
+  SegmentedButton,
+} from "@bobaboard/ui-components";
 import {
   ThreadContextType,
   withThreadData,
@@ -341,7 +344,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
             );
           }}
         />
-        <TemporarySegmentedButton
+        <SegmentedButton
           options={[
             {
               id: "updated",
@@ -439,9 +442,9 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
           margin-bottom: 20px;
         }
         .view-controls {
-          max-width: min(350px, 100%);
           margin: 0 auto;
           margin-bottom: 15px;
+          max-width: 300px;
         }
         .post {
           z-index: 1;

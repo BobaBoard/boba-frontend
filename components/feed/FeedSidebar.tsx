@@ -1,6 +1,6 @@
 import React from "react";
-import TemporarySegmentedButton from "../thread/TemporarySegmentedButton";
 import classnames from "classnames";
+import { SegmentedButton } from "@bobaboard/ui-components";
 
 const UPDATED_ONLY_DATA = {
   id: "updated_only",
@@ -24,8 +24,8 @@ const FeedSidebar: React.FC<FeedSidebarProps> = (props) => {
     <div className={classnames("feed-sidebar", { open: !!props.open })}>
       <div className="options">
         <h3>Show Threads</h3>
-        <div>
-          <TemporarySegmentedButton
+        <div className="button">
+          <SegmentedButton
             options={[
               {
                 id: UPDATED_ONLY_DATA.id,
@@ -55,8 +55,8 @@ const FeedSidebar: React.FC<FeedSidebarProps> = (props) => {
             }
           />
         </div>
-        <div>
-          <TemporarySegmentedButton
+        <div className="button">
+          <SegmentedButton
             options={[
               {
                 id: OWN_ONLY_DATA.id,
@@ -87,7 +87,7 @@ const FeedSidebar: React.FC<FeedSidebarProps> = (props) => {
       </div>
       <style jsx>{`
         .feed-sidebar {
-          padding: 10px;
+          padding: 10px 20px;
         }
         .options {
           color: white;
@@ -100,7 +100,9 @@ const FeedSidebar: React.FC<FeedSidebarProps> = (props) => {
         .category-filters {
           color: white;
         }
-        .options div {
+        .button {
+          width: 100%;
+          margin: 0 auto;
           margin-bottom: 15px;
         }
         @media screen and (max-width: 950px) {

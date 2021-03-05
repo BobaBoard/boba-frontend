@@ -152,7 +152,7 @@ export interface ThreadCommentInfoType {
 }
 
 export enum THREAD_VIEW_MODES {
-  THREAD,
-  MASONRY,
-  TIMELINE,
+  THREAD = "THREAD",
+  MASONRY = "MASONRY",
+  TIMELINE = "TIMELINE",
 }

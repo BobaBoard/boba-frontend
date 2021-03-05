@@ -1,9 +1,8 @@
 import React from "react";
 import {
   CategoryFilter,
-  Button,
-  ButtonStyle,
   PostQuote,
+  SegmentedButton,
 } from "@bobaboard/ui-components";
 import {
   ThreadContextType,
@@ -38,36 +37,26 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = ({
       <div className="views">
         <h3>View Type</h3>
         <div className="buttons">
-          <Button
-            theme={
-              props.viewMode == THREAD_VIEW_MODES.THREAD
-                ? ButtonStyle.LIGHT
-                : ButtonStyle.DARK
-            }
-            onClick={() => props.onViewChange(THREAD_VIEW_MODES.THREAD)}
-          >
-            Thread
-          </Button>
-          <Button
-            theme={
-              props.viewMode == THREAD_VIEW_MODES.MASONRY
-                ? ButtonStyle.LIGHT
-                : ButtonStyle.DARK
-            }
-            onClick={() => props.onViewChange(THREAD_VIEW_MODES.MASONRY)}
-          >
-            Gallery
-          </Button>
-          <Button
-            theme={
-              props.viewMode == THREAD_VIEW_MODES.TIMELINE
-                ? ButtonStyle.LIGHT
-                : ButtonStyle.DARK
-            }
-            onClick={() => props.onViewChange(THREAD_VIEW_MODES.TIMELINE)}
-          >
-            Timeline
-          </Button>
+          <SegmentedButton
+            options={[
+              {
+                id: THREAD_VIEW_MODES.THREAD,
+                label: "Thread",
+                onClick: () => props.onViewChange(THREAD_VIEW_MODES.THREAD),
+              },
+              {
+                id: THREAD_VIEW_MODES.MASONRY,
+                label: "Gallery",
+                onClick: () => props.onViewChange(THREAD_VIEW_MODES.MASONRY),
+              },
+              {
+                id: THREAD_VIEW_MODES.TIMELINE,
+                label: "Timeline",
+                onClick: () => props.onViewChange(THREAD_VIEW_MODES.TIMELINE),
+              },
+            ]}
+            selected={props.viewMode}
+          />
         </div>
       </div>
       {categoryFilterState.length > 1 && (
@@ -115,20 +104,19 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = ({
       )}
       <style jsx>{`
         .thread-sidebar {
-          padding: 10px;
+          padding: 10px 20px;
         }
         .post-header {
           margin-top: 20px;
           margin-bottom: 10px;
-          margin-right: 20px;
+          margin-right: 10px;
         }
         .views {
           color: white;
           margin-bottom: 10px;
         }
         .views .buttons {
-          display: flex;
-          justify-content: space-around;
+          width: 100%;
         }
         .category-filters {
           color: white;
