@@ -8,6 +8,7 @@ import { useMutation, useQueryClient } from "react-query";
 import { useBoardContext } from "./BoardContext";
 import { processBoardsUpdates } from "../utils/boards-utils";
 import { useCachedLinks, FEED_URL } from "./hooks/useCachedLinks";
+import { useForceHideIdentity } from "./hooks/useForceHideIdentity";
 import debug from "debug";
 import {
   faArchive,
@@ -19,6 +20,8 @@ import {
   faSignOutAlt,
   faTh,
   faClock,
+  faLock,
+  faLockOpen,
 } from "@fortawesome/free-solid-svg-icons";
 import Head from "next/head";
 import { getTitle } from "pages/_app";
@@ -92,6 +95,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
     refetch();
   }, [layoutRef.current?.closeSideMenu, refetch]);
   const [isChangingRoute, setChangingRoute] = React.useState(false);
+  const { forceHideIdentity, setForceHideIdentity } = useForceHideIdentity();
 
   React.useEffect(() => {
     const changeStartHandler = () => {
@@ -187,42 +191,40 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
             onFilterChange={setBoardFilter}
             currentBoardSlug={slug}
           >
-            <>
-              {(isUserPending || isLoggedIn) && (
-                <SideMenu.BoardsMenuSection
-                  key="recent-unreads"
-                  title={
-                    // TODO: this board is hidden cause the last update data
-                    // comes from the cache for logged out users, which
-                    // means we can't show them in order of update
-                    isUserPending || isLoggedIn
-                      ? "recent unreads"
-                      : "recent updates"
-                  }
-                  icon={faClock}
-                  boards={recentBoards.filter(
-                    (board, index) => index < MAX_UNREAD_BOARDS_DISPLAY
-                  )}
-                  emptyTitle="Congratulations!"
-                  emptyDescription="You read 'em all."
-                  placeholdersHeight={
-                    isUserPending || !hasLoggedInData
-                      ? MAX_UNREAD_BOARDS_DISPLAY
-                      : 0
-                  }
-                  accentColor={boardData?.accentColor || "#f96680"}
-                  loading={isUserPending || (isLoggedIn && !hasLoggedInData)}
-                />
-              )}
+            {(isUserPending || isLoggedIn) && (
               <SideMenu.BoardsMenuSection
-                key="all-boards"
-                title="all boards"
-                icon={faTh}
-                boards={allBoards}
-                emptyTitle="There's no board here."
-                emptyDescription="Somehow, that feels wrong."
+                key="recent-unreads"
+                title={
+                  // TODO: this board is hidden cause the last update data
+                  // comes from the cache for logged out users, which
+                  // means we can't show them in order of update
+                  isUserPending || isLoggedIn
+                    ? "recent unreads"
+                    : "recent updates"
+                }
+                icon={faClock}
+                boards={recentBoards.filter(
+                  (board, index) => index < MAX_UNREAD_BOARDS_DISPLAY
+                )}
+                emptyTitle="Congratulations!"
+                emptyDescription="You read 'em all."
+                placeholdersHeight={
+                  isUserPending || !hasLoggedInData
+                    ? MAX_UNREAD_BOARDS_DISPLAY
+                    : 0
+                }
+                accentColor={boardData?.accentColor || "#f96680"}
+                loading={isUserPending || (isLoggedIn && !hasLoggedInData)}
               />
-            </>
+            )}
+            <SideMenu.BoardsMenuSection
+              key="all-boards"
+              title="all boards"
+              icon={faTh}
+              boards={allBoards}
+              emptyTitle="There's no board here."
+              emptyDescription="Somehow, that feels wrong."
+            />
           </SideMenu>
         }
         actionButton={actionButton}
@@ -260,16 +262,26 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
               },
             },
             {
+              icon: forceHideIdentity ? faLockOpen : faLock,
+              name: forceHideIdentity
+                ? "Display identity"
+                : "Force hide identity",
+              link: {
+                onClick: () => setForceHideIdentity(!forceHideIdentity),
+              },
+            },
+            {
               icon: faSignOutAlt,
               name: "Logout",
               link: { onClick: () => setLoginOpen(true) },
             },
           ],
-          [isLoggedIn]
+          [isLoggedIn, forceHideIdentity]
         )}
         user={user}
         title={props.title}
         forceHideTitle={props.forceHideTitle}
+        forceHideIdentity={forceHideIdentity}
         loading={props.loading || isUserPending || isChangingRoute}
         userLoading={isUserPending}
         updates={isLoggedIn && hasUpdates}

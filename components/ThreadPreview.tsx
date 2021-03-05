@@ -7,6 +7,7 @@ import { useCachedLinks } from "./hooks/useCachedLinks";
 import noop from "noop-ts";
 import { usePostOptions, PostOptions } from "./hooks/useOptions";
 import { useSetThreadHidden } from "./hooks/queries/thread";
+import { useForceHideIdentity } from "./hooks/useForceHideIdentity";
 
 const THREAD_OPTIONS = [
   PostOptions.COPY_THREAD_LINK,
@@ -82,6 +83,7 @@ const ThreadPreview: React.FC<{
       hidden: thread.hidden,
     },
   });
+  const { forceHideIdentity } = useForceHideIdentity();
 
   const tagOptions = React.useCallback((tag: TagsType) => {
     if (tag.type == TagType.CATEGORY && onSetCategoryFilter) {
@@ -142,6 +144,7 @@ const ThreadPreview: React.FC<{
       menuOptions={options}
       getOptionsForTag={tagOptions}
       board={originBoard}
+      forceHideIdentity={forceHideIdentity}
     />
   );
 };

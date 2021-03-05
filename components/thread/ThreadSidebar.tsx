@@ -12,6 +12,7 @@ import {
 import { THREAD_VIEW_MODES } from "types/Types";
 import moment from "moment";
 import classnames from "classnames";
+import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 
 const ThreadSidebar: React.FC<ThreadSidebarProps> = ({
   threadRoot,
@@ -19,6 +20,7 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = ({
   setCategoryFilterState,
   ...props
 }) => {
+  const { forceHideIdentity } = useForceHideIdentity();
   if (!threadRoot) {
     return <div />;
   }
@@ -30,6 +32,7 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = ({
           text={threadRoot.content}
           secretIdentity={threadRoot.secretIdentity}
           userIdentity={threadRoot.userIdentity}
+          forceHideIdentity={forceHideIdentity}
         />
       </div>
       <div className="views">

@@ -15,6 +15,7 @@ import {
   EditorActions,
   useEditorsDispatch,
 } from "components/editors/EditorsContext";
+import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 // @ts-expect-error
 const log = debug("bobafrontend:threadLevel-log");
 // @ts-expect-error
@@ -30,6 +31,7 @@ const CommentsThreadLevel: React.FC<{
   onReplyTo: (replyTo: string) => void;
 }> = (props) => {
   const { isLoggedIn } = useAuth();
+  const { forceHideIdentity } = useForceHideIdentity();
   const chain = React.useMemo(() => {
     let currentChainId = props.comment.commentId;
     const chain = [props.comment];
@@ -89,6 +91,7 @@ const CommentsThreadLevel: React.FC<{
               muted={isLoggedIn && !props.comment.isNew}
               onExtraAction={isLoggedIn ? replyToLast : undefined}
               options={options}
+              forceHideIdentity={forceHideIdentity}
             />
           </div>
           {children && (

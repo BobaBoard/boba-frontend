@@ -18,6 +18,7 @@ import {
 import { usePostOptions, PostOptions } from "../hooks/useOptions";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { log } from "debug";
+import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 
 interface ThreadPostProps
   // This type can add any prop from the original post type
@@ -175,6 +176,7 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
       extraProps.innerRef.current = postRef || null;
     }
   };
+  const { forceHideIdentity } = useForceHideIdentity();
 
   const memoizedPropsMap = React.useMemo(() => {
     return posts.map(
@@ -223,13 +225,19 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
           key={post.postId}
           posts={memoizedPropsMap}
           ref={callbackRef}
+          forceHideIdentity={forceHideIdentity}
         />
       </div>
     );
   }
   return (
     <div className="post" data-post-id={post.postId}>
-      <Post key={post.postId} {...memoizedPropsMap[0]} ref={callbackRef} />
+      <Post
+        key={post.postId}
+        {...memoizedPropsMap[0]}
+        ref={callbackRef}
+        forceHideIdentity={forceHideIdentity}
+      />
     </div>
   );
 };
