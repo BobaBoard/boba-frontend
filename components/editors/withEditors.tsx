@@ -36,13 +36,13 @@ const Editors = () => {
   const dispatch = useEditorsDispatch();
   const onClose = React.useCallback(() => {
     dispatch({ type: EditorActions.CLOSE, payload: {} });
-  }, []);
+  }, [dispatch]);
   const state = useEditorsState();
   usePreventPageChange(() => state.isOpen, onClose, [state.isOpen]);
   const [askConfirmation, setAskConfirmation] = React.useState(false);
   const onCancel = React.useCallback(
     (empty) => (empty ? onClose() : setAskConfirmation(true)),
-    []
+    [onClose, setAskConfirmation]
   );
   const onCloseModal = React.useCallback(() => setAskConfirmation(false), []);
   const onSubmit = React.useCallback(() => {
