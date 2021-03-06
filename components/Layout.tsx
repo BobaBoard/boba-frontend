@@ -3,11 +3,11 @@ import { SideMenu, Layout as InnerLayout } from "@bobaboard/ui-components";
 import LoginModal from "./LoginModal";
 import { dismissAllNotifications } from "../utils/queries";
 import { useAuth } from "./Auth";
-import { NextRouter, useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { useMutation, useQueryClient } from "react-query";
 import { useBoardsContext } from "./BoardContext";
 import { processBoardsUpdates } from "../utils/boards-utils";
-import { useCachedLinks, FEED_URL } from "./hooks/useCachedLinks";
+import { useCachedLinks } from "./hooks/useCachedLinks";
 import { useForceHideIdentity } from "./hooks/useForceHideIdentity";
 import debug from "debug";
 import {
@@ -25,20 +25,111 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Head from "next/head";
 import { getTitle } from "pages/_app";
-import { usePageDetails } from "utils/router-utils";
+import { PageTypes, usePageDetails } from "utils/router-utils";
 
-const log = debug("bobafrontend:queries-log");
+const log = debug("bobafrontend:Layout-log");
+const error = debug("bobafrontend:Layout-error");
+const useMenuBarOptions = () => {
+  const { isLoggedIn } = useAuth();
+  const { linkToFeed } = useCachedLinks();
+  return React.useMemo(
+    () =>
+      isLoggedIn
+        ? [
+            {
+              id: PageTypes.FEED,
+              icon: faInbox,
+              link: linkToFeed,
+            },
+          ]
+        : [],
+    [isLoggedIn, linkToFeed]
+  );
+};
+const useLoggedInDropdownOptions = (openLogin: () => void) => {
+  const { forceHideIdentity, setForceHideIdentity } = useForceHideIdentity();
+  const { linkToPersonalSettings, linkToLogs } = useCachedLinks();
+  return React.useMemo(
+    () => [
+      {
+        icon: faArchive,
+        name: "Logs Archive",
+        link: linkToLogs,
+      },
+      {
+        icon: faCogs,
+        name: "User Settings",
+        link: linkToPersonalSettings,
+      },
+      {
+        icon: faBook,
+        name: "Welcome Guide",
+        link: {
+          href:
+            "https://www.notion.so/BobaBoard-s-Welcome-Packet-b0641466bfdf4a1cab8575083459d6a2",
+        },
+      },
+      {
+        icon: faComments,
+        name: "Leave Feedback!",
+        link: {
+          href:
+            "https://docs.google.com/forms/d/e/1FAIpQLSfyMENg9eDNmRj-jIvIG5_ElJFwpGZ_VPvzAskarqu5kf0MSA/viewform",
+        },
+      },
+      {
+        icon: forceHideIdentity ? faLockOpen : faLock,
+        name: forceHideIdentity ? "Display identity" : "Force hide identity",
+        link: {
+          onClick: () => setForceHideIdentity(!forceHideIdentity),
+        },
+      },
+      {
+        icon: faSignOutAlt,
+        name: "Logout",
+        link: { onClick: openLogin },
+      },
+    ],
+    [
+      forceHideIdentity,
+      openLogin,
+      linkToLogs,
+      linkToPersonalSettings,
+      setForceHideIdentity,
+    ]
+  );
+};
 
-const getSelectedMenuOptionFromPath = (router: NextRouter) => {
-  if (router.asPath == FEED_URL) {
-    return "feed";
-  }
-  return "";
+const useChangingRoute = () => {
+  const router = useRouter();
+  const [isChangingRoute, setChangingRoute] = React.useState(false);
+  React.useEffect(() => {
+    const changeStartHandler = () => {
+      setChangingRoute(true);
+    };
+    const changeEndHandler = () => {
+      setChangingRoute(false);
+    };
+    router.events.on("routeChangeStart", changeStartHandler);
+    router.events.on("beforeHistoryChange", changeStartHandler);
+    router.events.on("routeChangeComplete", changeEndHandler);
+    return () => {
+      router.events.off("routeChangeStart", changeStartHandler);
+      router.events.off("beforeHistoryChange", changeStartHandler);
+      router.events.off("routeChangeComplete", changeEndHandler);
+    };
+  }, [router.events]);
+
+  return isChangingRoute;
 };
 
 interface LayoutComposition {
-  MainContent: React.FC<{}>;
-  ActionButton: React.FC<{}>;
+  MainContent: React.FC<{
+    children: React.ReactNode;
+  }>;
+  ActionButton: React.FC<{
+    children: React.ReactNode;
+  }>;
 }
 
 const MainContent: LayoutComposition["MainContent"] = (props) => {
@@ -56,20 +147,43 @@ const isActionButton = (node: React.ReactNode): node is typeof ActionButton => {
   return React.isValidElement(node) && node.type == ActionButton;
 };
 
-const MAX_UNREAD_BOARDS_DISPLAY = 4;
-const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
-  const router = useRouter();
+function useTitleLink() {
   const {
     linkToHome,
     linkToFeed,
-    getLinkToBoard,
+    linkToCurrent,
     linkToPersonalSettings,
-    linkToLogs,
+    getLinkToBoard,
   } = useCachedLinks();
+  const { slug, pageType } = usePageDetails();
+  switch (pageType) {
+    case PageTypes.THREAD:
+    case PageTypes.POST:
+    case PageTypes.BOARD:
+      if (!slug) {
+        error("Attempted to get link to board on page with no slug.");
+        return linkToCurrent;
+      }
+      return getLinkToBoard(slug);
+    case PageTypes.SETTINGS:
+      return linkToPersonalSettings;
+    case PageTypes.INVITE:
+      return linkToCurrent;
+    case PageTypes.FEED:
+      return linkToFeed;
+    default:
+      return linkToHome;
+  }
+}
+
+const MAX_UNREAD_BOARDS_DISPLAY = 4;
+const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
+  const { linkToHome, getLinkToBoard } = useCachedLinks();
   const { isPending: isUserPending, user, isLoggedIn } = useAuth();
   const [loginOpen, setLoginOpen] = React.useState(false);
   const layoutRef = React.useRef<{ closeSideMenu: () => void }>(null);
-  const { slug } = usePageDetails();
+  const { slug, threadId, pageType } = usePageDetails();
+  const titleLink = useTitleLink();
   const { boardsData, refetch, hasLoggedInData } = useBoardsContext();
   const [boardFilter, setBoardFilter] = React.useState("");
   const queryClient = useQueryClient();
@@ -82,11 +196,8 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
         if (slug) {
           queryClient.invalidateQueries(["boardActivityData", { slug }]);
         }
-        if (router.query.id) {
-          queryClient.invalidateQueries([
-            "threadData",
-            { threadId: router.query.id },
-          ]);
+        if (threadId) {
+          queryClient.invalidateQueries(["threadData", { threadId }]);
         }
       },
     }
@@ -94,26 +205,14 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const onBoardChange = React.useCallback(() => {
     layoutRef.current?.closeSideMenu();
     refetch();
-  }, [layoutRef.current?.closeSideMenu, refetch]);
-  const [isChangingRoute, setChangingRoute] = React.useState(false);
-  const { forceHideIdentity, setForceHideIdentity } = useForceHideIdentity();
+  }, [refetch]);
+  const isChangingRoute = useChangingRoute();
+  const { forceHideIdentity } = useForceHideIdentity();
+  const loggedInMenuOptions = useLoggedInDropdownOptions(() =>
+    setLoginOpen(true)
+  );
+  const menuOptions = useMenuBarOptions();
 
-  React.useEffect(() => {
-    const changeStartHandler = () => {
-      setChangingRoute(true);
-    };
-    const changeEndHandler = () => {
-      setChangingRoute(false);
-    };
-    router.events.on("routeChangeStart", changeStartHandler);
-    router.events.on("beforeHistoryChange", changeStartHandler);
-    router.events.on("routeChangeComplete", changeEndHandler);
-    return () => {
-      router.events.off("routeChangeStart", changeStartHandler);
-      router.events.off("beforeHistoryChange", changeStartHandler);
-      router.events.off("routeChangeComplete", changeEndHandler);
-    };
-  }, []);
   const {
     pinnedBoards,
     recentBoards,
@@ -146,7 +245,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
         boardFilter,
         isLoggedIn
       ),
-    [boardFilter, boardsData, isLoggedIn]
+    [boardFilter, boardsData, isLoggedIn, getLinkToBoard, onBoardChange]
   );
 
   const boardData = slug ? boardsData[slug] : null;
@@ -234,51 +333,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
           () => setLoginOpen(!isUserPending && !isLoggedIn),
           [isUserPending, isLoggedIn]
         )}
-        loggedInMenuOptions={React.useMemo(
-          () => [
-            {
-              icon: faArchive,
-              name: "Logs Archive",
-              link: linkToLogs,
-            },
-            {
-              icon: faCogs,
-              name: "User Settings",
-              link: linkToPersonalSettings,
-            },
-            {
-              icon: faBook,
-              name: "Welcome Guide",
-              link: {
-                href:
-                  "https://www.notion.so/BobaBoard-s-Welcome-Packet-b0641466bfdf4a1cab8575083459d6a2",
-              },
-            },
-            {
-              icon: faComments,
-              name: "Leave Feedback!",
-              link: {
-                href:
-                  "https://docs.google.com/forms/d/e/1FAIpQLSfyMENg9eDNmRj-jIvIG5_ElJFwpGZ_VPvzAskarqu5kf0MSA/viewform",
-              },
-            },
-            {
-              icon: forceHideIdentity ? faLockOpen : faLock,
-              name: forceHideIdentity
-                ? "Display identity"
-                : "Force hide identity",
-              link: {
-                onClick: () => setForceHideIdentity(!forceHideIdentity),
-              },
-            },
-            {
-              icon: faSignOutAlt,
-              name: "Logout",
-              link: { onClick: () => setLoginOpen(true) },
-            },
-          ],
-          [isLoggedIn, forceHideIdentity]
-        )}
+        loggedInMenuOptions={loggedInMenuOptions}
         user={user}
         title={props.title}
         forceHideTitle={props.forceHideTitle}
@@ -289,34 +344,9 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
         outdated={isOutdated}
         onSideMenuButtonClick={refetch}
         logoLink={linkToHome}
-        menuOptions={React.useMemo(
-          () =>
-            isLoggedIn
-              ? [
-                  {
-                    id: "feed",
-                    icon: faInbox,
-                    link: linkToFeed,
-                  },
-                ]
-              : [],
-          [isLoggedIn]
-        )}
-        selectedMenuOption={getSelectedMenuOptionFromPath(router)}
-        // TODO: add feed here
-        titleLink={
-          props.onTitleClick
-            ? React.useMemo(
-                () => ({
-                  href: slug ? getLinkToBoard(slug).href : "/",
-                  onClick: props.onTitleClick,
-                }),
-                [slug, props.onTitleClick]
-              )
-            : slug
-            ? getLinkToBoard(slug)
-            : linkToHome
-        }
+        menuOptions={menuOptions}
+        selectedMenuOption={pageType}
+        titleLink={titleLink}
         onCompassClick={props.onCompassClick}
       />
     </div>
@@ -327,7 +357,6 @@ export interface LayoutProps {
   loading?: boolean;
   title: string;
   forceHideTitle?: boolean;
-  onTitleClick?: () => void;
   onCompassClick?: () => void;
 }
 

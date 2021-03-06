@@ -8,7 +8,6 @@ import debug from "debug";
 import { ThreadType } from "../../types/Types";
 import FeedSidebar from "../../components/feed/FeedSidebar";
 
-import { createLinkTo } from "utils/link-utils";
 import LoadingSpinner from "components/LoadingSpinner";
 import ThreadPreview from "components/ThreadPreview";
 import { withEditors } from "components/editors/withEditors";
@@ -37,7 +36,7 @@ function UserFeedPage() {
     if (!isAuthPending && !isLoggedIn) {
       linkToHome.onClick?.();
     }
-  }, [isAuthPending, isLoggedIn]);
+  }, [isAuthPending, isLoggedIn, linkToHome]);
 
   const feedOptions = React.useMemo(
     () => ({
@@ -101,7 +100,6 @@ function UserFeedPage() {
     <div className="main">
       <Layout
         title={`Your Stuff`}
-        onTitleClick={createLinkTo({ url: "/users/feed" })?.onClick}
         onCompassClick={showSidebar}
         forceHideTitle={true}
         loading={isFetchingUserActivity}

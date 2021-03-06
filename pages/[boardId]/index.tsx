@@ -63,7 +63,7 @@ function BoardPage() {
   const { slug } = usePageDetails<BoardPageDetails>();
   const { isPending: isAuthPending, isLoggedIn } = useAuth();
   const boardData = useBoardContext(slug);
-  const onTitleClick = React.useCallback(() => setShowSidebar(!showSidebar), [
+  const onCompassClick = React.useCallback(() => setShowSidebar(!showSidebar), [
     showSidebar,
   ]);
   const [editingSidebar, setEditingSidebar] = React.useState(false);
@@ -154,7 +154,7 @@ function BoardPage() {
     <div className="main">
       <Layout
         title={`!${slug}`}
-        onCompassClick={onTitleClick}
+        onCompassClick={onCompassClick}
         forceHideTitle={true}
       >
         <Layout.MainContent>

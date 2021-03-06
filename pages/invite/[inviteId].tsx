@@ -52,7 +52,7 @@ function InvitesPage() {
   }, [isLoggedIn, isUserPending]);
 
   return (
-    <Layout title={`Invites`} onTitleClick={() => {}}>
+    <Layout title={`Invites`}>
       <Layout.MainContent>
         <div className="page">
           <div className="invite-signup">

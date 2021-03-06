@@ -1,4 +1,4 @@
-import { NextRouter } from "next/router";
+import Router, { NextRouter } from "next/router";
 import React from "react";
 
 import debug from "debug";
@@ -9,6 +9,7 @@ interface PageDetails {
   threadId: string | null;
   postId: string | null;
   threadBaseUrl: string | null;
+  pageType: PageTypes | null;
 }
 
 export interface ThreadPageDetails {
@@ -16,6 +17,7 @@ export interface ThreadPageDetails {
   threadId: string;
   postId: string | null;
   threadBaseUrl: string;
+  pageType: PageTypes.THREAD | PageTypes.POST;
 }
 
 export interface BoardPageDetails {
@@ -23,6 +25,7 @@ export interface BoardPageDetails {
   threadId: null;
   postId: null;
   threadBaseUrl: null;
+  pageType: PageTypes.BOARD;
 }
 
 let isInitialized = false;
@@ -32,8 +35,26 @@ let currentPageData: PageDetails = {
   threadId: null,
   postId: null,
   threadBaseUrl: null,
+  pageType: null,
 };
 let listeners: React.Dispatch<React.SetStateAction<PageDetails>>[] = [];
+
+export enum PageTypes {
+  HOME = "HOME",
+  BOARD = "BOARD",
+  THREAD = "THREAD",
+  POST = "POST",
+  FEED = "FEED",
+  SETTINGS = "SETTINGS",
+  INVITE = "INVITE",
+}
+
+export const BOARD_PATH = "/[boardId]";
+export const THREAD_PATH = "/[boardId]/thread/[...threadId]";
+export const POST_PATH = "/[boardId]/thread/[...threadId]";
+export const FEED_PATH = "/users/feed";
+export const PERSONAL_SETTINGS_PATH = "/users/me";
+export const INVITE_PAGE_PATH = "/invite/[inviteId]";
 
 export const usePageDetails = <T extends PageDetails>() => {
   if (!isInitialized) {
@@ -57,25 +78,33 @@ export const usePageDetails = <T extends PageDetails>() => {
   return pageData;
 };
 
-const maybeUpdateFromQuery = (query: NextRouter["query"]) => {
-  log("Checking possible route update");
-  const newPageDetails = getPageDetails(query);
-  if (!samePage(newPageDetails, currentPageData)) {
-    currentPageData = newPageDetails;
-    return true;
+const getPageType = (router: NextRouter): PageTypes | null => {
+  switch (router.pathname) {
+    case BOARD_PATH:
+      return PageTypes.BOARD;
+    // This is the same url as for single posts
+    case THREAD_PATH:
+      return router.query.threadId?.[1] ? PageTypes.POST : PageTypes.THREAD;
+    case FEED_PATH:
+      return PageTypes.FEED;
+    case PERSONAL_SETTINGS_PATH:
+      return PageTypes.SETTINGS;
+    case INVITE_PAGE_PATH:
+      return PageTypes.INVITE;
+    default:
+      return null;
   }
-  return false;
 };
-export const getPageDetails = <T extends PageDetails>(
-  query: NextRouter["query"]
-) => {
-  const slug = (query.boardId as string)?.substring(1) || null;
-  const threadId = (query.threadId?.[0] as string) || null;
+
+export const getPageDetails = <T extends PageDetails>(router: NextRouter) => {
+  const slug = (router.query.boardId as string)?.substring(1) || null;
+  const threadId = (router.query.threadId?.[0] as string) || null;
   return {
     slug: slug,
     threadId,
-    postId: query.threadId?.[1] || null,
+    postId: router.query.threadId?.[1] || null,
     threadBaseUrl: `/!${slug}/thread/${threadId}`,
+    pageType: getPageType(router),
   } as T;
 };
 
@@ -95,7 +124,12 @@ export const usePageDataListener = (router: NextRouter) => {
   // be called during the render() phase without triggering a "cannot update during render" error.
   // We then use useEffect() to wait for the next "commit phase", and, if there's been an update
   // we dispatch our updates there.
-  dispatchPending = dispatchPending || maybeUpdateFromQuery(router.query);
+  log("Checking possible route update");
+  const newPageDetails = getPageDetails(router);
+  if (!samePage(newPageDetails, currentPageData)) {
+    currentPageData = newPageDetails;
+    dispatchPending = true;
+  }
   React.useEffect(() => {
     if (dispatchPending) {
       log("Dispatching updated route to listeners");
@@ -103,4 +137,29 @@ export const usePageDataListener = (router: NextRouter) => {
       dispatchPending = false;
     }
   });
+};
+
+export const createLinkTo = ({
+  urlPattern,
+  url,
+  queryParams,
+  onLoad,
+}: {
+  urlPattern?: string;
+  url: string;
+  onLoad?: () => void;
+  queryParams?: { [key: string]: unknown };
+}) => {
+  return {
+    href: url,
+    onClick: () => {
+      Router.push(urlPattern || url, url, {
+        shallow: true,
+        query: queryParams,
+      }).then(() => {
+        window.scrollTo(0, 0);
+        onLoad?.();
+      });
+    },
+  };
 };

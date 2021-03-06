@@ -20,7 +20,6 @@ import {
   ThreadContextType,
   withThreadData,
 } from "components/thread/ThreadQueryHook";
-import { useRouter } from "next/router";
 import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
 
 import debug from "debug";
@@ -109,14 +108,11 @@ function ThreadPage({
   isLoading: isFetchingThread,
   isRefetching: isRefetchingThread,
   defaultView: threadDefaultView,
-  hasNewReplies,
-  chronologicalPostsSequence,
 }: ThreadContextType) {
   const queryClient = useQueryClient();
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const { getLinkToBoard } = useCachedLinks();
-  const router = useRouter();
   const currentBoardData = useBoardContext(slug);
   const [maxDisplay, setMaxDisplay] = useStateWithCallback(2);
   const [totalPosts, setTotalPosts] = useState(Infinity);
@@ -131,7 +127,6 @@ function ThreadPage({
 
   React.useEffect(() => {
     if (
-      !isAuthPending &&
       !isFetchingThread &&
       !isRefetchingThread &&
       isLoggedIn &&
@@ -141,7 +136,14 @@ function ThreadPage({
       hasMarkedAsRead.current = true;
       return;
     }
-  }, [isAuthPending, isFetchingThread, isRefetchingThread, isLoggedIn]);
+  }, [
+    markAsRead,
+    isFetchingThread,
+    isRefetchingThread,
+    isLoggedIn,
+    slug,
+    threadId,
+  ]);
 
   React.useEffect(() => {
     return () => {
@@ -253,7 +255,6 @@ function ThreadPage({
       >
         <Layout.MainContent>
           <FeedWithMenu
-            forceHideSidebar={router.query.hideSidebar !== undefined}
             showSidebar={showSidebar}
             onCloseSidebar={closeSidebar}
             reachToBottom={maxDisplay < totalPosts}
@@ -341,6 +342,11 @@ function ThreadPage({
   );
 }
 
-export default withThreadData(withEditors(ThreadPage), {
+const ThreadPageHOC = withThreadData(withEditors(ThreadPage), {
   fetch: true,
 });
+
+ThreadPage.whyDidYouRender = true;
+ThreadPageHOC.whyDidYouRender = true;
+
+export default ThreadPageHOC;

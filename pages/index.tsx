@@ -2,18 +2,16 @@ import React from "react";
 import Layout from "../components/Layout";
 import { BoardsDisplay, PostQuote } from "@bobaboard/ui-components";
 import Link from "next/link";
-import {
-  BOARD_URL_PATTERN,
-  createLinkTo,
-  THREAD_URL_PATTERN,
-} from "utils/link-utils";
 import { useBoardsContext } from "components/BoardContext";
 import useBoos from "components/hooks/useBoos";
 import moment from "moment";
+import { THREAD_PATH } from "utils/router-utils";
+import { useCachedLinks } from "components/hooks/useCachedLinks";
 
-function HomePage(props: any) {
+function HomePage(props: { lastUpdate?: any }) {
   const { styles } = useBoos();
   const { boardsData } = useBoardsContext();
+  const { getLinkToBoard } = useCachedLinks();
 
   const updatesThreadUrl = `${process.env.NEXT_PUBLIC_RELEASE_THREAD_URL}/${props?.lastUpdate?.latest_post_string_id}`;
   return (
@@ -50,7 +48,7 @@ function HomePage(props: any) {
                       .format("MM/DD/YY")}
                     .{" "}
                     <Link
-                      href={THREAD_URL_PATTERN}
+                      href={THREAD_PATH}
                       as={process.env.NEXT_PUBLIC_RELEASE_THREAD_URL || ""}
                     >
                       <a>Older logs.</a>
@@ -84,10 +82,7 @@ function HomePage(props: any) {
                     color: board.accentColor,
                     updates: board.hasUpdates,
                     muted: board.muted,
-                    link: createLinkTo({
-                      urlPattern: BOARD_URL_PATTERN,
-                      url: `/!${board.slug.replace(" ", "_")}`,
-                    }),
+                    link: getLinkToBoard(board.slug),
                   }))}
               />
             </div>

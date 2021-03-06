@@ -42,5 +42,6 @@ export const useScrollRestoration = (router: NextRouter) => {
         router.events.off("beforeHistoryChange", scheduleRestore);
       };
     }
+    return;
   }, [router.events]);
 };

@@ -1,6 +1,7 @@
 import React from "react";
 import firebase from "firebase/app";
 import { v4 as uuidv4 } from "uuid";
+import noop from "noop-ts";
 
 import { getPageDetails } from "./router-utils";
 import { NextRouter } from "next/router";
@@ -38,7 +39,7 @@ const createImageUploadPromise = ({
           complete: () => {
             ref.getDownloadURL().then((url) => onSuccess(url));
           },
-          next: () => {},
+          next: noop,
           error: (e) => {
             error(e);
             onReject(e);
@@ -54,7 +55,7 @@ const createImageUploadPromise = ({
 };
 
 export const useImageUploader = (router: NextRouter) => {
-  const { slug, threadId } = getPageDetails(router.query);
+  const { slug, threadId } = getPageDetails(router);
   return React.useMemo(
     () => ({
       onImageUploadRequest: (src: string) =>

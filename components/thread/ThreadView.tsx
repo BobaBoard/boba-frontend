@@ -1,6 +1,5 @@
 import React from "react";
 import { NewThread, DefaultTheme } from "@bobaboard/ui-components";
-import { useRouter } from "next/router";
 import ThreadPost, { scrollToPost } from "./ThreadPost";
 import debug from "debug";
 import {
@@ -175,7 +174,6 @@ const ThreadView: React.FC<ThreadViewProps> = ({
     slug: boardSlug,
     threadId,
   } = usePageDetails<ThreadPageDetails>();
-  const router = useRouter();
   const { isLoggedIn } = useAuth();
   const dispatch = useEditorsDispatch();
   const [collapse, setCollapse] = React.useState<string[]>([]);
@@ -261,7 +259,6 @@ const ThreadView: React.FC<ThreadViewProps> = ({
   if (!currentRoot) {
     return <div />;
   }
-  const url = new URL(`${window.location.origin}${router.asPath}`);
   return (
     <div className="thread-container">
       <div
@@ -270,7 +267,7 @@ const ThreadView: React.FC<ThreadViewProps> = ({
         })}
       >
         <Link
-          as={`${threadBaseUrl}${url.search}`}
+          as={`${threadBaseUrl}${window.location.search}`}
           href={`/[boardId]/thread/[...threadId]`}
           shallow={true}
         >

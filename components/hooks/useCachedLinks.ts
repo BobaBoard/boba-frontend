@@ -3,13 +3,12 @@ import { stringify } from "query-string";
 import { PostData } from "types/Types";
 import { encodeQueryParams } from "use-query-params";
 import {
-  BOARD_URL_PATTERN,
-  THREAD_URL_PATTERN,
+  BOARD_PATH,
   createLinkTo,
-} from "../../utils/link-utils";
-
-export const FEED_URL = "/users/feed";
-const PERSONAL_SETTINGS_URL = "/users/me";
+  FEED_PATH,
+  PERSONAL_SETTINGS_PATH,
+  THREAD_PATH,
+} from "utils/router-utils";
 
 interface LinkWithNotNullAction {
   href: string;
@@ -36,7 +35,7 @@ const getLinkToBoard = (
   slugCache.set(
     onLoad,
     createLinkTo({
-      urlPattern: BOARD_URL_PATTERN,
+      urlPattern: BOARD_PATH,
       url: `/!${slug.replace(" ", "_")}`,
       onLoad,
     })
@@ -59,7 +58,7 @@ const getLinkToThread = ({
     THREADS_CACHE.set(
       id,
       createLinkTo({
-        urlPattern: THREAD_URL_PATTERN,
+        urlPattern: THREAD_PATH,
         url: view
           ? `/!${slug}/thread/${threadId}?${stringify(
               encodeQueryParams(ThreadViewQueryParams, { [view]: true })
@@ -89,7 +88,7 @@ const getLinkToPost = ({
     POSTS_CACHE.set(
       postId,
       createLinkTo({
-        urlPattern: THREAD_URL_PATTERN,
+        urlPattern: THREAD_PATH,
         url: `/!${slug}/thread/${threadId}/${postId}`,
       })
     );
@@ -98,18 +97,24 @@ const getLinkToPost = ({
   return POSTS_CACHE.get(postId) as LinkWithNotNullAction;
 };
 const linkToHome = createLinkTo({ url: "/" });
-const linkToFeed = createLinkTo({ url: FEED_URL });
+const linkToCurrent = createLinkTo({
+  url: typeof window === "undefined" ? "" : location.href,
+});
+const linkToFeed = createLinkTo({ url: FEED_PATH });
 const linkToLogs = createLinkTo({
-  urlPattern: THREAD_URL_PATTERN,
+  urlPattern: THREAD_PATH,
   url: process.env.NEXT_PUBLIC_RELEASE_THREAD_URL || "",
 });
-const linkToPersonalSettings = createLinkTo({ url: PERSONAL_SETTINGS_URL });
+const linkToPersonalSettings = createLinkTo({ url: PERSONAL_SETTINGS_PATH });
+// TODO: rename this because it's not a hook and can be used outside of a
+// component context.
 export const useCachedLinks = () => {
   return {
     linkToHome,
     linkToFeed,
     linkToLogs,
     linkToPersonalSettings,
+    linkToCurrent,
     getLinkToBoard,
     getLinkToThread,
     getLinkToPost,
