@@ -135,7 +135,6 @@ function MyApp({
     props?.boardData.map(makeClientBoardData) || [];
   const currentBoardData = boardData.find((board) => board.slug == props.slug);
   const router = useRouter();
-  useFromBackButton();
 
   const imageUploader = React.useMemo(() => getImageUploader(router), [router]);
   React.useEffect(() => {
@@ -221,8 +220,8 @@ function MyApp({
             <ImageUploaderContext.Provider value={imageUploader}>
               <AuthProvider>
                 <AxiosInterceptor />
+                <ToastContainer />
                 <BoardContextProvider initialData={boardData}>
-                  <ToastContainer />
                   <Component {...pageProps} lastUpdate={props.lastUpdate} />
                 </BoardContextProvider>
               </AuthProvider>
@@ -239,7 +238,7 @@ export default MyApp;
 
 MyApp.getInitialProps = async ({ ctx }: { ctx: NextPageContext }) => {
   const body = await axios.get(`${getServerBaseUrl(ctx)}boards`);
-  let lastUpdate = await getLastUpdate(ctx);
+  const lastUpdate = await getLastUpdate(ctx);
 
   const boardData = await body.data;
   return {

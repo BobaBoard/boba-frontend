@@ -310,4 +310,5 @@ function BoardPage() {
   );
 }
 
-export default withEditors(BoardPage);
+const BoardPageWithEditors = React.memo(withEditors(BoardPage));
+export default BoardPageWithEditors;

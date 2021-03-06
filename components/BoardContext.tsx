@@ -6,22 +6,30 @@ import { BoardData } from "../types/Types";
 import noop from "noop-ts";
 import { useAuth } from "./Auth";
 
-interface BoardContextType {
-  boardsData: { [key: string]: BoardData };
+import debug from "debug";
+const log = debug("bobafrontend:BoardContext-log");
+const info = debug("bobafrontend:BoardContext-info");
+
+type BoardsDataMap = { [key: string]: BoardData };
+interface BoardsContextType {
+  boardsData: BoardsDataMap;
   nextPinnedOrder: number;
   hasLoggedInData: boolean;
   refetch: () => void;
 }
 
-const BoardContext = React.createContext<BoardContextType>({
+const BoardsContext = React.createContext<BoardsContextType>({
   boardsData: {},
   nextPinnedOrder: 1,
   hasLoggedInData: false,
   refetch: noop,
 });
 
-const useBoardContext = () => React.useContext<BoardContextType>(BoardContext);
+const useBoardContext = () =>
+  React.useContext<BoardsContextType>(BoardsContext);
 
+const REFETCH_TIME = 1000 * 60 * 1; // Refetch automatically every minute
+const STALE_TIME = 1000 * 30; // Make stale after 30s
 const updateBoardData = (
   newBoardData: BoardData,
   oldBoardData: BoardData | null
@@ -57,8 +65,7 @@ const updateBoardData = (
         ? newBoardData.lastVisit
         : oldBoardData?.lastVisit,
     pinnedOrder: newBoardData.pinnedOrder,
-    permissions:
-      newBoardData.permissions || oldBoardData?.permissions || ([] as any),
+    permissions: newBoardData.permissions || oldBoardData?.permissions,
     postingIdentities:
       newBoardData.postingIdentities || oldBoardData?.postingIdentities || [],
     suggestedCategories: descriptions.flatMap(
@@ -67,112 +74,125 @@ const updateBoardData = (
   };
 };
 
+const toBoardsDataObject = (boardsArray: BoardData[]) => {
+  return boardsArray.reduce<BoardsContextType["boardsData"]>(
+    (agg, value: BoardData) => {
+      agg[value.slug] = updateBoardData(value, null);
+      return agg;
+    },
+    {}
+  );
+};
+
 const getNextPinnedOrder = (boardData: BoardData[]) =>
   Math.max(...boardData.map((boardData) => boardData.pinnedOrder || 0), 0) + 1;
 
 const BoardContextProvider: React.FC<{
-  initialData?: BoardData[];
+  initialData: BoardData[];
 }> = (props) => {
+  log(`Rerendering board context`);
   const router = useRouter();
   const { isLoggedIn } = useAuth();
   const slug = router.query.boardId?.slice(1) as string;
-  const [boardsData, setBoardsData] = React.useState<
-    BoardContextType["boardsData"]
-  >(
-    props.initialData?.reduce((agg, value: any) => {
-      agg[value.slug] = updateBoardData(value, null);
-      return agg;
-    }, {} as BoardContextType["boardsData"]) || {}
-  );
-  const [nextPinnedOrder, setNextPinnedOrder] = React.useState(
-    getNextPinnedOrder(props.initialData || [])
-  );
-  const [hasLoggedInData, setHasLoggedInData] = React.useState(false);
+  // We store this data in a ref so that we can keep a reference for subsequent re-renders,
+  // as the result of the "allBoardsData" and "boardData" query need to be merged with previous
+  // data to create the final value returned by this provider.
+  // We could also do this with setState, but it creates unnecessary re-renders: when data from
+  // these two queries is different from the previously returned one, the tracked "data" property
+  // will signal an update, and this component will then re-render automatically.
+  // Note that these refs are updated at appropriate times during the `select` method in useQuery,
+  // ensuring that, when this provider re-renders, these refs always contain the latest data.
+  const currentBoardsData = React.useRef<BoardsDataMap>({});
+  const isLoggedInData = React.useRef<boolean>(false);
 
   // This handler takes care of transforming the board result returned from a query
   // to the /boards endpoint (i.e. the one returning details for ALL boards).
   // Note that, at least for now, this handler returns ALL the board, so boards that were there but
   // aren't anymore can be safely removed.
-  const { data: allBoardsData, refetch: refetchAllBoards } = useQuery<
-    BoardData[] | undefined
-  >("allBoardsData", () => getAllBoardsData(), {
-    initialData: () => Object.values(boardsData),
-    staleTime: 1000 * 30, // Make stale after 30s
-    refetchInterval: 1000 * 60 * 1, // Refetch automatically every minute
+  const { refetch: refetchAllBoards } = useQuery<
+    BoardData[] | undefined,
+    unknown,
+    BoardsDataMap
+  >(["allBoardsData", { isLoggedIn }], () => getAllBoardsData(), {
+    // @ts-expect-error
+    initialData: props.initialData,
+    staleTime: 1000 * 5,
+    refetchInterval: REFETCH_TIME,
     refetchOnWindowFocus: true,
-  });
-  React.useEffect(() => {
-    if (!allBoardsData) {
-      return;
-    }
-    const newBoardsData: BoardContextType["boardsData"] = allBoardsData.reduce(
-      (agg, value) => {
-        agg[value.slug] = updateBoardData(value, boardsData[value.slug]);
-        return agg;
-      },
-      {} as BoardContextType["boardsData"]
-    );
-    // Readd all data from delisted boards
-    // NOTE: a delisted board can be in the "allBoardsData" result if it's been pinned.
-    Object.values(boardsData).forEach((data) => {
-      if (data.delisted && !newBoardsData[data.slug]) {
-        // We haven't found this data in the "all boards data", so we can't update it here.
-        newBoardsData[data.slug] = data;
+    notifyOnChangeProps: ["data"],
+    isDataEqual: (oldD, newD) => {
+      info("Checking if all boards data has changed...");
+      const changed = JSON.stringify(oldD) !== JSON.stringify(newD);
+      info(`...it has${changed ? "" : "n't"}.`);
+      return !changed;
+    },
+    keepPreviousData: true,
+    select: (allBoardsData) => {
+      log("Received new data for all boards");
+      info("New boards data: ", allBoardsData);
+      if (!allBoardsData) {
+        return currentBoardsData.current;
       }
-    });
-    setBoardsData(newBoardsData);
-    setNextPinnedOrder(getNextPinnedOrder(Object.values(newBoardsData)));
-  }, [allBoardsData]);
-
-  React.useEffect(() => {
-    if (isLoggedIn) {
-      refetchAllBoards();
-    }
-  }, [isLoggedIn]);
+      const newBoardsData = toBoardsDataObject(allBoardsData);
+      // Add data from delisted boards to our results, so it won't be removed
+      // when merging data.
+      // NOTE: a delisted board can be in the "allBoardsData" result if it's been pinned.
+      Object.values(currentBoardsData).forEach((data) => {
+        if (data.delisted && !newBoardsData[data.slug]) {
+          newBoardsData[data.slug] = data;
+        }
+      });
+      currentBoardsData.current = newBoardsData;
+      isLoggedInData.current = isLoggedIn;
+      return newBoardsData;
+    },
+  });
 
   // This handler takes care of transforming the board result returned from a query
   // to the /boards/:slug endpoint (i.e. the one returning details for the "slug" board).
-  const { data: boardData, refetch: refetchCurrentBoard } = useQuery(
-    ["boardThemeData", { slug }],
+  useQuery<BoardData | undefined, unknown, BoardsDataMap>(
+    ["boardThemeData", { slug, isLoggedIn }],
     () => getBoardData({ slug }),
-    { staleTime: Infinity }
+    {
+      staleTime: Infinity,
+      notifyOnChangeProps: ["data"],
+      keepPreviousData: true,
+      select: (boardData) => {
+        log(`Received new data for board ${slug}`);
+        if (!boardData) {
+          return currentBoardsData.current;
+        }
+        const updatedBoardsData = {
+          ...currentBoardsData.current,
+        };
+        updatedBoardsData[boardData.slug] = updateBoardData(
+          boardData,
+          currentBoardsData.current[boardData.slug]
+        );
+        currentBoardsData.current = updatedBoardsData;
+        return updatedBoardsData;
+      },
+    }
   );
-  React.useEffect(() => {
-    if (boardData) {
-      const updatedBoardsData = {
-        ...boardsData,
-      };
-      // Update the value of the board whose value we just requested.
-      updatedBoardsData[boardData.slug] = updateBoardData(
-        boardData,
-        boardsData[boardData.slug]
-      );
-      setBoardsData(updatedBoardsData);
-      setNextPinnedOrder(getNextPinnedOrder(Object.values(updatedBoardsData)));
-    }
-  }, [boardData]);
 
-  React.useEffect(() => {
-    if (isLoggedIn) {
-      refetchCurrentBoard().then(() => {
-        setHasLoggedInData(true);
-      });
-    }
-  }, [isLoggedIn]);
+  const nextPinnedOrder = getNextPinnedOrder(
+    Object.values(currentBoardsData.current)
+  );
 
   return (
-    <BoardContext.Provider
+    <BoardsContext.Provider
       value={{
-        boardsData,
+        boardsData: currentBoardsData.current,
         nextPinnedOrder,
         refetch: refetchAllBoards,
-        hasLoggedInData,
+        hasLoggedInData: isLoggedInData.current,
       }}
-      {
-        ...props /* this is here for props.children */
-      }
-    />
+    >
+      {props.children}
+    </BoardsContext.Provider>
   );
 };
 
+BoardContextProvider.whyDidYouRender = true;
+// TODO: change this in Boards context and single board context
 export { BoardContextProvider, useBoardContext };

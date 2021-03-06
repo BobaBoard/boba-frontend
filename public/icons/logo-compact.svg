@@ -6,7 +6,7 @@
 	.st0{fill:#ffffff;}
 	.st1 {fill: #f96680;}
     @media (prefers-color-scheme: dark) {
-      .st0 { fill: #000000; }
+      .st0 { fill: #ffffff; }
     }
 </style>
 <g id="Layer_7_copy" transform="translate(5, 5)">
