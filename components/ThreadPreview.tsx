@@ -8,6 +8,7 @@ import noop from "noop-ts";
 import { usePostOptions, PostOptions } from "./hooks/useOptions";
 import { useSetThreadHidden } from "./hooks/queries/thread";
 import { useForceHideIdentity } from "./hooks/useForceHideIdentity";
+import { withEditors } from "./editors/withEditors";
 
 const THREAD_OPTIONS = [
   PostOptions.COPY_THREAD_LINK,
@@ -149,4 +150,4 @@ const ThreadPreview: React.FC<{
   );
 };
 
-export default ThreadPreview;
+export default withEditors(ThreadPreview);

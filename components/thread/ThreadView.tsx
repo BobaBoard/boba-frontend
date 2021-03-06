@@ -179,7 +179,7 @@ const ThreadView: React.FC<ThreadViewProps> = ({
   const { isLoggedIn } = useAuth();
   const dispatch = useEditorsDispatch();
   const [collapse, setCollapse] = React.useState<string[]>([]);
-  const { boardsData } = useBoardContext();
+  const boardData = useBoardContext(boardSlug);
 
   const onNewComment = React.useCallback(
     (replyToContributionId: string, replyToCommentId: string | null) => {
@@ -234,7 +234,7 @@ const ThreadView: React.FC<ThreadViewProps> = ({
       if (!levelId) {
         return;
       }
-      scrollToPost(extractPostId(levelId), boardsData[boardSlug].accentColor);
+      scrollToPost(extractPostId(levelId), boardData?.accentColor);
     },
     onReply: (levelId) => {
       if (!levelId) {

@@ -12,7 +12,7 @@ import {
 } from "../../../utils/queries/cache";
 import debug from "debug";
 import { BoardData, BoardDescription } from "../../../types/Types";
-import { useBoardContext } from "components/BoardContext";
+import { useBoardsContext } from "components/BoardContext";
 
 const error = debug("bobafrontend:hooks:queries:board-error");
 const log = debug("bobafrontend:hooks:queries:board-log");
@@ -52,7 +52,7 @@ export const useMuteBoard = () => {
 
 export const usePinBoard = () => {
   const queryClient = useQueryClient();
-  const { nextPinnedOrder } = useBoardContext();
+  const { nextPinnedOrder } = useBoardsContext();
   const { mutate: setBoardPinned } = useMutation(
     ({ slug, pin }: { slug: string; pin: boolean }) => pinBoard({ slug, pin }),
     {

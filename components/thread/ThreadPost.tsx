@@ -48,7 +48,7 @@ const TOP_POST_OPTIONS = [
 
 // TODO: unify1 this and scrollToComment
 const postHandlers = new Map<string, PostHandler>();
-export const scrollToPost = (postId: string, color: string) => {
+export const scrollToPost = (postId: string, color: string | undefined) => {
   log(`Beaming up to post with id ${postId}`);
   const element: HTMLElement | null = document.querySelector(
     `.post[data-post-id='${postId}']`
@@ -58,7 +58,10 @@ export const scrollToPost = (postId: string, color: string) => {
   }
   const observer = new IntersectionObserver((observed) => {
     if (observed[0].isIntersecting) {
-      postHandlers.get(postId)?.highlight(color), observer.disconnect();
+      postHandlers
+        .get(postId)
+        ?.highlight(color || DefaultTheme.DEFAULT_ACCENT_COLOR),
+        observer.disconnect();
     }
   });
   observer.observe(element);
@@ -249,5 +252,6 @@ const ForwardedThreadPost = React.forwardRef<PostHandler, ThreadPostProps>(
     return <MemoizedPost {...props} innerRef={ref} />;
   }
 );
+ForwardedThreadPost.displayName = "ForwardedThreadPost";
 
 export default ForwardedThreadPost;

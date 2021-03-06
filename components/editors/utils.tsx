@@ -56,10 +56,9 @@ export const useThreadDetails = (
       : (state["newContribution"] || state["newComment"])
           ?.replyToContributionId || null,
   });
-  const { boardsData } = useBoardContext();
+  const currentBoardData = useBoardContext(boardSlug);
   const { user } = useAuth();
 
-  const currentBoardData = boardsData[boardSlug];
   const additionalIdentities =
     !threadData?.personalIdentity && currentBoardData?.postingIdentities
       ? currentBoardData.postingIdentities.map((identity) => ({
@@ -77,7 +76,7 @@ export const useThreadDetails = (
       ? threadData.currentRoot
       : undefined,
     suggestedCategories: isNewThread(state)
-      ? currentBoardData.suggestedCategories
+      ? currentBoardData?.suggestedCategories
       : threadData.categories,
     userIdentity: user
       ? {

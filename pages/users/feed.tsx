@@ -12,7 +12,7 @@ import { createLinkTo } from "utils/link-utils";
 import LoadingSpinner from "components/LoadingSpinner";
 import ThreadPreview from "components/ThreadPreview";
 import { withEditors } from "components/editors/withEditors";
-import { useBoardContext } from "components/BoardContext";
+import { useBoardsContext } from "components/BoardContext";
 import { isFromBackButton } from "components/hooks/useFromBackButton";
 import { ExistanceParam } from "components/QueryParamNextProvider";
 import { useQueryParams } from "use-query-params";
@@ -30,7 +30,7 @@ function UserFeedPage() {
   const [isShowingSidebar, setShowSidebar] = React.useState(false);
   const [{ showRead, ownOnly }, setQuery] = useQueryParams(FeedParams);
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
-  const { boardsData } = useBoardContext();
+  const { boardsData } = useBoardsContext();
   const { linkToHome } = useCachedLinks();
 
   React.useEffect(() => {

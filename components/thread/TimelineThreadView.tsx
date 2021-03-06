@@ -79,7 +79,6 @@ const TimelineView: React.FC<TimelineViewProps> = ({
     TimelineViewQueryParams
   );
   const viewMode = getTimelineViewMode(timelineViewParams);
-  const { boardsData } = useBoardContext();
 
   React.useEffect(() => {
     if (isRefetching || isLoading) {
@@ -104,6 +103,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({
   }, [isRefetching, isLoading]);
 
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
+  const boardData = useBoardContext(boardSlug);
   const { isLoggedIn } = useAuth();
   const dispatch = useEditorsDispatch();
 
@@ -182,7 +182,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({
       if (!levelId) {
         return;
       }
-      scrollToPost(extractPostId(levelId), boardsData[boardSlug].accentColor);
+      scrollToPost(extractPostId(levelId), boardData?.accentColor);
     },
     onReply: (levelId) => {
       if (!levelId) {

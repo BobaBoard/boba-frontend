@@ -9,7 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
 import { useAuth } from "../../components/Auth";
-import { useBoardContext } from "../../components/BoardContext";
+import { useBoardsContext } from "../../components/BoardContext";
 import {
   useDismissBoardNotifications,
   useMuteBoard,
@@ -74,7 +74,7 @@ const useBoardOptions = ({
     editSidebar?: (edit: boolean) => void;
   };
 }): DropdownProps["options"] | undefined => {
-  const { boardsData } = useBoardContext();
+  const { boardsData } = useBoardsContext();
   const { isLoggedIn } = useAuth();
 
   const setBoardPinned = usePinBoard();

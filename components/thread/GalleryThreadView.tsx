@@ -145,7 +145,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   const dispatch = useEditorsDispatch();
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
   const [galleryView, setGalleryView] = useQueryParams(GalleryViewQueryParams);
-  const { boardsData } = useBoardContext();
+  const boardData = useBoardContext(boardSlug);
 
   // const activeCategories = categoryFilterState.filter(
   //   (category) => category.active
@@ -255,7 +255,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
       if (!levelId) {
         return;
       }
-      scrollToPost(extractPostId(levelId), boardsData[boardSlug].accentColor);
+      scrollToPost(extractPostId(levelId), boardData?.accentColor);
     },
     onReply: (levelId) => {
       if (!levelId) {

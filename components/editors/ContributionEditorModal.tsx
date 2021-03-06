@@ -24,7 +24,7 @@ import {
 } from "../../types/Types";
 
 import debug from "debug";
-import { useBoardContext } from "components/BoardContext";
+import { useBoardsContext } from "components/BoardContext";
 const log = debug("bobafrontend:postEditor-log");
 const error = debug("bobafrontend:postEditor-error");
 
@@ -46,7 +46,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
   } = useThreadDetails(state);
   const [isPostLoading, setPostLoading] = React.useState(false);
   const { isLoggedIn } = useAuth();
-  const { boardsData } = useBoardContext();
+  const { boardsData } = useBoardsContext();
 
   const { mutate: postContribution } = useMutation<
     PostType | ThreadType,

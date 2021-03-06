@@ -117,8 +117,7 @@ function ThreadPage({
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const { getLinkToBoard } = useCachedLinks();
   const router = useRouter();
-  const { boardsData } = useBoardContext();
-  const currentBoardData = boardsData?.[slug];
+  const currentBoardData = useBoardContext(slug);
   const [maxDisplay, setMaxDisplay] = useStateWithCallback(2);
   const [totalPosts, setTotalPosts] = useState(Infinity);
   const [showSidebar, setShowSidebar] = React.useState(false);

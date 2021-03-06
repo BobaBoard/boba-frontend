@@ -5,7 +5,7 @@ import { dismissAllNotifications } from "../utils/queries";
 import { useAuth } from "./Auth";
 import { NextRouter, useRouter } from "next/router";
 import { useMutation, useQueryClient } from "react-query";
-import { useBoardContext } from "./BoardContext";
+import { useBoardsContext } from "./BoardContext";
 import { processBoardsUpdates } from "../utils/boards-utils";
 import { useCachedLinks, FEED_URL } from "./hooks/useCachedLinks";
 import { useForceHideIdentity } from "./hooks/useForceHideIdentity";
@@ -25,6 +25,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Head from "next/head";
 import { getTitle } from "pages/_app";
+import { usePageDetails } from "utils/router-utils";
 
 const log = debug("bobafrontend:queries-log");
 
@@ -68,8 +69,8 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const { isPending: isUserPending, user, isLoggedIn } = useAuth();
   const [loginOpen, setLoginOpen] = React.useState(false);
   const layoutRef = React.useRef<{ closeSideMenu: () => void }>(null);
-  const slug: string = router.query.boardId?.slice(1) as string;
-  const { boardsData, refetch, hasLoggedInData } = useBoardContext();
+  const { slug } = usePageDetails();
+  const { boardsData, refetch, hasLoggedInData } = useBoardsContext();
   const [boardFilter, setBoardFilter] = React.useState("");
   const queryClient = useQueryClient();
   const { mutate: dismissNotifications } = useMutation(
@@ -148,7 +149,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
     [boardFilter, boardsData, isLoggedIn]
   );
 
-  const boardData = boardsData[slug];
+  const boardData = slug ? boardsData[slug] : null;
   const mainContent = React.Children.toArray(props.children).find((child) =>
     isMainContent(child)
   ) as typeof MainContent | undefined;

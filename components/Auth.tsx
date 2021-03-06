@@ -76,7 +76,9 @@ const newFirebaseUserPromise = () =>
   });
 let firebaseUserPromise = newFirebaseUserPromise();
 
-const AuthProvider: React.FC<{}> = (props) => {
+const AuthProvider: React.FC<{
+  children?: React.ReactNode;
+}> = (props) => {
   const [status, setStatus] = React.useState<{
     isLoggedIn: boolean;
     isPending: boolean;

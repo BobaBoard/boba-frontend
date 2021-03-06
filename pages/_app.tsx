@@ -17,7 +17,7 @@ import {
   EditorContext,
   ImageUploaderContext,
 } from "@bobaboard/ui-components";
-import { createImageUploadPromise } from "../utils/image-upload";
+import { useImageUploader } from "../utils/image-upload";
 import { NextPageContext } from "next";
 import { BoardData } from "types/Types";
 import { QueryParamProvider } from "../components/QueryParamNextProvider";
@@ -25,9 +25,9 @@ import { makeClientBoardData, getServerBaseUrl } from "utils/server-utils";
 import debug from "debug";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
-import { NextRouter, useRouter } from "next/router";
 import embedsCache from "../utils/embeds-cache";
 const error = debug("bobafrontend:app-error");
+const log = debug("bobafrontend:app-log");
 
 if (typeof window !== "undefined") {
   smoothscroll.polyfill();
@@ -56,7 +56,7 @@ const AxiosInterceptor = () => {
         });
       }
     );
-  }, []);
+  }, [getAuthIdToken]);
   return null;
 };
 
@@ -84,15 +84,8 @@ const editorContext = {
   cache: embedsCache,
   fetchers: embedsFetchers,
 };
-const getImageUploader = (router: NextRouter) => ({
-  onImageUploadRequest: (src: string) =>
-    createImageUploadPromise({
-      imageData: src,
-      router,
-    }),
-});
 
-export const getTitle = (currentBoardData: BoardData | undefined) => {
+export const getTitle = (currentBoardData: BoardData | undefined | null) => {
   return currentBoardData
     ? `BobaBoard v0 — !${currentBoardData.slug} — Where the bugs are funny and the people are cool!`
     : "BobaBoard v0 — Where the bugs are funny and the people are cool!";
@@ -127,50 +120,20 @@ const queryClient = new QueryClient();
 
 function MyApp({
   Component,
-  pageProps,
+  router,
+  // TODO: theoretically this should be pageProps, but pageProps is always null
+  // and props is filled instead.
   // @ts-ignore
   props,
 }: AppProps<{ [key: string]: BoardData }>) {
-  const boardData: BoardData[] =
-    props?.boardData.map(makeClientBoardData) || [];
+  log(`Re-rendering app`);
+  const boardData: BoardData[] = React.useMemo(
+    () => props?.boardData.map(makeClientBoardData) || [],
+    [props?.boardData]
+  );
   const currentBoardData = boardData.find((board) => board.slug == props.slug);
-  const router = useRouter();
-  useFromBackButton();
-
-  const imageUploader = React.useMemo(() => getImageUploader(router), [router]);
-  React.useEffect(() => {
-    if ("scrollRestoration" in window.history) {
-      let toRestore: { x: number; y: number } | null = null;
-
-      router.events.on("routeChangeStart", () => {
-        if (window.history.state["cachedScrollPosition"]) {
-          return;
-        }
-        window.history.replaceState(
-          {
-            ...window.history.state,
-            cachedScrollPosition: { x: window.scrollX, y: window.scrollY },
-          },
-          ""
-        );
-      });
-
-      router.events.on("routeChangeComplete", () => {
-        if (toRestore) {
-          const { x, y } = toRestore;
-          window.scrollTo(x, y);
-          toRestore = null;
-        }
-      });
-
-      router.events.on("beforeHistoryChange", () => {
-        if (window.history.state["cachedScrollPosition"]) {
-          toRestore = window.history.state["cachedScrollPosition"];
-        }
-        return true;
-      });
-    }
-  }, []);
+  useFromBackButton(router);
+  const imageUploader = useImageUploader(router);
 
   return (
     <>
@@ -222,8 +185,16 @@ function MyApp({
               <AuthProvider>
                 <AxiosInterceptor />
                 <ToastContainer />
-                <BoardContextProvider initialData={boardData}>
-                  <Component {...pageProps} lastUpdate={props.lastUpdate} />
+                <BoardContextProvider
+                  initialData={boardData}
+                  slug={props.slug || null}
+                >
+                  {React.useMemo(
+                    () => (
+                      <Component lastUpdate={props.lastUpdate} />
+                    ),
+                    [Component, props.lastUpdate]
+                  )}
                 </BoardContextProvider>
               </AuthProvider>
             </ImageUploaderContext.Provider>
@@ -234,7 +205,6 @@ function MyApp({
     </>
   );
 }
-
 export default MyApp;
 
 MyApp.getInitialProps = async ({ ctx }: { ctx: NextPageContext }) => {
@@ -242,6 +212,7 @@ MyApp.getInitialProps = async ({ ctx }: { ctx: NextPageContext }) => {
   const lastUpdate = await getLastUpdate(ctx);
 
   const boardData = await body.data;
+  log(`Returning initial props`);
   return {
     props: {
       boardData,

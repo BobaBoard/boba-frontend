@@ -1,14 +1,15 @@
+import React from "react";
 import Document, { Html, Head, Main, NextScript } from "next/document";
 
 import { flush as componentsFlush } from "@bobaboard/ui-components";
 
 import debug from "debug";
-const log = debug("bobafrontend:Document-info");
-log.enabled = false;
+const info = debug("bobafrontend:Document-info");
+info.enabled = false;
 
 class MyDocument extends Document {
   static async getInitialProps(ctx: any) {
-    log(ctx);
+    info(ctx);
     const initialProps = await Document.getInitialProps(ctx);
     const externalStyles = componentsFlush() as any;
     return {
@@ -23,6 +24,7 @@ class MyDocument extends Document {
   }
 
   render() {
+    info(`Rendering document`);
     return (
       <Html>
         <Head>

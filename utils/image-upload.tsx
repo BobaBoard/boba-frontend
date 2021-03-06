@@ -1,17 +1,20 @@
+import React from "react";
 import firebase from "firebase/app";
 import { v4 as uuidv4 } from "uuid";
-import { NextRouter } from "next/router";
 
 import debug from "debug";
 import { getPageDetails } from "./router-utils";
+import { NextRouter } from "next/router";
 const error = debug("bobafrontend:postEditor-error");
 
-export const createImageUploadPromise = ({
+const createImageUploadPromise = ({
   imageData,
-  router,
+  slug,
+  threadId,
 }: {
   imageData: string;
-  router: NextRouter;
+  slug: string | null;
+  threadId: string | null;
 }) => {
   return new Promise<string>((onSuccess, onReject) => {
     // Do not upload tenor stuff
@@ -19,7 +22,6 @@ export const createImageUploadPromise = ({
       onSuccess(imageData);
       return;
     }
-    const { slug, threadId } = getPageDetails(router);
     const baseUrl = `images/${slug}/${threadId ? threadId + "/" : ""}`;
     // Upload base 64 images
     if (imageData.startsWith("data:image")) {
@@ -49,4 +51,19 @@ export const createImageUploadPromise = ({
       "https://firebasestorage.googleapis.com/v0/b/bobaboard-fb.appspot.com/o/images%2Fmain_street%2Fe7533caf-c4e4-42c5-a668-21236995156a.jpeg?alt=media&token=c9804eb5-f72e-46a2-8854-0a7b154a7ecd"
     );
   });
+};
+
+export const useImageUploader = (router: NextRouter) => {
+  const { slug, threadId } = getPageDetails(router);
+  return React.useMemo(
+    () => ({
+      onImageUploadRequest: (src: string) =>
+        createImageUploadPromise({
+          imageData: src,
+          slug,
+          threadId,
+        }),
+    }),
+    [slug, threadId]
+  );
 };

@@ -7,7 +7,10 @@ import {
 import Layout from "../../components/Layout";
 import { useInfiniteQuery } from "react-query";
 import { useAuth } from "../../components/Auth";
-import { useBoardContext } from "../../components/BoardContext";
+import {
+  useBoardContext,
+  useBoardsContext,
+} from "../../components/BoardContext";
 import { getBoardActivityData } from "../../utils/queries";
 import { useUpdateBoardMetadata } from "../../components/hooks/queries/board";
 import axios from "axios";
@@ -32,7 +35,7 @@ const info = debug("bobafrontend:BoardPage-info");
 info.log = console.info.bind(console);
 
 const NewThreadButton = withEditors<{ slug: string }>((props) => {
-  const { boardsData } = useBoardContext();
+  const { boardsData } = useBoardsContext();
   const editorDispatch = useEditorsDispatch();
   return (
     <MemoizedActionButton
@@ -59,7 +62,7 @@ function BoardPage() {
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
   const { slug } = usePageDetails<BoardPageDetails>();
   const { isPending: isAuthPending, isLoggedIn } = useAuth();
-  const { boardsData } = useBoardContext();
+  const boardData = useBoardContext(slug);
   const onTitleClick = React.useCallback(() => setShowSidebar(!showSidebar), [
     showSidebar,
   ]);
@@ -111,8 +114,7 @@ function BoardPage() {
         return lastGroup?.nextPageCursor;
       },
       // Block this query for loggedInOnly boards (unless we're logged in)
-      enabled:
-        !boardsData[slug]?.loggedInOnly || (!isAuthPending && isLoggedIn),
+      enabled: !boardData?.loggedInOnly || (!isAuthPending && isLoggedIn),
       keepPreviousData: true,
       refetchOnWindowFocus: false,
     }
@@ -142,7 +144,7 @@ function BoardPage() {
   );
 
   const showLockedMessage =
-    !isAuthPending && !isLoggedIn && boardsData[slug]?.loggedInOnly;
+    !isAuthPending && !isLoggedIn && boardData?.loggedInOnly;
   const showEmptyMessage =
     !showLockedMessage &&
     !isFetchingBoardActivity &&
@@ -177,20 +179,20 @@ function BoardPage() {
             <FeedWithMenu.Sidebar>
               <div>
                 <MemoizedBoardSidebar
-                  slug={boardsData[slug]?.slug || slug}
-                  avatarUrl={boardsData[slug]?.avatarUrl || "/"}
-                  tagline={boardsData[slug]?.tagline || "loading..."}
-                  accentColor={boardsData[slug]?.accentColor || "#f96680"}
-                  muted={boardsData[slug]?.muted}
+                  slug={boardData?.slug || slug}
+                  avatarUrl={boardData?.avatarUrl || "/"}
+                  tagline={boardData?.tagline || "loading..."}
+                  accentColor={boardData?.accentColor || "#f96680"}
+                  muted={boardData?.muted}
                   previewOptions={boardOptions}
-                  descriptions={boardsData[slug]?.descriptions || []}
+                  descriptions={boardData?.descriptions || []}
                   editing={editingSidebar}
                   onCancelEditing={stopEditing}
                   onUpdateMetadata={updateBoardMetadata}
                   activeCategory={categoryFilter?.[0]}
                   onCategoriesStateChange={onCategoriesStateChange}
                 />
-                {!boardsData[slug]?.descriptions && !editingSidebar && (
+                {!boardData?.descriptions && !editingSidebar && (
                   <img
                     className="under-construction"
                     src="/under_construction_icon.png"
@@ -310,6 +312,6 @@ function BoardPage() {
   );
 }
 
-const BoardPageWithEditors = React.memo(withEditors(BoardPage));
+const BoardPageWithEditors = React.memo(BoardPage);
 BoardPageWithEditors.whyDidYouRender = true;
 export default BoardPageWithEditors;
