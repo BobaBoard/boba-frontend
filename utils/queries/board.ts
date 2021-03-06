@@ -60,11 +60,11 @@ export const updateBoardSettings = async (data: {
   return response.data;
 };
 
-export const getBoardData = async ({ slug }: { slug: string }) => {
+export const getBoardData = async ({ slug }: { slug: string | null }) => {
   log(`Fetching board data for board with slug ${slug}.`);
   if (!slug) {
     log(`...can't fetch board data for board with no slug.`);
-    return;
+    return null;
   }
   const response = await axios.get(`boards/${slug}`);
   log(`Got response for board data with slug ${slug}.`);
@@ -72,11 +72,11 @@ export const getBoardData = async ({ slug }: { slug: string }) => {
   return makeClientBoardData(response.data);
 };
 
-export const getAllBoardsData = async (): Promise<BoardData[] | undefined> => {
+export const getAllBoardsData = async (): Promise<BoardData[]> => {
   log(`Fetching all boards data.`);
   const response = await axios.get(`boards`);
   log(`Got response for all boards data.`);
   info(response.data);
 
-  return response.data?.map(makeClientBoardData);
+  return response.data?.map(makeClientBoardData) || [];
 };

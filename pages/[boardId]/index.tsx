@@ -312,6 +312,4 @@ function BoardPage() {
   );
 }
 
-const BoardPageWithEditors = React.memo(BoardPage);
-BoardPageWithEditors.whyDidYouRender = true;
-export default BoardPageWithEditors;
+export default React.memo(BoardPage);

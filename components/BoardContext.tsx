@@ -107,6 +107,7 @@ const BoardContextProvider: React.FC<{
   children?: React.ReactNode;
 }> = (props) => {
   info(`Rerendering board context for slug ${props.slug}`);
+  info(`Initial data:`, props.initialData);
   const { isLoggedIn } = useAuth();
   const { slug } = props;
   // The data received from the "allBoards" and "presentBoard" queries is merged into a single
@@ -127,7 +128,7 @@ const BoardContextProvider: React.FC<{
   // Note that, at least for now, this handler returns ALL the board, so boards that were there but
   // aren't anymore can be safely removed.
   const { refetch: refetchAllBoards } = useQuery<
-    BoardData[] | undefined,
+    BoardData[],
     unknown,
     BoardsDataMap
   >(
@@ -189,7 +190,7 @@ const BoardContextProvider: React.FC<{
 
   // This handler takes care of transforming the board result returned from a query
   // to the /boards/:slug endpoint (i.e. the one returning details for the "slug" board).
-  useQuery<BoardData | undefined, unknown, BoardsDataMap>(
+  useQuery<BoardData | null, unknown, BoardsDataMap>(
     ["boardThemeData", { slug, isLoggedIn }],
     () => {
       info(
@@ -197,9 +198,6 @@ const BoardContextProvider: React.FC<{
           isLoggedIn ? "" : "NOT "
         }logged in.`
       );
-      if (!slug) {
-        return Promise.resolve(undefined);
-      }
       return getBoardData({ slug });
     },
     {

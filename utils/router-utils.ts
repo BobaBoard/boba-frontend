@@ -26,6 +26,7 @@ export interface BoardPageDetails {
 }
 
 let isInitialized = false;
+let dispatchPending = false;
 let currentPageData: PageDetails = {
   slug: null,
   threadId: null,
@@ -40,8 +41,9 @@ export const usePageDetails = <T extends PageDetails>() => {
       "usePageDetails can only be called after being initialized with a router object."
     );
   }
-  // @ts-expect-error
-  const [pageData, pageDataChangeListener] = React.useState<T>(currentPageData);
+  const [pageData, pageDataChangeListener] = React.useState<T>(
+    currentPageData as T
+  );
 
   React.useEffect(() => {
     listeners.push(pageDataChangeListener);
@@ -55,6 +57,15 @@ export const usePageDetails = <T extends PageDetails>() => {
   return pageData;
 };
 
+const maybeUpdateFromQuery = (query: NextRouter["query"]) => {
+  console.log("Checking possible route update");
+  const newPageDetails = getPageDetails(query);
+  if (!samePage(newPageDetails, currentPageData)) {
+    currentPageData = newPageDetails;
+    return true;
+  }
+  return false;
+};
 export const getPageDetails = <T extends PageDetails>(
   query: NextRouter["query"]
 ) => {
@@ -73,15 +84,14 @@ const samePage = (newPage: PageDetails, oldPage: PageDetails) => {
 };
 export const usePageDataListener = (router: NextRouter) => {
   if (!isInitialized) {
-    currentPageData = getPageDetails(router.query);
     isInitialized = true;
   }
-
+  dispatchPending = dispatchPending || maybeUpdateFromQuery(router.query);
   React.useEffect(() => {
-    const newPageDetails = getPageDetails(router.query);
-    if (!samePage(newPageDetails, currentPageData)) {
-      currentPageData = newPageDetails;
+    if (dispatchPending) {
+      console.log("dispatching updated route to listeners");
       listeners.forEach((listener) => listener(currentPageData));
+      dispatchPending = false;
     }
-  }, [router.query]);
+  });
 };

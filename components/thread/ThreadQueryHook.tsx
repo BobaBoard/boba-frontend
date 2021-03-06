@@ -241,6 +241,7 @@ export const withThreadData = <P extends ThreadContextType>(
     props: P
   ) => {
     const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
+    // debugger;
     const threadData = useThread({
       threadId,
       postId,

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "v": "next -v",
-    "dev": "cross-env DEBUG=bobafrontend:* next",
+    "dev": "cross-env DEBUG=bobafrontend:*-log next",
     "dev:stage": "cross-env NEXT_PUBLIC_DEFAULT_BACKEND=https://staging-dot-backend-dot-bobaboard.uc.r.appspot.com/ DEBUG=bobafrontend:* next",
     "dev:debug": "cross-env NODE_OPTIONS='--inspect' DEBUG=bobafrontend:* next dev",
     "build": "rm -rf .next && next build",
