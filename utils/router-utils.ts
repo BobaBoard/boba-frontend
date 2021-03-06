@@ -82,10 +82,19 @@ export const getPageDetails = <T extends PageDetails>(
 const samePage = (newPage: PageDetails, oldPage: PageDetails) => {
   return JSON.stringify(newPage) === JSON.stringify(oldPage);
 };
+
 export const usePageDataListener = (router: NextRouter) => {
   if (!isInitialized) {
     isInitialized = true;
   }
+  // The update of the current state should be done every time the a new router
+  // is passed, without waiting for React rendering and for useEffect to trigger.
+  // This is because this ""hook"" is used by Page components, and "currentPageData"
+  // must be initialized to the correct value as soon as they're initialized during render().
+  // With that said, the listeners are instead de-facto react hooks, and thus cannot
+  // be called during the render() phase without triggering a "cannot update during render" error.
+  // We then use useEffect() to wait for the next "commit phase", and, if there's been an update
+  // we dispatch our updates there.
   dispatchPending = dispatchPending || maybeUpdateFromQuery(router.query);
   React.useEffect(() => {
     if (dispatchPending) {
