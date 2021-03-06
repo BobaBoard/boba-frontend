@@ -180,7 +180,7 @@ function MyApp({
         />
         <link rel="manifest" href="/icons/site.webmanifest"></link>
       </Head>
-      <QueryParamProvider>
+      <QueryParamProvider router={router}>
         <QueryClientProvider client={queryClient}>
           <EditorContext.Provider value={editorContext}>
             <ImageUploaderContext.Provider value={imageUploader}>

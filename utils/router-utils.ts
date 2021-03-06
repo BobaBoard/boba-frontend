@@ -1,9 +1,8 @@
-import { NextRouter, useRouter } from "next/router";
+import { NextRouter } from "next/router";
 import React from "react";
 
 import debug from "debug";
 const log = debug("bobafrontend:router-utils-log");
-log.enabled = true;
 
 interface PageDetails {
   slug: string | null;

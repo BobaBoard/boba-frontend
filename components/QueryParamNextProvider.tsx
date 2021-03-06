@@ -1,12 +1,12 @@
+import { NextRouter } from "next/router";
 import React, { memo, useMemo } from "react";
-import { useRouter } from "next/router";
 import { QueryParamProvider as ContextProvider } from "use-query-params";
 
 export const QueryParamProviderComponent = (props: {
   children?: React.ReactNode;
+  router: NextRouter;
 }) => {
-  const { children } = props;
-  const router = useRouter();
+  const { children, router } = props;
   const match = router.asPath.match(/[^?]+/);
   const pathname = match ? match[0] : router.asPath;
 
