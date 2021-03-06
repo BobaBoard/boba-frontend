@@ -1,5 +1,5 @@
 import React from "react";
-import { useRouter } from "next/router";
+import { NextRouter } from "next/router";
 
 let toRestore: { x: number; y: number } | null = null;
 const saveScrollPosition = () => {
@@ -30,8 +30,7 @@ const scheduleRestore = () => {
   return true;
 };
 
-export const useScrollRestoration = () => {
-  const router = useRouter();
+export const useScrollRestoration = (router: NextRouter) => {
   React.useEffect(() => {
     if ("scrollRestoration" in window.history) {
       router.events.on("routeChangeStart", saveScrollPosition);

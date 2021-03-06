@@ -10,6 +10,7 @@ import Head from "next/head";
 import { AuthProvider, useAuth } from "../components/Auth";
 import { BoardContextProvider } from "../components/BoardContext";
 import useFromBackButton from "../components/hooks/useFromBackButton";
+import { useScrollRestoration } from "../components/hooks/useScrollRestoration";
 import type { AppProps } from "next/app";
 import {
   ToastContainer,
@@ -135,6 +136,7 @@ function MyApp({
   const currentBoardData = boardData.find((board) => board.slug == props.slug);
   useFromBackButton(router);
   usePageDataListener(router);
+  useScrollRestoration(router);
   const imageUploader = useImageUploader(router);
 
   return (
