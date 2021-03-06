@@ -58,7 +58,7 @@ export const usePageDetails = <T extends PageDetails>() => {
 };
 
 const maybeUpdateFromQuery = (query: NextRouter["query"]) => {
-  console.log("Checking possible route update");
+  log("Checking possible route update");
   const newPageDetails = getPageDetails(query);
   if (!samePage(newPageDetails, currentPageData)) {
     currentPageData = newPageDetails;
@@ -89,7 +89,7 @@ export const usePageDataListener = (router: NextRouter) => {
   dispatchPending = dispatchPending || maybeUpdateFromQuery(router.query);
   React.useEffect(() => {
     if (dispatchPending) {
-      console.log("dispatching updated route to listeners");
+      log("Dispatching updated route to listeners");
       listeners.forEach((listener) => listener(currentPageData));
       dispatchPending = false;
     }

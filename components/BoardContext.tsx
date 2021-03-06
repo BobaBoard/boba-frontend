@@ -210,6 +210,7 @@ const BoardContextProvider: React.FC<{
         info(`...it has${changed ? "" : "n't"}.`);
         return !changed;
       },
+      enabled: !!slug,
       select: (boardData) => {
         info(`Received new data for board ${slug}`);
         if (!boardData) {
