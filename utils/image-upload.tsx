@@ -2,9 +2,9 @@ import React from "react";
 import firebase from "firebase/app";
 import { v4 as uuidv4 } from "uuid";
 
-import debug from "debug";
 import { getPageDetails } from "./router-utils";
 import { NextRouter } from "next/router";
+import debug from "debug";
 const error = debug("bobafrontend:postEditor-error");
 
 const createImageUploadPromise = ({
@@ -54,7 +54,7 @@ const createImageUploadPromise = ({
 };
 
 export const useImageUploader = (router: NextRouter) => {
-  const { slug, threadId } = getPageDetails(router);
+  const { slug, threadId } = getPageDetails(router.query);
   return React.useMemo(
     () => ({
       onImageUploadRequest: (src: string) =>

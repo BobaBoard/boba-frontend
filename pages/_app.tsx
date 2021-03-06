@@ -26,6 +26,7 @@ import debug from "debug";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import embedsCache from "../utils/embeds-cache";
+import { usePageDataListener } from "utils/router-utils";
 const error = debug("bobafrontend:app-error");
 const log = debug("bobafrontend:app-log");
 
@@ -133,6 +134,7 @@ function MyApp({
   );
   const currentBoardData = boardData.find((board) => board.slug == props.slug);
   useFromBackButton(router);
+  usePageDataListener(router);
   const imageUploader = useImageUploader(router);
 
   return (

@@ -185,6 +185,14 @@ const BoardContextProvider: React.FC<{
       staleTime: Infinity,
       notifyOnChangeProps: ["data"],
       keepPreviousData: true,
+      isDataEqual: (oldD, newD) => {
+        info(`Checking if boards data for ${slug} changed...`);
+        log(oldD);
+        log(newD);
+        const changed = JSON.stringify(oldD) !== JSON.stringify(newD);
+        info(`...it has${changed ? "" : "n't"}.`);
+        return !changed;
+      },
       select: (boardData) => {
         log(`Received new data for board ${slug}`);
         if (!boardData) {
