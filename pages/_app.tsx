@@ -135,6 +135,7 @@ function MyApp({
     props?.boardData.map(makeClientBoardData) || [];
   const currentBoardData = boardData.find((board) => board.slug == props.slug);
   const router = useRouter();
+  useFromBackButton();
 
   const imageUploader = React.useMemo(() => getImageUploader(router), [router]);
   React.useEffect(() => {

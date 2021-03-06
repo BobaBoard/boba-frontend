@@ -27,8 +27,8 @@ import {
 } from "components/hooks/useBoardOptions";
 import { ArrayParam, useQueryParams } from "use-query-params";
 
-const log = debug("bobafrontend:boardPage-log");
-const info = debug("bobafrontend:boardPage-info");
+const log = debug("bobafrontend:BoardPage-log");
+const info = debug("bobafrontend:BoardPage-info");
 info.log = console.info.bind(console);
 
 const NewThreadButton = withEditors<{ slug: string }>((props) => {
@@ -311,4 +311,5 @@ function BoardPage() {
 }
 
 const BoardPageWithEditors = React.memo(withEditors(BoardPage));
+BoardPageWithEditors.whyDidYouRender = true;
 export default BoardPageWithEditors;

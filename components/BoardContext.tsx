@@ -29,7 +29,7 @@ const useBoardContext = () =>
   React.useContext<BoardsContextType>(BoardsContext);
 
 const REFETCH_TIME = 1000 * 60 * 1; // Refetch automatically every minute
-const STALE_TIME = 1000 * 30; // Make stale after 30s
+//const STALE_TIME = 1000 * 30; // Make stale after 30s
 const updateBoardData = (
   newBoardData: BoardData,
   oldBoardData: BoardData | null
