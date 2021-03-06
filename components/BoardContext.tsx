@@ -106,7 +106,7 @@ const BoardContextProvider: React.FC<{
   slug: string | null;
   children?: React.ReactNode;
 }> = (props) => {
-  log(`Rerendering board context for slug ${props.slug}`);
+  info(`Rerendering board context for slug ${props.slug}`);
   const { isLoggedIn } = useAuth();
   const { slug } = props;
   // The data received from the "allBoards" and "presentBoard" queries is merged into a single
@@ -156,7 +156,7 @@ const BoardContextProvider: React.FC<{
       },
       keepPreviousData: true,
       select: (allBoardsData) => {
-        log("Received new data for all boards");
+        info("Received new data for all boards");
         info("New boards data: ", allBoardsData);
         if (!allBoardsData) {
           return currentBoardsData.boardsData;
@@ -213,7 +213,7 @@ const BoardContextProvider: React.FC<{
         return !changed;
       },
       select: (boardData) => {
-        log(`Received new data for board ${slug}`);
+        info(`Received new data for board ${slug}`);
         if (!boardData) {
           return currentBoardsData.boardsData;
         }
@@ -242,8 +242,6 @@ const BoardContextProvider: React.FC<{
   );
 
   const nextPinnedOrder = getNextPinnedOrder(currentBoardsData.boardsData);
-
-  log(`Returning new data logged in: ${isLoggedIn}`);
   return (
     <BoardsContext.Provider
       value={React.useMemo(
