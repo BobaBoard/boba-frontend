@@ -11,13 +11,10 @@ import Link from "next/link";
 import classnames from "classnames";
 import CommentsThread, { commentHandlers } from "./CommentsThread";
 import { usePageDetails, ThreadPageDetails } from "utils/router-utils";
-import {
-  EditorActions,
-  useEditorsDispatch,
-} from "components/editors/EditorsContext";
 import { useAuth } from "components/Auth";
 import { useStemOptions } from "components/hooks/useStemOptions";
 import { useBoardContext } from "components/BoardContext";
+import { useThreadEditors } from "components/editors/withEditors";
 
 const log = debug("bobafrontend:threadLevel-log");
 const info = debug("bobafrontend:threadLevel-info");
@@ -61,17 +58,16 @@ const ThreadLevel: React.FC<{
   post: PostType;
   postsMap: Map<string, { children: PostType[]; parent: PostType | null }>;
   level?: number;
-  onNewComment: (
-    replyToPostId: string,
-    replyToCommentId: string | null
-  ) => void;
-  onNewContribution: (id: string) => void;
-  onEditPost: (post: PostType) => void;
   isLoggedIn: boolean;
   lastOf?: { level: number; postId: string }[];
   showThread?: boolean;
   collapsedIndents: string[];
 }> = (props) => {
+  const {
+    onNewComment,
+    onNewContribution,
+    onEditContribution,
+  } = useThreadEditors();
   info(
     `Rendering subtree at level ${props.level} starting with post with id ${props.post.postId}`
   );
@@ -109,9 +105,9 @@ const ThreadLevel: React.FC<{
               <ThreadPost
                 post={props.post}
                 isLoggedIn={props.isLoggedIn}
-                onNewContribution={props.onNewContribution}
-                onNewComment={props.onNewComment}
-                onEditPost={props.onEditPost}
+                onNewContribution={onNewContribution}
+                onNewComment={onNewComment}
+                onEditPost={onEditContribution}
                 avatarRef={setHandler}
               />
             </div>
@@ -172,52 +168,9 @@ const ThreadView: React.FC<ThreadViewProps> = ({
     threadId,
   } = usePageDetails<ThreadPageDetails>();
   const { isLoggedIn } = useAuth();
-  const dispatch = useEditorsDispatch();
+  const { onNewContribution } = useThreadEditors();
   const [collapse, setCollapse] = React.useState<string[]>([]);
   const boardData = useBoardContext(boardSlug);
-
-  const onNewComment = React.useCallback(
-    (replyToContributionId: string, replyToCommentId: string | null) => {
-      dispatch({
-        type: EditorActions.NEW_COMMENT,
-        payload: {
-          boardSlug,
-          threadId,
-          replyToContributionId,
-          replyToCommentId,
-        },
-      });
-    },
-    [boardSlug, threadId]
-  );
-
-  const onNewContribution = React.useCallback(
-    (replyToContributionId: string) => {
-      dispatch({
-        type: EditorActions.NEW_CONTRIBUTION,
-        payload: {
-          boardSlug,
-          threadId,
-          replyToContributionId,
-        },
-      });
-    },
-    [boardSlug, threadId]
-  );
-
-  const onEditContribution = React.useCallback(
-    (editContribution: PostType) => {
-      dispatch({
-        type: EditorActions.EDIT_TAGS,
-        payload: {
-          boardSlug,
-          threadId,
-          contributionId: editContribution.postId,
-        },
-      });
-    },
-    [boardSlug, threadId]
-  );
 
   const getStemOptions = useStemOptions({
     boardSlug,
@@ -278,9 +231,6 @@ const ThreadView: React.FC<ThreadViewProps> = ({
         getStemOptions={getStemOptions}
       >
         <ThreadLevel
-          onEditPost={onEditContribution}
-          onNewContribution={onNewContribution}
-          onNewComment={onNewComment}
           post={currentRoot}
           postsMap={parentChildrenMap}
           isLoggedIn={isLoggedIn}

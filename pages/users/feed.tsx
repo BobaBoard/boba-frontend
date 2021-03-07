@@ -71,7 +71,7 @@ function UserFeedPage() {
       },
       keepPreviousData: true,
       refetchOnWindowFocus: false,
-      enabled: !isFromBackButton(),
+      enabled: !isFromBackButton() && !isAuthPending,
     }
   );
 

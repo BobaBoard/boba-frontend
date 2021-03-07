@@ -27,6 +27,7 @@ import {
   isEditContribution,
   isNewThread,
 } from "./types";
+import { usePageDetails } from "utils/router-utils";
 const log = debug("bobafrontend:useEditors-log");
 
 const Editors = () => {
@@ -149,4 +150,58 @@ export const withEditors = function <T>(WrappedComponent: React.FC<T>) {
   );
   ReturnedComponent.displayName = `${WrappedComponent.name}_withEditors`;
   return ReturnedComponent;
+};
+
+export const useThreadEditors = () => {
+  const { slug, threadId } = usePageDetails();
+  const dispatch = useEditorsDispatch();
+
+  if (!slug || !threadId) {
+    throw new Error("Thread editors can only be used on thread pages.");
+  }
+
+  const onNewComment = React.useCallback(
+    (replyToContributionId: string, replyToCommentId: string | null) => {
+      dispatch({
+        type: EditorActions.NEW_COMMENT,
+        payload: {
+          boardSlug: slug,
+          threadId,
+          replyToContributionId,
+          replyToCommentId,
+        },
+      });
+    },
+    [slug, threadId, dispatch]
+  );
+
+  const onNewContribution = React.useCallback(
+    (replyToContributionId: string) => {
+      dispatch({
+        type: EditorActions.NEW_CONTRIBUTION,
+        payload: {
+          boardSlug: slug,
+          threadId,
+          replyToContributionId,
+        },
+      });
+    },
+    [slug, threadId, dispatch]
+  );
+
+  const onEditContribution = React.useCallback(
+    (editContribution: PostType) => {
+      dispatch({
+        type: EditorActions.EDIT_TAGS,
+        payload: {
+          boardSlug: slug,
+          threadId,
+          contributionId: editContribution.postId,
+        },
+      });
+    },
+    [slug, threadId, dispatch]
+  );
+
+  return { onNewComment, onNewContribution, onEditContribution };
 };

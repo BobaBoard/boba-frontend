@@ -5,7 +5,6 @@ import { DecodedValueMap, useQueryParams } from "use-query-params";
 import { ThreadType } from "../../types/Types";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import { useThread } from "components/thread/ThreadQueryHook";
-import mitt from "next/dist/next-server/lib/mitt";
 
 export enum THREAD_VIEW_MODES {
   THREAD = "THREAD",

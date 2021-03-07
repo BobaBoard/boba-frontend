@@ -12,10 +12,6 @@ import CommentsThread from "./CommentsThread";
 import { PostType } from "types/Types";
 import ThreadPost, { scrollToPost } from "./ThreadPost";
 import { useAuth } from "components/Auth";
-import {
-  EditorActions,
-  useEditorsDispatch,
-} from "components/editors/EditorsContext";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import { useStemOptions } from "components/hooks/useStemOptions";
 import { useBoardContext } from "components/BoardContext";
@@ -27,6 +23,7 @@ import {
   GALLERY_VIEW_MODE,
   useThreadView,
 } from "./useThreadView";
+import { useThreadEditors } from "components/editors/withEditors";
 const log = debug("bobafrontend:threadPage:GalleryView-log");
 
 const EmptyGalleryView = (
@@ -146,7 +143,11 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   const masonryRef = React.createRef<{ reposition: () => void }>();
   const [showComments, setShowComments] = React.useState<string[]>([]);
   const { isLoggedIn } = useAuth();
-  const dispatch = useEditorsDispatch();
+  const {
+    onNewComment,
+    onNewContribution,
+    onEditContribution,
+  } = useThreadEditors();
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
   const boardData = useBoardContext(boardSlug);
   const { galleryViewMode, setGalleryViewMode } = useThreadView();
@@ -251,49 +252,6 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   });
 
   const { coverPost, updatedPosts, allGalleryPosts } = postTypes;
-
-  const onNewComment = React.useCallback(
-    (replyToContributionId: string, replyToCommentId: string | null) => {
-      dispatch({
-        type: EditorActions.NEW_COMMENT,
-        payload: {
-          boardSlug,
-          threadId,
-          replyToContributionId,
-          replyToCommentId,
-        },
-      });
-    },
-    [boardSlug, threadId, dispatch]
-  );
-
-  const onNewContribution = React.useCallback(
-    (replyToContributionId: string) => {
-      dispatch({
-        type: EditorActions.NEW_CONTRIBUTION,
-        payload: {
-          boardSlug,
-          threadId,
-          replyToContributionId,
-        },
-      });
-    },
-    [boardSlug, threadId, dispatch]
-  );
-
-  const onEditContribution = React.useCallback(
-    (editContribution: PostType) => {
-      dispatch({
-        type: EditorActions.EDIT_TAGS,
-        payload: {
-          boardSlug,
-          threadId,
-          contributionId: editContribution.postId,
-        },
-      });
-    },
-    [boardSlug, threadId, dispatch]
-  );
 
   if (!galleryViewMode.showCover && !allGalleryPosts.length) {
     return (
