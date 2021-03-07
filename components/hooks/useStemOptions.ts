@@ -7,8 +7,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 export const useStemOptions = ({
-  boardSlug,
-  threadId,
   onCollapse,
   onScrollTo,
   onReply,
@@ -57,6 +55,6 @@ export const useStemOptions = ({
       }
       return options;
     },
-    [isLoggedIn]
+    [isLoggedIn, onCollapse, onReply, onScrollTo]
   );
 };
