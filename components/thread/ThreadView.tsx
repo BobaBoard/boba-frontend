@@ -204,9 +204,10 @@ const ThreadView: React.FC<ThreadViewProps> = ({
     },
   });
 
+  const { onTotalPostsChange } = props;
   React.useEffect(() => {
-    props.onTotalPostsChange(chronologicalPostsSequence.length);
-  }, [chronologicalPostsSequence]);
+    onTotalPostsChange(chronologicalPostsSequence.length);
+  }, [chronologicalPostsSequence, onTotalPostsChange]);
 
   if (!currentRoot) {
     return <div />;

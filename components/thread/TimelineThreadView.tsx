@@ -1,6 +1,5 @@
 import React from "react";
 import { NewThread, SegmentedButton } from "@bobaboard/ui-components";
-import debug from "debug";
 import {
   ThreadContextType,
   withThreadData,
@@ -18,8 +17,8 @@ import { useThreadEditors } from "components/editors/withEditors";
 import { useCollapseManager } from "./useCollapseManager";
 //import { useHotkeys } from "react-hotkeys-hook";
 
-// @ts-ignore
-const log = debug("bobafrontend:threadLevel-log");
+// import debug from "debug";
+// const log = debug("bobafrontend:threadLevel-log");
 
 interface TimelineViewProps extends ThreadContextType {
   displayAtMost: number;

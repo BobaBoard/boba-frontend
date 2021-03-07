@@ -86,22 +86,25 @@ const ThreadPreview: React.FC<{
   });
   const { forceHideIdentity } = useForceHideIdentity();
 
-  const tagOptions = React.useCallback((tag: TagsType) => {
-    if (tag.type == TagType.CATEGORY && onSetCategoryFilter) {
-      return [
-        {
-          icon: faFilter,
-          name: "Filter",
-          link: {
-            onClick: () => {
-              onSetCategoryFilter(tag.name);
+  const tagOptions = React.useCallback(
+    (tag: TagsType) => {
+      if (tag.type == TagType.CATEGORY && onSetCategoryFilter) {
+        return [
+          {
+            icon: faFilter,
+            name: "Filter",
+            link: {
+              onClick: () => {
+                onSetCategoryFilter(tag.name);
+              },
             },
           },
-        },
-      ];
-    }
-    return undefined;
-  }, []);
+        ];
+      }
+      return undefined;
+    },
+    [onSetCategoryFilter]
+  );
 
   if (thread.hidden) {
     return <HiddenThread thread={thread} />;
@@ -137,7 +140,7 @@ const ThreadPreview: React.FC<{
       }
       totalComments={thread.totalCommentsAmount}
       // subtract 1 since posts_amount is the amount of posts total in the thread
-      // including the head one.-
+      // including the head one.
       totalContributions={thread.totalPostsAmount - 1}
       directContributions={thread.directThreadsAmount}
       notesLink={linkToThread}
