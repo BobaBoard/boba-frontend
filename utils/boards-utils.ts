@@ -1,6 +1,9 @@
 import { BoardType } from "@bobaboard/ui-components/dist/types";
 import moment from "moment";
 
+import debug from "debug";
+const info = debug("bobafrontend:board-utils-info");
+
 type BoardUpdateData = BoardType & {
   lastUpdate: Date | undefined;
   pinnedOrder: number | null;
@@ -15,13 +18,13 @@ export const processBoardsUpdates = (
   boardsFilter: string,
   isLoggedIn: boolean
 ) => {
+  info(`Processing board updates: `, boardsData);
   let recentBoards: BoardUpdateData[] = [];
   let pinnedBoards: BoardUpdateData[] = [];
   let allBoards: BoardUpdateData[] = [];
-  let hasUpdates = false;
   const availableBoards = Object.values(boardsData);
   if (!availableBoards.length) {
-    return { recentBoards, pinnedBoards, allBoards, hasUpdates };
+    return { recentBoards, pinnedBoards, allBoards, hasUpdates: false };
   }
 
   allBoards = availableBoards.sort((b1, b2) => b1.slug.localeCompare(b2.slug));

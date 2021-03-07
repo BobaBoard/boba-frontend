@@ -31,6 +31,8 @@ import { usePageDataListener } from "utils/router-utils";
 const error = debug("bobafrontend:app-error");
 const log = debug("bobafrontend:app-log");
 
+const logRequest = debug("bobafrontend:app:requests-log");
+
 if (typeof window !== "undefined") {
   smoothscroll.polyfill();
 }
@@ -42,7 +44,14 @@ const AxiosInterceptor = () => {
   const { getAuthIdToken } = useAuth();
   React.useEffect(() => {
     axios.interceptors.request.use((config) => {
+      logRequest(`Queing request for ${config.url}`);
       return getAuthIdToken!().then((idToken: string) => {
+        logRequest(
+          `Sending request for ${config.url} ${
+            idToken ? "WITH" : "WITHOUT"
+          } id token.`
+        );
+        log(idToken);
         config.headers.authorization = idToken;
         return config;
       });
