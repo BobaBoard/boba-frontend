@@ -15,6 +15,7 @@ import { extractPostId } from "./ThreadView";
 import { useBoardContext } from "components/BoardContext";
 import { TIMELINE_VIEW_MODE, useThreadView } from "./useThreadView";
 import { useThreadEditors } from "components/editors/withEditors";
+import { useCollapseManager } from "./useCollapseManager";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // @ts-ignore
@@ -45,6 +46,13 @@ const TimelineView: React.FC<TimelineViewProps> = ({
     onNewContribution,
     onEditContribution,
   } = useThreadEditors();
+  const {
+    onCollapseLevel,
+    onUncollapseLevel,
+    onToggleCollapseLevel,
+    getCollapseReason,
+    isCollapsed,
+  } = useCollapseManager();
 
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
   const boardData = useBoardContext(boardSlug);
@@ -61,17 +69,6 @@ const TimelineView: React.FC<TimelineViewProps> = ({
   React.useEffect(() => {
     onTotalPostsChange(displayPosts.length);
   }, [displayPosts.length, onTotalPostsChange]);
-
-  const [collapse, setCollapse] = React.useState<string[]>([]);
-  const onCollapseLevel = React.useCallback((levelId) => {
-    setCollapse((collapse) => [...collapse, levelId]);
-  }, []);
-  const onUncollapseLevel = React.useCallback((levelId) => {
-    setCollapse((collapse) => collapse.filter((id) => id != levelId));
-  }, []);
-  const getCollapseReason = React.useCallback(() => {
-    return <div>Subthread manually hidden.</div>;
-  }, []);
 
   const getStemOptions = useStemOptions({
     boardSlug,
@@ -152,12 +149,13 @@ const TimelineView: React.FC<TimelineViewProps> = ({
                         onEditPost={onEditContribution}
                         showThread
                         avatarRef={setThreadBoundary}
+                        onNotesClick={onToggleCollapseLevel}
                       />
                     </div>
                     {post.comments && (
                       <NewThread.Indent
                         id={post.postId}
-                        collapsed={collapse.includes(post.postId)}
+                        collapsed={isCollapsed(post.postId)}
                       >
                         <div className="comments-thread">
                           <CommentsThread parentPostId={post.postId} />

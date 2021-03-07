@@ -24,6 +24,7 @@ import {
   useThreadView,
 } from "./useThreadView";
 import { useThreadEditors } from "components/editors/withEditors";
+import { useCollapseManager } from "./useCollapseManager";
 const log = debug("bobafrontend:threadPage:GalleryView-log");
 
 const EmptyGalleryView = (
@@ -141,7 +142,6 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   ...props
 }) => {
   const masonryRef = React.createRef<{ reposition: () => void }>();
-  const [showComments, setShowComments] = React.useState<string[]>([]);
   const { isLoggedIn } = useAuth();
   const {
     onNewComment,
@@ -151,9 +151,18 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
   const boardData = useBoardContext(boardSlug);
   const { galleryViewMode, setGalleryViewMode } = useThreadView();
+  const {
+    onCollapseLevel,
+    onUncollapseLevel,
+    getCollapseReason,
+    onToggleCollapseLevel,
+    isCollapsed,
+    subscribeToCollapseChange,
+    unsubscribeFromCollapseChange,
+  } = useCollapseManager();
 
   const repositionGallery = React.useCallback(() => {
-    masonryRef.current?.reposition();
+    requestAnimationFrame(() => masonryRef.current?.reposition());
   }, [masonryRef]);
 
   // const activeCategories = categoryFilterState.filter(
@@ -175,36 +184,36 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   //   );
   // }
 
+  React.useEffect(repositionGallery, [
+    galleryViewMode.showCover,
+    masonryRef,
+    repositionGallery,
+  ]);
   React.useEffect(() => {
-    requestAnimationFrame(() => masonryRef.current?.reposition());
-  }, [showComments, galleryViewMode.showCover, masonryRef]);
-  const onNotesClick = React.useCallback((postId) => {
-    setShowComments((showComments) =>
-      showComments.includes(postId)
-        ? showComments.filter((id) => postId != id)
-        : [...showComments, postId]
-    );
-  }, []);
+    subscribeToCollapseChange(repositionGallery);
+    return () => unsubscribeFromCollapseChange(repositionGallery);
+  }, [
+    repositionGallery,
+    subscribeToCollapseChange,
+    unsubscribeFromCollapseChange,
+  ]);
 
   const postTypes = React.useMemo(() => {
     const [coverPost, ...allGalleryPosts] = chronologicalPostsSequence;
     const updatedPosts = allGalleryPosts.filter(
       (post) => post.isNew || post.newCommentsAmount > 0
     );
-    // We always automatically show all the posts when something posted there
-    // is new.
-    setShowComments(
-      chronologicalPostsSequence
-        .filter((post) => post.newCommentsAmount > 0)
-        .map((post) => post.postId)
-    );
+    // Hide comments from all posts with no new comments.
+    chronologicalPostsSequence
+      .filter((post) => post.newCommentsAmount === 0)
+      .forEach((post) => onCollapseLevel(post.postId));
 
     return {
       coverPost,
       allGalleryPosts,
       updatedPosts,
     };
-  }, [chronologicalPostsSequence]);
+  }, [chronologicalPostsSequence, onCollapseLevel]);
 
   const toDisplay = React.useMemo(
     () => getPostsToDisplay(postTypes, galleryViewMode),
@@ -214,22 +223,6 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   React.useEffect(() => {
     onTotalPostsChange(toDisplay.length);
   }, [toDisplay.length, onTotalPostsChange]);
-
-  const onCollapseLevel = React.useCallback(
-    (levelId) => {
-      onNotesClick(extractPostId(levelId));
-    },
-    [onNotesClick]
-  );
-  const onUncollapseLevel = React.useCallback(
-    (levelId) => {
-      onNotesClick(extractPostId(levelId));
-    },
-    [onNotesClick]
-  );
-  const getCollapseReason = React.useCallback(() => {
-    return <div>Subthread manually hidden.</div>;
-  }, []);
 
   const getStemOptions = useStemOptions({
     boardSlug,
@@ -344,12 +337,12 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
                           onNewContribution={onNewContribution}
                           onNewComment={onNewComment}
                           onEditPost={onEditContribution}
-                          onNotesClick={onNotesClick}
+                          onNotesClick={onToggleCollapseLevel}
                           onEmbedLoaded={repositionGallery}
                           avatarRef={setThreadBoundary}
                         />
                       </div>
-                      {post.comments && showComments.includes(post.postId) && (
+                      {post.comments && !isCollapsed(post.postId) && (
                         <NewThread.Indent id={getCommentThreadId(post.postId)}>
                           <CommentsThread parentPostId={post.postId} />
                         </NewThread.Indent>

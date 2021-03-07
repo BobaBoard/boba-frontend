@@ -128,7 +128,7 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
     postId: post.postId,
   });
   const onNotesClickWithId = React.useCallback(
-    () => onNotesClick?.(post.postId),
+    (e) => onNotesClick?.(post.postId),
     [post.postId, onNotesClick]
   );
   const threadLink = React.useMemo(

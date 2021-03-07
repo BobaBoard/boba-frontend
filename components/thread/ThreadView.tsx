@@ -15,6 +15,7 @@ import { useAuth } from "components/Auth";
 import { useStemOptions } from "components/hooks/useStemOptions";
 import { useBoardContext } from "components/BoardContext";
 import { useThreadEditors } from "components/editors/withEditors";
+import { useCollapseManager } from "./useCollapseManager";
 
 const log = debug("bobafrontend:threadLevel-log");
 const info = debug("bobafrontend:threadLevel-info");
@@ -61,7 +62,8 @@ const ThreadLevel: React.FC<{
   isLoggedIn: boolean;
   lastOf?: { level: number; postId: string }[];
   showThread?: boolean;
-  collapsedIndents: string[];
+  isCollapsed: (levelId: string) => boolean;
+  onToggleCollapseLevel: (levelId: string) => void;
 }> = (props) => {
   const {
     onNewComment,
@@ -72,6 +74,7 @@ const ThreadLevel: React.FC<{
     `Rendering subtree at level ${props.level} starting with post with id ${props.post.postId}`
   );
 
+  const hasNestedContributions = props.postsMap.has(props.post.postId);
   // When there's only comments replying to the post, then the indentation is just made of
   // the comments themselves.
   // If there's comments and contributions, then the contributions are indented immediately
@@ -81,16 +84,21 @@ const ThreadLevel: React.FC<{
   // from other contributions, and thus need their own special "indent level".
   const commentsThread = (
     <NewThread.Indent
-      id={getCommentThreadId(props.post.postId)}
-      collapsed={props.collapsedIndents.some(
-        (id) => id == getCommentThreadId(props.post.postId)
+      id={
+        hasNestedContributions
+          ? getCommentThreadId(props.post.postId)
+          : props.post.postId
+      }
+      collapsed={props.isCollapsed(
+        hasNestedContributions
+          ? getCommentThreadId(props.post.postId)
+          : props.post.postId
       )}
     >
       <CommentsThread parentPostId={props.post.postId} />
     </NewThread.Indent>
   );
 
-  const hasNestedContributions = props.postsMap.has(props.post.postId);
   const hasComments = !!props.post.comments?.length;
   return (
     <>
@@ -109,15 +117,14 @@ const ThreadLevel: React.FC<{
                 onNewComment={onNewComment}
                 onEditPost={onEditContribution}
                 avatarRef={setHandler}
+                onNotesClick={props.onToggleCollapseLevel}
               />
             </div>
             {!hasNestedContributions && hasComments && commentsThread}
             {hasNestedContributions && (
               <NewThread.Indent
                 id={props.post.postId}
-                collapsed={props.collapsedIndents.some(
-                  (id) => id == props.post.postId
-                )}
+                collapsed={props.isCollapsed(props.post.postId)}
               >
                 {hasComments && (
                   <NewThread.Item parentBoundary={boundaryId}>
@@ -169,15 +176,20 @@ const ThreadView: React.FC<ThreadViewProps> = ({
   } = usePageDetails<ThreadPageDetails>();
   const { isLoggedIn } = useAuth();
   const { onNewContribution } = useThreadEditors();
-  const [collapse, setCollapse] = React.useState<string[]>([]);
   const boardData = useBoardContext(boardSlug);
+
+  const {
+    onCollapseLevel,
+    onUncollapseLevel,
+    getCollapseReason,
+    onToggleCollapseLevel,
+    isCollapsed,
+  } = useCollapseManager();
 
   const getStemOptions = useStemOptions({
     boardSlug,
     threadId,
-    onCollapse: (levelId) => {
-      onCollapseLevel(levelId);
-    },
+    onCollapse: onCollapseLevel,
     onScrollTo: (levelId) => {
       if (!levelId) {
         return;
@@ -195,16 +207,6 @@ const ThreadView: React.FC<ThreadViewProps> = ({
   React.useEffect(() => {
     props.onTotalPostsChange(chronologicalPostsSequence.length);
   }, [chronologicalPostsSequence]);
-
-  const onCollapseLevel = React.useCallback((levelId) => {
-    setCollapse((collapse) => [...collapse, levelId]);
-  }, []);
-  const onUncollapseLevel = React.useCallback((levelId) => {
-    setCollapse((collapse) => collapse.filter((id) => id != levelId));
-  }, []);
-  const getCollapseReason = React.useCallback((levelId) => {
-    return <div>Subthread manually hidden.</div>;
-  }, []);
 
   if (!currentRoot) {
     return <div />;
@@ -234,7 +236,8 @@ const ThreadView: React.FC<ThreadViewProps> = ({
           post={currentRoot}
           postsMap={parentChildrenMap}
           isLoggedIn={isLoggedIn}
-          collapsedIndents={collapse}
+          onToggleCollapseLevel={onToggleCollapseLevel}
+          isCollapsed={isCollapsed}
         />
       </NewThread>
       <style jsx>{`
