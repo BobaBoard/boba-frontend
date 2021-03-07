@@ -32,24 +32,30 @@ export const GalleryViewQueryParams = {
   showCover: ExistanceParam,
 };
 
-const EmptyGalleryView = ({
-  cover,
-  showCover,
-  setShowCover,
-  emptyMessage,
-}: any) => (
+const EmptyGalleryView = (
+  props:
+    | {
+        emptyMessage: string;
+      }
+    | {
+        cover: PostType;
+        showCover: boolean;
+        setShowCover: (show: boolean) => void;
+        emptyMessage: string;
+      }
+) => (
   <div>
-    {cover && (
+    {"cover" in props && (
       <ShowCover
-        cover={cover}
-        setShowCover={setShowCover}
-        showCover={showCover}
+        cover={props.cover}
+        setShowCover={props.setShowCover}
+        showCover={props.showCover}
       />
     )}
     <div className="image">
       <img src="/empty_gallery.gif" />
     </div>
-    <div className="empty">{emptyMessage}</div>
+    <div className="empty">{props.emptyMessage}</div>
     <style jsx>{`
       .image {
         text-align: center;
@@ -132,8 +138,8 @@ interface GalleryThreadViewProps extends ThreadContextType {
   onTotalPostsChange: (total: number) => void;
 }
 const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
+  onTotalPostsChange,
   chronologicalPostsSequence,
-  postCommentsMap,
   isRefetching,
   isLoading,
   hasNewReplies,
@@ -146,6 +152,10 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
   const [galleryView, setGalleryView] = useQueryParams(GalleryViewQueryParams);
   const boardData = useBoardContext(boardSlug);
+
+  const repositionGallery = React.useCallback(() => {
+    masonryRef.current?.reposition();
+  }, [masonryRef]);
 
   // const activeCategories = categoryFilterState.filter(
   //   (category) => category.active
@@ -167,32 +177,8 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   // }
 
   React.useEffect(() => {
-    if (isRefetching || isLoading) {
-      return;
-    }
-    if (hasNewReplies) {
-      setGalleryView(
-        {
-          new: true,
-          all: false,
-          showCover:
-            coverPost && (coverPost.isNew || coverPost.newCommentsAmount > 0),
-        },
-        "replaceIn"
-      );
-    } else if (allGalleryPosts.length == 0) {
-      setGalleryView(
-        {
-          showCover: true,
-        },
-        "replaceIn"
-      );
-    }
-  }, [isRefetching, isLoading]);
-
-  React.useEffect(() => {
     requestAnimationFrame(() => masonryRef.current?.reposition());
-  }, [showComments, galleryView.showCover]);
+  }, [showComments, galleryView.showCover, masonryRef]);
   const onNotesClick = React.useCallback((postId) => {
     setShowComments((showComments) =>
       showComments.includes(postId)
@@ -202,7 +188,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   }, []);
 
   const postTypes = React.useMemo(() => {
-    let [coverPost, ...allGalleryPosts] = chronologicalPostsSequence;
+    const [coverPost, ...allGalleryPosts] = chronologicalPostsSequence;
     const updatedPosts = allGalleryPosts.filter(
       (post) => post.isNew || post.newCommentsAmount > 0
     );
@@ -219,15 +205,16 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
       allGalleryPosts,
       updatedPosts,
     };
-  }, [chronologicalPostsSequence, postCommentsMap]);
+  }, [chronologicalPostsSequence]);
 
   const toDisplay = React.useMemo(
     () => getPostsToDisplay(postTypes, galleryView),
     [postTypes, galleryView]
   );
+
   React.useEffect(() => {
-    props.onTotalPostsChange(toDisplay.length);
-  }, [toDisplay.length]);
+    onTotalPostsChange(toDisplay.length);
+  }, [toDisplay.length, onTotalPostsChange]);
 
   const onCollapseLevel = React.useCallback(
     (levelId) => {
@@ -241,7 +228,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
     },
     [onNotesClick]
   );
-  const getCollapseReason = React.useCallback((levelId) => {
+  const getCollapseReason = React.useCallback(() => {
     return <div>Subthread manually hidden.</div>;
   }, []);
 
@@ -266,6 +253,36 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   });
 
   const { coverPost, updatedPosts, allGalleryPosts } = postTypes;
+  React.useEffect(() => {
+    if (isRefetching || isLoading) {
+      return;
+    }
+    if (hasNewReplies) {
+      setGalleryView(
+        {
+          new: true,
+          all: false,
+          showCover:
+            coverPost && (coverPost.isNew || coverPost.newCommentsAmount > 0),
+        },
+        "replaceIn"
+      );
+    } else if (allGalleryPosts.length == 0) {
+      setGalleryView(
+        {
+          showCover: true,
+        },
+        "replaceIn"
+      );
+    }
+  }, [
+    isRefetching,
+    isLoading,
+    allGalleryPosts.length,
+    coverPost,
+    hasNewReplies,
+    setGalleryView,
+  ]);
 
   const onNewComment = React.useCallback(
     (replyToContributionId: string, replyToCommentId: string | null) => {
@@ -279,7 +296,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
         },
       });
     },
-    [boardSlug, threadId]
+    [boardSlug, threadId, dispatch]
   );
 
   const onNewContribution = React.useCallback(
@@ -293,7 +310,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
         },
       });
     },
-    [boardSlug, threadId]
+    [boardSlug, threadId, dispatch]
   );
 
   const onEditContribution = React.useCallback(
@@ -307,7 +324,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
         },
       });
     },
-    [boardSlug, threadId]
+    [boardSlug, threadId, dispatch]
   );
 
   if (!galleryView.showCover && !allGalleryPosts.length) {
@@ -381,57 +398,51 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
       )}
       {toDisplay.length > 0 && (
         <MasonryView ref={masonryRef}>
-          {
-            toDisplay
-              .filter((_, index) => index < props.displayAtMost)
-              .map((post, index) => (
-                <div
-                  className="thread"
-                  key={post.postId}
-                  // TODO: figure out why this is necessary.
-                  // Right now it's here because there is a bug in the masonry view where
-                  // when the elements are changed the positions are recalculated but, for some reason,
-                  // position: absolute isn't maintained in certain divs. I assume it has somethign to do
-                  // with react and re-rendering, but honestly I have no idea.
-                  style={{ position: "absolute" }}
+          {toDisplay
+            .filter((_, index) => index < props.displayAtMost)
+            .map((post) => (
+              <div
+                className="thread"
+                key={post.postId}
+                // TODO: figure out why this is necessary.
+                // Right now it's here because there is a bug in the masonry view where
+                // when the elements are changed the positions are recalculated but, for some reason,
+                // position: absolute isn't maintained in certain divs. I assume it has somethign to do
+                // with react and re-rendering, but honestly I have no idea.
+                style={{ position: "absolute" }}
+              >
+                <NewThread
+                  onCollapseLevel={onCollapseLevel}
+                  onUncollapseLevel={onUncollapseLevel}
+                  getCollapseReason={getCollapseReason}
+                  getStemOptions={getStemOptions}
                 >
-                  <NewThread
-                    onCollapseLevel={onCollapseLevel}
-                    onUncollapseLevel={onUncollapseLevel}
-                    getCollapseReason={getCollapseReason}
-                    getStemOptions={getStemOptions}
-                  >
-                    {(setThreadBoundary) => (
-                      <>
-                        <div className="post">
-                          <ThreadPost
-                            post={post}
-                            isLoggedIn={isLoggedIn}
-                            onNewContribution={onNewContribution}
-                            onNewComment={onNewComment}
-                            onEditPost={onEditContribution}
-                            onNotesClick={onNotesClick}
-                            onEmbedLoaded={() =>
-                              masonryRef.current?.reposition()
-                            }
-                            ref={(ref) =>
-                              setThreadBoundary(ref?.avatarRef?.current || null)
-                            }
-                          />
-                        </div>
-                        {post.comments && showComments.includes(post.postId) && (
-                          <NewThread.Indent
-                            id={getCommentThreadId(post.postId)}
-                          >
-                            <CommentsThread parentPostId={post.postId} />
-                          </NewThread.Indent>
-                        )}
-                      </>
-                    )}
-                  </NewThread>
-                </div>
-              )) as any // TODO: figure out why it doesn't work without casting
-          }
+                  {(setThreadBoundary) => (
+                    <>
+                      <div className="post">
+                        <ThreadPost
+                          post={post}
+                          isLoggedIn={isLoggedIn}
+                          onNewContribution={onNewContribution}
+                          onNewComment={onNewComment}
+                          onEditPost={onEditContribution}
+                          onNotesClick={onNotesClick}
+                          onEmbedLoaded={repositionGallery}
+                          ref={(ref) =>
+                            setThreadBoundary(ref?.avatarRef?.current || null)
+                          }
+                        />
+                      </div>
+                      {post.comments && showComments.includes(post.postId) && (
+                        <NewThread.Indent id={getCommentThreadId(post.postId)}>
+                          <CommentsThread parentPostId={post.postId} />
+                        </NewThread.Indent>
+                      )}
+                    </>
+                  )}
+                </NewThread>
+              </div>
+            ))}
         </MasonryView>
       )}
       <style jsx>{`

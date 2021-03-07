@@ -9,8 +9,12 @@ const setForceHideIdentity = (hide: boolean) => {
   listeners.forEach((listener) => listener(hide));
 };
 export const useForceHideIdentity = () => {
-  // @ts-expect-error
-  const [_, forceHideIdentityListener] = React.useState(FORCE_HIDE_IDENTITY);
+  const [forceHideIdentity, forceHideIdentityListener] = React.useState(
+    FORCE_HIDE_IDENTITY
+  );
+  const toggleForceHideIdentity = React.useCallback(() => {
+    setForceHideIdentity(!forceHideIdentity);
+  }, [forceHideIdentity]);
 
   React.useEffect(() => {
     listeners.push(forceHideIdentityListener);
@@ -21,5 +25,5 @@ export const useForceHideIdentity = () => {
     };
   }, []);
 
-  return { forceHideIdentity: FORCE_HIDE_IDENTITY, setForceHideIdentity };
+  return { forceHideIdentity: FORCE_HIDE_IDENTITY, toggleForceHideIdentity };
 };

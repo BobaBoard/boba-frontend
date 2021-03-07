@@ -142,7 +142,7 @@ const BoardContextProvider: React.FC<{
   slug: string | null;
   children?: React.ReactNode;
 }> = (props) => {
-  info(`Re-rendering board context for slug ${props.slug}`);
+  log(`Re-rendering board context for slug ${props.slug}...`);
   info(`Initial data:`, props.initialData);
   const { isLoggedIn } = useAuth();
   const { slug } = props;
@@ -219,7 +219,8 @@ const BoardContextProvider: React.FC<{
   const currentData = isSameBoardsData(latestBoardData.current, newData)
     ? latestBoardData.current
     : newData;
-  log(`Returning data`, currentData);
+  info(`Returning data`, currentData);
+  log(`...Found ${newData === currentData ? "" : "NO "}updated data!`);
   latestBoardData.current = currentData;
   return (
     <BoardsContext.Provider

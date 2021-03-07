@@ -47,7 +47,7 @@ const useMenuBarOptions = () => {
   );
 };
 const useLoggedInDropdownOptions = (openLogin: () => void) => {
-  const { forceHideIdentity, setForceHideIdentity } = useForceHideIdentity();
+  const { forceHideIdentity, toggleForceHideIdentity } = useForceHideIdentity();
   const { linkToPersonalSettings, linkToLogs } = useCachedLinks();
   return React.useMemo(
     () => [
@@ -81,7 +81,7 @@ const useLoggedInDropdownOptions = (openLogin: () => void) => {
         icon: forceHideIdentity ? faLockOpen : faLock,
         name: forceHideIdentity ? "Display identity" : "Force hide identity",
         link: {
-          onClick: () => setForceHideIdentity(!forceHideIdentity),
+          onClick: toggleForceHideIdentity,
         },
       },
       {
@@ -95,7 +95,7 @@ const useLoggedInDropdownOptions = (openLogin: () => void) => {
       openLogin,
       linkToLogs,
       linkToPersonalSettings,
-      setForceHideIdentity,
+      toggleForceHideIdentity,
     ]
   );
 };
@@ -208,8 +208,8 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   }, [refetch]);
   const isChangingRoute = useChangingRoute();
   const { forceHideIdentity } = useForceHideIdentity();
-  const loggedInMenuOptions = useLoggedInDropdownOptions(() =>
-    setLoginOpen(true)
+  const loggedInMenuOptions = useLoggedInDropdownOptions(
+    React.useCallback(() => setLoginOpen(true), [])
   );
   const menuOptions = useMenuBarOptions();
 

@@ -346,7 +346,4 @@ const ThreadPageHOC = withThreadData(withEditors(ThreadPage), {
   fetch: true,
 });
 
-ThreadPage.whyDidYouRender = true;
-ThreadPageHOC.whyDidYouRender = true;
-
 export default ThreadPageHOC;

@@ -314,5 +314,8 @@ const ThreadView: React.FC<ThreadViewProps> = ({
   );
 };
 
-const MemoizedThreadView = React.memo(ThreadView);
-export default withThreadData(MemoizedThreadView);
+ThreadView.whyDidYouRender = true;
+
+const MemoizedThreadView = React.memo(withThreadData(ThreadView));
+MemoizedThreadView.whyDidYouRender = true;
+export default MemoizedThreadView;
