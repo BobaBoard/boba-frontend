@@ -3,7 +3,7 @@ import { NewThread, SegmentedButton } from "@bobaboard/ui-components";
 import {
   ThreadContextType,
   withThreadData,
-} from "components/thread/ThreadQueryHook";
+} from "components/thread/ThreadContext";
 import classnames from "classnames";
 import CommentsThread from "./CommentsThread";
 import ThreadPost, { scrollToPost } from "./ThreadPost";

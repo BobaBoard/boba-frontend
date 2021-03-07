@@ -5,7 +5,7 @@ import {
   NewCommentsThread,
 } from "@bobaboard/ui-components";
 import { CommentType, ThreadCommentInfoType } from "../../types/Types";
-import { ThreadContextType, withThreadData } from "./ThreadQueryHook";
+import { ThreadContextType, withThreadData } from "./ThreadContext";
 import { faComment } from "@fortawesome/free-regular-svg-icons";
 
 import debug from "debug";

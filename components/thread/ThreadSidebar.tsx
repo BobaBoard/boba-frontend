@@ -7,7 +7,7 @@ import {
 import {
   ThreadContextType,
   withThreadData,
-} from "components/thread/ThreadQueryHook";
+} from "components/thread/ThreadContext";
 import { THREAD_VIEW_MODES } from "components/thread/useThreadView";
 import moment from "moment";
 import classnames from "classnames";

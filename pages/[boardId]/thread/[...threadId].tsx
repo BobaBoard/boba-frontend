@@ -18,7 +18,7 @@ import TimelineThreadView from "components/thread/TimelineThreadView";
 import {
   ThreadContextType,
   withThreadData,
-} from "components/thread/ThreadQueryHook";
+} from "components/thread/ThreadContext";
 import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
 import {
   THREAD_VIEW_MODES,

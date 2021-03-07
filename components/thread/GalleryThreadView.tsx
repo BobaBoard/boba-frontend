@@ -7,7 +7,7 @@ import {
 import {
   ThreadContextType,
   withThreadData,
-} from "components/thread/ThreadQueryHook";
+} from "components/thread/ThreadContext";
 import CommentsThread from "./CommentsThread";
 import { PostType } from "types/Types";
 import ThreadPost, { scrollToPost } from "./ThreadPost";

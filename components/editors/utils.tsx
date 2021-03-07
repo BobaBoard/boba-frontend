@@ -6,7 +6,7 @@ import {
   isEditContribution,
   isNewThread,
 } from "./types";
-import { useThreadWithNull } from "components/thread/ThreadQueryHook";
+import { useThreadWithNull } from "components/thread/ThreadContext";
 import { useBoardContext } from "components/BoardContext";
 import { useAuth } from "components/Auth";
 

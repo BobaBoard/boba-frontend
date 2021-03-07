@@ -5,7 +5,7 @@ import debug from "debug";
 import {
   ThreadContextType,
   withThreadData,
-} from "components/thread/ThreadQueryHook";
+} from "components/thread/ThreadContext";
 import { PostType } from "../../types/Types";
 import Link from "next/link";
 import classnames from "classnames";

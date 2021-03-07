@@ -22,8 +22,8 @@ import moment from "moment";
 
 import debug from "debug";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
-const log = debug("bobafrontend:threadProvider-log");
-const info = debug("bobafrontend:threadProvider-info");
+const log = debug("bobafrontend:ThreadContext-log");
+const info = debug("bobafrontend:ThreadContext-info");
 
 export interface ThreadContextType {
   isLoading: boolean;

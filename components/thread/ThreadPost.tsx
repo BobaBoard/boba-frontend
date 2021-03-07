@@ -10,7 +10,7 @@ import moment from "moment";
 import React from "react";
 import { PostType } from "../../types/Types";
 import { ThreadPageDetails, usePageDetails } from "../../utils/router-utils";
-import { ThreadContextType, withThreadData } from "./ThreadQueryHook";
+import { ThreadContextType, withThreadData } from "./ThreadContext";
 import {
   getTotalContributions,
   getTotalNewContributions,
