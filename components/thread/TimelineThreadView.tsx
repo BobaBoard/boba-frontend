@@ -15,40 +15,14 @@ import {
   EditorActions,
   useEditorsDispatch,
 } from "components/editors/EditorsContext";
-import { ExistanceParam } from "components/QueryParamNextProvider";
-import { DecodedValueMap, useQueryParams } from "use-query-params";
 import { useStemOptions } from "components/hooks/useStemOptions";
 import { extractPostId } from "./ThreadView";
 import { useBoardContext } from "components/BoardContext";
+import { TIMELINE_VIEW_MODE, useThreadView } from "./useThreadView";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // @ts-ignore
 const log = debug("bobafrontend:threadLevel-log");
-
-export enum TIMELINE_VIEW_MODE {
-  NEW = "NEW",
-  LATEST = "LATEST",
-  ALL = "ALL",
-}
-
-const TimelineViewQueryParams = {
-  new: ExistanceParam,
-  latest: ExistanceParam,
-  all: ExistanceParam,
-};
-
-const getTimelineViewMode = (
-  timelineQuery: DecodedValueMap<typeof TimelineViewQueryParams>
-) => {
-  if (timelineQuery.new) {
-    return TIMELINE_VIEW_MODE.NEW;
-  } else if (timelineQuery.latest) {
-    return TIMELINE_VIEW_MODE.LATEST;
-  } else if (timelineQuery.all) {
-    return TIMELINE_VIEW_MODE.ALL;
-  }
-  return TIMELINE_VIEW_MODE.ALL;
-};
 
 interface TimelineViewProps extends ThreadContextType {
   displayAtMost: number;
@@ -57,11 +31,6 @@ interface TimelineViewProps extends ThreadContextType {
 
 const TimelineView: React.FC<TimelineViewProps> = ({
   chronologicalPostsSequence,
-  newAnswersSequence,
-  postCommentsMap,
-  isLoading,
-  isRefetching,
-  hasNewReplies,
   ...props
 }) => {
   const { updatedPosts, allPosts } = React.useMemo(() => {
@@ -73,34 +42,8 @@ const TimelineView: React.FC<TimelineViewProps> = ({
       allPosts: chronologicalPostsSequence,
       updatedPosts,
     };
-  }, [chronologicalPostsSequence, postCommentsMap]);
-
-  const [timelineViewParams, setTimelineViewParams] = useQueryParams(
-    TimelineViewQueryParams
-  );
-  const viewMode = getTimelineViewMode(timelineViewParams);
-
-  React.useEffect(() => {
-    if (isRefetching || isLoading) {
-      return;
-    }
-    if (
-      timelineViewParams.new ||
-      timelineViewParams.latest ||
-      timelineViewParams.all
-    ) {
-      // A default view has already been set. Bail.
-      return;
-    }
-    setTimelineViewParams(
-      {
-        new: hasNewReplies,
-        all: false,
-        latest: false,
-      },
-      "replaceIn"
-    );
-  }, [isRefetching, isLoading]);
+  }, [chronologicalPostsSequence]);
+  const { timelineViewMode, setTimelineViewMode } = useThreadView();
 
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
   const boardData = useBoardContext(boardSlug);
@@ -151,15 +94,16 @@ const TimelineView: React.FC<TimelineViewProps> = ({
   );
 
   const displayPosts =
-    viewMode === TIMELINE_VIEW_MODE.ALL
+    timelineViewMode === TIMELINE_VIEW_MODE.ALL
       ? allPosts
-      : viewMode == TIMELINE_VIEW_MODE.LATEST
+      : timelineViewMode == TIMELINE_VIEW_MODE.LATEST
       ? [...allPosts].reverse()
       : updatedPosts;
 
+  const { onTotalPostsChange } = props;
   React.useEffect(() => {
-    props.onTotalPostsChange(displayPosts.length);
-  }, [displayPosts.length]);
+    onTotalPostsChange(displayPosts.length);
+  }, [displayPosts.length, onTotalPostsChange]);
 
   const [collapse, setCollapse] = React.useState<string[]>([]);
   const onCollapseLevel = React.useCallback((levelId) => {
@@ -168,7 +112,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({
   const onUncollapseLevel = React.useCallback((levelId) => {
     setCollapse((collapse) => collapse.filter((id) => id != levelId));
   }, []);
-  const getCollapseReason = React.useCallback((levelId) => {
+  const getCollapseReason = React.useCallback(() => {
     return <div>Subthread manually hidden.</div>;
   }, []);
 
@@ -198,44 +142,20 @@ const TimelineView: React.FC<TimelineViewProps> = ({
         id: TIMELINE_VIEW_MODE.NEW,
         label: "New",
         updates: updatedPosts.length > 0 ? updatedPosts.length : undefined,
-        onClick: () =>
-          setTimelineViewParams(
-            {
-              new: true,
-              latest: false,
-              all: false,
-            },
-            "replaceIn"
-          ),
+        onClick: () => setTimelineViewMode(TIMELINE_VIEW_MODE.NEW),
       },
       {
         id: TIMELINE_VIEW_MODE.LATEST,
         label: "Latest",
-        onClick: () =>
-          setTimelineViewParams(
-            {
-              new: false,
-              latest: true,
-              all: false,
-            },
-            "replaceIn"
-          ),
+        onClick: () => setTimelineViewMode(TIMELINE_VIEW_MODE.LATEST),
       },
       {
         id: TIMELINE_VIEW_MODE.ALL,
         label: `All (${allPosts.length})`,
-        onClick: () =>
-          setTimelineViewParams(
-            {
-              new: false,
-              latest: false,
-              all: true,
-            },
-            "replaceIn"
-          ),
+        onClick: () => setTimelineViewMode(TIMELINE_VIEW_MODE.ALL),
       },
     ],
-    [updatedPosts]
+    [updatedPosts, setTimelineViewMode, allPosts.length]
   );
 
   return (
@@ -245,7 +165,10 @@ const TimelineView: React.FC<TimelineViewProps> = ({
       })}
     >
       <div className="timeline-views">
-        <SegmentedButton options={viewChangeOptions} selected={viewMode} />
+        <SegmentedButton
+          options={viewChangeOptions}
+          selected={timelineViewMode}
+        />
       </div>
       <div>
         {displayPosts.length == 0 && (
@@ -271,9 +194,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({
                         onNewComment={onNewComment}
                         onEditPost={onEditContribution}
                         showThread
-                        ref={(ref) =>
-                          setThreadBoundary(ref?.avatarRef?.current || null)
-                        }
+                        avatarRef={setThreadBoundary}
                       />
                     </div>
                     {post.comments && (

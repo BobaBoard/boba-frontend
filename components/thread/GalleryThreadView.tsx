@@ -17,20 +17,17 @@ import {
   useEditorsDispatch,
 } from "components/editors/EditorsContext";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
-import { ExistanceParam } from "components/QueryParamNextProvider";
-import { DecodedValueMap, useQueryParams } from "use-query-params";
 import { useStemOptions } from "components/hooks/useStemOptions";
 import { useBoardContext } from "components/BoardContext";
 
 import debug from "debug";
 import { extractPostId, getCommentThreadId } from "./ThreadView";
+import {
+  GalleryViewMode,
+  GALLERY_VIEW_MODE,
+  useThreadView,
+} from "./useThreadView";
 const log = debug("bobafrontend:threadPage:GalleryView-log");
-
-export const GalleryViewQueryParams = {
-  new: ExistanceParam,
-  all: ExistanceParam,
-  showCover: ExistanceParam,
-};
 
 const EmptyGalleryView = (
   props:
@@ -122,10 +119,14 @@ const getPostsToDisplay = (
     updatedPosts: PostType[];
     allGalleryPosts: PostType[];
   },
-  galleryView: DecodedValueMap<typeof GalleryViewQueryParams>
+  galleryView: GalleryViewMode
 ) => {
   const { coverPost, updatedPosts, allGalleryPosts } = posts;
-  const toDisplay = [...(galleryView.new ? updatedPosts : allGalleryPosts)];
+  const toDisplay = [
+    ...(galleryView.mode === GALLERY_VIEW_MODE.NEW
+      ? updatedPosts
+      : allGalleryPosts),
+  ];
 
   if (coverPost && galleryView.showCover) {
     toDisplay.unshift(coverPost);
@@ -140,9 +141,6 @@ interface GalleryThreadViewProps extends ThreadContextType {
 const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   onTotalPostsChange,
   chronologicalPostsSequence,
-  isRefetching,
-  isLoading,
-  hasNewReplies,
   ...props
 }) => {
   const masonryRef = React.createRef<{ reposition: () => void }>();
@@ -150,8 +148,8 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   const { isLoggedIn } = useAuth();
   const dispatch = useEditorsDispatch();
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
-  const [galleryView, setGalleryView] = useQueryParams(GalleryViewQueryParams);
   const boardData = useBoardContext(boardSlug);
+  const { galleryViewMode, setGalleryViewMode } = useThreadView();
 
   const repositionGallery = React.useCallback(() => {
     masonryRef.current?.reposition();
@@ -178,7 +176,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
 
   React.useEffect(() => {
     requestAnimationFrame(() => masonryRef.current?.reposition());
-  }, [showComments, galleryView.showCover, masonryRef]);
+  }, [showComments, galleryViewMode.showCover, masonryRef]);
   const onNotesClick = React.useCallback((postId) => {
     setShowComments((showComments) =>
       showComments.includes(postId)
@@ -208,8 +206,8 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   }, [chronologicalPostsSequence]);
 
   const toDisplay = React.useMemo(
-    () => getPostsToDisplay(postTypes, galleryView),
-    [postTypes, galleryView]
+    () => getPostsToDisplay(postTypes, galleryViewMode),
+    [postTypes, galleryViewMode]
   );
 
   React.useEffect(() => {
@@ -253,36 +251,6 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   });
 
   const { coverPost, updatedPosts, allGalleryPosts } = postTypes;
-  React.useEffect(() => {
-    if (isRefetching || isLoading) {
-      return;
-    }
-    if (hasNewReplies) {
-      setGalleryView(
-        {
-          new: true,
-          all: false,
-          showCover:
-            coverPost && (coverPost.isNew || coverPost.newCommentsAmount > 0),
-        },
-        "replaceIn"
-      );
-    } else if (allGalleryPosts.length == 0) {
-      setGalleryView(
-        {
-          showCover: true,
-        },
-        "replaceIn"
-      );
-    }
-  }, [
-    isRefetching,
-    isLoading,
-    allGalleryPosts.length,
-    coverPost,
-    hasNewReplies,
-    setGalleryView,
-  ]);
 
   const onNewComment = React.useCallback(
     (replyToContributionId: string, replyToCommentId: string | null) => {
@@ -327,17 +295,15 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
     [boardSlug, threadId, dispatch]
   );
 
-  if (!galleryView.showCover && !allGalleryPosts.length) {
+  if (!galleryViewMode.showCover && !allGalleryPosts.length) {
     return (
       <EmptyGalleryView
-        showCover={!!galleryView.showCover}
+        showCover={galleryViewMode.showCover}
         setShowCover={(show: boolean) => {
-          setGalleryView(
-            {
-              showCover: show,
-            },
-            "replaceIn"
-          );
+          setGalleryViewMode({
+            mode: galleryViewMode.mode,
+            showCover: show,
+          });
         }}
         cover={coverPost}
         emptyMessage={"The gallery is empty :("}
@@ -351,46 +317,40 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
       <div className="view-controls">
         <ShowCover
           cover={coverPost}
-          showCover={galleryView.showCover}
+          showCover={galleryViewMode.showCover}
           setShowCover={(show: boolean) => {
-            setGalleryView(
-              {
-                showCover: show,
-              },
-              "replaceIn"
-            );
+            setGalleryViewMode({
+              mode: galleryViewMode.mode,
+              showCover: show,
+            });
           }}
         />
         <SegmentedButton
           options={[
             {
-              id: "updated",
+              id: GALLERY_VIEW_MODE.NEW,
               label: "New & Updated",
               updates:
                 updatedPosts.length > 0 ? updatedPosts.length : undefined,
               onClick: () =>
-                setGalleryView(
-                  {
-                    new: true,
-                  },
-                  "replaceIn"
-                ),
+                setGalleryViewMode({
+                  mode: GALLERY_VIEW_MODE.NEW,
+                  showCover: galleryViewMode.showCover,
+                }),
             },
             {
-              id: "all",
+              id: GALLERY_VIEW_MODE.ALL,
               label: `All Posts (${
-                allGalleryPosts.length + (galleryView.showCover ? 1 : 0)
+                allGalleryPosts.length + (galleryViewMode.showCover ? 1 : 0)
               })`,
               onClick: () =>
-                setGalleryView(
-                  {
-                    new: false,
-                  },
-                  "replaceIn"
-                ),
+                setGalleryViewMode({
+                  mode: GALLERY_VIEW_MODE.ALL,
+                  showCover: galleryViewMode.showCover,
+                }),
             },
           ]}
-          selected={galleryView.new ? "updated" : "all"}
+          selected={galleryViewMode.mode}
         />
       </div>
       {toDisplay.length == 0 && (
@@ -428,9 +388,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
                           onEditPost={onEditContribution}
                           onNotesClick={onNotesClick}
                           onEmbedLoaded={repositionGallery}
-                          ref={(ref) =>
-                            setThreadBoundary(ref?.avatarRef?.current || null)
-                          }
+                          avatarRef={setThreadBoundary}
                         />
                       </div>
                       {post.comments && showComments.includes(post.postId) && (

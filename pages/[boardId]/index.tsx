@@ -311,5 +311,4 @@ function BoardPage() {
     </div>
   );
 }
-BoardPage.whyDidYouRender = true;
 export default React.memo(BoardPage);

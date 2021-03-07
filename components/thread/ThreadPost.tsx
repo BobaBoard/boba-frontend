@@ -34,7 +34,7 @@ interface ThreadPostProps
   onNotesClick?: (id: string) => void;
   showThread?: boolean;
   showRoot?: boolean;
-  innerRef?: React.Ref<PostHandler>;
+  avatarRef?: React.Ref<HTMLDivElement | null>;
 }
 const REGULAR_POST_OPTIONS = [
   PostOptions.COPY_LINK,
@@ -102,7 +102,6 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
   isLoggedIn,
   onNewContribution,
   onNewComment,
-  onEditPost,
   onNotesClick,
   parentChildrenMap,
   showThread,
@@ -137,7 +136,7 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
       href: `${directLink.href}${window.location.search}`,
       onClick: onNotesClick ? onNotesClickWithId : directLink.onClick,
     }),
-    [directLink, onNotesClick, window.location.search]
+    [directLink, onNotesClick, onNotesClickWithId]
   );
   const onNewContributionCallback = React.useCallback(
     () => onNewContribution(post.postId),
@@ -162,6 +161,8 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
       post,
       extraProps.chronologicalPostsSequence,
       extraProps?.threadRoot?.postId,
+      showRoot,
+      showThread,
     ]
   );
 
@@ -169,14 +170,14 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
     if (postRef) {
       postHandlers.set(post.postId, postRef);
     }
-    if (!extraProps.innerRef) {
+    if (!extraProps.avatarRef) {
       return;
     }
-    if (typeof extraProps.innerRef === "function") {
-      extraProps.innerRef(postRef || null);
+    if (typeof extraProps.avatarRef === "function") {
+      extraProps.avatarRef(postRef?.avatarRef?.current || null);
     } else {
       // @ts-ignore
-      extraProps.innerRef.current = postRef || null;
+      extraProps.avatarRef.current = postRef?.avatarRef?.current || null;
     }
   };
   const { forceHideIdentity } = useForceHideIdentity();
@@ -219,7 +220,21 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
         };
       }
     );
-  }, [posts, window.location.search]);
+  }, [
+    posts,
+    cachedLinks,
+    extraProps,
+    onNotesClick,
+    isLoggedIn,
+    // onNewCommentCallback,
+    // onNewContributionCallback,
+    // onNotesClickWithId,
+    // options,
+    // parentChildrenMap,
+    // slug,
+    // threadId,
+    // threadLink,
+  ]);
 
   if (posts.length > 1) {
     return (
@@ -245,13 +260,4 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
   );
 };
 
-const MemoizedPost = React.memo(withThreadData(ThreadPost));
-
-const ForwardedThreadPost = React.forwardRef<PostHandler, ThreadPostProps>(
-  (props, ref) => {
-    return <MemoizedPost {...props} innerRef={ref} />;
-  }
-);
-ForwardedThreadPost.displayName = "ForwardedThreadPost";
-
-export default ForwardedThreadPost;
+export default React.memo(withThreadData(ThreadPost));

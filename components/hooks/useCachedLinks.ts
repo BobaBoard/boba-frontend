@@ -1,4 +1,4 @@
-import { ThreadViewQueryParams } from "pages/[boardId]/thread/[...threadId]";
+import { ThreadViewQueryParams } from "components/thread/useThreadView";
 import { stringify } from "query-string";
 import { PostData } from "types/Types";
 import { encodeQueryParams } from "use-query-params";

@@ -150,9 +150,3 @@ export interface ThreadCommentInfoType {
   parentChainMap: Map<string, CommentType>;
   parentChildrenMap: Map<string, CommentType[]>;
 }
-
-export enum THREAD_VIEW_MODES {
-  THREAD = "THREAD",
-  MASONRY = "MASONRY",
-  TIMELINE = "TIMELINE",
-}

@@ -112,9 +112,7 @@ const ThreadLevel: React.FC<{
                 onNewContribution={props.onNewContribution}
                 onNewComment={props.onNewComment}
                 onEditPost={props.onEditPost}
-                ref={React.useCallback((postRef) => {
-                  setHandler(postRef?.avatarRef?.current || null);
-                }, [])}
+                avatarRef={setHandler}
               />
             </div>
             {!hasNestedContributions && hasComments && commentsThread}
@@ -132,7 +130,7 @@ const ThreadLevel: React.FC<{
                 )}
                 {props.postsMap
                   .get(props.post.postId)
-                  ?.children.flatMap((post: PostType, index: number, array) => (
+                  ?.children.flatMap((post: PostType) => (
                     <ThreadLevel key={post.postId} {...props} post={post} />
                   ))}
               </NewThread.Indent>
@@ -160,10 +158,9 @@ const ThreadLevel: React.FC<{
 interface ThreadViewProps extends ThreadContextType {
   onTotalPostsChange: (total: number) => void;
 }
-//const MemoizedThreadLevel = React.memo(ThreadLevel);
+
 const ThreadView: React.FC<ThreadViewProps> = ({
   currentRoot,
-  threadRoot,
   parentChildrenMap,
   chronologicalPostsSequence,
   ...props

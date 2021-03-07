@@ -7,7 +7,6 @@ import {
 import Layout from "components/Layout";
 import LoadingSpinner from "components/LoadingSpinner";
 import { useAuth } from "components/Auth";
-import { THREAD_VIEW_MODES, ThreadType } from "types/Types";
 import classnames from "classnames";
 import { useBoardContext } from "components/BoardContext";
 //import { useHotkeys } from "react-hotkeys-hook";
@@ -21,11 +20,11 @@ import {
   withThreadData,
 } from "components/thread/ThreadQueryHook";
 import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
-
-import debug from "debug";
+import {
+  THREAD_VIEW_MODES,
+  useThreadView,
+} from "components/thread/useThreadView";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
-import { useQueryParams } from "use-query-params";
-import { ExistanceParam } from "components/QueryParamNextProvider";
 import { withEditors } from "components/editors/withEditors";
 import {
   EditorActions,
@@ -35,44 +34,8 @@ import { useReadThread } from "components/hooks/queries/thread";
 import { clearThreadData } from "utils/queries/cache";
 import { useQueryClient } from "react-query";
 
+import debug from "debug";
 const log = debug("bobafrontend:threadPage-log");
-
-const getViewTypeFromString = (
-  viewString: ThreadType["defaultView"] | null
-) => {
-  if (!viewString) {
-    return null;
-  }
-  switch (viewString) {
-    case "gallery":
-      return THREAD_VIEW_MODES.MASONRY;
-    case "timeline":
-      return THREAD_VIEW_MODES.TIMELINE;
-    case "thread":
-      return THREAD_VIEW_MODES.THREAD;
-  }
-};
-
-export const ThreadViewQueryParams = {
-  gallery: ExistanceParam,
-  timeline: ExistanceParam,
-  thread: ExistanceParam,
-};
-
-const getQueryParamsViewMode = (
-  defaultView: ThreadType["defaultView"] | null
-) => {
-  const [query] = useQueryParams(ThreadViewQueryParams);
-
-  if (query.gallery) {
-    return THREAD_VIEW_MODES.MASONRY;
-  } else if (query.timeline) {
-    return THREAD_VIEW_MODES.TIMELINE;
-  } else if (query.thread) {
-    return THREAD_VIEW_MODES.THREAD;
-  }
-  return getViewTypeFromString(defaultView) || THREAD_VIEW_MODES.THREAD;
-};
 
 const useStateWithCallback = <T extends any>(
   initialState: T
@@ -107,7 +70,6 @@ function ThreadPage({
   newAnswersSequence,
   isLoading: isFetchingThread,
   isRefetching: isRefetchingThread,
-  defaultView: threadDefaultView,
 }: ThreadContextType) {
   const queryClient = useQueryClient();
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
@@ -124,6 +86,7 @@ function ThreadPage({
   const dispatch = useEditorsDispatch();
   const markAsRead = useReadThread();
   const hasMarkedAsRead = React.useRef(false);
+  const { currentThreadViewMode, setThreadViewMode } = useThreadView();
 
   React.useEffect(() => {
     if (
@@ -155,33 +118,6 @@ function ThreadPage({
     };
   }, []);
 
-  // URL params management
-  const queryParamsViewMode = getQueryParamsViewMode(threadDefaultView);
-  const [threadViewQuery, setQuery] = useQueryParams(ThreadViewQueryParams);
-
-  const onThreadViewModeChange = React.useCallback(
-    (viewMode: THREAD_VIEW_MODES) => {
-      const isDefaultView =
-        getViewTypeFromString(threadDefaultView) === viewMode;
-      setQuery({
-        gallery: !isDefaultView && viewMode == THREAD_VIEW_MODES.MASONRY,
-        timeline: !isDefaultView && viewMode == THREAD_VIEW_MODES.TIMELINE,
-        thread: !isDefaultView && viewMode == THREAD_VIEW_MODES.THREAD,
-      });
-    },
-    [threadDefaultView]
-  );
-
-  React.useEffect(() => {
-    const hasDefinedViewType = Object.values(threadViewQuery).some(
-      (value) => value
-    );
-    if (!isFetchingThread && !hasDefinedViewType) {
-      const defaultViewType =
-        getViewTypeFromString(threadDefaultView) || THREAD_VIEW_MODES.THREAD;
-      onThreadViewModeChange(defaultViewType);
-    }
-  }, [isFetchingThread]);
   const newAnswersIndex = React.useRef<number>(-1);
 
   // TODO: disable this while post editing and readd
@@ -244,8 +180,8 @@ function ThreadPage({
 
   const canTopLevelPost =
     isLoggedIn &&
-    (queryParamsViewMode == THREAD_VIEW_MODES.MASONRY ||
-      queryParamsViewMode == THREAD_VIEW_MODES.TIMELINE);
+    (currentThreadViewMode == THREAD_VIEW_MODES.MASONRY ||
+      currentThreadViewMode == THREAD_VIEW_MODES.TIMELINE);
   return (
     <div className="main">
       <Layout
@@ -269,9 +205,9 @@ function ThreadPage({
           >
             <FeedWithMenu.Sidebar>
               <MemoizedThreadSidebar
-                viewMode={queryParamsViewMode}
+                viewMode={currentThreadViewMode}
                 open={showSidebar}
-                onViewChange={onThreadViewModeChange}
+                onViewChange={setThreadViewMode}
               />
             </FeedWithMenu.Sidebar>
             <FeedWithMenu.FeedContent>
@@ -281,9 +217,10 @@ function ThreadPage({
                 })}
               >
                 <div className="view-modes">
-                  {queryParamsViewMode == THREAD_VIEW_MODES.THREAD || postId ? (
+                  {currentThreadViewMode == THREAD_VIEW_MODES.THREAD ||
+                  postId ? (
                     <MemoizedThreadView onTotalPostsChange={setTotalPosts} />
-                  ) : queryParamsViewMode == THREAD_VIEW_MODES.MASONRY ? (
+                  ) : currentThreadViewMode == THREAD_VIEW_MODES.MASONRY ? (
                     <MemoizedGalleryThreadView
                       displayAtMost={maxDisplay}
                       onTotalPostsChange={setTotalPosts}
@@ -302,7 +239,7 @@ function ThreadPage({
                   // Check whether there's more posts to display
                   maxDisplay < totalPosts
                     ? "..."
-                    : queryParamsViewMode == THREAD_VIEW_MODES.THREAD
+                    : currentThreadViewMode == THREAD_VIEW_MODES.THREAD
                     ? ""
                     : "Nothing more to load."
                 }
@@ -312,7 +249,7 @@ function ThreadPage({
           </FeedWithMenu>
         </Layout.MainContent>
         <Layout.ActionButton>
-          {queryParamsViewMode == THREAD_VIEW_MODES.THREAD &&
+          {currentThreadViewMode == THREAD_VIEW_MODES.THREAD &&
           !!newAnswersSequence.length ? (
             <CycleNewButton text="Next New" onNext={onNewAnswersButtonClick} />
           ) : canTopLevelPost ? (
