@@ -5,52 +5,64 @@ import {
   NewCommentsThread,
 } from "@bobaboard/ui-components";
 import { CommentType, ThreadCommentInfoType } from "../../types/Types";
-import { ThreadContextType, withThreadData } from "./ThreadContext";
+import { useThreadContext } from "./ThreadContext";
 import { faComment } from "@fortawesome/free-regular-svg-icons";
 
-import debug from "debug";
 import moment from "moment";
 import { useAuth } from "components/Auth";
-import {
-  EditorActions,
-  useEditorsDispatch,
-} from "components/editors/EditorsContext";
+import { useThreadEditors } from "components/editors/withEditors";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
-// @ts-expect-error
-const log = debug("bobafrontend:threadLevel-log");
-// @ts-expect-error
-const info = debug("bobafrontend:threadLevel-info");
 
-const CommentsThreadLevel: React.FC<{
-  comment: CommentType;
-  parentChainMap: Map<string, CommentType>;
-  parentChildrenMap: Map<string, CommentType[]>;
+// import debug from "debug";
+// const log = debug("bobafrontend:CommentsThread-log");
+// const info = debug("bobafrontend:CommentsThread-info");
+
+const getCommentsChain = (
+  rootComment: CommentType,
+  parentChainMap: ThreadCommentInfoType["parentChainMap"]
+) => {
+  const chain = [rootComment];
+  while (parentChainMap.has(chain[chain.length - 1].commentId)) {
+    const next = parentChainMap.get(chain[chain.length - 1].commentId)!;
+    chain.push(next);
+  }
+  return chain;
+};
+
+// TODO: clear commentHandlers when changing thread
+export const commentHandlers = new Map<string, CommentHandler>();
+const ThreadComment: React.FC<{
+  rootComment: CommentType;
   parentPostId: string;
-  parentCommentId?: string | null;
-  level?: number;
-  onReplyTo: (replyTo: string) => void;
-}> = (props) => {
+  onAvatarRef: (element: HTMLElement | null) => void;
+}> = ({ rootComment, parentPostId, onAvatarRef }) => {
   const { isLoggedIn } = useAuth();
   const { forceHideIdentity } = useForceHideIdentity();
-  const chain = React.useMemo(() => {
-    let currentChainId = props.comment.commentId;
-    const chain = [props.comment];
-    while (props.parentChainMap.has(currentChainId)) {
-      const next = props.parentChainMap.get(currentChainId) as CommentType;
-      chain.push(next);
-      currentChainId = next.commentId;
-    }
-    return chain.map((el) => ({
-      id: el.commentId,
-      text: el.content,
-    }));
-  }, [props.comment, props.parentChainMap]);
-
-  const lastCommentId = chain[chain.length - 1].id;
-  const children = props.parentChildrenMap.get(lastCommentId);
-  const replyToLast = React.useCallback(() => props.onReplyTo(lastCommentId), [
-    lastCommentId,
-  ]);
+  const { onNewComment } = useThreadEditors();
+  const { postCommentsMap } = useThreadContext();
+  const { parentChainMap } = postCommentsMap.get(parentPostId)!;
+  const chainInfo = React.useMemo(
+    () =>
+      getCommentsChain(rootComment, parentChainMap).map((comment) => ({
+        id: comment.commentId,
+        text: comment.content,
+      })),
+    [rootComment, parentChainMap]
+  );
+  const replyToLast = React.useCallback(
+    () => onNewComment(parentPostId, chainInfo[chainInfo.length - 1].id),
+    [parentPostId, chainInfo, onNewComment]
+  );
+  const onSetRef = React.useCallback(
+    (handler: CommentHandler | null) => {
+      if (handler == null) {
+        return;
+      }
+      chainInfo.forEach((el) => commentHandlers.set(el.id, handler));
+      onAvatarRef(handler.avatarRef?.current || null);
+    },
+    [chainInfo, onAvatarRef]
+  );
   const options = React.useMemo(
     () =>
       isLoggedIn
@@ -59,52 +71,66 @@ const CommentsThreadLevel: React.FC<{
               name: "Reply",
               icon: faComment,
               link: {
-                onClick: () => replyToLast(),
+                onClick: replyToLast,
               },
             },
           ]
         : undefined,
     [replyToLast, isLoggedIn]
   );
+
+  return (
+    <CommentChain
+      ref={onSetRef}
+      key={rootComment.commentId}
+      secretIdentity={rootComment.secretIdentity}
+      userIdentity={rootComment.userIdentity}
+      createdTime={moment.utc(rootComment.created).fromNow()}
+      accessory={rootComment.accessory}
+      comments={chainInfo}
+      muted={isLoggedIn && !rootComment.isNew}
+      onExtraAction={isLoggedIn ? replyToLast : undefined}
+      options={options}
+      forceHideIdentity={forceHideIdentity}
+    />
+  );
+};
+
+const CommentsThreadLevel: React.FC<{
+  comment: CommentType;
+  parentPostId: string;
+  parentCommentId?: string | null;
+  level?: number;
+}> = ({ parentPostId, comment }) => {
+  const { postCommentsMap } = useThreadContext();
+  const { parentChainMap, parentChildrenMap } = postCommentsMap.get(
+    parentPostId
+  )!;
+
+  const chain = React.useMemo(() => getCommentsChain(comment, parentChainMap), [
+    comment,
+    parentChainMap,
+  ]);
+
+  const children = parentChildrenMap.get(chain[chain.length - 1].commentId);
   return (
     <NewCommentsThread.Item>
       {(setBoundaryElement) => (
         <>
-          <div className="comment" data-comment-id={props.comment.commentId}>
-            <CommentChain
-              ref={React.useCallback(
-                (handler: CommentHandler | null) => {
-                  if (handler == null) {
-                    return;
-                  }
-                  chain.forEach((el) => commentHandlers.set(el.id, handler));
-                  setBoundaryElement(handler.avatarRef?.current || null);
-                },
-                [chain]
-              )}
-              key={props.comment.commentId}
-              secretIdentity={props.comment.secretIdentity}
-              userIdentity={props.comment.userIdentity}
-              createdTime={moment.utc(props.comment.created).fromNow()}
-              accessory={props.comment.accessory}
-              comments={chain}
-              muted={isLoggedIn && !props.comment.isNew}
-              onExtraAction={isLoggedIn ? replyToLast : undefined}
-              options={options}
-              forceHideIdentity={forceHideIdentity}
-            />
-          </div>
+          <ThreadComment
+            rootComment={comment}
+            parentPostId={parentPostId}
+            onAvatarRef={setBoundaryElement}
+          />
+          <div className="comment" data-comment-id={comment.commentId}></div>
           {children && (
-            <NewCommentsThread.Indent id={props.comment.commentId}>
-              {children.map((comment: CommentType, i: number) => {
+            <NewCommentsThread.Indent id={comment.commentId}>
+              {children.map((comment: CommentType) => {
                 return (
                   <MemoizedThreadLevel
                     key={comment.commentId}
                     comment={comment}
-                    parentPostId={props.parentPostId}
-                    parentChainMap={props.parentChainMap}
-                    parentChildrenMap={props.parentChildrenMap}
-                    onReplyTo={props.onReplyTo}
+                    parentPostId={parentPostId}
                   />
                 );
               })}
@@ -117,50 +143,27 @@ const CommentsThreadLevel: React.FC<{
 };
 const MemoizedThreadLevel = React.memo(CommentsThreadLevel);
 
-interface CommentsThreadProps extends ThreadContextType {
+interface CommentsThreadProps {
   parentPostId: string;
   parentCommentId?: string | null;
   level?: number;
 }
 
-// TODO: clear commentHandlers when changing thread
-export const commentHandlers = new Map<string, CommentHandler>();
 const CommentsThread: React.FC<CommentsThreadProps> = (props) => {
-  const dispatch = useEditorsDispatch();
-  const onReplyToComment = React.useCallback(
-    (replyToCommentId: string) => {
-      if (!props.parentBoardSlug || !props.threadId) {
-        return;
-      }
-      dispatch({
-        type: EditorActions.NEW_COMMENT,
-        payload: {
-          boardSlug: props.parentBoardSlug,
-          threadId: props.threadId,
-          replyToContributionId: props.parentPostId,
-          replyToCommentId,
-        },
-      });
-    },
-    [props.threadId, props.parentBoardSlug, props.parentPostId, dispatch]
-  );
+  const { postCommentsMap } = useThreadContext();
 
-  if (!props.postCommentsMap.has(props.parentPostId)) {
-    return <div />;
+  if (!postCommentsMap.has(props.parentPostId)) {
+    return null;
   }
 
-  const {
-    roots,
-    parentChainMap,
-    parentChildrenMap,
-  } = props.postCommentsMap.get(props.parentPostId) as ThreadCommentInfoType;
-  let actualRoots = props.parentCommentId
+  const { roots, parentChildrenMap } = postCommentsMap.get(props.parentPostId)!;
+  const actualRoots = props.parentCommentId
     ? parentChildrenMap.get(props.parentCommentId) || []
     : roots;
 
   return (
     <div className="comments-thread-container">
-      {actualRoots.map((comment: CommentType, i: number) => {
+      {actualRoots.map((comment) => {
         return (
           <div className="comments-thread" key={comment.commentId}>
             <NewCommentsThread>
@@ -168,9 +171,6 @@ const CommentsThread: React.FC<CommentsThreadProps> = (props) => {
                 key={comment.commentId}
                 comment={comment}
                 parentPostId={props.parentPostId}
-                parentChainMap={parentChainMap}
-                parentChildrenMap={parentChildrenMap}
-                onReplyTo={onReplyToComment}
               />
             </NewCommentsThread>
           </div>
@@ -189,6 +189,4 @@ const CommentsThread: React.FC<CommentsThreadProps> = (props) => {
   );
 };
 
-const MemoizedCommentsThread = React.memo(CommentsThread);
-
-export default withThreadData(MemoizedCommentsThread);
+export default React.memo(CommentsThread);

@@ -1,9 +1,6 @@
 import React from "react";
 import { NewThread, SegmentedButton } from "@bobaboard/ui-components";
-import {
-  ThreadContextType,
-  withThreadData,
-} from "components/thread/ThreadContext";
+import { useThreadContext } from "components/thread/ThreadContext";
 import classnames from "classnames";
 import CommentsThread from "./CommentsThread";
 import ThreadPost, { scrollToPost } from "./ThreadPost";
@@ -20,15 +17,13 @@ import { useCollapseManager } from "./useCollapseManager";
 // import debug from "debug";
 // const log = debug("bobafrontend:threadLevel-log");
 
-interface TimelineViewProps extends ThreadContextType {
+interface TimelineViewProps {
   displayAtMost: number;
   onTotalPostsChange: (total: number) => void;
 }
 
-const TimelineView: React.FC<TimelineViewProps> = ({
-  chronologicalPostsSequence,
-  ...props
-}) => {
+const TimelineView: React.FC<TimelineViewProps> = (props) => {
+  const { chronologicalPostsSequence } = useThreadContext();
   const { updatedPosts, allPosts } = React.useMemo(() => {
     const updatedPosts = chronologicalPostsSequence.filter(
       (post) => post.isNew || post.newCommentsAmount > 0
@@ -200,4 +195,4 @@ const TimelineView: React.FC<TimelineViewProps> = ({
   );
 };
 
-export default withThreadData(TimelineView);
+export default TimelineView;

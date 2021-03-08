@@ -53,17 +53,42 @@ export interface ThreadContextType {
   threadId: string | null;
 }
 
-export const useThread = (props: {
+const ThreadContext = React.createContext<ThreadContextType | null>(null);
+
+export const useThreadContext = () => {
+  const context = React.useContext<ThreadContextType | null>(ThreadContext);
+
+  if (!context) {
+    throw new Error("ThreadContext should be used withing a context provider.");
+  }
+
+  return context;
+};
+
+const ThreadContextProvider: React.FC<{
+  slug: string;
   threadId: string;
   postId: string | null;
-  slug: string;
-  fetch?: boolean;
-}): ThreadContextType => {
-  if (!props.threadId || !props.slug) {
-    throw new Error("useThread requires an id and a slug.");
-  }
-  return useThreadWithNull(props);
+  children?: React.ReactNode;
+}> = (props) => {
+  log(
+    `Rendering thread context for thread ${props.threadId} and post ${props.postId}`
+  );
+  const value = useThreadWithNull({
+    slug: props.slug,
+    threadId: props.threadId,
+    postId: props.postId,
+    fetch: true,
+  });
+
+  return (
+    <ThreadContext.Provider value={value}>
+      {props.children}
+    </ThreadContext.Provider>
+  );
 };
+
+export default ThreadContextProvider;
 
 export const useThreadWithNull = ({
   threadId,
@@ -76,6 +101,7 @@ export const useThreadWithNull = ({
   slug: string | null;
   fetch?: boolean;
 }): ThreadContextType => {
+  log(`Using thread with null`);
   const queryClient = useQueryClient();
   const {
     data: threadData,
@@ -103,14 +129,16 @@ export const useThreadWithNull = ({
         if (!threadId || !slug) {
           return null;
         }
-        log(
+        info(
           `Searching board activity data for board ${slug} and thread ${threadId}`
         );
-        return getThreadInBoardCache(queryClient, {
+        const thread = getThreadInBoardCache(queryClient, {
           slug,
           threadId,
           categoryFilter: null,
         });
+        info(`...${thread ? "found" : "NOT found"}!`);
+        return thread;
       },
       staleTime: 30 * 1000,
       notifyOnChangeProps: ["data", "isLoading", "isFetching"],
@@ -130,8 +158,8 @@ export const useThreadWithNull = ({
     postCommentsMap,
     chronologicalPostsSequence,
   } = React.useMemo(() => {
-    info("Building posts tree from data:");
-    info(threadData);
+    log(`Building posts tree for thread ${threadId}`);
+    info("Thread data:", threadData);
     const {
       root = null,
       parentChildrenMap = new Map(),
@@ -139,7 +167,6 @@ export const useThreadWithNull = ({
     } = threadId ? makePostsTree(threadData?.posts, threadId) : {};
     const postCommentsMap = new Map<string, ThreadCommentInfoType>();
     threadData?.posts?.forEach((post) => {
-      log(`Creating comments tree for post ${postId}`);
       if (post.comments) {
         postCommentsMap.set(post.postId, makeCommentsTree(post.comments));
       }
@@ -171,18 +198,19 @@ export const useThreadWithNull = ({
   const [categoryFilterState, setCategoryFilterState] = React.useState<
     CategoryFilterType[]
   >([]);
+
   React.useEffect(() => {
     if (!threadData) {
-      if (categoryFilterState.length) {
-        setCategoryFilterState([]);
-      }
+      setCategoryFilterState((categoryFilterState) =>
+        categoryFilterState.length > 0 ? [] : categoryFilterState
+      );
       return;
     }
-    const currentCategories = extractCategories(threadData.posts);
+    const currentCategories = extractCategories(threadData?.posts || []);
     currentCategories.push(UNCATEGORIZED_LABEL);
     log(`Current categories:`);
     log(currentCategories);
-    setCategoryFilterState(
+    setCategoryFilterState((categoryFilterState) =>
       currentCategories.map((category) => ({
         name: category,
         active:
@@ -241,8 +269,7 @@ export const withThreadData = <P extends ThreadContextType>(
     props: P
   ) => {
     const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
-    // debugger;
-    const threadData = useThread({
+    const threadData = useThreadWithNull({
       threadId,
       postId,
       slug,
@@ -250,6 +277,9 @@ export const withThreadData = <P extends ThreadContextType>(
     });
     return <WrappedComponent {...threadData} {...props} />;
   };
-  ReturnedComponent.displayName = `${WrappedComponent.name}_withThreadData`;
+  ReturnedComponent.displayName = `${
+    WrappedComponent.displayName || WrappedComponent.name
+  }_withThreadData`;
+  ReturnedComponent.whyDidYouRender = true;
   return ReturnedComponent;
 };

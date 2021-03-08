@@ -10,7 +10,7 @@ import moment from "moment";
 import React from "react";
 import { PostType } from "../../types/Types";
 import { ThreadPageDetails, usePageDetails } from "../../utils/router-utils";
-import { ThreadContextType, withThreadData } from "./ThreadContext";
+import { useThreadContext } from "./ThreadContext";
 import {
   getTotalContributions,
   getTotalNewContributions,
@@ -97,19 +97,24 @@ const getPostAncestors = (
   return posts;
 };
 
-const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
+const ThreadPost: React.FC<ThreadPostProps> = ({
   post,
   isLoggedIn,
+  onNotesClick,
   onNewContribution,
   onNewComment,
-  onNotesClick,
-  parentChildrenMap,
   showThread,
   showRoot,
   ...extraProps
 }) => {
   const { slug, threadId } = usePageDetails<ThreadPageDetails>();
   const cachedLinks = useCachedLinks();
+  const {
+    defaultView,
+    parentChildrenMap,
+    chronologicalPostsSequence,
+    threadRoot,
+  } = useThreadContext();
   const options = usePostOptions({
     options:
       post.parentPostId == null ? TOP_POST_OPTIONS : REGULAR_POST_OPTIONS,
@@ -119,7 +124,7 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
       threadId,
       postId: post.postId,
       own: post.isOwn,
-      currentView: extraProps.defaultView!,
+      currentView: defaultView!,
     },
   });
   const directLink = cachedLinks.getLinkToPost({
@@ -152,18 +157,12 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
       showThread
         ? getPostAncestors(
             post,
-            extraProps.chronologicalPostsSequence,
-            extraProps.threadRoot?.postId,
+            chronologicalPostsSequence,
+            threadRoot?.postId,
             showRoot
           )
         : [post],
-    [
-      post,
-      extraProps.chronologicalPostsSequence,
-      extraProps?.threadRoot?.postId,
-      showRoot,
-      showThread,
-    ]
+    [post, chronologicalPostsSequence, threadRoot?.postId, showRoot, showThread]
   );
 
   const callbackRef = (postRef: PostHandler | undefined | null) => {
@@ -260,4 +259,4 @@ const ThreadPost: React.FC<ThreadPostProps & ThreadContextType> = ({
   );
 };
 
-export default React.memo(withThreadData(ThreadPost));
+export default React.memo(ThreadPost);

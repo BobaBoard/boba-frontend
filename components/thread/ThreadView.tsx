@@ -2,10 +2,7 @@ import React from "react";
 import { NewThread, DefaultTheme } from "@bobaboard/ui-components";
 import ThreadPost, { scrollToPost } from "./ThreadPost";
 import debug from "debug";
-import {
-  ThreadContextType,
-  withThreadData,
-} from "components/thread/ThreadContext";
+import { useThreadContext } from "components/thread/ThreadContext";
 import { PostType } from "../../types/Types";
 import Link from "next/link";
 import classnames from "classnames";
@@ -54,17 +51,15 @@ export const scrollToComment = (commentId: string, color: string) => {
   });
 };
 
-// const MemoizedThreadIndent = React.memo(ThreadIndent);
 const ThreadLevel: React.FC<{
   post: PostType;
-  postsMap: Map<string, { children: PostType[]; parent: PostType | null }>;
   level?: number;
   isLoggedIn: boolean;
   lastOf?: { level: number; postId: string }[];
   showThread?: boolean;
   isCollapsed: (levelId: string) => boolean;
   onToggleCollapseLevel: (levelId: string) => void;
-}> = (props) => {
+}> = React.memo((props) => {
   const {
     onNewComment,
     onNewContribution,
@@ -73,8 +68,9 @@ const ThreadLevel: React.FC<{
   info(
     `Rendering subtree at level ${props.level} starting with post with id ${props.post.postId}`
   );
+  const { parentChildrenMap } = useThreadContext();
 
-  const hasNestedContributions = props.postsMap.has(props.post.postId);
+  const hasNestedContributions = parentChildrenMap.has(props.post.postId);
   // When there's only comments replying to the post, then the indentation is just made of
   // the comments themselves.
   // If there's comments and contributions, then the contributions are indented immediately
@@ -107,7 +103,7 @@ const ThreadLevel: React.FC<{
           <>
             <div
               className={classnames("post", {
-                "with-indent": props.postsMap.has(props.post.postId),
+                "with-indent": parentChildrenMap.has(props.post.postId),
               })}
             >
               <ThreadPost
@@ -131,7 +127,7 @@ const ThreadLevel: React.FC<{
                     {commentsThread}
                   </NewThread.Item>
                 )}
-                {props.postsMap
+                {parentChildrenMap
                   .get(props.post.postId)
                   ?.children.flatMap((post: PostType) => (
                     <ThreadLevel key={post.postId} {...props} post={post} />
@@ -156,18 +152,13 @@ const ThreadLevel: React.FC<{
       </style>
     </>
   );
-};
+});
+ThreadLevel.displayName = "MemoizedThreadLevel";
 
-interface ThreadViewProps extends ThreadContextType {
+interface ThreadViewProps {
   onTotalPostsChange: (total: number) => void;
 }
-
-const ThreadView: React.FC<ThreadViewProps> = ({
-  currentRoot,
-  parentChildrenMap,
-  chronologicalPostsSequence,
-  ...props
-}) => {
+const ThreadView: React.FC<ThreadViewProps> = (props) => {
   const {
     postId,
     threadBaseUrl,
@@ -177,6 +168,7 @@ const ThreadView: React.FC<ThreadViewProps> = ({
   const { isLoggedIn } = useAuth();
   const { onNewContribution } = useThreadEditors();
   const boardData = useBoardContext(boardSlug);
+  const { chronologicalPostsSequence, currentRoot } = useThreadContext();
 
   const {
     onCollapseLevel,
@@ -235,7 +227,6 @@ const ThreadView: React.FC<ThreadViewProps> = ({
       >
         <ThreadLevel
           post={currentRoot}
-          postsMap={parentChildrenMap}
           isLoggedIn={isLoggedIn}
           onToggleCollapseLevel={onToggleCollapseLevel}
           isCollapsed={isCollapsed}
@@ -265,8 +256,6 @@ const ThreadView: React.FC<ThreadViewProps> = ({
   );
 };
 
-ThreadView.whyDidYouRender = true;
-
-const MemoizedThreadView = React.memo(withThreadData(ThreadView));
+const MemoizedThreadView = React.memo(ThreadView);
 MemoizedThreadView.whyDidYouRender = true;
 export default MemoizedThreadView;

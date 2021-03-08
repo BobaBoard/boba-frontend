@@ -148,7 +148,9 @@ export const withEditors = function <T>(WrappedComponent: React.FC<T>) {
       <WrappedComponent {...props} />
     </EditorsProvider>
   );
-  ReturnedComponent.displayName = `${WrappedComponent.name}_withEditors`;
+  ReturnedComponent.displayName = `${
+    WrappedComponent.displayName || WrappedComponent.name
+  }_withEditors`;
   return ReturnedComponent;
 };
 
@@ -160,6 +162,7 @@ export const useThreadEditors = () => {
     throw new Error("Thread editors can only be used on thread pages.");
   }
 
+  // TODO: use object argument instead of simple arguments
   const onNewComment = React.useCallback(
     (replyToContributionId: string, replyToCommentId: string | null) => {
       dispatch({
@@ -203,5 +206,9 @@ export const useThreadEditors = () => {
     [slug, threadId, dispatch]
   );
 
-  return { onNewComment, onNewContribution, onEditContribution };
+  return {
+    onNewComment,
+    onNewContribution,
+    onEditContribution,
+  };
 };

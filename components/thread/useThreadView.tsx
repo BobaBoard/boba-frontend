@@ -3,8 +3,7 @@ import React from "react";
 import { ExistanceParam } from "../QueryParamNextProvider";
 import { DecodedValueMap, useQueryParams } from "use-query-params";
 import { ThreadType } from "../../types/Types";
-import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
-import { useThread } from "components/thread/ThreadContext";
+import { useThreadContext } from "components/thread/ThreadContext";
 
 export enum THREAD_VIEW_MODES {
   THREAD = "THREAD",
@@ -169,7 +168,6 @@ export const useThreadView = () => {
     ...TimelineViewQueryParams,
     ...GalleryViewQueryParams,
   });
-  const pageDetails = usePageDetails<ThreadPageDetails>();
   const {
     isLoading,
     isRefetching,
@@ -177,7 +175,7 @@ export const useThreadView = () => {
     hasNewReplies,
     threadRoot,
     chronologicalPostsSequence,
-  } = useThread(pageDetails);
+  } = useThreadContext();
 
   const setThreadViewMode = React.useCallback(
     (viewMode: THREAD_VIEW_MODES) => {

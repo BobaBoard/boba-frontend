@@ -15,9 +15,8 @@ import { scrollToPost } from "components/thread/ThreadPost";
 import ThreadSidebar from "components/thread/ThreadSidebar";
 import GalleryThreadView from "components/thread/GalleryThreadView";
 import TimelineThreadView from "components/thread/TimelineThreadView";
-import {
-  ThreadContextType,
-  withThreadData,
+import ThreadContextProvider, {
+  useThreadContext,
 } from "components/thread/ThreadContext";
 import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
 import {
@@ -65,12 +64,7 @@ const MemoizedThreadView = React.memo(ThreadView);
 const MemoizedGalleryThreadView = React.memo(GalleryThreadView);
 const MemoizedTimelineThreadView = React.memo(TimelineThreadView);
 
-function ThreadPage({
-  threadRoot,
-  newAnswersSequence,
-  isLoading: isFetchingThread,
-  isRefetching: isRefetchingThread,
-}: ThreadContextType) {
+function ThreadPage() {
   const queryClient = useQueryClient();
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
@@ -87,6 +81,12 @@ function ThreadPage({
   const markAsRead = useReadThread();
   const hasMarkedAsRead = React.useRef(false);
   const { currentThreadViewMode, setThreadViewMode } = useThreadView();
+  const {
+    threadRoot,
+    newAnswersSequence,
+    isLoading: isFetchingThread,
+    isRefetching: isRefetchingThread,
+  } = useThreadContext();
 
   React.useEffect(() => {
     if (
@@ -279,8 +279,13 @@ function ThreadPage({
   );
 }
 
-const ThreadPageHOC = withThreadData(withEditors(ThreadPage), {
-  fetch: true,
-});
+const ThreadPageWithContext: React.FC<Record<string, never>> = () => {
+  const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
+  return (
+    <ThreadContextProvider postId={postId} slug={slug} threadId={threadId}>
+      <ThreadPage />
+    </ThreadContextProvider>
+  );
+};
 
-export default ThreadPageHOC;
+export default withEditors(ThreadPageWithContext);

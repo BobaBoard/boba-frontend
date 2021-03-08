@@ -4,10 +4,7 @@ import {
   NewThread,
   SegmentedButton,
 } from "@bobaboard/ui-components";
-import {
-  ThreadContextType,
-  withThreadData,
-} from "components/thread/ThreadContext";
+import { useThreadContext } from "components/thread/ThreadContext";
 import CommentsThread from "./CommentsThread";
 import { PostType } from "types/Types";
 import ThreadPost, { scrollToPost } from "./ThreadPost";
@@ -132,13 +129,12 @@ const getPostsToDisplay = (
   return toDisplay;
 };
 
-interface GalleryThreadViewProps extends ThreadContextType {
+interface GalleryThreadViewProps {
   displayAtMost: number;
   onTotalPostsChange: (total: number) => void;
 }
 const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   onTotalPostsChange,
-  chronologicalPostsSequence,
   ...props
 }) => {
   const masonryRef = React.createRef<{ reposition: () => void }>();
@@ -151,6 +147,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
   const boardData = useBoardContext(boardSlug);
   const { galleryViewMode, setGalleryViewMode } = useThreadView();
+  const { chronologicalPostsSequence } = useThreadContext();
   const {
     onCollapseLevel,
     onUncollapseLevel,
@@ -383,4 +380,4 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
   );
 };
 
-export default withThreadData(GalleryThreadView);
+export default GalleryThreadView;

@@ -4,24 +4,27 @@ import {
   PostQuote,
   SegmentedButton,
 } from "@bobaboard/ui-components";
-import {
-  ThreadContextType,
-  withThreadData,
-} from "components/thread/ThreadContext";
+import { useThreadContext } from "components/thread/ThreadContext";
 import { THREAD_VIEW_MODES } from "components/thread/useThreadView";
 import moment from "moment";
 import classnames from "classnames";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 
-const ThreadSidebar: React.FC<ThreadSidebarProps> = ({
-  threadRoot,
-  categoryFilterState,
-  setCategoryFilterState,
-  ...props
-}) => {
+export interface ThreadSidebarProps {
+  viewMode: THREAD_VIEW_MODES;
+  open?: boolean;
+  onViewChange: (viewType: THREAD_VIEW_MODES) => void;
+}
+
+const ThreadSidebar: React.FC<ThreadSidebarProps> = ({ ...props }) => {
   const { forceHideIdentity } = useForceHideIdentity();
+  const {
+    threadRoot,
+    categoryFilterState,
+    setCategoryFilterState,
+  } = useThreadContext();
   if (!threadRoot) {
-    return <div />;
+    return null;
   }
   return (
     <div className={classnames("thread-sidebar", { open: !!props.open })}>
@@ -146,9 +149,4 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = ({
   );
 };
 
-export default withThreadData(ThreadSidebar);
-export interface ThreadSidebarProps extends ThreadContextType {
-  viewMode: THREAD_VIEW_MODES;
-  open?: boolean;
-  onViewChange: (viewType: THREAD_VIEW_MODES) => void;
-}
+export default ThreadSidebar;
