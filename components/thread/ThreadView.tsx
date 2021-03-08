@@ -1,12 +1,12 @@
 import React from "react";
-import { NewThread, DefaultTheme } from "@bobaboard/ui-components";
+import { NewThread } from "@bobaboard/ui-components";
 import ThreadPost, { scrollToPost } from "./ThreadPost";
 import debug from "debug";
 import { useThreadContext } from "components/thread/ThreadContext";
 import { PostType } from "../../types/Types";
 import Link from "next/link";
 import classnames from "classnames";
-import CommentsThread, { commentHandlers } from "./CommentsThread";
+import CommentsThread from "./CommentsThread";
 import { usePageDetails, ThreadPageDetails } from "utils/router-utils";
 import { useAuth } from "components/Auth";
 import { useStemOptions } from "components/hooks/useStemOptions";
@@ -14,7 +14,7 @@ import { useBoardContext } from "components/BoardContext";
 import { useThreadEditors } from "components/editors/withEditors";
 import { useCollapseManager } from "./useCollapseManager";
 
-const log = debug("bobafrontend:threadLevel-log");
+// const log = debug("bobafrontend:threadLevel-log");
 const info = debug("bobafrontend:threadLevel-info");
 
 export const getCommentThreadId = (postId: string) => {
@@ -25,30 +25,6 @@ export const extractPostId = (levelId: string) => {
     return levelId;
   }
   return levelId.substring(0, levelId.indexOf(`_comment`));
-};
-
-export const scrollToComment = (commentId: string, color: string) => {
-  log(`Beaming up to comment with id ${commentId}`);
-  const element: HTMLElement | null = document.querySelector(
-    `.comment[data-comment-id='${commentId}']`
-  );
-  if (!element) {
-    return;
-  }
-  const observer = new IntersectionObserver((observed) => {
-    if (observed[0].isIntersecting) {
-      commentHandlers.get(commentId)?.highlight(color), observer.disconnect();
-    }
-  });
-  observer.observe(element);
-  element.classList.add("outline-hidden");
-  window.scroll({
-    top:
-      element.getBoundingClientRect().top +
-      window.pageYOffset -
-      (DefaultTheme.HEADER_HEIGHT_PX + 2),
-    behavior: "smooth",
-  });
 };
 
 const ThreadLevel: React.FC<{

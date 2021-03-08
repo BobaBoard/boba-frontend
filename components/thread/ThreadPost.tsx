@@ -46,7 +46,6 @@ const TOP_POST_OPTIONS = [
   PostOptions.UPDATE_VIEW,
 ];
 
-// TODO: unify1 this and scrollToComment
 const postHandlers = new Map<string, PostHandler>();
 export const scrollToPost = (postId: string, color: string | undefined) => {
   log(`Beaming up to post with id ${postId}`);

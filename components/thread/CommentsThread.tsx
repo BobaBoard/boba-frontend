@@ -2,6 +2,7 @@ import React from "react";
 import {
   CommentChain,
   CommentHandler,
+  DefaultTheme,
   NewCommentsThread,
 } from "@bobaboard/ui-components";
 import { CommentType, ThreadCommentInfoType } from "../../types/Types";
@@ -13,8 +14,8 @@ import { useAuth } from "components/Auth";
 import { useThreadEditors } from "components/editors/withEditors";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 
-// import debug from "debug";
-// const log = debug("bobafrontend:CommentsThread-log");
+import debug from "debug";
+const log = debug("bobafrontend:CommentsThread-log");
 // const info = debug("bobafrontend:CommentsThread-info");
 
 const getCommentsChain = (
@@ -27,6 +28,30 @@ const getCommentsChain = (
     chain.push(next);
   }
   return chain;
+};
+
+export const scrollToComment = (commentId: string, color: string) => {
+  log(`Beaming up to comment with id ${commentId}`);
+  const element: HTMLElement | null = document.querySelector(
+    `.comment[data-comment-id='${commentId}']`
+  );
+  if (!element) {
+    return;
+  }
+  const observer = new IntersectionObserver((observed) => {
+    if (observed[0].isIntersecting) {
+      commentHandlers.get(commentId)?.highlight(color), observer.disconnect();
+    }
+  });
+  observer.observe(element);
+  element.classList.add("outline-hidden");
+  window.scroll({
+    top:
+      element.getBoundingClientRect().top +
+      window.pageYOffset -
+      (DefaultTheme.HEADER_HEIGHT_PX + 2),
+    behavior: "smooth",
+  });
 };
 
 // TODO: clear commentHandlers when changing thread
@@ -117,12 +142,13 @@ const CommentsThreadLevel: React.FC<{
     <NewCommentsThread.Item>
       {(setBoundaryElement) => (
         <>
-          <ThreadComment
-            rootComment={comment}
-            parentPostId={parentPostId}
-            onAvatarRef={setBoundaryElement}
-          />
-          <div className="comment" data-comment-id={comment.commentId}></div>
+          <div className="comment" data-comment-id={comment.commentId}>
+            <ThreadComment
+              rootComment={comment}
+              parentPostId={parentPostId}
+              onAvatarRef={setBoundaryElement}
+            />
+          </div>
           {children && (
             <NewCommentsThread.Indent id={comment.commentId}>
               {children.map((comment: CommentType) => {

@@ -10,7 +10,8 @@ import { useAuth } from "components/Auth";
 import classnames from "classnames";
 import { useBoardContext } from "components/BoardContext";
 //import { useHotkeys } from "react-hotkeys-hook";
-import ThreadView, { scrollToComment } from "components/thread/ThreadView";
+import ThreadView from "components/thread/ThreadView";
+import { scrollToComment } from "components/thread/CommentsThread";
 import { scrollToPost } from "components/thread/ThreadPost";
 import ThreadSidebar from "components/thread/ThreadSidebar";
 import GalleryThreadView from "components/thread/GalleryThreadView";
@@ -24,11 +25,7 @@ import {
   useThreadView,
 } from "components/thread/useThreadView";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
-import { withEditors } from "components/editors/withEditors";
-import {
-  EditorActions,
-  useEditorsDispatch,
-} from "components/editors/EditorsContext";
+import { useThreadEditors, withEditors } from "components/editors/withEditors";
 import { useReadThread } from "components/hooks/queries/thread";
 import { clearThreadData } from "utils/queries/cache";
 import { useQueryClient } from "react-query";
@@ -77,7 +74,6 @@ function ThreadPage() {
   const onCompassClick = React.useCallback(() => setShowSidebar(!showSidebar), [
     showSidebar,
   ]);
-  const dispatch = useEditorsDispatch();
   const markAsRead = useReadThread();
   const hasMarkedAsRead = React.useRef(false);
   const { currentThreadViewMode, setThreadViewMode } = useThreadView();
@@ -87,6 +83,7 @@ function ThreadPage() {
     isLoading: isFetchingThread,
     isRefetching: isRefetchingThread,
   } = useThreadContext();
+  const { onNewContribution } = useThreadEditors();
 
   React.useEffect(() => {
     if (
@@ -144,20 +141,6 @@ function ThreadPage() {
       getLinkToBoard(slug).onClick?.();
     }
   }, [currentBoardData, isAuthPending, isLoggedIn]);
-
-  const onNewContribution = React.useCallback(
-    (replyToContributionId: string) => {
-      dispatch({
-        type: EditorActions.NEW_CONTRIBUTION,
-        payload: {
-          boardSlug: slug,
-          threadId,
-          replyToContributionId,
-        },
-      });
-    },
-    [slug, threadId]
-  );
 
   const onNewAnswersButtonClick = () => {
     if (!newAnswersSequence) {
