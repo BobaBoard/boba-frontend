@@ -45,17 +45,23 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = ({ ...props }) => {
               {
                 id: THREAD_VIEW_MODES.THREAD,
                 label: "Thread",
-                onClick: () => props.onViewChange(THREAD_VIEW_MODES.THREAD),
+                link: {
+                  onClick: () => props.onViewChange(THREAD_VIEW_MODES.THREAD),
+                },
               },
               {
                 id: THREAD_VIEW_MODES.MASONRY,
                 label: "Gallery",
-                onClick: () => props.onViewChange(THREAD_VIEW_MODES.MASONRY),
+                link: {
+                  onClick: () => props.onViewChange(THREAD_VIEW_MODES.MASONRY),
+                },
               },
               {
                 id: THREAD_VIEW_MODES.TIMELINE,
                 label: "Timeline",
-                onClick: () => props.onViewChange(THREAD_VIEW_MODES.TIMELINE),
+                link: {
+                  onClick: () => props.onViewChange(THREAD_VIEW_MODES.TIMELINE),
+                },
               },
             ]}
             selected={props.viewMode}

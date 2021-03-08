@@ -90,17 +90,17 @@ const TimelineView: React.FC<TimelineViewProps> = (props) => {
         id: TIMELINE_VIEW_MODE.NEW,
         label: "New",
         updates: updatedPosts.length > 0 ? updatedPosts.length : undefined,
-        onClick: () => setTimelineViewMode(TIMELINE_VIEW_MODE.NEW),
+        link: { onClick: () => setTimelineViewMode(TIMELINE_VIEW_MODE.NEW) },
       },
       {
         id: TIMELINE_VIEW_MODE.LATEST,
         label: "Latest",
-        onClick: () => setTimelineViewMode(TIMELINE_VIEW_MODE.LATEST),
+        link: { onClick: () => setTimelineViewMode(TIMELINE_VIEW_MODE.LATEST) },
       },
       {
         id: TIMELINE_VIEW_MODE.ALL,
         label: `All (${allPosts.length})`,
-        onClick: () => setTimelineViewMode(TIMELINE_VIEW_MODE.ALL),
+        link: { onClick: () => setTimelineViewMode(TIMELINE_VIEW_MODE.ALL) },
       },
     ],
     [updatedPosts, setTimelineViewMode, allPosts.length]

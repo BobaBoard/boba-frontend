@@ -133,7 +133,7 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
     postId: post.postId,
   });
   const onNotesClickWithId = React.useCallback(
-    (e) => onNotesClick?.(post.postId),
+    () => onNotesClick?.(post.postId),
     [post.postId, onNotesClick]
   );
   const threadLink = React.useMemo(
@@ -141,7 +141,7 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
       href: `${directLink.href}${window.location.search}`,
       onClick: onNotesClick ? onNotesClickWithId : directLink.onClick,
     }),
-    [directLink, onNotesClick, onNotesClickWithId]
+    [directLink, onNotesClickWithId, onNotesClick]
   );
   const onNewContributionCallback = React.useCallback(
     () => onNewContribution(post.postId),
@@ -197,7 +197,7 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
           userIdentity: post.userIdentity,
           createdTimeLink: {
             href: `${directLink.href}${window.location.search}`,
-            onClick: onNotesClick ? onNotesClickWithId : directLink.onClick,
+            onClick: directLink.onClick,
           },
           notesLink: threadLink,
           accessory: post.accessory,

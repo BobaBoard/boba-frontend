@@ -280,22 +280,26 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
               label: "New & Updated",
               updates:
                 updatedPosts.length > 0 ? updatedPosts.length : undefined,
-              onClick: () =>
-                setGalleryViewMode({
-                  mode: GALLERY_VIEW_MODE.NEW,
-                  showCover: galleryViewMode.showCover,
-                }),
+              link: {
+                onClick: () =>
+                  setGalleryViewMode({
+                    mode: GALLERY_VIEW_MODE.NEW,
+                    showCover: galleryViewMode.showCover,
+                  }),
+              },
             },
             {
               id: GALLERY_VIEW_MODE.ALL,
               label: `All Posts (${
                 allGalleryPosts.length + (galleryViewMode.showCover ? 1 : 0)
               })`,
-              onClick: () =>
-                setGalleryViewMode({
-                  mode: GALLERY_VIEW_MODE.ALL,
-                  showCover: galleryViewMode.showCover,
-                }),
+              link: {
+                onClick: () =>
+                  setGalleryViewMode({
+                    mode: GALLERY_VIEW_MODE.ALL,
+                    showCover: galleryViewMode.showCover,
+                  }),
+              },
             },
           ]}
           selected={galleryViewMode.mode}

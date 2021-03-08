@@ -30,21 +30,25 @@ const FeedSidebar: React.FC<FeedSidebarProps> = (props) => {
               {
                 id: UPDATED_ONLY_DATA.id,
                 label: UPDATED_ONLY_DATA.label,
-                onClick: () => {
-                  props.onOptionsChange({
-                    ...props.currentOptions,
-                    updatedOnly: true,
-                  });
+                link: {
+                  onClick: () => {
+                    props.onOptionsChange({
+                      ...props.currentOptions,
+                      updatedOnly: true,
+                    });
+                  },
                 },
               },
               {
                 id: ALL_UPDATES_DATA.id,
                 label: ALL_UPDATES_DATA.label,
-                onClick: () => {
-                  props.onOptionsChange({
-                    ...props.currentOptions,
-                    updatedOnly: false,
-                  });
+                link: {
+                  onClick: () => {
+                    props.onOptionsChange({
+                      ...props.currentOptions,
+                      updatedOnly: false,
+                    });
+                  },
                 },
               },
             ]}
@@ -61,21 +65,25 @@ const FeedSidebar: React.FC<FeedSidebarProps> = (props) => {
               {
                 id: OWN_ONLY_DATA.id,
                 label: OWN_ONLY_DATA.label,
-                onClick: () => {
-                  props.onOptionsChange({
-                    ...props.currentOptions,
-                    ownOnly: true,
-                  });
+                link: {
+                  onClick: () => {
+                    props.onOptionsChange({
+                      ...props.currentOptions,
+                      ownOnly: true,
+                    });
+                  },
                 },
               },
               {
                 id: EVERYONE_DATA.id,
                 label: EVERYONE_DATA.label,
-                onClick: () => {
-                  props.onOptionsChange({
-                    ...props.currentOptions,
-                    ownOnly: false,
-                  });
+                link: {
+                  onClick: () => {
+                    props.onOptionsChange({
+                      ...props.currentOptions,
+                      ownOnly: false,
+                    });
+                  },
                 },
               },
             ]}
