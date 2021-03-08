@@ -34,7 +34,7 @@ const useBoardContext = (slug: string): BoardData | undefined => {
 };
 
 const REFETCH_TIME = 1000 * 60 * 1; // Refetch automatically every minute
-//const STALE_TIME = 1000 * 30; // Make stale after 30s
+const STALE_TIME = 1000 * 30; // Make stale after 30s
 const updateBoardData = (
   newBoardData: BoardData,
   oldBoardData: BoardData | null | undefined
@@ -170,7 +170,7 @@ const BoardContextProvider: React.FC<{
     },
     {
       placeholderData: toBoardsDataObject(props.initialData),
-      staleTime: 1000 * 5,
+      staleTime: STALE_TIME,
       refetchInterval: REFETCH_TIME,
       refetchOnWindowFocus: true,
       // We never notify because we let the state update on result deal with this.
