@@ -386,8 +386,16 @@ export const getThreadInBoardCache = (
     categoryFilter: string | null;
   }
 ) => {
-  const boardActivityData = queryClient.getQueryData<
-    InfiniteData<BoardActivityResponse>
-  >(["boardActivityData", { slug, categoryFilter }]);
-  return getThreadInActivityData(boardActivityData, threadId)?.thread;
+  const queries = getActivityQueries(queryClient, { slug });
+
+  for (const query of queries) {
+    const thread = getThreadInActivityData(
+      query.state.data as InfiniteData<BoardActivityResponse>,
+      threadId
+    )?.thread;
+    if (thread) {
+      return thread;
+    }
+  }
+  return null;
 };
