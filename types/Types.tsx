@@ -27,7 +27,7 @@ export interface TagsType {
 export interface PostType {
   postId: string;
   threadId: string;
-  parentPostId: string;
+  parentPostId: string | null;
   secretIdentity: {
     name: string;
     avatar: string;

@@ -11,7 +11,7 @@ export const makePost = ({
 }): PostType => {
   return {
     postId,
-    parentPostId: parentPostId || "",
+    parentPostId: parentPostId || null,
     threadId: "",
     secretIdentity: {
       name: "",

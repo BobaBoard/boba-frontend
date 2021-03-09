@@ -131,18 +131,19 @@ export const makePostsTree = (
 export const extractNewRepliesSequence = (
   postsDisplaySequence: PostType[],
   postCommentsMap: Map<string, ThreadCommentInfoType>
-): {
-  postId?: string;
-  commentId?: string;
-}[] => {
-  const newAnswersSequence = [] as {
-    postId?: string;
-    commentId?: string;
-  }[];
+): (PostType | CommentType)[] => {
+  return extractRepliesSequence(postsDisplaySequence, postCommentsMap).filter(
+    (reply) => reply.isNew
+  );
+};
+
+export const extractRepliesSequence = (
+  postsDisplaySequence: PostType[],
+  postCommentsMap: Map<string, ThreadCommentInfoType>
+) => {
+  const repliesSequence: (PostType | CommentType)[] = [];
   postsDisplaySequence.forEach((post) => {
-    if (post.isNew && post.parentPostId != null) {
-      newAnswersSequence.push({ postId: post.postId });
-    }
+    repliesSequence.push(post);
     const {
       roots: commentsRoots,
       parentChainMap: commentsChainMap,
@@ -156,13 +157,11 @@ export const extractNewRepliesSequence = (
       return;
     }
 
-    let newCandidates = [...commentsRoots];
-    while (newCandidates.length > 0) {
-      const candidate = newCandidates.shift() as CommentType;
-      if (candidate.isNew) {
-        newAnswersSequence.push({ commentId: candidate.commentId });
-      }
-      let replyToId = candidate.commentId;
+    let rollingRoots = [...commentsRoots];
+    while (rollingRoots.length > 0) {
+      const nextComment = rollingRoots.shift() as CommentType;
+      repliesSequence.push(nextComment);
+      let replyToId = nextComment.commentId;
       // If the post is part of a chain, the reply will be to the last
       // post in the chain.
       while (commentsChainMap?.has(replyToId)) {
@@ -170,12 +169,12 @@ export const extractNewRepliesSequence = (
       }
       const replies = commentsChildrenMap.get(replyToId);
       if (replies) {
-        newCandidates = [...replies, ...newCandidates];
+        rollingRoots = [...replies, ...rollingRoots];
       }
     }
   });
 
-  return newAnswersSequence;
+  return repliesSequence;
 };
 
 export const getTotalContributions = (
