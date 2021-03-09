@@ -61,8 +61,8 @@ const ThreadComment: React.FC<{
   parentPostId: string;
   onBoundaryRef: (
     boundary: {
-      positionX: HTMLElement | null;
-      positionY: HTMLElement | null;
+      positionX?: HTMLElement;
+      positionY?: HTMLElement;
     } | null
   ) => void;
 }> = ({ rootComment, parentPostId, onBoundaryRef }) => {
@@ -90,8 +90,8 @@ const ThreadComment: React.FC<{
       }
       chainInfo.forEach((el) => commentHandlers.set(el.id, handler));
       onBoundaryRef({
-        positionX: handler.avatarRef?.current || null,
-        positionY: handler.headerRef?.current || null,
+        positionX: handler.avatarRef?.current || undefined,
+        positionY: handler.headerRef?.current || undefined,
       });
     },
     [chainInfo, onBoundaryRef]
