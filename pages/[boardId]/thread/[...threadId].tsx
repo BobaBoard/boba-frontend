@@ -8,7 +8,7 @@ import Layout from "components/Layout";
 import LoadingSpinner from "components/LoadingSpinner";
 import { useAuth } from "components/Auth";
 import classnames from "classnames";
-import { useBoardContext } from "components/BoardContext";
+import { useBoardContext, useBoardsContext } from "components/BoardContext";
 //import { useHotkeys } from "react-hotkeys-hook";
 import ThreadView from "components/thread/ThreadView";
 import { scrollToComment } from "components/thread/CommentsThread";
@@ -69,6 +69,7 @@ function ThreadPage() {
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const { getLinkToBoard } = useCachedLinks();
   const currentBoardData = useBoardContext(slug);
+  const { refetch: refetchNotifications } = useBoardsContext();
   const [maxDisplay, setMaxDisplay] = useStateWithCallback(2);
   const [totalPosts, setTotalPosts] = useState(Infinity);
   const [showSidebar, setShowSidebar] = React.useState(false);
@@ -94,12 +95,20 @@ function ThreadPage() {
       isLoggedIn &&
       !hasMarkedAsRead.current
     ) {
-      markAsRead({ slug, threadId });
-      hasMarkedAsRead.current = true;
+      markAsRead(
+        { slug, threadId },
+        {
+          onSuccess: () => {
+            hasMarkedAsRead.current = true;
+            refetchNotifications();
+          },
+        }
+      );
       return;
     }
   }, [
     markAsRead,
+    refetchNotifications,
     isFetchingThread,
     isRefetchingThread,
     isLoggedIn,
