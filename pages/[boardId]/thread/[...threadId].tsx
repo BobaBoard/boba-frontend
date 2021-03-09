@@ -193,14 +193,17 @@ function ThreadPage() {
             showSidebar={showSidebar}
             onCloseSidebar={closeSidebar}
             reachToBottom={maxDisplay < totalPosts}
-            onReachEnd={React.useCallback((more) => {
-              setMaxDisplay(
-                (maxDisplay) => maxDisplay + 4,
-                (maxDisplay) => {
-                  more(maxDisplay < totalPosts);
-                }
-              );
-            }, [])}
+            onReachEnd={React.useCallback(
+              (more) => {
+                setMaxDisplay(
+                  (maxDisplay) => maxDisplay + 4,
+                  (maxDisplay) => {
+                    more(maxDisplay < totalPosts);
+                  }
+                );
+              },
+              [setMaxDisplay, totalPosts]
+            )}
           >
             <FeedWithMenu.Sidebar>
               <MemoizedThreadSidebar
@@ -218,7 +221,10 @@ function ThreadPage() {
                 <div className="view-modes">
                   {currentThreadViewMode == THREAD_VIEW_MODES.THREAD ||
                   postId ? (
-                    <MemoizedThreadView onTotalPostsChange={setTotalPosts} />
+                    <MemoizedThreadView
+                      onTotalPostsChange={setTotalPosts}
+                      displayAtMost={maxDisplay}
+                    />
                   ) : currentThreadViewMode == THREAD_VIEW_MODES.MASONRY ? (
                     <MemoizedGalleryThreadView
                       displayAtMost={maxDisplay}

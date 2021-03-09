@@ -17,6 +17,7 @@ import {
   makeCommentsTree,
   extractNewRepliesSequence,
   UNCATEGORIZED_LABEL,
+  extractRepliesSequence,
 } from "utils/thread-utils";
 import { getThreadInBoardCache } from "utils/queries/cache";
 import moment from "moment";
@@ -35,6 +36,7 @@ export interface ThreadContextType {
   // The current post targeted by the page.
   currentRoot: PostType | null;
   chronologicalPostsSequence: PostType[];
+  threadDisplaySequence: (PostType | CommentType)[];
   newRepliesSequence: (PostType | CommentType)[];
   filteredRoot: PostType | null;
   parentChildrenMap: Map<string, ThreadPostInfoType>;
@@ -155,9 +157,10 @@ export const useThreadWithNull = ({
   const {
     root,
     parentChildrenMap,
-    newRepliesSequence: newRepliesSequence,
+    newRepliesSequence,
     postCommentsMap,
     chronologicalPostsSequence,
+    threadDisplaySequence,
   } = React.useMemo(() => {
     log(`Building posts tree for thread ${threadId}`);
     info("Thread data:", threadData);
@@ -189,6 +192,9 @@ export const useThreadWithNull = ({
       parentChildrenMap,
       postCommentsMap,
       chronologicalPostsSequence,
+      threadDisplaySequence: postsDisplaySequence
+        ? extractRepliesSequence(postsDisplaySequence, postCommentsMap)
+        : [],
       newRepliesSequence: postsDisplaySequence
         ? extractNewRepliesSequence(postsDisplaySequence, postCommentsMap)
         : [],
@@ -237,7 +243,8 @@ export const useThreadWithNull = ({
       !!postId && threadData
         ? (threadData.posts.find((post) => post.postId == postId) as PostType)
         : root,
-    newRepliesSequence: newRepliesSequence,
+    newRepliesSequence,
+    threadDisplaySequence,
     filteredRoot,
     parentChildrenMap,
     filteredParentChildrenMap,

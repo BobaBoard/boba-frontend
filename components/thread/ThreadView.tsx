@@ -3,7 +3,7 @@ import { NewThread } from "@bobaboard/ui-components";
 import ThreadPost, { scrollToPost } from "./ThreadPost";
 import debug from "debug";
 import { useThreadContext } from "components/thread/ThreadContext";
-import { PostType } from "../../types/Types";
+import { CommentType, PostType } from "../../types/Types";
 import Link from "next/link";
 import classnames from "classnames";
 import CommentsThread from "./CommentsThread";
@@ -14,8 +14,8 @@ import { useBoardContext } from "components/BoardContext";
 import { useThreadEditors } from "components/editors/withEditors";
 import { useCollapseManager } from "./useCollapseManager";
 
-// const log = debug("bobafrontend:threadLevel-log");
-const info = debug("bobafrontend:threadLevel-info");
+const log = debug("bobafrontend:ThreadLevel-log");
+const info = debug("bobafrontend:ThreadLevel-info");
 
 export const getCommentThreadId = (postId: string) => {
   return `${postId}_comment`;
@@ -35,7 +35,8 @@ const ThreadLevel: React.FC<{
   showThread?: boolean;
   isCollapsed: (levelId: string) => boolean;
   onToggleCollapseLevel: (levelId: string) => void;
-}> = React.memo((props) => {
+  toDisplay: (PostType | CommentType)[];
+}> = (props) => {
   const {
     onNewComment,
     onNewContribution,
@@ -45,6 +46,9 @@ const ThreadLevel: React.FC<{
     `Rendering subtree at level ${props.level} starting with post with id ${props.post.postId}`
   );
   const { parentChildrenMap } = useThreadContext();
+  if (!props.toDisplay.includes(props.post)) {
+    return null;
+  }
 
   const hasNestedContributions = parentChildrenMap.has(props.post.postId);
   // When there's only comments replying to the post, then the indentation is just made of
@@ -128,11 +132,12 @@ const ThreadLevel: React.FC<{
       </style>
     </>
   );
-});
+};
 ThreadLevel.displayName = "MemoizedThreadLevel";
 
 interface ThreadViewProps {
   onTotalPostsChange: (total: number) => void;
+  displayAtMost: number;
 }
 const ThreadView: React.FC<ThreadViewProps> = (props) => {
   const {
@@ -144,7 +149,11 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
   const { isLoggedIn } = useAuth();
   const { onNewContribution } = useThreadEditors();
   const boardData = useBoardContext(boardSlug);
-  const { chronologicalPostsSequence, currentRoot } = useThreadContext();
+  const {
+    chronologicalPostsSequence,
+    currentRoot,
+    threadDisplaySequence,
+  } = useThreadContext();
 
   const {
     onCollapseLevel,
@@ -177,6 +186,12 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
     onTotalPostsChange(chronologicalPostsSequence.length);
   }, [chronologicalPostsSequence, onTotalPostsChange]);
 
+  const toDisplay = threadDisplaySequence.filter(
+    (value, index) => index < props.displayAtMost
+  );
+
+  info(toDisplay);
+
   if (!currentRoot) {
     return <div />;
   }
@@ -206,6 +221,7 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
           isLoggedIn={isLoggedIn}
           onToggleCollapseLevel={onToggleCollapseLevel}
           isCollapsed={isCollapsed}
+          toDisplay={toDisplay}
         />
       </NewThread>
       <style jsx>{`
