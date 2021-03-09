@@ -1,3 +1,5 @@
+import { CommentType, PostType } from "types/Types";
+
 export const makePost = ({
   postId,
   parentPostId,
@@ -6,7 +8,7 @@ export const makePost = ({
   postId: string;
   parentPostId?: string;
   isNew?: boolean;
-}) => {
+}): PostType => {
   return {
     postId,
     parentPostId: parentPostId || "",
@@ -39,7 +41,7 @@ export const makeComment = (properties: {
   parentCommentId?: string | null;
   chainParentId?: string | null;
   isNew?: boolean;
-}) => {
+}): CommentType => {
   return {
     parentCommentId: null,
     chainParentId: null,
@@ -50,6 +52,7 @@ export const makeComment = (properties: {
     created: "",
     content: "",
     isNew: false,
+    isOwn: false,
     ...properties,
   };
 };

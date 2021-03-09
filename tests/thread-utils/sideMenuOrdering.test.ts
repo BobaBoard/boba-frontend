@@ -472,7 +472,7 @@ const BOARDS_INITIAL_DATA = [
 }, {});
 
 test("Check recent boards alphabetical order", () => {
-  const { allBoards } = processBoardsUpdates(BOARDS_INITIAL_DATA, "");
+  const { allBoards } = processBoardsUpdates(BOARDS_INITIAL_DATA, "", true);
   expect(allBoards.map((board: { slug: string }) => board.slug)).toStrictEqual([
     "aesthetic",
     "animanga",
@@ -516,17 +516,25 @@ test("Check recent boards alphabetical order", () => {
 test("Check recent boards recent order", () => {
   const { recentBoards, hasUpdates } = processBoardsUpdates(
     BOARDS_INITIAL_DATA,
-    ""
+    "",
+    true
   );
 
+  // NOTE: Recent boards are in reverse chronological order, as this is
+  // how they're displayed.
   expect(
     recentBoards.map((board: { slug: string }) => board.slug)
-  ).toStrictEqual(["kpop", "gore", "drawn", "kinkmeme"]);
+  ).toStrictEqual([
+    "kinkmeme", // "2020-11-02T20:10:30.535Z"
+    "drawn", // "2020-11-02T05:51:19.936Z"
+    "gore", // "2020-10-29T01:17:26.096Z"
+    "kpop", // "2020-10-16T15:31:17.992Z"
+  ]);
   expect(hasUpdates).toEqual(true);
 });
 
 test("Check pinned boards order", () => {
-  const { pinnedBoards } = processBoardsUpdates(BOARDS_INITIAL_DATA, "");
+  const { pinnedBoards } = processBoardsUpdates(BOARDS_INITIAL_DATA, "", true);
 
   expect(
     pinnedBoards.map((board: { slug: string }) => board.slug)
@@ -536,7 +544,8 @@ test("Check pinned boards order", () => {
 test("Check boards with filter", () => {
   const { recentBoards, pinnedBoards, allBoards } = processBoardsUpdates(
     BOARDS_INITIAL_DATA,
-    "kp"
+    "kp",
+    true
   );
 
   expect(
