@@ -14,7 +14,7 @@ import {
   extractCategories,
   applyCategoriesFilter,
   makeCommentsTree,
-  extractAnswersSequence,
+  extractNewRepliesSequence,
   UNCATEGORIZED_LABEL,
 } from "utils/thread-utils";
 import { getThreadInBoardCache } from "utils/queries/cache";
@@ -34,7 +34,7 @@ export interface ThreadContextType {
   // The current post targeted by the page.
   currentRoot: PostType | null;
   chronologicalPostsSequence: PostType[];
-  newAnswersSequence: { postId?: string; commentId?: string }[];
+  newRepliesSequence: { postId?: string; commentId?: string }[];
   filteredRoot: PostType | null;
   parentChildrenMap: Map<string, ThreadPostInfoType>;
   postCommentsMap: Map<string, ThreadCommentInfoType>;
@@ -154,7 +154,7 @@ export const useThreadWithNull = ({
   const {
     root,
     parentChildrenMap,
-    newAnswersSequence,
+    newRepliesSequence: newRepliesSequence,
     postCommentsMap,
     chronologicalPostsSequence,
   } = React.useMemo(() => {
@@ -188,8 +188,8 @@ export const useThreadWithNull = ({
       parentChildrenMap,
       postCommentsMap,
       chronologicalPostsSequence,
-      newAnswersSequence: postsDisplaySequence
-        ? extractAnswersSequence(postsDisplaySequence, postCommentsMap)
+      newRepliesSequence: postsDisplaySequence
+        ? extractNewRepliesSequence(postsDisplaySequence, postCommentsMap)
         : [],
     };
   }, [threadData, threadId]);
@@ -236,7 +236,7 @@ export const useThreadWithNull = ({
       !!postId && threadData
         ? (threadData.posts.find((post) => post.postId == postId) as PostType)
         : root,
-    newAnswersSequence,
+    newRepliesSequence: newRepliesSequence,
     filteredRoot,
     parentChildrenMap,
     filteredParentChildrenMap,

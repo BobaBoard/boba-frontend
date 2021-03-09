@@ -128,7 +128,7 @@ export const makePostsTree = (
   return { root, parentChildrenMap, postsDisplaySequence };
 };
 
-export const extractAnswersSequence = (
+export const extractNewRepliesSequence = (
   postsDisplaySequence: PostType[],
   postCommentsMap: Map<string, ThreadCommentInfoType>
 ): {

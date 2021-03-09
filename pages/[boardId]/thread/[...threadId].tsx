@@ -79,7 +79,7 @@ function ThreadPage() {
   const { currentThreadViewMode, setThreadViewMode } = useThreadView();
   const {
     threadRoot,
-    newAnswersSequence,
+    newRepliesSequence,
     isLoading: isFetchingThread,
     isRefetching: isRefetchingThread,
   } = useThreadContext();
@@ -143,16 +143,16 @@ function ThreadPage() {
   }, [currentBoardData, isAuthPending, isLoggedIn]);
 
   const onNewAnswersButtonClick = () => {
-    if (!newAnswersSequence) {
+    if (!newRepliesSequence) {
       return;
     }
-    log(newAnswersSequence);
+    log(newRepliesSequence);
     log(newAnswersIndex);
     // @ts-ignore
     newAnswersIndex.current =
-      (newAnswersIndex.current + 1) % newAnswersSequence.length;
-    const nextPost = newAnswersSequence[newAnswersIndex.current].postId;
-    const nextComment = newAnswersSequence[newAnswersIndex.current].commentId;
+      (newAnswersIndex.current + 1) % newRepliesSequence.length;
+    const nextPost = newRepliesSequence[newAnswersIndex.current].postId;
+    const nextComment = newRepliesSequence[newAnswersIndex.current].commentId;
     if (nextPost) {
       scrollToPost(nextPost, currentBoardData?.accentColor || "#f96680");
     }
@@ -233,7 +233,7 @@ function ThreadPage() {
         </Layout.MainContent>
         <Layout.ActionButton>
           {currentThreadViewMode == THREAD_VIEW_MODES.THREAD &&
-          !!newAnswersSequence.length ? (
+          !!newRepliesSequence.length ? (
             <CycleNewButton text="Next New" onNext={onNewAnswersButtonClick} />
           ) : canTopLevelPost ? (
             <PostingActionButton

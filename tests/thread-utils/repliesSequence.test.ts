@@ -1,10 +1,10 @@
 // TODO: figure out absolute import paths
-import { extractAnswersSequence } from "../../utils/thread-utils";
+import { extractNewRepliesSequence } from "../../utils/thread-utils";
 import { test, expect } from "@jest/globals";
 import { makePost, makeComment } from "./utils";
 
 test("extract answers sequence (single post)", () => {
-  const commentsTree = extractAnswersSequence(
+  const commentsTree = extractNewRepliesSequence(
     [makePost({ postId: "p1", isNew: true })],
     new Map()
   );
@@ -14,7 +14,7 @@ test("extract answers sequence (single post)", () => {
 });
 
 test("extract answers sequence (multiple new posts)", () => {
-  const commentsTree = extractAnswersSequence(
+  const commentsTree = extractNewRepliesSequence(
     [
       makePost({ postId: "p1", isNew: true }),
       makePost({ postId: "p2", isNew: false }),
@@ -30,7 +30,7 @@ test("extract answers sequence (multiple new posts)", () => {
 });
 
 test("extract answers sequence (all old posts)", () => {
-  const commentsTree = extractAnswersSequence(
+  const commentsTree = extractNewRepliesSequence(
     [
       makePost({ postId: "p1", isNew: false }),
       makePost({ postId: "p2", isNew: false }),
@@ -43,7 +43,7 @@ test("extract answers sequence (all old posts)", () => {
 });
 
 test("extract answers sequence (posts with comments)", () => {
-  const commentsTree = extractAnswersSequence(
+  const commentsTree = extractNewRepliesSequence(
     [makePost({ postId: "p1", isNew: true })],
     new Map([
       [
@@ -63,7 +63,7 @@ test("extract answers sequence (posts with comments)", () => {
 });
 
 test("extract answers sequence (old post with new comments)", () => {
-  const commentsTree = extractAnswersSequence(
+  const commentsTree = extractNewRepliesSequence(
     [makePost({ postId: "p1", isNew: false })],
     new Map([
       [
@@ -82,7 +82,7 @@ test("extract answers sequence (old post with new comments)", () => {
 });
 
 test("extract answers sequence (old post with new comments)", () => {
-  const commentsTree = extractAnswersSequence(
+  const commentsTree = extractNewRepliesSequence(
     [makePost({ postId: "p1", isNew: false })],
     new Map([
       [
@@ -101,7 +101,7 @@ test("extract answers sequence (old post with new comments)", () => {
 });
 
 test("extract answers sequence (old post with staggered comment replies)", () => {
-  const commentsTree = extractAnswersSequence(
+  const commentsTree = extractNewRepliesSequence(
     [makePost({ postId: "p1", isNew: false })],
     new Map([
       [
@@ -127,7 +127,7 @@ test("extract answers sequence (old post with staggered comment replies)", () =>
 });
 
 test("extract answers sequence (multiple poss with staggered comment replies)", () => {
-  const commentsTree = extractAnswersSequence(
+  const commentsTree = extractNewRepliesSequence(
     [
       makePost({ postId: "p1", isNew: true }),
       makePost({ postId: "p2", isNew: true }),
@@ -167,7 +167,7 @@ test("extract answers sequence (multiple poss with staggered comment replies)", 
 });
 
 test("extract answers sequence (chained comments)", () => {
-  const commentsTree = extractAnswersSequence(
+  const commentsTree = extractNewRepliesSequence(
     [makePost({ postId: "p1", isNew: false })],
     new Map([
       [
