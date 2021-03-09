@@ -150,3 +150,13 @@ export interface ThreadCommentInfoType {
   parentChainMap: Map<string, CommentType>;
   parentChildrenMap: Map<string, CommentType[]>;
 }
+
+export const isPost = (object: PostType | CommentType): object is PostType => {
+  return (object as PostType).postId !== undefined;
+};
+
+export const isComment = (
+  object: PostType | CommentType
+): object is CommentType => {
+  return (object as CommentType).commentId !== undefined;
+};

@@ -31,7 +31,9 @@ import { clearThreadData } from "utils/queries/cache";
 import { useQueryClient } from "react-query";
 
 import debug from "debug";
-const log = debug("bobafrontend:threadPage-log");
+import { isPost } from "types/Types";
+const log = debug("bobafrontend:ThreadPage-log");
+const info = debug("bobafrontend:ThreadPage-info");
 
 const useStateWithCallback = <T extends any>(
   initialState: T
@@ -115,7 +117,7 @@ function ThreadPage() {
     };
   }, []);
 
-  const newAnswersIndex = React.useRef<number>(-1);
+  const newRepliesIndex = React.useRef<number>(-1);
 
   // TODO: disable this while post editing and readd
   // const currentPostIndex = React.useRef<number>(-1);
@@ -142,23 +144,37 @@ function ThreadPage() {
     }
   }, [currentBoardData, isAuthPending, isLoggedIn]);
 
+  // Skip if there's only one new post and it's the root.
+  const hasBeamableReply =
+    newRepliesSequence?.length &&
+    !(newRepliesSequence.length == 1 && newRepliesSequence[0] === threadRoot);
   const onNewAnswersButtonClick = () => {
-    if (!newRepliesSequence) {
+    if (!hasBeamableReply) {
       return;
     }
-    log(newRepliesSequence);
-    log(newAnswersIndex);
+
+    log(`Finding next new reply...`);
     // @ts-ignore
-    newAnswersIndex.current =
-      (newAnswersIndex.current + 1) % newRepliesSequence.length;
-    const nextPost = newRepliesSequence[newAnswersIndex.current].postId;
-    const nextComment = newRepliesSequence[newAnswersIndex.current].commentId;
-    if (nextPost) {
-      scrollToPost(nextPost, currentBoardData?.accentColor || "#f96680");
+    newRepliesIndex.current =
+      (newRepliesIndex.current + 1) % newRepliesSequence.length;
+    let next = newRepliesSequence[newRepliesIndex.current];
+    // Skip the root post.
+    if (isPost(next) && next.parentPostId == null) {
+      newRepliesIndex.current =
+        (newRepliesIndex.current + 1) % newRepliesSequence.length;
+      // This won't be the root, cause we already addressed the case when the root is the only
+      // new post.
+      next = newRepliesSequence[newRepliesIndex.current];
+      info(`...skipping the root...`);
     }
-    if (nextComment) {
-      scrollToComment(nextComment, currentBoardData?.accentColor || "#f96680");
-    }
+    log(`Beaming to new reply with index ${newRepliesIndex}`);
+    info(newRepliesSequence);
+    isPost(next)
+      ? scrollToPost(next.postId, currentBoardData?.accentColor || "#f96680")
+      : scrollToComment(
+          next.commentId,
+          currentBoardData?.accentColor || "#f96680"
+        );
   };
 
   const canTopLevelPost =
@@ -233,7 +249,7 @@ function ThreadPage() {
         </Layout.MainContent>
         <Layout.ActionButton>
           {currentThreadViewMode == THREAD_VIEW_MODES.THREAD &&
-          !!newRepliesSequence.length ? (
+          hasBeamableReply ? (
             <CycleNewButton text="Next New" onNext={onNewAnswersButtonClick} />
           ) : canTopLevelPost ? (
             <PostingActionButton

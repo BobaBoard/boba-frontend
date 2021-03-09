@@ -8,6 +8,7 @@ import {
   CategoryFilterType,
   ThreadPostInfoType,
   ThreadCommentInfoType,
+  CommentType,
 } from "types/Types";
 import {
   makePostsTree,
@@ -34,7 +35,7 @@ export interface ThreadContextType {
   // The current post targeted by the page.
   currentRoot: PostType | null;
   chronologicalPostsSequence: PostType[];
-  newRepliesSequence: { postId?: string; commentId?: string }[];
+  newRepliesSequence: (PostType | CommentType)[];
   filteredRoot: PostType | null;
   parentChildrenMap: Map<string, ThreadPostInfoType>;
   postCommentsMap: Map<string, ThreadCommentInfoType>;
