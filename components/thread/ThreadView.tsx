@@ -14,7 +14,7 @@ import { useBoardContext } from "components/BoardContext";
 import { useThreadEditors } from "components/editors/withEditors";
 import { useCollapseManager } from "./useCollapseManager";
 
-const log = debug("bobafrontend:ThreadLevel-log");
+//const log = debug("bobafrontend:ThreadLevel-log");
 const info = debug("bobafrontend:ThreadLevel-info");
 
 export const getCommentThreadId = (postId: string) => {
@@ -138,6 +138,10 @@ ThreadLevel.displayName = "MemoizedThreadLevel";
 interface ThreadViewProps {
   onTotalPostsChange: (total: number) => void;
   displayAtMost: number;
+  setDisplayAtMost: (
+    newAmount: React.SetStateAction<number>,
+    callback?: (state: number) => void
+  ) => void;
 }
 const ThreadView: React.FC<ThreadViewProps> = (props) => {
   const {
@@ -185,6 +189,33 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
   React.useEffect(() => {
     onTotalPostsChange(chronologicalPostsSequence.length);
   }, [chronologicalPostsSequence, onTotalPostsChange]);
+
+  React.useEffect(() => {
+    let id: number;
+    let timeout: NodeJS.Timeout;
+    const idleCallback = () => {
+      props.setDisplayAtMost(
+        (current) => current + 10,
+        () => {
+          timeout = setTimeout(() => {
+            // @ts-ignore
+            id = requestIdleCallback(idleCallback, { timeout: 500 });
+          }, 300);
+        }
+      );
+    };
+    // @ts-ignore
+    requestIdleCallback(idleCallback, { timeout: 500 });
+    return () => {
+      if (id) {
+        // @ts-ignore
+        cancelIdleCallback(id);
+      }
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    };
+  }, []);
 
   const toDisplay = threadDisplaySequence.filter(
     (value, index) => index < props.displayAtMost

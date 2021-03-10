@@ -41,7 +41,7 @@ const getPinBoardOption = (
   callback: (pin: boolean) => void
 ): OptionType => ({
   icon: faThumbtack,
-  name: !!pinnedOrder ? "Unpin" : "Pin",
+  name: pinnedOrder ? "Unpin" : "Pin",
   link: {
     onClick: () => callback(!pinnedOrder),
   },

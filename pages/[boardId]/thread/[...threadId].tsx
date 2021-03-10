@@ -63,13 +63,14 @@ const MemoizedThreadView = React.memo(ThreadView);
 const MemoizedGalleryThreadView = React.memo(GalleryThreadView);
 const MemoizedTimelineThreadView = React.memo(TimelineThreadView);
 
+const READ_MORE_STEP = 10;
 function ThreadPage() {
   const queryClient = useQueryClient();
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const { getLinkToBoard } = useCachedLinks();
   const currentBoardData = useBoardContext(slug);
-  const [maxDisplay, setMaxDisplay] = useStateWithCallback(2);
+  const [maxDisplay, setMaxDisplay] = useStateWithCallback(READ_MORE_STEP);
   const [totalPosts, setTotalPosts] = useState(Infinity);
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
@@ -196,7 +197,7 @@ function ThreadPage() {
             onReachEnd={React.useCallback(
               (more) => {
                 setMaxDisplay(
-                  (maxDisplay) => maxDisplay + 4,
+                  (maxDisplay) => maxDisplay + READ_MORE_STEP,
                   (maxDisplay) => {
                     more(maxDisplay < totalPosts);
                   }
@@ -224,6 +225,7 @@ function ThreadPage() {
                     <MemoizedThreadView
                       onTotalPostsChange={setTotalPosts}
                       displayAtMost={maxDisplay}
+                      setDisplayAtMost={setMaxDisplay}
                     />
                   ) : currentThreadViewMode == THREAD_VIEW_MODES.MASONRY ? (
                     <MemoizedGalleryThreadView

@@ -3,7 +3,6 @@ import "../wdyr";
 import "@bobaboard/ui-components/dist/main.css";
 import "normalize.css";
 import smoothscroll from "smoothscroll-polyfill";
-
 import React from "react";
 import axios from "axios";
 import Head from "next/head";
@@ -35,6 +34,7 @@ const logRequest = debug("bobafrontend:app:requests-log");
 
 if (typeof window !== "undefined") {
   smoothscroll.polyfill();
+  require("requestidlecallback-polyfill");
 }
 
 axios.defaults.baseURL = getServerBaseUrl();
