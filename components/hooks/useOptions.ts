@@ -27,6 +27,7 @@ import {
   useSetThreadView,
 } from "./queries/thread";
 import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
+import { useBoardsContext } from "components/BoardContext";
 
 export enum PostOptions {
   COPY_LINK = "COPY_LINK",
@@ -171,6 +172,7 @@ const usePostOptions = ({
   const hideThread = useSetThreadHidden();
   const muteThread = useMuteThread();
   const setThreadView = useSetThreadView();
+  const { refetch: refetchNotifications } = useBoardsContext();
 
   const editTagsCallback = React.useCallback(() => {
     editorDispatch({
@@ -184,32 +186,53 @@ const usePostOptions = ({
   }, [slug, postId, threadId, editorDispatch]);
 
   const markReadCallback = React.useCallback(() => {
-    readThread({
-      threadId,
-      slug,
-    });
-  }, [threadId, slug, readThread]);
+    readThread(
+      {
+        threadId,
+        slug,
+      },
+      {
+        onSuccess: () => {
+          refetchNotifications();
+        },
+      }
+    );
+  }, [threadId, slug, readThread, refetchNotifications]);
 
   const hideThreadCallback = React.useCallback(
     (hide: boolean) => {
-      hideThread({
-        threadId,
-        slug,
-        hide,
-      });
+      hideThread(
+        {
+          threadId,
+          slug,
+          hide,
+        },
+        {
+          onSuccess: () => {
+            refetchNotifications();
+          },
+        }
+      );
     },
-    [threadId, slug, hideThread]
+    [threadId, slug, hideThread, refetchNotifications]
   );
 
   const muteThreadCallback = React.useCallback(
     (mute: boolean) => {
-      muteThread({
-        threadId,
-        slug,
-        mute,
-      });
+      muteThread(
+        {
+          threadId,
+          slug,
+          mute,
+        },
+        {
+          onSuccess: () => {
+            refetchNotifications();
+          },
+        }
+      );
     },
-    [threadId, slug, hideThread]
+    [threadId, slug, muteThread, refetchNotifications]
   );
 
   const setThreadViewCallback = React.useCallback(
@@ -220,7 +243,7 @@ const usePostOptions = ({
         view,
       });
     },
-    []
+    [setThreadView, threadId, slug]
   );
 
   const getOption = (option: PostOptions) => {
