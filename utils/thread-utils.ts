@@ -66,43 +66,67 @@ export const makePostsTree = (
   root: null | PostType;
   parentChildrenMap: Map<string, ThreadPostInfoType>;
   postsDisplaySequence: PostType[];
+  postsInfoMap: Map<string, ThreadPostInfoType>;
 } => {
   log(`Creating posts tree for thread ${threadId}`);
   if (!posts) {
     return {
       root: null,
       parentChildrenMap: new Map<string, ThreadPostInfoType>(),
+      postsInfoMap: new Map<string, ThreadPostInfoType>(),
       postsDisplaySequence: [],
     };
   }
-  let root: PostType | null = null;
+  const root = posts.find((post) => post.parentPostId == null) || null;
   const parentChildrenMap = new Map<string, ThreadPostInfoType>();
+  const postsInfoMap = new Map<string, ThreadPostInfoType>();
   const postsDisplaySequence: PostType[] = [];
 
-  // We add each post to the "parent children map" for its own parent.
-  // Furthermore, we also add the post as a parent for its own parent children map.
+  // We create a map that for each post returns its tree info.
   posts.forEach((post) => {
-    if (!post.parentPostId) {
-      root = post;
+    postsInfoMap.set(post.postId, {
+      parent:
+        posts.find((currentPost) => currentPost.postId == post.parentPostId) ||
+        null,
+      post: post,
+      children: posts.filter(
+        (currentPost) => currentPost.parentPostId == post.postId
+      ),
+    });
+  });
+
+  // We add each post to the "parent children map" for its own parent, thereby constructing
+  // the "three map" of the thread.
+  // posts.forEach((post) => {
+  //   // Our post tree skips the root. The first level of the tree is simply all the entries
+  //   // of the top Map.
+  //   if (!post.parentPostId) {
+  //     return;
+  //   }
+  //   // TODO: here we're are getting the parent again for every child. just do this
+  //   // once if the parent is not already set.
+  //   const parentPost = posts.find(
+  //     (candidate) => candidate.postId == post.parentPostId
+  //   ) as PostType;
+  //   const grandPost =
+  //     posts.find((candidate) => candidate.postId == parentPost?.parentPostId) ||
+  //     null;
+  //   parentChildrenMap.set(post.parentPostId, {
+  //     parent: grandPost,
+  //     post: parentPost,
+  //     children: [
+  //       ...(parentChildrenMap.get(post.parentPostId)?.children ||
+  //         ([] as PostType[])),
+  //       post,
+  //     ],
+  //   });
+  // });
+  postsInfoMap.forEach((postInfo, key) => {
+    console.log(postInfo);
+    if (postInfo.children.length == 0) {
       return;
     }
-    // TODO: here we're are getting the parent again for every child. just do this
-    // once if the parent is not already set.
-    const parentPost = posts.find(
-      (candidate) => candidate.postId == post.parentPostId
-    ) as PostType;
-    const grandPost =
-      posts.find((candidate) => candidate.postId == parentPost?.parentPostId) ||
-      null;
-    parentChildrenMap.set(post.parentPostId, {
-      parent: grandPost,
-      post: parentPost,
-      children: [
-        ...(parentChildrenMap.get(post.parentPostId)?.children ||
-          ([] as PostType[])),
-        post,
-      ],
-    });
+    parentChildrenMap.set(key, postInfo);
   });
 
   // Creates a ordered sequence of posts like they'd be displayed in a thread
@@ -125,7 +149,7 @@ export const makePostsTree = (
     }
   }
 
-  return { root, parentChildrenMap, postsDisplaySequence };
+  return { root, postsInfoMap, parentChildrenMap, postsDisplaySequence };
 };
 
 export const extractNewRepliesSequence = (
@@ -305,4 +329,55 @@ const makeActiveChildrenMap = (
   });
   resultsMap.set(root.postId, hasCategoryChildren);
   return hasCategoryChildren;
+};
+
+export const findFirstLevelParent = (
+  post: PostType,
+  parentChildrenMap: Map<string, ThreadPostInfoType>
+) => {
+  let lastRootId = post.parentPostId;
+  let lastFirstChildLoaded = post;
+  while (lastRootId != null) {
+    lastRootId = parentChildrenMap.get(lastRootId)!.post.parentPostId;
+    lastFirstChildLoaded = parentChildrenMap.get(
+      lastFirstChildLoaded.parentPostId!
+    )!.post;
+  }
+  return lastFirstChildLoaded;
+};
+
+export const findNextSibling = (
+  post: PostType,
+  parentChildrenMap: Map<string, ThreadPostInfoType>
+) => {
+  if (!post.parentPostId) {
+    return null;
+  }
+  const siblings = parentChildrenMap.get(post.parentPostId)!.children;
+  const postIndex = siblings.findIndex(
+    (sibling) => sibling.postId == post.postId
+  );
+  // This was the last sibling.
+  if (postIndex == siblings.length - 1) {
+    return null;
+  }
+  return siblings[postIndex + 1];
+};
+
+export const findPreviousSibling = (
+  post: PostType,
+  parentChildrenMap: Map<string, ThreadPostInfoType>
+) => {
+  if (!post.parentPostId) {
+    return null;
+  }
+  const siblings = parentChildrenMap.get(post.parentPostId)!.children;
+  const postIndex = siblings.findIndex(
+    (sibling) => sibling.postId == post.postId
+  );
+  // This was the first sibling.
+  if (postIndex == 0) {
+    return null;
+  }
+  return siblings[postIndex - 1];
 };

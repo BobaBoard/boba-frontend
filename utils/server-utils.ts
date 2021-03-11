@@ -4,10 +4,14 @@ import { DEFAULT_USER_NAME, DEFAULT_USER_AVATAR } from "../components/Auth";
 import { NextPageContext } from "next/dist/next-server/lib/utils";
 import moment from "moment";
 
-export const makeClientComment = (serverComment: any): CommentType => ({
+export const makeClientComment = (
+  serverComment: any,
+  parentPostId: string
+): CommentType => ({
   commentId: serverComment.comment_id,
   chainParentId: serverComment.chain_parent_id,
   parentCommentId: serverComment.parent_comment,
+  parentPostId,
   secretIdentity: {
     name: serverComment.secret_identity.name,
     avatar: serverComment.secret_identity.avatar,
@@ -47,7 +51,9 @@ export const makeClientPost = (serverPost: any): PostType => ({
     categoryTags: serverPost.tags.category_tags,
     contentWarnings: serverPost.tags.content_warnings,
   },
-  comments: serverPost.comments?.map(makeClientComment),
+  comments: serverPost.comments?.map((comment: any) =>
+    makeClientComment(comment, serverPost.post_id)
+  ),
   postsAmount: serverPost.posts_amount,
   threadsAmount: serverPost.threads_amount,
   newPostsAmount: serverPost.new_posts_amount,
