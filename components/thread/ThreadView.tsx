@@ -14,7 +14,7 @@ import { useBoardContext } from "components/BoardContext";
 import { useThreadEditors } from "components/editors/withEditors";
 import { useCollapseManager } from "./useCollapseManager";
 
-//const log = debug("bobafrontend:ThreadLevel-log");
+const log = debug("bobafrontend:ThreadLevel-log");
 const info = debug("bobafrontend:ThreadLevel-info");
 
 export const getCommentThreadId = (postId: string) => {
@@ -29,22 +29,20 @@ export const extractPostId = (levelId: string) => {
 
 const ThreadLevel: React.FC<{
   post: PostType;
-  level?: number;
   isLoggedIn: boolean;
   lastOf?: { level: number; postId: string }[];
   showThread?: boolean;
   isCollapsed: (levelId: string) => boolean;
   onToggleCollapseLevel: (levelId: string) => void;
   toDisplay: (PostType | CommentType)[];
+  collapseManager: ReturnType<typeof useCollapseManager>;
 }> = (props) => {
   const {
     onNewComment,
     onNewContribution,
     onEditContribution,
   } = useThreadEditors();
-  info(
-    `Rendering subtree at level ${props.level} starting with post with id ${props.post.postId}`
-  );
+  info(`Rendering subtree starting with post with id ${props.post.postId}`);
   const { parentChildrenMap } = useThreadContext();
   if (!props.toDisplay.includes(props.post)) {
     return null;
@@ -76,6 +74,38 @@ const ThreadLevel: React.FC<{
   );
 
   const hasComments = !!props.post.comments?.length;
+  const children = parentChildrenMap.get(props.post.postId)?.children;
+  const childrenDisplay: React.ReactNode[] = [];
+  for (let i = 0; i < (children?.length || 0); i++) {
+    const currentPost = children![i];
+    const collapseGroup = props.collapseManager.getCollapseGroup(
+      currentPost.postId
+    );
+    if (collapseGroup) {
+      const collapseGroupId = props.collapseManager.getCollapseGroupId(
+        collapseGroup
+      );
+      const collapseGroupChildren = [];
+      while (children![i].postId !== collapseGroup[1] && i < children!.length) {
+        collapseGroupChildren.push(children![i]);
+        i++;
+      }
+      childrenDisplay.push(
+        <NewThread.CollapseGroup
+          id={collapseGroupId}
+          collapsed={props.collapseManager.isCollapsed(collapseGroupId)}
+        >
+          {collapseGroupChildren.map((post) => (
+            <ThreadLevel key={post.postId} {...props} post={post} />
+          ))}
+        </NewThread.CollapseGroup>
+      );
+      continue;
+    }
+    childrenDisplay.push(
+      <ThreadLevel key={currentPost.postId} {...props} post={currentPost} />
+    );
+  }
   return (
     <>
       <NewThread.Item key={props.post.postId}>
@@ -107,11 +137,7 @@ const ThreadLevel: React.FC<{
                     {commentsThread}
                   </NewThread.Item>
                 )}
-                {parentChildrenMap
-                  .get(props.post.postId)
-                  ?.children.flatMap((post: PostType) => (
-                    <ThreadLevel key={post.postId} {...props} post={post} />
-                  ))}
+                {childrenDisplay}
               </NewThread.Indent>
             )}
           </>
@@ -142,6 +168,7 @@ interface ThreadViewProps {
     newAmount: React.SetStateAction<number>,
     callback?: (state: number) => void
   ) => void;
+  collapseManager: ReturnType<typeof useCollapseManager>;
 }
 const ThreadView: React.FC<ThreadViewProps> = (props) => {
   const {
@@ -154,10 +181,13 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
   const { onNewContribution } = useThreadEditors();
   const boardData = useBoardContext(boardSlug);
   const {
-    chronologicalPostsSequence,
     currentRoot,
     threadDisplaySequence,
+    isLoading,
+    isRefetching,
   } = useThreadContext();
+  log(`Rerendering ThreadView.`);
+  info(threadDisplaySequence);
 
   const {
     onCollapseLevel,
@@ -165,7 +195,7 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
     getCollapseReason,
     onToggleCollapseLevel,
     isCollapsed,
-  } = useCollapseManager();
+  } = props.collapseManager;
 
   const getStemOptions = useStemOptions({
     boardSlug,
@@ -187,25 +217,41 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
 
   const { onTotalPostsChange } = props;
   React.useEffect(() => {
-    onTotalPostsChange(chronologicalPostsSequence.length);
-  }, [chronologicalPostsSequence, onTotalPostsChange]);
+    onTotalPostsChange(threadDisplaySequence.length);
+    log(
+      `Total post length changed. New Total: ${threadDisplaySequence.length}`
+    );
+  }, [threadDisplaySequence, onTotalPostsChange]);
 
+  const { setDisplayAtMost } = props;
   React.useEffect(() => {
+    if (isLoading || isRefetching) {
+      return;
+    }
     let id: number;
     let timeout: NodeJS.Timeout;
     const idleCallback = () => {
-      props.setDisplayAtMost(
-        (current) => current + 10,
-        () => {
-          timeout = setTimeout(() => {
-            // @ts-ignore
-            id = requestIdleCallback(idleCallback, { timeout: 500 });
-          }, 300);
-        }
+      log(`Browser idle (or equivalent). Loading more.....`);
+      requestAnimationFrame(() =>
+        setDisplayAtMost(
+          (current) => current + 10,
+          (newValue) => {
+            log(
+              `New total posts loaded: ${newValue}. Total posts: ${threadDisplaySequence.length}`
+            );
+            if (newValue < threadDisplaySequence.length) {
+              timeout = setTimeout(() => {
+                log(`Creating request for further load at next idle step.`);
+                // @ts-ignore
+                id = requestIdleCallback(idleCallback /*, { timeout: 2000 }*/);
+              }, 5000);
+            }
+          }
+        )
       );
     };
     // @ts-ignore
-    requestIdleCallback(idleCallback, { timeout: 500 });
+    requestIdleCallback(idleCallback /*, { timeout: 500 }*/);
     return () => {
       if (id) {
         // @ts-ignore
@@ -215,12 +261,13 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
         clearTimeout(timeout);
       }
     };
-  }, []);
+  }, [isLoading, isRefetching, threadDisplaySequence.length, setDisplayAtMost]);
 
   const toDisplay = threadDisplaySequence.filter(
     (value, index) => index < props.displayAtMost
   );
 
+  log(`Displaying `);
   info(toDisplay);
 
   if (!currentRoot) {
@@ -253,6 +300,7 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
           onToggleCollapseLevel={onToggleCollapseLevel}
           isCollapsed={isCollapsed}
           toDisplay={toDisplay}
+          collapseManager={props.collapseManager}
         />
       </NewThread>
       <style jsx>{`

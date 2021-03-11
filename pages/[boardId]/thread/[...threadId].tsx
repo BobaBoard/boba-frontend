@@ -12,7 +12,7 @@ import { useBoardContext } from "components/BoardContext";
 //import { useHotkeys } from "react-hotkeys-hook";
 import ThreadView from "components/thread/ThreadView";
 import { scrollToComment } from "components/thread/CommentsThread";
-import { scrollToPost } from "components/thread/ThreadPost";
+import { isPostLoaded, scrollToPost } from "components/thread/ThreadPost";
 import ThreadSidebar from "components/thread/ThreadSidebar";
 import GalleryThreadView from "components/thread/GalleryThreadView";
 import TimelineThreadView from "components/thread/TimelineThreadView";
@@ -31,13 +31,20 @@ import { clearThreadData } from "utils/queries/cache";
 import { useQueryClient } from "react-query";
 
 import debug from "debug";
-import { isPost } from "types/Types";
+import { isPost, PostType } from "types/Types";
+import {
+  findFirstLevelParent,
+  findNextSibling,
+  findPreviousSibling,
+} from "utils/thread-utils";
+import { useCollapseManager } from "components/thread/useCollapseManager";
+const error = debug("bobafrontend:ThreadPage-error");
 const log = debug("bobafrontend:ThreadPage-log");
 const info = debug("bobafrontend:ThreadPage-info");
 
 const useStateWithCallback = <T extends any>(
   initialState: T
-): [T, (value: SetStateAction<T>, callback: (state: T) => void) => void] => {
+): [T, (value: SetStateAction<T>, callback?: (state: T) => void) => void] => {
   const callbackRef = React.useRef<(state: T) => void>(null);
 
   const [value, setValue] = React.useState(initialState);
@@ -63,7 +70,7 @@ const MemoizedThreadView = React.memo(ThreadView);
 const MemoizedGalleryThreadView = React.memo(GalleryThreadView);
 const MemoizedTimelineThreadView = React.memo(TimelineThreadView);
 
-const READ_MORE_STEP = 10;
+const READ_MORE_STEP = 5;
 function ThreadPage() {
   const queryClient = useQueryClient();
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
@@ -80,12 +87,18 @@ function ThreadPage() {
   const markAsRead = useReadThread();
   const hasMarkedAsRead = React.useRef(false);
   const { currentThreadViewMode, setThreadViewMode } = useThreadView();
+  const collapseManager = useCollapseManager();
   const {
     threadRoot,
     newRepliesSequence,
+    chronologicalPostsSequence,
+    threadDisplaySequence,
+    postsInfoMap,
+    postCommentsMap,
     isLoading: isFetchingThread,
     isRefetching: isRefetchingThread,
   } = useThreadContext();
+  log(postsInfoMap);
   const { onNewContribution } = useThreadEditors();
 
   React.useEffect(() => {
@@ -119,6 +132,9 @@ function ThreadPage() {
   }, []);
 
   const newRepliesIndex = React.useRef<number>(-1);
+  React.useEffect(() => {
+    //setMaxDisplay(READ_MORE_STEP);
+  }, [currentThreadViewMode, setMaxDisplay, collapseManager]);
 
   // TODO: disable this while post editing and readd
   // const currentPostIndex = React.useRef<number>(-1);
@@ -170,12 +186,68 @@ function ThreadPage() {
     }
     log(`Beaming to new reply with index ${newRepliesIndex}`);
     info(newRepliesSequence);
-    isPost(next)
-      ? scrollToPost(next.postId, currentBoardData?.accentColor || "#f96680")
-      : scrollToComment(
-          next.commentId,
-          currentBoardData?.accentColor || "#f96680"
+    if (isPost(next)) {
+      if (isPostLoaded(next.postId)) {
+        scrollToPost(next.postId, currentBoardData?.accentColor || "#f96680");
+      } else {
+        const index = threadDisplaySequence.findIndex(
+          (post) => post.postId == next.postId
         );
+        const lastCurrentlyDisplayedIndex = Math.min(
+          maxDisplay,
+          chronologicalPostsSequence.length - 1
+        );
+        // see if the post is beyond the currently displayed
+        // TODO this actually should never happen because in that case it would be displayed
+        if (index < lastCurrentlyDisplayedIndex) {
+          error("what the fuck");
+          scrollToPost(next.postId, currentBoardData?.accentColor || "#f96680");
+          return;
+        }
+        const lastCurrentlyDisplayed = threadDisplaySequence[
+          lastCurrentlyDisplayedIndex
+        ] as PostType;
+        info(`The last post displayed is: ${lastCurrentlyDisplayed}`);
+
+        const lastFirstLevelParent = findFirstLevelParent(
+          lastCurrentlyDisplayed,
+          postsInfoMap
+        );
+        const firstCollapsedLvl1 = findNextSibling(
+          lastFirstLevelParent,
+          postsInfoMap
+        );
+        const nextFirstLevelParent = findFirstLevelParent(next, postsInfoMap);
+        const lastCollapsedLvl1 = findPreviousSibling(
+          nextFirstLevelParent,
+          postsInfoMap
+        );
+        collapseManager.addCollapseGroup(
+          firstCollapsedLvl1!.postId,
+          lastCollapsedLvl1!.postId
+        );
+        collapseManager.onCollapseLevel(
+          collapseManager.getCollapseGroupId([
+            firstCollapsedLvl1!.postId,
+            lastCollapsedLvl1!.postId,
+          ])
+        );
+        log(
+          `Adding collapse group: [${firstCollapsedLvl1!.postId}, ${
+            lastCollapsedLvl1!.postId
+          }]`
+        );
+        setMaxDisplay(index + 1, () => {
+          scrollToPost(next.postId, currentBoardData?.accentColor || "#f96680");
+        });
+      }
+    }
+    // isPost(next)
+    //   ?
+    //   : scrollToComment(
+    //       next.commentId,
+    //       currentBoardData?.accentColor || "#f96680"
+    //     );
   };
 
   const canTopLevelPost =
@@ -211,6 +283,8 @@ function ThreadPage() {
                 viewMode={currentThreadViewMode}
                 open={showSidebar}
                 onViewChange={setThreadViewMode}
+                displayAtMost={maxDisplay}
+                totalPosts={totalPosts}
               />
             </FeedWithMenu.Sidebar>
             <FeedWithMenu.FeedContent>
@@ -226,6 +300,7 @@ function ThreadPage() {
                       onTotalPostsChange={setTotalPosts}
                       displayAtMost={maxDisplay}
                       setDisplayAtMost={setMaxDisplay}
+                      collapseManager={collapseManager}
                     />
                   ) : currentThreadViewMode == THREAD_VIEW_MODES.MASONRY ? (
                     <MemoizedGalleryThreadView

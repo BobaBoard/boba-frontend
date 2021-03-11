@@ -14,9 +14,11 @@ export interface ThreadSidebarProps {
   viewMode: THREAD_VIEW_MODES;
   open?: boolean;
   onViewChange: (viewType: THREAD_VIEW_MODES) => void;
+  displayAtMost?: number;
+  totalPosts?: number;
 }
 
-const ThreadSidebar: React.FC<ThreadSidebarProps> = ({ ...props }) => {
+const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
   const { forceHideIdentity } = useForceHideIdentity();
   const {
     threadRoot,
@@ -67,6 +69,15 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = ({ ...props }) => {
             selected={props.viewMode}
           />
         </div>
+        {props.displayAtMost && props.totalPosts && (
+          <div>
+            Showing{" "}
+            {props.displayAtMost > props.totalPosts
+              ? props.totalPosts
+              : props.displayAtMost}{" "}
+            posts of {props.totalPosts}
+          </div>
+        )}
       </div>
       {categoryFilterState.length > 1 && (
         <div className="category-filters">

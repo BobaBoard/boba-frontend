@@ -40,6 +40,7 @@ export interface ThreadContextType {
   newRepliesSequence: (PostType | CommentType)[];
   filteredRoot: PostType | null;
   parentChildrenMap: Map<string, ThreadPostInfoType>;
+  postsInfoMap: Map<string, ThreadPostInfoType>;
   postCommentsMap: Map<string, ThreadCommentInfoType>;
   filteredParentChildrenMap: Map<string, ThreadPostInfoType>;
   categories: string[];
@@ -159,6 +160,7 @@ export const useThreadWithNull = ({
     parentChildrenMap,
     newRepliesSequence,
     postCommentsMap,
+    postsInfoMap,
     chronologicalPostsSequence,
     threadDisplaySequence,
   } = React.useMemo(() => {
@@ -167,6 +169,7 @@ export const useThreadWithNull = ({
     const {
       root = null,
       parentChildrenMap = new Map(),
+      postsInfoMap = new Map(),
       postsDisplaySequence = [],
     } = threadId ? makePostsTree(threadData?.posts, threadId) : {};
     const postCommentsMap = new Map<string, ThreadCommentInfoType>();
@@ -190,14 +193,20 @@ export const useThreadWithNull = ({
     return {
       root,
       parentChildrenMap,
+      postsInfoMap,
       postCommentsMap,
       chronologicalPostsSequence,
       threadDisplaySequence: postsDisplaySequence
         ? extractRepliesSequence(postsDisplaySequence, postCommentsMap)
         : [],
-      newRepliesSequence: postsDisplaySequence
-        ? extractNewRepliesSequence(postsDisplaySequence, postCommentsMap)
-        : [],
+      newRepliesSequence: [
+        postsDisplaySequence.find(
+          (post) => post.postId === "3331543f-7e8a-4f55-9d9a-25d20252fade"
+        ),
+      ],
+      // newRepliesSequence: postsDisplaySequence
+      //   ? extractNewRepliesSequence(postsDisplaySequence, postCommentsMap)
+      //   : [],
     };
   }, [threadData, threadId]);
 
@@ -244,6 +253,7 @@ export const useThreadWithNull = ({
         ? (threadData.posts.find((post) => post.postId == postId) as PostType)
         : root,
     newRepliesSequence,
+    postsInfoMap,
     threadDisplaySequence,
     filteredRoot,
     parentChildrenMap,
@@ -259,7 +269,7 @@ export const useThreadWithNull = ({
     personalIdentity: threadData?.personalIdentity,
     isRefetching,
     hasNewReplies:
-      !!threadData?.newCommentsAmount || !!threadData?.newPostsAmount,
+      true || !!threadData?.newCommentsAmount || !!threadData?.newPostsAmount,
     parentBoardSlug: threadData?.boardSlug || null,
     threadId: threadId,
   };

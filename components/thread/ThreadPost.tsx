@@ -53,10 +53,12 @@ export const scrollToPost = (postId: string, color: string | undefined) => {
     `.post[data-post-id='${postId}']`
   );
   if (!element) {
+    log(`...post not found!`);
     return;
   }
   const observer = new IntersectionObserver((observed) => {
     if (observed[0].isIntersecting) {
+      log(`Beam done, highlighting!`);
       postHandlers
         .get(postId)
         ?.highlight(color || DefaultTheme.DEFAULT_ACCENT_COLOR),
@@ -72,6 +74,10 @@ export const scrollToPost = (postId: string, color: string | undefined) => {
       (DefaultTheme.HEADER_HEIGHT_PX + 2),
     behavior: "smooth",
   });
+};
+
+export const isPostLoaded = (postId: string): boolean => {
+  return !!document.querySelector(`.post[data-post-id='${postId}']`);
 };
 
 const getPostAncestors = (
