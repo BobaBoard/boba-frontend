@@ -255,6 +255,9 @@ export const useThreadView = () => {
   }, [isFetching]);
 
   React.useEffect(() => {
+    if (isFetching) {
+      return;
+    }
     setThreadViewQuery(
       getUpdatedQuery(threadViewQuery, getViewTypeFromString(defaultView), {
         threadViewMode: currentThreadViewMode,
