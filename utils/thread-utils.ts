@@ -122,7 +122,6 @@ export const makePostsTree = (
   //   });
   // });
   postsInfoMap.forEach((postInfo, key) => {
-    console.log(postInfo);
     if (postInfo.children.length == 0) {
       return;
     }
@@ -331,29 +330,42 @@ const makeActiveChildrenMap = (
   return hasCategoryChildren;
 };
 
+const getGrandParentId = (
+  post: PostType,
+  postsInfoMap: Map<string, ThreadPostInfoType>
+) => {
+  const parent = post.parentPostId;
+  if (!parent) {
+    return null;
+  }
+  return postsInfoMap.get(parent)?.post.parentPostId || null;
+};
+
 export const findFirstLevelParent = (
   post: PostType,
-  parentChildrenMap: Map<string, ThreadPostInfoType>
+  postInfoMap: Map<string, ThreadPostInfoType>
 ) => {
-  let lastRootId = post.parentPostId;
-  let lastFirstChildLoaded = post;
-  while (lastRootId != null) {
-    lastRootId = parentChildrenMap.get(lastRootId)!.post.parentPostId;
-    lastFirstChildLoaded = parentChildrenMap.get(
-      lastFirstChildLoaded.parentPostId!
-    )!.post;
+  if (!post.parentPostId) {
+    throw new Error("findFirstLevelParent cannot be called on root.");
   }
-  return lastFirstChildLoaded;
+  let grandParentId: string | null = getGrandParentId(post, postInfoMap);
+  console.log(grandParentId);
+  let currentPost = postInfoMap.get(post.postId)!.post;
+  while (grandParentId != null) {
+    grandParentId = postInfoMap.get(grandParentId)!.post.parentPostId;
+    currentPost = postInfoMap.get(currentPost.parentPostId!)!.post;
+  }
+  return currentPost;
 };
 
 export const findNextSibling = (
   post: PostType,
-  parentChildrenMap: Map<string, ThreadPostInfoType>
+  postInfoMap: Map<string, ThreadPostInfoType>
 ) => {
   if (!post.parentPostId) {
-    return null;
+    throw new Error("findNextSibling cannot be called on root.");
   }
-  const siblings = parentChildrenMap.get(post.parentPostId)!.children;
+  const siblings = postInfoMap.get(post.parentPostId)!.children;
   const postIndex = siblings.findIndex(
     (sibling) => sibling.postId == post.postId
   );
