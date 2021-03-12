@@ -11,13 +11,14 @@ import { useBoardContext } from "components/BoardContext";
 import { TIMELINE_VIEW_MODE, useThreadView } from "./useThreadView";
 import { useThreadEditors } from "components/editors/withEditors";
 import { extractPostId, useThreadCollapseManager } from "./useCollapseManager";
+import { DisplayManager } from "components/hooks/useDisplayMananger";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // import debug from "debug";
 // const log = debug("bobafrontend:threadLevel-log");
 
 interface TimelineViewProps {
-  displayAtMost: number;
+  displayManager: DisplayManager;
   onTotalPostsChange: (total: number) => void;
 }
 
@@ -122,7 +123,7 @@ const TimelineView: React.FC<TimelineViewProps> = (props) => {
           <div className="empty">No new or updated post!</div>
         )}
         {displayPosts
-          .filter((_, index) => index < props.displayAtMost)
+          .filter((_, index) => index < props.displayManager.maxDisplay)
           .map((post) => (
             <div className="thread" key={post.postId}>
               <NewThread

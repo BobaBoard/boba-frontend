@@ -24,7 +24,7 @@ import {
 } from "components/thread/useThreadView";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useBeamToNew } from "components/hooks/useBeamToNew";
-import { useDisplayManager } from "components/hooks/useDisplayManager";
+import { useDisplayManager } from "components/hooks/useDisplayMananger";
 import { useThreadEditors, withEditors } from "components/editors/withEditors";
 import { useReadThread } from "components/hooks/queries/thread";
 import { clearThreadData } from "utils/queries/cache";
@@ -41,7 +41,6 @@ const MemoizedThreadView = React.memo(ThreadView);
 const MemoizedGalleryThreadView = React.memo(GalleryThreadView);
 const MemoizedTimelineThreadView = React.memo(TimelineThreadView);
 
-const READ_MORE_STEP = 5;
 function ThreadPage() {
   const queryClient = useQueryClient();
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
@@ -63,9 +62,11 @@ function ThreadPage() {
     isLoading: isFetchingThread,
     isRefetching: isRefetchingThread,
   } = useThreadContext();
-  const displayManager = useDisplayManager();
+  const displayManager = useDisplayManager(currentThreadViewMode);
+  const { displayMore } = displayManager;
   const { hasBeamToNew, onNewAnswersButtonClick } = useBeamToNew(
     collapseManager,
+    displayManager,
     currentBoardData?.accentColor
   );
   const { onNewContribution } = useThreadEditors();
@@ -140,17 +141,13 @@ function ThreadPage() {
           <FeedWithMenu
             showSidebar={showSidebar}
             onCloseSidebar={closeSidebar}
-            reachToBottom={maxDisplay < totalPosts}
+            reachToBottom={displayManager.maxDisplay < totalPosts}
             onReachEnd={React.useCallback(
-              (more) => {
-                setMaxDisplay(
-                  (maxDisplay) => maxDisplay + READ_MORE_STEP,
-                  (maxDisplay) => {
-                    more(maxDisplay < totalPosts);
-                  }
-                );
-              },
-              [setMaxDisplay, totalPosts]
+              (more) =>
+                displayMore((maxDisplay) => {
+                  more(maxDisplay < totalPosts);
+                }),
+              [totalPosts, displayMore]
             )}
           >
             <FeedWithMenu.Sidebar>
@@ -158,7 +155,7 @@ function ThreadPage() {
                 viewMode={currentThreadViewMode}
                 open={showSidebar}
                 onViewChange={setThreadViewMode}
-                displayAtMost={maxDisplay}
+                displayManager={displayManager}
                 totalPosts={totalPosts}
               />
             </FeedWithMenu.Sidebar>
@@ -173,18 +170,17 @@ function ThreadPage() {
                   postId ? (
                     <MemoizedThreadView
                       onTotalPostsChange={setTotalPosts}
-                      displayAtMost={maxDisplay}
-                      setDisplayAtMost={setMaxDisplay}
+                      displayManager={displayManager}
                       collapseManager={collapseManager}
                     />
                   ) : currentThreadViewMode == THREAD_VIEW_MODES.MASONRY ? (
                     <MemoizedGalleryThreadView
-                      displayAtMost={maxDisplay}
+                      displayManager={displayManager}
                       onTotalPostsChange={setTotalPosts}
                     />
                   ) : (
                     <MemoizedTimelineThreadView
-                      displayAtMost={maxDisplay}
+                      displayManager={displayManager}
                       onTotalPostsChange={setTotalPosts}
                     />
                   )}
@@ -194,7 +190,7 @@ function ThreadPage() {
                 loading={isFetchingThread || isRefetchingThread}
                 idleMessage={
                   // Check whether there's more posts to display
-                  maxDisplay < totalPosts
+                  displayManager.maxDisplay < totalPosts
                     ? "..."
                     : currentThreadViewMode == THREAD_VIEW_MODES.THREAD
                     ? ""

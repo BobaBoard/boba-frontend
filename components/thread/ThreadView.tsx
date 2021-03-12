@@ -12,10 +12,12 @@ import { useStemOptions } from "components/hooks/useStemOptions";
 import { useBoardContext } from "components/BoardContext";
 import { useThreadEditors } from "components/editors/withEditors";
 import {
+  CollapseManager,
   extractPostId,
   getCommentThreadId,
   useThreadCollapseManager,
 } from "./useCollapseManager";
+import { DisplayManager } from "components/hooks/useDisplayMananger";
 
 import debug from "debug";
 const log = debug("bobafrontend:ThreadLevel-log");
@@ -157,12 +159,8 @@ ThreadLevel.displayName = "MemoizedThreadLevel";
 
 interface ThreadViewProps {
   onTotalPostsChange: (total: number) => void;
-  displayAtMost: number;
-  setDisplayAtMost: (
-    newAmount: React.SetStateAction<number>,
-    callback?: (state: number) => void
-  ) => void;
-  collapseManager: ReturnType<typeof useThreadCollapseManager>;
+  displayManager: DisplayManager;
+  collapseManager: CollapseManager;
 }
 const ThreadView: React.FC<ThreadViewProps> = (props) => {
   const {
@@ -174,12 +172,7 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
   const { isLoggedIn } = useAuth();
   const { onNewContribution } = useThreadEditors();
   const boardData = useBoardContext(boardSlug);
-  const {
-    currentRoot,
-    threadDisplaySequence,
-    isLoading,
-    isRefetching,
-  } = useThreadContext();
+  const { currentRoot, threadDisplaySequence } = useThreadContext();
   log(`Rerendering ThreadView.`);
   info(threadDisplaySequence);
 
@@ -217,48 +210,8 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
     );
   }, [threadDisplaySequence, onTotalPostsChange]);
 
-  const { setDisplayAtMost } = props;
-  React.useEffect(() => {
-    if (isLoading || isRefetching) {
-      return;
-    }
-    let id: number;
-    let timeout: NodeJS.Timeout;
-    const idleCallback = () => {
-      log(`Browser idle (or equivalent). Loading more.....`);
-      requestAnimationFrame(() =>
-        setDisplayAtMost(
-          (current) => current + 10,
-          (newValue) => {
-            log(
-              `New total posts loaded: ${newValue}. Total posts: ${threadDisplaySequence.length}`
-            );
-            if (newValue < threadDisplaySequence.length) {
-              timeout = setTimeout(() => {
-                log(`Creating request for further load at next idle step.`);
-                // @ts-ignore
-                id = requestIdleCallback(idleCallback /*, { timeout: 2000 }*/);
-              }, 5000);
-            }
-          }
-        )
-      );
-    };
-    // @ts-ignore
-    requestIdleCallback(idleCallback /*, { timeout: 500 }*/);
-    return () => {
-      if (id) {
-        // @ts-ignore
-        cancelIdleCallback(id);
-      }
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-    };
-  }, [isLoading, isRefetching, threadDisplaySequence.length, setDisplayAtMost]);
-
   const toDisplay = threadDisplaySequence.filter(
-    (value, index) => index < props.displayAtMost
+    (value, index) => index < props.displayManager.maxDisplay
   );
 
   log(`Displaying `);

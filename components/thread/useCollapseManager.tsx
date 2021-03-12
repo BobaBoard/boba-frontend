@@ -194,20 +194,35 @@ export const useThreadCollapseManager = () => {
     collapseChangeSubscribers.current = [];
   }, [setCollapse, setCollapseGroups]);
 
-  return {
-    onCollapseLevel,
-    onUncollapseLevel,
-    getCollapseReason,
-    onToggleCollapseLevel,
-    isCollapsed,
-    subscribeToCollapseChange,
-    unsubscribeFromCollapseChange,
-    reset,
-    addCollapseGroup,
-    getCollapseGroup,
-    getCollapseGroupId,
-    collapseGroups,
-  };
+  return React.useMemo(
+    () => ({
+      onCollapseLevel,
+      onUncollapseLevel,
+      getCollapseReason,
+      onToggleCollapseLevel,
+      isCollapsed,
+      subscribeToCollapseChange,
+      unsubscribeFromCollapseChange,
+      reset,
+      addCollapseGroup,
+      getCollapseGroup,
+      getCollapseGroupId,
+      collapseGroups,
+    }),
+    [
+      onCollapseLevel,
+      onUncollapseLevel,
+      getCollapseReason,
+      onToggleCollapseLevel,
+      isCollapsed,
+      subscribeToCollapseChange,
+      unsubscribeFromCollapseChange,
+      reset,
+      addCollapseGroup,
+      getCollapseGroup,
+      collapseGroups,
+    ]
+  );
 };
 
 export type CollapseManager = ReturnType<typeof useThreadCollapseManager>;

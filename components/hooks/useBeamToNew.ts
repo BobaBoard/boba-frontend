@@ -12,6 +12,7 @@ import { ThreadContextType, useThreadContext } from "../thread/ThreadContext";
 import { CollapseManager } from "../thread/useCollapseManager";
 
 import debug from "debug";
+import { DisplayManager } from "./useDisplayMananger";
 const error = debug("bobafrontend:useBeamToNew-error");
 const log = debug("bobafrontend:useBeamToNew-log");
 const info = debug("bobafrontend:useBeamToNew-info");
@@ -36,11 +37,13 @@ const scheduleScroll = ({
   threadElement,
   threadContext,
   collapseManager,
+  displayManager,
   accentColor,
 }: {
   threadElement: PostType | CommentType;
   threadContext: ThreadContextType;
   collapseManager: CollapseManager;
+  displayManager: DisplayManager;
   accentColor: string | undefined;
 }) => {
   const {
@@ -56,7 +59,7 @@ const scheduleScroll = ({
     isPost(element) ? element.postId == id : element.commentId == id
   );
   const lastCurrentlyDisplayedIndex = Math.min(
-    maxDisplay,
+    displayManager.maxDisplay,
     chronologicalPostsSequence.length - 1
   );
   // see if the post is beyond the currently displayed
@@ -111,7 +114,7 @@ const scheduleScroll = ({
       lastCollapsedLvl1!.postId
     }]`
   );
-  setMaxDisplay(index + 1, () => {
+  displayManager.setMaxDisplay(index + 1, () => {
     tryScrollToElement(threadElement, accentColor || "#f96680");
   });
 };
@@ -156,10 +159,19 @@ export const useBeamToNew = (
         threadElement: next,
         threadContext,
         collapseManager,
+        displayManager,
         accentColor,
       });
     }
-  }, []);
+  }, [
+    accentColor,
+    collapseManager,
+    hasBeamToNew,
+    displayManager,
+    isFetching,
+    newRepliesSequence,
+    threadContext,
+  ]);
 
   return {
     hasBeamToNew,

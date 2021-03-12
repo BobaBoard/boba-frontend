@@ -9,12 +9,13 @@ import { THREAD_VIEW_MODES } from "components/thread/useThreadView";
 import moment from "moment";
 import classnames from "classnames";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
+import { DisplayManager } from "components/hooks/useDisplayMananger";
 
 export interface ThreadSidebarProps {
   viewMode: THREAD_VIEW_MODES;
   open?: boolean;
   onViewChange: (viewType: THREAD_VIEW_MODES) => void;
-  displayAtMost?: number;
+  displayManager: DisplayManager;
   totalPosts?: number;
 }
 
@@ -69,12 +70,12 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
             selected={props.viewMode}
           />
         </div>
-        {props.displayAtMost && props.totalPosts && (
+        {props.displayManager.maxDisplay && props.totalPosts && (
           <div>
             Showing{" "}
-            {props.displayAtMost > props.totalPosts
+            {props.displayManager.maxDisplay > props.totalPosts
               ? props.totalPosts
-              : props.displayAtMost}{" "}
+              : props.displayManager.maxDisplay}{" "}
             posts of {props.totalPosts}
           </div>
         )}

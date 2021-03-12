@@ -25,6 +25,7 @@ import {
   getCommentThreadId,
   useThreadCollapseManager,
 } from "./useCollapseManager";
+import { DisplayManager } from "components/hooks/useDisplayMananger";
 const log = debug("bobafrontend:threadPage:GalleryView-log");
 
 const EmptyGalleryView = (
@@ -133,7 +134,7 @@ const getPostsToDisplay = (
 };
 
 interface GalleryThreadViewProps {
-  displayAtMost: number;
+  displayManager: DisplayManager;
   onTotalPostsChange: (total: number) => void;
 }
 const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
@@ -314,7 +315,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
       {toDisplay.length > 0 && (
         <MasonryView ref={masonryRef}>
           {toDisplay
-            .filter((_, index) => index < props.displayAtMost)
+            .filter((_, index) => index < props.displayManager.maxDisplay)
             .map((post) => (
               <div
                 className="thread"

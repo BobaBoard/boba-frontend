@@ -337,7 +337,9 @@ const getGrandParentId = (
   threadElement: PostType | CommentType,
   postsInfoMap: Map<string, ThreadPostInfoType>
 ) => {
-  const parent = threadElement.parentPostId;
+  const parent = isPost(threadElement)
+    ? threadElement.parentPostId
+    : postsInfoMap.get(threadElement.parentPostId)?.parent?.postId;
   if (!parent) {
     return null;
   }
@@ -357,6 +359,7 @@ export const findFirstLevelParent = (
     !postInfoMap.get(threadElement.parentPostId)?.parent
   ) {
     log("findFirstLevelParent called on comment that's a child of root.");
+    return null;
   }
   let grandParentId: string | null = getGrandParentId(
     threadElement,
