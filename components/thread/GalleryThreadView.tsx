@@ -14,14 +14,17 @@ import { useStemOptions } from "components/hooks/useStemOptions";
 import { useBoardContext } from "components/BoardContext";
 
 import debug from "debug";
-import { extractPostId, getCommentThreadId } from "./ThreadView";
 import {
   GalleryViewMode,
   GALLERY_VIEW_MODE,
   useThreadView,
 } from "./useThreadView";
 import { useThreadEditors } from "components/editors/withEditors";
-import { useCollapseManager } from "./useCollapseManager";
+import {
+  extractPostId,
+  getCommentThreadId,
+  useThreadCollapseManager,
+} from "./useCollapseManager";
 const log = debug("bobafrontend:threadPage:GalleryView-log");
 
 const EmptyGalleryView = (
@@ -156,7 +159,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = ({
     isCollapsed,
     subscribeToCollapseChange,
     unsubscribeFromCollapseChange,
-  } = useCollapseManager();
+  } = useThreadCollapseManager();
 
   const repositionGallery = React.useCallback(() => {
     requestAnimationFrame(() => masonryRef.current?.reposition());

@@ -1,6 +1,11 @@
 import React from "react";
-import { isPost } from "types/Types";
+import { CommentType, isPost, PostType } from "types/Types";
 import { useThreadContext } from "./ThreadContext";
+
+import debug from "debug";
+const error = debug("bobafrontend:useCollapseManager-error");
+const log = debug("bobafrontend:useCollapseManager-log");
+const info = debug("bobafrontend:useCollapseManager-info");
 
 type CollapseGroup = [string, string];
 
@@ -8,7 +13,7 @@ const getCollapseGroupId = (group: CollapseGroup) => {
   return `cg:${group[0]}_${group[1]}`;
 };
 
-const extractGroupData = (id: string) => {
+const extractCollapseGroupData = (id: string) => {
   const groupStart = id.substring(3, id.lastIndexOf("_"));
   const groupEnd = id.substring(id.lastIndexOf("_") + 1);
 
@@ -19,7 +24,73 @@ const isCollapseGroupId = (id: string) => {
   return id.startsWith("cg:");
 };
 
-export const useCollapseManager = () => {
+export const getCommentThreadId = (postId: string) => {
+  return `${postId}_comment`;
+};
+
+export const extractPostId = (levelId: string) => {
+  if (levelId.indexOf(`_comment`) === -1) {
+    return levelId;
+  }
+  return levelId.substring(0, levelId.indexOf(`_comment`));
+};
+
+export const getPostLevelId = (postId: string) => {
+  return postId;
+};
+
+const getLevelTotals = (
+  levelId: string,
+  threadDisplaySequence: (CommentType | PostType)[]
+) => {
+  if (!isCollapseGroupId(levelId)) {
+    error(
+      `Called unimplemented "getLevelTotals" on unsupported level ${levelId}`
+    );
+    return null;
+  }
+  const [first, last] = extractCollapseGroupData(levelId);
+  const firstCollapsedIndex = threadDisplaySequence.findIndex((threadElement) =>
+    isPost(threadElement)
+      ? threadElement.postId == first
+      : threadElement.commentId == first
+  );
+  const lastCollapsedIndex = threadDisplaySequence.findIndex((threadElement) =>
+    isPost(threadElement)
+      ? threadElement.postId == last
+      : threadElement.commentId == last
+  );
+  if (
+    !firstCollapsedIndex ||
+    !lastCollapsedIndex ||
+    lastCollapsedIndex < firstCollapsedIndex
+  ) {
+    error(
+      `Something was wrong with collapse indexes for ${levelId}: [${firstCollapsedIndex}, ${lastCollapsedIndex}]`
+    );
+    return null;
+  }
+  return threadDisplaySequence
+    .slice(firstCollapsedIndex, lastCollapsedIndex + 1)
+    .reduce(
+      (total, element) =>
+        isPost(element)
+          ? {
+              ...total,
+              totalPosts: total.totalPosts + 1,
+            }
+          : {
+              ...total,
+              totalComments: total.totalComments + 1,
+            },
+      {
+        totalPosts: 0,
+        totalComments: 0,
+      }
+    );
+};
+
+export const useThreadCollapseManager = () => {
   const { threadDisplaySequence } = useThreadContext();
   const [collapse, setCollapse] = React.useState<string[]>([]);
   const [collapseGroups, setCollapseGroups] = React.useState<CollapseGroup[]>(
@@ -36,31 +107,20 @@ export const useCollapseManager = () => {
     setCollapse((collapse) => [...collapse, levelId]);
     lastChanges.current.push({ levelId, collapsed: true });
   }, []);
+
   const onUncollapseLevel = React.useCallback((levelId) => {
     setCollapse((collapse) => collapse.filter((id) => id != levelId));
     lastChanges.current.push({ levelId, collapsed: false });
   }, []);
+
   const getCollapseReason = React.useCallback(
     (levelId: string) => {
       if (isCollapseGroupId(levelId)) {
-        const group = extractGroupData(levelId);
-        const firstIndex =
-          threadDisplaySequence.findIndex(
-            (x) => x.postId == group[0] || x.commentId == group[0]
-          ) || 0;
-        const lastIndex =
-          threadDisplaySequence.findIndex(
-            (x) => x.postId == group[1] || x.commentId == group[1]
-          ) || 0;
-        const totalPosts = threadDisplaySequence
-          .slice(firstIndex, lastIndex + 1)
-          .reduce((total, element) => total + (isPost(element) ? 1 : 0), 0);
-        const totalComments = threadDisplaySequence
-          .slice(firstIndex, lastIndex + 1)
-          .reduce((total, element) => total + (isPost(element) ? 0 : 1), 0);
+        const totals = getLevelTotals(levelId, threadDisplaySequence);
         return (
           <div>
-            {totalPosts} contributions, {totalComments} comments skipped.
+            {totals?.totalPosts} contributions, {totals?.totalComments} comments
+            skipped.
           </div>
         );
       }
@@ -149,3 +209,5 @@ export const useCollapseManager = () => {
     collapseGroups,
   };
 };
+
+export type CollapseManager = ReturnType<typeof useThreadCollapseManager>;

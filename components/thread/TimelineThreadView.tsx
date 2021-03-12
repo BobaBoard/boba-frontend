@@ -7,11 +7,10 @@ import ThreadPost, { scrollToPost } from "./ThreadPost";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import { useAuth } from "components/Auth";
 import { useStemOptions } from "components/hooks/useStemOptions";
-import { extractPostId } from "./ThreadView";
 import { useBoardContext } from "components/BoardContext";
 import { TIMELINE_VIEW_MODE, useThreadView } from "./useThreadView";
 import { useThreadEditors } from "components/editors/withEditors";
-import { useCollapseManager } from "./useCollapseManager";
+import { extractPostId, useThreadCollapseManager } from "./useCollapseManager";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // import debug from "debug";
@@ -46,7 +45,7 @@ const TimelineView: React.FC<TimelineViewProps> = (props) => {
     onToggleCollapseLevel,
     getCollapseReason,
     isCollapsed,
-  } = useCollapseManager();
+  } = useThreadCollapseManager();
 
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
   const boardData = useBoardContext(boardSlug);

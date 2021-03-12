@@ -20,16 +20,17 @@ import {
   extractRepliesSequence,
 } from "utils/thread-utils";
 import { getThreadInBoardCache } from "utils/queries/cache";
+import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import moment from "moment";
 
 import debug from "debug";
-import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 const log = debug("bobafrontend:ThreadContext-log");
 const info = debug("bobafrontend:ThreadContext-info");
 
 export interface ThreadContextType {
   isLoading: boolean;
   isRefetching: boolean;
+  isFetching: boolean;
   defaultView: ThreadType["defaultView"] | null;
   // The root of the thread (a.k.a. the first post).
   threadRoot: PostType | null;
@@ -247,6 +248,7 @@ export const useThreadWithNull = ({
 
   return {
     isLoading: isFetchingThread,
+    isFetching: isFetchingThread || isRefetching,
     threadRoot: root,
     currentRoot:
       !!postId && threadData

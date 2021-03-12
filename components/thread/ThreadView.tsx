@@ -1,7 +1,6 @@
 import React from "react";
 import { NewThread } from "@bobaboard/ui-components";
 import ThreadPost, { scrollToPost } from "./ThreadPost";
-import debug from "debug";
 import { useThreadContext } from "components/thread/ThreadContext";
 import { CommentType, PostType } from "../../types/Types";
 import Link from "next/link";
@@ -12,20 +11,15 @@ import { useAuth } from "components/Auth";
 import { useStemOptions } from "components/hooks/useStemOptions";
 import { useBoardContext } from "components/BoardContext";
 import { useThreadEditors } from "components/editors/withEditors";
-import { useCollapseManager } from "./useCollapseManager";
+import {
+  extractPostId,
+  getCommentThreadId,
+  useThreadCollapseManager,
+} from "./useCollapseManager";
 
+import debug from "debug";
 const log = debug("bobafrontend:ThreadLevel-log");
 const info = debug("bobafrontend:ThreadLevel-info");
-
-export const getCommentThreadId = (postId: string) => {
-  return `${postId}_comment`;
-};
-export const extractPostId = (levelId: string) => {
-  if (levelId.indexOf(`_comment`) === -1) {
-    return levelId;
-  }
-  return levelId.substring(0, levelId.indexOf(`_comment`));
-};
 
 const ThreadLevel: React.FC<{
   post: PostType;
@@ -35,7 +29,7 @@ const ThreadLevel: React.FC<{
   isCollapsed: (levelId: string) => boolean;
   onToggleCollapseLevel: (levelId: string) => void;
   toDisplay: (PostType | CommentType)[];
-  collapseManager: ReturnType<typeof useCollapseManager>;
+  collapseManager: ReturnType<typeof useThreadCollapseManager>;
 }> = (props) => {
   const {
     onNewComment,
@@ -168,7 +162,7 @@ interface ThreadViewProps {
     newAmount: React.SetStateAction<number>,
     callback?: (state: number) => void
   ) => void;
-  collapseManager: ReturnType<typeof useCollapseManager>;
+  collapseManager: ReturnType<typeof useThreadCollapseManager>;
 }
 const ThreadView: React.FC<ThreadViewProps> = (props) => {
   const {

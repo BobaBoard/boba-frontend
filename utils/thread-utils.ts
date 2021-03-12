@@ -4,7 +4,10 @@ import {
   CommentType,
   ThreadPostInfoType,
   ThreadCommentInfoType,
+  isPost,
+  isComment,
 } from "../types/Types";
+const error = debug("bobafrontend:thread-utils-error");
 const log = debug("bobafrontend:thread-utils-log");
 const info = debug("bobafrontend:thread-utils-info");
 
@@ -331,10 +334,10 @@ const makeActiveChildrenMap = (
 };
 
 const getGrandParentId = (
-  post: PostType,
+  threadElement: PostType | CommentType,
   postsInfoMap: Map<string, ThreadPostInfoType>
 ) => {
-  const parent = post.parentPostId;
+  const parent = threadElement.parentPostId;
   if (!parent) {
     return null;
   }
@@ -342,15 +345,26 @@ const getGrandParentId = (
 };
 
 export const findFirstLevelParent = (
-  post: PostType,
+  threadElement: PostType | CommentType,
   postInfoMap: Map<string, ThreadPostInfoType>
 ) => {
-  if (!post.parentPostId) {
-    throw new Error("findFirstLevelParent cannot be called on root.");
+  if (isPost(threadElement) && !threadElement.parentPostId) {
+    error("findFirstLevelParent cannot be called on root.");
+    return null;
   }
-  let grandParentId: string | null = getGrandParentId(post, postInfoMap);
-  console.log(grandParentId);
-  let currentPost = postInfoMap.get(post.postId)!.post;
+  if (
+    isComment(threadElement) &&
+    !postInfoMap.get(threadElement.parentPostId)?.parent
+  ) {
+    log("findFirstLevelParent called on comment that's a child of root.");
+  }
+  let grandParentId: string | null = getGrandParentId(
+    threadElement,
+    postInfoMap
+  );
+  let currentPost = isPost(threadElement)
+    ? threadElement
+    : postInfoMap.get(threadElement.parentPostId)!.post;
   while (grandParentId != null) {
     grandParentId = postInfoMap.get(grandParentId)!.post.parentPostId;
     currentPost = postInfoMap.get(currentPost.parentPostId!)!.post;
