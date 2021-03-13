@@ -62,10 +62,9 @@ function ThreadPage() {
     isLoading: isFetchingThread,
     isRefetching: isRefetchingThread,
   } = useThreadContext();
-  const displayManager = useDisplayManager(currentThreadViewMode);
+  const displayManager = useDisplayManager(collapseManager);
   const { displayMore } = displayManager;
   const { hasBeamToNew, onNewAnswersButtonClick } = useBeamToNew(
-    collapseManager,
     displayManager,
     currentBoardData?.accentColor
   );

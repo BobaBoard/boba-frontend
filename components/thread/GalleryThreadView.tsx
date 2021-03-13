@@ -14,11 +14,7 @@ import { useStemOptions } from "components/hooks/useStemOptions";
 import { useBoardContext } from "components/BoardContext";
 
 import debug from "debug";
-import {
-  GalleryViewMode,
-  GALLERY_VIEW_MODE,
-  useThreadView,
-} from "./useThreadView";
+import { GALLERY_VIEW_MODE, useThreadView } from "./useThreadView";
 import { useThreadEditors } from "components/editors/withEditors";
 import {
   extractPostId,
@@ -65,7 +61,7 @@ const ShowCover = ({
   showCover,
   setShowCover,
 }: {
-  cover: PostType;
+  cover: PostType | null;
   showCover: boolean;
   setShowCover: (show: boolean) => void;
 }) => (
@@ -109,7 +105,11 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
   const boardData = useBoardContext(boardSlug);
   const { galleryViewMode, setGalleryViewMode } = useThreadView();
-  const { chronologicalPostsSequence, newRepliesCount } = useThreadContext();
+  const {
+    chronologicalPostsSequence,
+    newRepliesCount,
+    threadRoot,
+  } = useThreadContext();
   const {
     onCollapseLevel,
     onUncollapseLevel,
@@ -162,7 +162,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
     currentModeLoadedElements,
   } = props.displayManager;
 
-  const cover = chronologicalPostsSequence[0];
+  const cover = threadRoot;
 
   React.useEffect(() => {
     // Hide comments from all posts with no new comments.
