@@ -50,6 +50,7 @@ export interface ThreadContextType {
     React.SetStateAction<{ name: string; active: boolean }[]>
   >;
   hasNewReplies: boolean;
+  newRepliesCount: number;
   personalIdentity?: {
     name: string;
     avatar: string;
@@ -270,8 +271,8 @@ export const useThreadWithNull = ({
     defaultView: threadData?.defaultView || null,
     personalIdentity: threadData?.personalIdentity,
     isRefetching,
-    hasNewReplies:
-      true || !!threadData?.newCommentsAmount || !!threadData?.newPostsAmount,
+    hasNewReplies: !!newRepliesSequence.length,
+    newRepliesCount: newRepliesSequence.length,
     parentBoardSlug: threadData?.boardSlug || null,
     threadId: threadId,
   };

@@ -197,7 +197,6 @@ const ThreadLevel: React.FC<{
 ThreadLevel.displayName = "MemoizedThreadLevel";
 
 interface ThreadViewProps {
-  onTotalPostsChange: (total: number) => void;
   displayManager: DisplayManager;
   collapseManager: CollapseManager;
 }
@@ -238,21 +237,6 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
     },
   });
 
-  const { onTotalPostsChange } = props;
-  React.useEffect(() => {
-    onTotalPostsChange(threadDisplaySequence.length);
-    log(
-      `Total post length changed. New Total: ${threadDisplaySequence.length}`
-    );
-  }, [threadDisplaySequence, onTotalPostsChange]);
-
-  const toDisplay = threadDisplaySequence.filter(
-    (value, index) => index < props.displayManager.maxDisplay
-  );
-
-  log(`Displaying `);
-  info(toDisplay);
-
   if (!currentRoot) {
     return <div />;
   }
@@ -279,7 +263,7 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
       >
         <ThreadLevel
           post={currentRoot}
-          toDisplay={toDisplay}
+          toDisplay={props.displayManager.currentModeLoadedElements}
           collapseManager={props.collapseManager}
         />
       </NewThread>

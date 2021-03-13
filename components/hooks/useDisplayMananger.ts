@@ -1,9 +1,16 @@
 import { useThreadContext } from "components/thread/ThreadContext";
 import React, { SetStateAction } from "react";
 
-import { THREAD_VIEW_MODES } from "../thread/useThreadView";
+import {
+  GALLERY_VIEW_MODE,
+  THREAD_VIEW_MODES,
+  TIMELINE_VIEW_MODE,
+  useThreadView,
+} from "../thread/useThreadView";
 
 import debug from "debug";
+import { CommentType, PostType } from "types/Types";
+import { getElementId } from "utils/thread-utils";
 const log = debug("bobafrontend:useDisplayManager-log");
 const info = debug("bobafrontend:useDisplayManager-info");
 
@@ -29,25 +36,89 @@ const useStateWithCallback = <T extends any>(
   return [value, setValueWithCallback];
 };
 
+const useThreadViewDisplay = () => {
+  const { chronologicalPostsSequence, isFetching } = useThreadContext();
+  const {
+    currentThreadViewMode,
+    timelineViewMode,
+    galleryViewMode,
+  } = useThreadView();
+
+  return React.useMemo(() => {
+    if (isFetching) {
+      return [];
+    }
+    switch (currentThreadViewMode) {
+      case THREAD_VIEW_MODES.THREAD:
+        return chronologicalPostsSequence;
+      case THREAD_VIEW_MODES.TIMELINE: {
+        switch (timelineViewMode) {
+          case TIMELINE_VIEW_MODE.ALL:
+            return chronologicalPostsSequence;
+          case TIMELINE_VIEW_MODE.LATEST:
+            return chronologicalPostsSequence.reverse();
+          case TIMELINE_VIEW_MODE.NEW:
+            return chronologicalPostsSequence.filter(
+              (post) => post.isNew || post.newCommentsAmount > 0
+            );
+        }
+        break;
+      }
+      case THREAD_VIEW_MODES.MASONRY: {
+        const [coverPost, ...allGalleryPosts] = chronologicalPostsSequence;
+        switch (galleryViewMode.mode) {
+          case GALLERY_VIEW_MODE.ALL:
+            return galleryViewMode.showCover
+              ? chronologicalPostsSequence
+              : allGalleryPosts;
+          case GALLERY_VIEW_MODE.NEW: {
+            const newPosts = allGalleryPosts.filter(
+              (post) => post.isNew || post.newCommentsAmount > 0
+            );
+            if (galleryViewMode.showCover) {
+              newPosts.unshift(coverPost);
+            }
+            return newPosts;
+          }
+        }
+      }
+    }
+  }, [
+    isFetching,
+    timelineViewMode,
+    galleryViewMode,
+    currentThreadViewMode,
+    chronologicalPostsSequence,
+  ]);
+};
+
 const READ_MORE_STEP = 5;
 export const useDisplayManager = (currentThreadViewMode: THREAD_VIEW_MODES) => {
+  const currentModeDisplayElements = useThreadViewDisplay();
   const [maxDisplay, setMaxDisplay] = useStateWithCallback(READ_MORE_STEP);
-  const { threadDisplaySequence, isFetching } = useThreadContext();
+  const { isFetching } = useThreadContext();
 
   React.useEffect(() => {
     setMaxDisplay(READ_MORE_STEP);
   }, [currentThreadViewMode, setMaxDisplay]);
 
   const displayMore = React.useCallback(
-    (callback: (newMax: number) => void) => {
+    (callback: (newMax: number, hasMore: boolean) => void) => {
       setMaxDisplay(
-        (maxDisplay) => maxDisplay + READ_MORE_STEP,
-        (maxDisplay) => {
-          callback(maxDisplay);
+        (maxDisplay) =>
+          Math.min(
+            maxDisplay + READ_MORE_STEP,
+            currentModeDisplayElements.length
+          ),
+        (newValue) => {
+          log(
+            `New total posts loaded: ${newValue}. Total posts: ${currentModeDisplayElements.length}`
+          );
+          callback(newValue, newValue <= currentModeDisplayElements.length);
         }
       );
     },
-    [setMaxDisplay]
+    [setMaxDisplay, currentModeDisplayElements]
   );
 
   React.useEffect(() => {
@@ -59,21 +130,15 @@ export const useDisplayManager = (currentThreadViewMode: THREAD_VIEW_MODES) => {
     const idleCallback = () => {
       log(`Browser idle (or equivalent). Loading more.....`);
       requestAnimationFrame(() =>
-        setMaxDisplay(
-          (current) => current + 10,
-          (newValue) => {
-            log(
-              `New total posts loaded: ${newValue}. Total posts: ${threadDisplaySequence.length}`
-            );
-            if (newValue < threadDisplaySequence.length) {
-              timeout = setTimeout(() => {
-                log(`Creating request for further load at next idle step.`);
-                // @ts-ignore
-                id = requestIdleCallback(idleCallback /*, { timeout: 2000 }*/);
-              }, 5000);
-            }
+        displayMore((newValue, hasMore) => {
+          if (hasMore) {
+            timeout = setTimeout(() => {
+              log(`Creating request for further load at next idle step.`);
+              // @ts-ignore
+              id = requestIdleCallback(idleCallback /*, { timeout: 2000 }*/);
+            }, 5000);
           }
-        )
+        })
       );
     };
     // @ts-ignore
@@ -87,18 +152,47 @@ export const useDisplayManager = (currentThreadViewMode: THREAD_VIEW_MODES) => {
         clearTimeout(timeout);
       }
     };
-  }, [
-    isFetching,
-    threadDisplaySequence.length,
-    setMaxDisplay,
-    currentThreadViewMode,
-  ]);
+  }, [isFetching, currentThreadViewMode, displayMore]);
 
-  return React.useMemo(() => ({ setMaxDisplay, maxDisplay, displayMore }), [
-    setMaxDisplay,
-    maxDisplay,
-    displayMore,
-  ]);
+  const hasMore = React.useCallback(() => {
+    return maxDisplay < currentModeDisplayElements.length;
+  }, [maxDisplay, currentModeDisplayElements]);
+
+  const displayToThreadElement = React.useCallback(
+    (threadElement: PostType | CommentType, callback?: () => void) => {
+      const elementIndex = currentModeDisplayElements.findIndex(
+        (element) => getElementId(element) === getElementId(threadElement)
+      );
+      setMaxDisplay(
+        (maxDisplay) =>
+          elementIndex > maxDisplay ? elementIndex + 1 : maxDisplay,
+        () => {
+          callback?.();
+        }
+      );
+    },
+    [setMaxDisplay, currentModeDisplayElements]
+  );
+
+  return React.useMemo(
+    () => ({
+      currentModeDisplayElements,
+      currentModeLoadedElements: currentModeDisplayElements.filter(
+        (_, index) => index < maxDisplay
+      ),
+      displayToThreadElement,
+      maxDisplay,
+      hasMore,
+      displayMore,
+    }),
+    [
+      currentModeDisplayElements,
+      displayToThreadElement,
+      maxDisplay,
+      hasMore,
+      displayMore,
+    ]
+  );
 };
 
 export type DisplayManager = ReturnType<typeof useDisplayManager>;

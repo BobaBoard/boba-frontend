@@ -14,10 +14,6 @@ const getCollapseGroupId = (group: CollapseGroup) => {
   return `cg:${group[0]}_${group[1]}`;
 };
 
-const getElementId = (element: PostType | CommentType) => {
-  return isPost(element) ? element.postId : element.commentId;
-};
-
 const extractCollapseGroupData = (id: string) => {
   const groupStart = id.substring(3, id.lastIndexOf("_"));
   const groupEnd = id.substring(id.lastIndexOf("_") + 1);

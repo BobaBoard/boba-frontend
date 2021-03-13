@@ -46,12 +46,7 @@ const scheduleScroll = ({
   displayManager: DisplayManager;
   accentColor: string | undefined;
 }) => {
-  const {
-    threadRoot,
-    threadDisplaySequence,
-    chronologicalPostsSequence,
-    postsInfoMap,
-  } = threadContext;
+  const { threadRoot, threadDisplaySequence, postsInfoMap } = threadContext;
   const id = isPost(threadElement)
     ? threadElement.postId
     : threadElement.commentId;
@@ -60,7 +55,7 @@ const scheduleScroll = ({
   );
   const lastCurrentlyDisplayedIndex = Math.min(
     displayManager.maxDisplay,
-    chronologicalPostsSequence.length - 1
+    threadDisplaySequence.length - 1
   );
   // see if the post is beyond the currently displayed
   // TODO this actually should never happen because in that case it would be displayed
@@ -99,22 +94,17 @@ const scheduleScroll = ({
     );
     return;
   }
-  collapseManager.addCollapseGroup(
+  const collapseGroupId = collapseManager.addCollapseGroup(
     firstCollapsedLvl1!.postId,
     lastCollapsedLvl1!.postId
   );
-  collapseManager.onCollapseLevel(
-    collapseManager.getCollapseGroupId([
-      firstCollapsedLvl1!.postId,
-      lastCollapsedLvl1!.postId,
-    ])
-  );
+  collapseManager.onCollapseLevel(collapseGroupId);
   log(
     `Adding collapse group: [${firstCollapsedLvl1!.postId}, ${
       lastCollapsedLvl1!.postId
     }]`
   );
-  displayManager.setMaxDisplay(index + 1, () => {
+  displayManager.displayToThreadElement(threadElement, () => {
     tryScrollToElement(threadElement, accentColor || "#f96680");
   });
 };

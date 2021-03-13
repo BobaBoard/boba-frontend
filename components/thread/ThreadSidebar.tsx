@@ -70,15 +70,11 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
             selected={props.viewMode}
           />
         </div>
-        {props.displayManager.maxDisplay && props.totalPosts && (
-          <div>
-            Showing{" "}
-            {props.displayManager.maxDisplay > props.totalPosts
-              ? props.totalPosts
-              : props.displayManager.maxDisplay}{" "}
-            posts of {props.totalPosts}
-          </div>
-        )}
+        <div>
+          Showing {props.displayManager.currentModeLoadedElements.length}{" "}
+          contributions of{" "}
+          {props.displayManager.currentModeDisplayElements.length}
+        </div>
       </div>
       {categoryFilterState.length > 1 && (
         <div className="category-filters">

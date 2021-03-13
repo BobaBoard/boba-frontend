@@ -12,6 +12,10 @@ const log = debug("bobafrontend:thread-utils-log");
 const info = debug("bobafrontend:thread-utils-info");
 
 export const UNCATEGORIZED_LABEL = "uncategorized";
+
+export const getElementId = (element: PostType | CommentType) => {
+  return isPost(element) ? element.postId : element.commentId;
+};
 /**
  * Creates a tree representation of the comments in reply to a single post.
  *

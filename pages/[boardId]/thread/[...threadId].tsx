@@ -99,7 +99,7 @@ function ThreadPage() {
       clearThreadData(queryClient, { slug, threadId });
       hasMarkedAsRead.current = false;
     };
-  }, []);
+  }, [queryClient, slug, threadId]);
 
   // TODO: disable this while post editing and readd
   // const currentPostIndex = React.useRef<number>(-1);
@@ -124,7 +124,7 @@ function ThreadPage() {
       // TODO: this happens after the thread has already 403'd
       getLinkToBoard(slug).onClick?.();
     }
-  }, [currentBoardData, isAuthPending, isLoggedIn]);
+  }, [currentBoardData, isAuthPending, isLoggedIn, getLinkToBoard, slug]);
 
   const canTopLevelPost =
     isLoggedIn &&
@@ -141,13 +141,13 @@ function ThreadPage() {
           <FeedWithMenu
             showSidebar={showSidebar}
             onCloseSidebar={closeSidebar}
-            reachToBottom={displayManager.maxDisplay < totalPosts}
+            reachToBottom={displayManager.hasMore()}
             onReachEnd={React.useCallback(
               (more) =>
-                displayMore((maxDisplay) => {
-                  more(maxDisplay < totalPosts);
+                displayMore((_, hasMore) => {
+                  more(hasMore);
                 }),
-              [totalPosts, displayMore]
+              [displayMore]
             )}
           >
             <FeedWithMenu.Sidebar>
@@ -169,7 +169,6 @@ function ThreadPage() {
                   {currentThreadViewMode == THREAD_VIEW_MODES.THREAD ||
                   postId ? (
                     <MemoizedThreadView
-                      onTotalPostsChange={setTotalPosts}
                       displayManager={displayManager}
                       collapseManager={collapseManager}
                     />
@@ -190,7 +189,7 @@ function ThreadPage() {
                 loading={isFetchingThread || isRefetchingThread}
                 idleMessage={
                   // Check whether there's more posts to display
-                  displayManager.maxDisplay < totalPosts
+                  displayManager.hasMore()
                     ? "..."
                     : currentThreadViewMode == THREAD_VIEW_MODES.THREAD
                     ? ""
