@@ -12,6 +12,7 @@ import { useStemOptions } from "components/hooks/useStemOptions";
 import { useBoardContext } from "components/BoardContext";
 import { useThreadEditors } from "components/editors/withEditors";
 import {
+  CollapseGroup,
   CollapseManager,
   extractPostId,
   getCommentThreadId,
@@ -20,16 +21,60 @@ import {
 import { DisplayManager } from "components/hooks/useDisplayMananger";
 
 import debug from "debug";
+const error = debug("bobafrontend:ThreadLevel-log");
 const log = debug("bobafrontend:ThreadLevel-log");
 const info = debug("bobafrontend:ThreadLevel-info");
 
+const CollapseGroupDisplay: React.FC<{
+  parentPostId: string;
+  collapseGroup: CollapseGroup;
+  collapseManager: ReturnType<typeof useThreadCollapseManager>;
+  toDisplay: (PostType | CommentType)[];
+}> = ({ parentPostId, collapseGroup, collapseManager, toDisplay }) => {
+  const { parentChildrenMap } = useThreadContext();
+  const children = parentChildrenMap.get(parentPostId)?.children;
+  const [firstElement, lastElement] = collapseGroup;
+  const collapseGroupId = collapseManager.getCollapseGroupId(collapseGroup);
+  const firstElementIndex = children?.findIndex(
+    (post) => post.postId == firstElement
+  );
+  const lastElementIndex = children?.findIndex(
+    (post) => post.postId == lastElement
+  );
+
+  info(`Rendering collapse group:`, collapseGroup);
+  info(
+    `Collapse group is ${
+      collapseManager.isCollapsed(collapseGroupId) ? "collapsed" : "UNcollapsed"
+    }.`
+  );
+  if (!firstElementIndex || !lastElementIndex) {
+    error(
+      `Found collapse group with invalid indexed: [${firstElementIndex}, ${lastElementIndex}`
+    );
+    return null;
+  }
+
+  return (
+    <NewThread.CollapseGroup
+      id={collapseGroupId}
+      collapsed={collapseManager.isCollapsed(collapseGroupId)}
+    >
+      {children?.slice(firstElementIndex, lastElementIndex).map((post) => (
+        <ThreadLevel
+          key={post.postId}
+          post={post}
+          toDisplay={toDisplay}
+          collapseManager={collapseManager}
+        />
+      ))}
+    </NewThread.CollapseGroup>
+  );
+};
+
 const ThreadLevel: React.FC<{
   post: PostType;
-  isLoggedIn: boolean;
-  lastOf?: { level: number; postId: string }[];
   showThread?: boolean;
-  isCollapsed: (levelId: string) => boolean;
-  onToggleCollapseLevel: (levelId: string) => void;
   toDisplay: (PostType | CommentType)[];
   collapseManager: ReturnType<typeof useThreadCollapseManager>;
 }> = (props) => {
@@ -38,7 +83,8 @@ const ThreadLevel: React.FC<{
     onNewContribution,
     onEditContribution,
   } = useThreadEditors();
-  info(`Rendering subtree starting with post with id ${props.post.postId}`);
+  const { isLoggedIn } = useAuth();
+  //info(`Rendering subtree starting with post with id ${props.post.postId}`);
   const { parentChildrenMap } = useThreadContext();
   if (!props.toDisplay.includes(props.post)) {
     return null;
@@ -59,7 +105,7 @@ const ThreadLevel: React.FC<{
           ? getCommentThreadId(props.post.postId)
           : props.post.postId
       }
-      collapsed={props.isCollapsed(
+      collapsed={props.collapseManager.isCollapsed(
         hasNestedContributions
           ? getCommentThreadId(props.post.postId)
           : props.post.postId
@@ -74,28 +120,21 @@ const ThreadLevel: React.FC<{
   const childrenDisplay: React.ReactNode[] = [];
   for (let i = 0; i < (children?.length || 0); i++) {
     const currentPost = children![i];
-    const collapseGroup = props.collapseManager.getCollapseGroup(
+    const collapseGroup = props.collapseManager.getCollapseGroupAt(
       currentPost.postId
     );
     if (collapseGroup) {
-      const collapseGroupId = props.collapseManager.getCollapseGroupId(
-        collapseGroup
-      );
-      const collapseGroupChildren = [];
-      while (children![i].postId !== collapseGroup[1] && i < children!.length) {
-        collapseGroupChildren.push(children![i]);
-        i++;
-      }
       childrenDisplay.push(
-        <NewThread.CollapseGroup
-          id={collapseGroupId}
-          collapsed={props.collapseManager.isCollapsed(collapseGroupId)}
-        >
-          {collapseGroupChildren.map((post) => (
-            <ThreadLevel key={post.postId} {...props} post={post} />
-          ))}
-        </NewThread.CollapseGroup>
+        <CollapseGroupDisplay
+          collapseGroup={collapseGroup}
+          collapseManager={props.collapseManager}
+          toDisplay={props.toDisplay}
+          parentPostId={props.post.postId}
+        />
       );
+      i =
+        children?.findIndex((child) => child.postId === collapseGroup[1]) ||
+        Infinity;
       continue;
     }
     childrenDisplay.push(
@@ -114,19 +153,19 @@ const ThreadLevel: React.FC<{
             >
               <ThreadPost
                 post={props.post}
-                isLoggedIn={props.isLoggedIn}
+                isLoggedIn={isLoggedIn}
                 onNewContribution={onNewContribution}
                 onNewComment={onNewComment}
                 onEditPost={onEditContribution}
                 avatarRef={setHandler}
-                onNotesClick={props.onToggleCollapseLevel}
+                onNotesClick={props.collapseManager.onToggleCollapseLevel}
               />
             </div>
             {!hasNestedContributions && hasComments && commentsThread}
             {hasNestedContributions && (
               <NewThread.Indent
                 id={props.post.postId}
-                collapsed={props.isCollapsed(props.post.postId)}
+                collapsed={props.collapseManager.isCollapsed(props.post.postId)}
               >
                 {hasComments && (
                   <NewThread.Item parentBoundary={boundaryId}>
@@ -169,7 +208,6 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
     slug: boardSlug,
     threadId,
   } = usePageDetails<ThreadPageDetails>();
-  const { isLoggedIn } = useAuth();
   const { onNewContribution } = useThreadEditors();
   const boardData = useBoardContext(boardSlug);
   const { currentRoot, threadDisplaySequence } = useThreadContext();
@@ -180,8 +218,6 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
     onCollapseLevel,
     onUncollapseLevel,
     getCollapseReason,
-    onToggleCollapseLevel,
-    isCollapsed,
   } = props.collapseManager;
 
   const getStemOptions = useStemOptions({
@@ -243,9 +279,6 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
       >
         <ThreadLevel
           post={currentRoot}
-          isLoggedIn={isLoggedIn}
-          onToggleCollapseLevel={onToggleCollapseLevel}
-          isCollapsed={isCollapsed}
           toDisplay={toDisplay}
           collapseManager={props.collapseManager}
         />
