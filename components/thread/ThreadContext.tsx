@@ -192,20 +192,24 @@ export const useThreadWithNull = ({
         return 0;
       }) || [];
 
+    const threadDisplaySequence = postsDisplaySequence
+      ? extractRepliesSequence(postsDisplaySequence, postCommentsMap)
+      : [];
+
     return {
       root,
       parentChildrenMap,
       postsInfoMap,
       postCommentsMap,
       chronologicalPostsSequence,
-      threadDisplaySequence: postsDisplaySequence
-        ? extractRepliesSequence(postsDisplaySequence, postCommentsMap)
-        : [],
-      newRepliesSequence: [
-        postsDisplaySequence.find(
-          (post) => post.postId === "3331543f-7e8a-4f55-9d9a-25d20252fade"
-        ),
-      ],
+      threadDisplaySequence,
+      newRepliesSequence: threadDisplaySequence.filter(
+        (element) =>
+          element.postId === "3331543f-7e8a-4f55-9d9a-25d20252fade" ||
+          element.postId === "668cf010-308a-4ad2-8544-b3ed34c8f7c9" ||
+          element.commentId === "8b193806-f8a2-4c30-a5d3-955cbb5b0b79"
+      ),
+
       // newRepliesSequence: postsDisplaySequence
       //   ? extractNewRepliesSequence(postsDisplaySequence, postCommentsMap)
       //   : [],

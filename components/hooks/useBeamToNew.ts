@@ -62,7 +62,7 @@ export const useBeamToNew = (
     log(`Beaming to new reply with index ${newRepliesIndex}`);
     info(newRepliesSequence);
     displayManager.displayToThreadElement(next, () => {
-      tryScrollToElement(next, accentColor);
+      tryScrollToElement(next, "red");
     });
   }, [
     accentColor,

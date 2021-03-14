@@ -13,7 +13,7 @@ import {
   findPreviousSibling,
 } from "../../utils/thread-utils";
 
-import { CommentType, PostType, ThreadPostInfoType } from "types/Types";
+import { CommentType, isPost, PostType, ThreadPostInfoType } from "types/Types";
 import { getElementId } from "utils/thread-utils";
 
 import debug from "debug";
@@ -227,13 +227,18 @@ export const useDisplayManager = (collapseManager: CollapseManager) => {
 
   const displayToThreadElement = React.useCallback(
     (threadElement: PostType | CommentType, callback?: () => void) => {
+      const showUpToPostId = isPost(threadElement)
+        ? threadElement.postId
+        : threadElement.parentPostId;
       const elementIndex = currentModeDisplayElements.findIndex(
-        (element) => getElementId(element) === getElementId(threadElement)
+        (element) => getElementId(element) === showUpToPostId
       );
       setMaxDisplay(
         (maxDisplay) => {
-          const newMaxDisplay =
-            elementIndex > maxDisplay ? elementIndex + 1 : maxDisplay;
+          const newMaxDisplay = Math.min(
+            elementIndex > maxDisplay ? elementIndex + 3 : maxDisplay,
+            currentModeDisplayElements.length
+          );
           if (newMaxDisplay != maxDisplay) {
             // If the target element is further ahead than what's currently displayed, collapse the posts
             // inbetween the two, so we don't need to wait for them all to load.
@@ -252,12 +257,14 @@ export const useDisplayManager = (collapseManager: CollapseManager) => {
                 collapseManager,
               });
             }
+          } else {
+            callback?.();
           }
 
           return newMaxDisplay;
         },
         () => {
-          callback?.();
+          requestAnimationFrame(() => callback?.());
         }
       );
     },
