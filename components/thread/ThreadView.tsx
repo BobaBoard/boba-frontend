@@ -27,14 +27,22 @@ const info = debug("bobafrontend:ThreadLevel-info");
 
 const CollapseGroupDisplay: React.FC<{
   parentPostId: string;
-  collapseGroup: CollapseGroup;
+  collapseGroupData: NonNullable<
+    ReturnType<
+      ReturnType<typeof useThreadCollapseManager>["getCollapseGroupAt"]
+    >
+  >;
   collapseManager: ReturnType<typeof useThreadCollapseManager>;
   toDisplay: (PostType | CommentType)[];
-}> = ({ parentPostId, collapseGroup, collapseManager, toDisplay }) => {
+}> = ({ parentPostId, collapseGroupData, collapseManager, toDisplay }) => {
   const { parentChildrenMap } = useThreadContext();
   const children = parentChildrenMap.get(parentPostId)?.children;
-  const [firstElement, lastElement] = collapseGroup;
-  const collapseGroupId = collapseManager.getCollapseGroupId(collapseGroup);
+  const {
+    firstElement,
+    lastElement,
+    collapseGroupId,
+    totals,
+  } = collapseGroupData;
   const firstElementIndex = children?.findIndex(
     (post) => post.postId == firstElement
   );
@@ -42,33 +50,56 @@ const CollapseGroupDisplay: React.FC<{
     (post) => post.postId == lastElement
   );
 
-  info(`Rendering collapse group:`, collapseGroup);
+  info(`Rendering collapse group:`, collapseGroupData);
   info(
     `Collapse group is ${
       collapseManager.isCollapsed(collapseGroupId) ? "collapsed" : "UNcollapsed"
     }.`
   );
+  const loadBefore = React.useCallback(
+    (groupId) => {
+      collapseManager.onPartiallyUncollapseGroup(groupId, false);
+    },
+    [collapseManager.onPartiallyUncollapseGroup]
+  );
+  const loadAfter = React.useCallback(
+    (groupId) => {
+      collapseManager.onPartiallyUncollapseGroup(groupId, true);
+    },
+    [collapseManager.onPartiallyUncollapseGroup]
+  );
+
   if (!firstElementIndex || !lastElementIndex) {
     error(
       `Found collapse group with invalid indexed: [${firstElementIndex}, ${lastElementIndex}`
     );
     return null;
   }
+  const hasStaggeredLoading = totals?.totalPosts && totals?.totalPosts > 30;
 
   return (
-    <NewThread.CollapseGroup
-      id={collapseGroupId}
-      collapsed={collapseManager.isCollapsed(collapseGroupId)}
-    >
-      {children?.slice(firstElementIndex, lastElementIndex).map((post) => (
-        <ThreadLevel
-          key={post.postId}
-          post={post}
-          toDisplay={toDisplay}
-          collapseManager={collapseManager}
-        />
-      ))}
-    </NewThread.CollapseGroup>
+    <div className="collapseGroup">
+      <NewThread.CollapseGroup
+        id={collapseGroupId}
+        collapsed={collapseManager.isCollapsed(collapseGroupId)}
+        onLoadAfter={hasStaggeredLoading ? loadAfter : undefined}
+        onLoadBefore={hasStaggeredLoading ? loadBefore : undefined}
+      >
+        {children?.slice(firstElementIndex, lastElementIndex).map((post) => (
+          <ThreadLevel
+            key={post.postId}
+            post={post}
+            toDisplay={toDisplay}
+            collapseManager={collapseManager}
+          />
+        ))}
+      </NewThread.CollapseGroup>
+      <style jsx>{`
+        .collapseGroup {
+          margin-top: 30px;
+        }
+      `}</style>
+    </div>
   );
 };
 
@@ -120,21 +151,22 @@ const ThreadLevel: React.FC<{
   const childrenDisplay: React.ReactNode[] = [];
   for (let i = 0; i < (children?.length || 0); i++) {
     const currentPost = children![i];
-    const collapseGroup = props.collapseManager.getCollapseGroupAt(
+    const collapseGroupData = props.collapseManager.getCollapseGroupAt(
       currentPost.postId
     );
-    if (collapseGroup) {
+    if (collapseGroupData) {
       childrenDisplay.push(
         <CollapseGroupDisplay
-          collapseGroup={collapseGroup}
+          collapseGroupData={collapseGroupData}
           collapseManager={props.collapseManager}
           toDisplay={props.toDisplay}
           parentPostId={props.post.postId}
         />
       );
       i =
-        children?.findIndex((child) => child.postId === collapseGroup[1]) ||
-        Infinity;
+        children?.findIndex(
+          (child) => child.postId === collapseGroupData?.lastElement
+        ) || Infinity;
       continue;
     }
     childrenDisplay.push(
@@ -209,9 +241,8 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
   } = usePageDetails<ThreadPageDetails>();
   const { onNewContribution } = useThreadEditors();
   const boardData = useBoardContext(boardSlug);
-  const { currentRoot, threadDisplaySequence } = useThreadContext();
+  const { currentRoot } = useThreadContext();
   log(`Rerendering ThreadView.`);
-  info(threadDisplaySequence);
 
   const {
     onCollapseLevel,
@@ -292,5 +323,5 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
 };
 
 const MemoizedThreadView = React.memo(ThreadView);
-MemoizedThreadView.whyDidYouRender = true;
+ThreadView.whyDidYouRender = true;
 export default MemoizedThreadView;

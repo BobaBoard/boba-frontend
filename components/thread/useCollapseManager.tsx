@@ -8,7 +8,7 @@ const log = debug("bobafrontend:useCollapseManager-log");
 const info = debug("bobafrontend:useCollapseManager-info");
 
 export type CollapseGroup = [string, string];
-const THREAD_UNRAVEL_STEP = 10;
+const THREAD_UNRAVEL_STEP = 5;
 
 const getCollapseGroupId = (group: CollapseGroup) => {
   return `cg:${group[0]}_${group[1]}`;
@@ -136,8 +136,8 @@ export const useThreadCollapseManager = () => {
     []
   );
 
-  const onUncollapseGroup = React.useCallback(
-    (groupId: string) => {
+  const onPartiallyUncollapseGroup = React.useCallback(
+    (groupId: string, fromEnd: boolean) => {
       let newGroup: CollapseGroup | null = null;
       const collapseGroup = extractCollapseGroupData(groupId);
       const newCollapseGroups = collapseGroups.filter(
@@ -149,19 +149,25 @@ export const useThreadCollapseManager = () => {
       const firstElementIndex = firstLevelContributions.findIndex(
         (element) => element.postId == collapseGroup[0]
       );
-      if (
-        firstLevelContributions.length - firstElementIndex >
-        THREAD_UNRAVEL_STEP
-      ) {
+      const lastElementIndex = firstLevelContributions.findIndex(
+        (element) => element.postId == collapseGroup[1]
+      );
+      if (lastElementIndex - firstElementIndex > THREAD_UNRAVEL_STEP) {
         info(`Uncollapsing of long thread. Being smart about it.`);
         info(
           `Current first element is element ${firstElementIndex} of ${firstLevelContributions.length} first level items.`
         );
-        newGroup = [
-          firstLevelContributions[firstElementIndex + THREAD_UNRAVEL_STEP]
-            .postId,
-          collapseGroup[1],
-        ];
+        newGroup = !fromEnd
+          ? [
+              firstLevelContributions[firstElementIndex + THREAD_UNRAVEL_STEP]
+                .postId,
+              collapseGroup[1],
+            ]
+          : [
+              collapseGroup[0],
+              firstLevelContributions[lastElementIndex - THREAD_UNRAVEL_STEP]
+                .postId,
+            ];
         newCollapseGroups.push(newGroup);
       }
       setCollapseGroups(newCollapseGroups);
@@ -183,18 +189,18 @@ export const useThreadCollapseManager = () => {
     [collapseGroups, postsInfoMap, threadRoot]
   );
 
-  const onUncollapseLevel = React.useCallback(
-    (levelId) => {
-      if (isCollapseGroupId(levelId)) {
-        log(`Uncollapsing group ${levelId}`);
-        onUncollapseGroup(levelId);
-        return;
-      }
-      setCollapse((collapse) => collapse.filter((id) => id != levelId));
-      lastChanges.current.push({ levelId, collapsed: false });
-    },
-    [onUncollapseGroup]
-  );
+  const onUncollapseLevel = React.useCallback((levelId) => {
+    if (isCollapseGroupId(levelId)) {
+      log(`Uncollapsing group ${levelId}`);
+      setCollapseGroups((collapseGroups) =>
+        collapseGroups.filter(
+          (collapseGroup) => getCollapseGroupId(collapseGroup) != levelId
+        )
+      );
+    }
+    setCollapse((collapse) => collapse.filter((id) => id != levelId));
+    lastChanges.current.push({ levelId, collapsed: false });
+  }, []);
   const getCollapseReason = React.useCallback(
     (levelId: string) => {
       if (isCollapseGroupId(levelId)) {
@@ -254,9 +260,23 @@ export const useThreadCollapseManager = () => {
 
   const getCollapseGroupAt = React.useCallback(
     (firstPostId: string) => {
-      return collapseGroups.find((group) => group[0] == firstPostId);
+      const collapseGroup = collapseGroups.find(
+        (group) => group[0] == firstPostId
+      );
+      if (!collapseGroup) {
+        return null;
+      }
+      const collapseGroupId = getCollapseGroupId(collapseGroup);
+
+      return {
+        collapseGroup,
+        firstElement: collapseGroup[0],
+        lastElement: collapseGroup[1],
+        collapseGroupId,
+        totals: getLevelTotals(collapseGroupId, threadDisplaySequence),
+      };
     },
-    [collapseGroups]
+    [collapseGroups, threadDisplaySequence]
   );
 
   const reset = React.useCallback(() => {
@@ -278,6 +298,7 @@ export const useThreadCollapseManager = () => {
       addCollapseGroup,
       getCollapseGroupAt,
       getCollapseGroupId,
+      onPartiallyUncollapseGroup,
       collapseGroups,
     }),
     [
@@ -292,8 +313,9 @@ export const useThreadCollapseManager = () => {
       addCollapseGroup,
       getCollapseGroupAt,
       collapseGroups,
+      onPartiallyUncollapseGroup,
     ]
   );
 };
-
+useThreadCollapseManager.whyDidYouRender = true;
 export type CollapseManager = ReturnType<typeof useThreadCollapseManager>;
