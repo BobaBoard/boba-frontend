@@ -33,6 +33,7 @@ export const useBeamToNew = (
 ) => {
   const newRepliesIndex = React.useRef<number>(-1);
   const threadContext = useThreadContext();
+  const [loading, setLoading] = React.useState(false);
 
   const { threadRoot, newRepliesSequence, isFetching } = threadContext;
 
@@ -61,8 +62,10 @@ export const useBeamToNew = (
     }
     log(`Beaming to new reply with index ${newRepliesIndex}`);
     info(newRepliesSequence);
+    setLoading(true);
     displayManager.displayToThreadElement(next, () => {
       tryScrollToElement(next, accentColor);
+      setLoading(false);
     });
   }, [
     accentColor,
@@ -75,5 +78,6 @@ export const useBeamToNew = (
   return {
     hasBeamToNew,
     onNewAnswersButtonClick,
+    loading,
   };
 };

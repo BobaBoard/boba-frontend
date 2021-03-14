@@ -64,7 +64,7 @@ function ThreadPage() {
   } = useThreadContext();
   const displayManager = useDisplayManager(collapseManager);
   const { displayMore } = displayManager;
-  const { hasBeamToNew, onNewAnswersButtonClick } = useBeamToNew(
+  const { hasBeamToNew, onNewAnswersButtonClick, loading } = useBeamToNew(
     displayManager,
     currentBoardData?.accentColor
   );
@@ -201,7 +201,11 @@ function ThreadPage() {
         </Layout.MainContent>
         <Layout.ActionButton>
           {currentThreadViewMode == THREAD_VIEW_MODES.THREAD && hasBeamToNew ? (
-            <CycleNewButton text="Next New" onNext={onNewAnswersButtonClick} />
+            <CycleNewButton
+              text="Next New"
+              onNext={onNewAnswersButtonClick}
+              loading={loading}
+            />
           ) : canTopLevelPost ? (
             <PostingActionButton
               accentColor={currentBoardData?.accentColor || "#f96680"}
