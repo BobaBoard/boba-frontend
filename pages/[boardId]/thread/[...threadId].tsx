@@ -1,4 +1,4 @@
-import React, { SetStateAction, useState } from "react";
+import React, { useState } from "react";
 import {
   FeedWithMenu,
   CycleNewButton,
@@ -29,12 +29,12 @@ import { useThreadEditors, withEditors } from "components/editors/withEditors";
 import { useReadThread } from "components/hooks/queries/thread";
 import { clearThreadData } from "utils/queries/cache";
 import { useQueryClient } from "react-query";
-
-import debug from "debug";
 import { useThreadCollapseManager } from "components/thread/useCollapseManager";
-const error = debug("bobafrontend:ThreadPage-error");
-const log = debug("bobafrontend:ThreadPage-log");
-const info = debug("bobafrontend:ThreadPage-info");
+
+// import debug from "debug";
+// const error = debug("bobafrontend:ThreadPage-error");
+// const log = debug("bobafrontend:ThreadPage-log");
+// const info = debug("bobafrontend:ThreadPage-info");
 
 const MemoizedThreadSidebar = React.memo(ThreadSidebar);
 const MemoizedThreadView = React.memo(ThreadView);

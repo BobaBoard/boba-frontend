@@ -13,7 +13,6 @@ import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import { useStemOptions } from "components/hooks/useStemOptions";
 import { useBoardContext } from "components/BoardContext";
 
-import debug from "debug";
 import { GALLERY_VIEW_MODE, useThreadView } from "./useThreadView";
 import { useThreadEditors } from "components/editors/withEditors";
 import {
@@ -22,7 +21,9 @@ import {
   useThreadCollapseManager,
 } from "./useCollapseManager";
 import { DisplayManager } from "components/hooks/useDisplayMananger";
-const log = debug("bobafrontend:threadPage:GalleryView-log");
+
+// import debug from "debug";
+// const log = debug("bobafrontend:threadPage:GalleryView-log");
 
 const EmptyGalleryView = (props: { emptyMessage: string }) => (
   <div>

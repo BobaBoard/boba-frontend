@@ -12,13 +12,15 @@ import { useStemOptions } from "components/hooks/useStemOptions";
 import { useBoardContext } from "components/BoardContext";
 import { useThreadEditors } from "components/editors/withEditors";
 import {
-  CollapseGroup,
   CollapseManager,
   extractPostId,
   getCommentThreadId,
   useThreadCollapseManager,
 } from "./useCollapseManager";
-import { DisplayManager } from "components/hooks/useDisplayMananger";
+import {
+  DisplayManager,
+  READ_MORE_STEP,
+} from "components/hooks/useDisplayMananger";
 
 import debug from "debug";
 const error = debug("bobafrontend:ThreadLevel-log");
@@ -56,17 +58,18 @@ const CollapseGroupDisplay: React.FC<{
       collapseManager.isCollapsed(collapseGroupId) ? "collapsed" : "UNcollapsed"
     }.`
   );
+  const { onPartiallyUncollapseGroup } = collapseManager;
   const loadBefore = React.useCallback(
     (groupId) => {
-      collapseManager.onPartiallyUncollapseGroup(groupId, false);
+      onPartiallyUncollapseGroup(groupId, false);
     },
-    [collapseManager.onPartiallyUncollapseGroup]
+    [onPartiallyUncollapseGroup]
   );
   const loadAfter = React.useCallback(
     (groupId) => {
-      collapseManager.onPartiallyUncollapseGroup(groupId, true);
+      onPartiallyUncollapseGroup(groupId, true);
     },
-    [collapseManager.onPartiallyUncollapseGroup]
+    [onPartiallyUncollapseGroup]
   );
 
   if (!firstElementIndex || !lastElementIndex) {
@@ -75,7 +78,8 @@ const CollapseGroupDisplay: React.FC<{
     );
     return null;
   }
-  const hasStaggeredLoading = totals?.totalPosts && totals?.totalPosts > 30;
+  const hasStaggeredLoading =
+    totals?.totalPosts && totals?.totalPosts > READ_MORE_STEP;
 
   return (
     <div className="collapseGroup">
@@ -157,6 +161,7 @@ const ThreadLevel: React.FC<{
     if (collapseGroupData) {
       childrenDisplay.push(
         <CollapseGroupDisplay
+          key={collapseGroupData.collapseGroupId}
           collapseGroupData={collapseGroupData}
           collapseManager={props.collapseManager}
           toDisplay={props.toDisplay}

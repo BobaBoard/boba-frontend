@@ -150,7 +150,7 @@ const useThreadViewDisplay = () => {
   ]);
 };
 
-const READ_MORE_STEP = 5;
+export const READ_MORE_STEP = 5;
 export const useDisplayManager = (collapseManager: CollapseManager) => {
   const currentModeDisplayElements = useThreadViewDisplay();
   const { currentThreadViewMode } = useThreadView();
@@ -236,7 +236,9 @@ export const useDisplayManager = (collapseManager: CollapseManager) => {
       setMaxDisplay(
         (maxDisplay) => {
           const newMaxDisplay = Math.min(
-            elementIndex > maxDisplay ? elementIndex + 3 : maxDisplay,
+            elementIndex > maxDisplay
+              ? elementIndex + (READ_MORE_STEP - 1)
+              : maxDisplay,
             currentModeDisplayElements.length
           );
           if (newMaxDisplay != maxDisplay) {

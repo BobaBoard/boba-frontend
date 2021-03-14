@@ -7,7 +7,7 @@ import { useThreadContext } from "../thread/ThreadContext";
 
 import debug from "debug";
 import { DisplayManager } from "./useDisplayMananger";
-const error = debug("bobafrontend:useBeamToNew-error");
+// const error = debug("bobafrontend:useBeamToNew-error");
 const log = debug("bobafrontend:useBeamToNew-log");
 const info = debug("bobafrontend:useBeamToNew-info");
 
@@ -62,7 +62,7 @@ export const useBeamToNew = (
     log(`Beaming to new reply with index ${newRepliesIndex}`);
     info(newRepliesSequence);
     displayManager.displayToThreadElement(next, () => {
-      tryScrollToElement(next, "red");
+      tryScrollToElement(next, accentColor);
     });
   }, [
     accentColor,

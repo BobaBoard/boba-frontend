@@ -136,7 +136,7 @@ export const createComment = async ({
     `/posts/${replyToPostId}/comment`,
     commentData
   );
-  const comment = makeClientComment(response.data.comment);
+  const comment = makeClientComment(response.data.comment, replyToPostId!);
   log(`Received comment from server:`);
   log(comment);
   return comment;
@@ -156,7 +156,7 @@ export const createCommentChain = async ({
     identityId: commentData[0].identityId,
   });
   const comments = response.data.comments.map((comment: any) =>
-    makeClientComment(comment)
+    makeClientComment(comment, replyToPostId!)
   );
   log(`Received comment from server:`);
   log(comments);
