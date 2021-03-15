@@ -3,6 +3,7 @@ import {
   FeedWithMenu,
   CycleNewButton,
   PostingActionButton,
+  DefaultTheme,
 } from "@bobaboard/ui-components";
 import Layout from "components/Layout";
 import LoadingSpinner from "components/LoadingSpinner";

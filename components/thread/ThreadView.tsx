@@ -1,5 +1,5 @@
 import React from "react";
-import { NewThread } from "@bobaboard/ui-components";
+import { DefaultTheme, LoadingBar, NewThread } from "@bobaboard/ui-components";
 import ThreadPost, { scrollToPost } from "./ThreadPost";
 import { useThreadContext } from "components/thread/ThreadContext";
 import { CommentType, PostType } from "../../types/Types";
@@ -21,11 +21,23 @@ import {
   DisplayManager,
   READ_MORE_STEP,
 } from "components/hooks/useDisplayMananger";
+import css from "styled-jsx/css";
 
 import debug from "debug";
 const error = debug("bobafrontend:ThreadLevel-log");
 const log = debug("bobafrontend:ThreadLevel-log");
 const info = debug("bobafrontend:ThreadLevel-info");
+
+const loadingBar = css.resolve`
+  .thread-loading-bar {
+    top: ${DefaultTheme.HEADER_HEIGHT_PX}px!important;
+    visibility: hidden;
+    transition: visibility 800ms ease-out;
+  }
+  .visible {
+    visibility: visible;
+  }
+`;
 
 const CollapseGroupDisplay: React.FC<{
   parentPostId: string;
@@ -276,8 +288,24 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
   if (!currentRoot) {
     return <div />;
   }
+  const {
+    currentModeLoadedElements,
+    currentModeDisplayElements,
+  } = props.displayManager;
   return (
     <div className="thread-container">
+      <LoadingBar
+        className={classnames("thread-loading-bar", loadingBar.className, {
+          visible:
+            currentModeLoadedElements.length !==
+            currentModeDisplayElements.length,
+        })}
+        accentColor={boardData?.accentColor}
+        progress={
+          (currentModeLoadedElements.length * 100) /
+          currentModeDisplayElements.length
+        }
+      />
       <div
         className={classnames("whole-thread", {
           visible: !!postId,
@@ -299,10 +327,11 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
       >
         <ThreadLevel
           post={currentRoot}
-          toDisplay={props.displayManager.currentModeLoadedElements}
+          toDisplay={currentModeLoadedElements}
           collapseManager={props.collapseManager}
         />
       </NewThread>
+      {loadingBar.styles}
       <style jsx>{`
         .whole-thread {
           margin-bottom: -5px;
