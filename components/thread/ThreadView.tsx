@@ -36,6 +36,7 @@ const loadingBar = css.resolve`
   }
   .visible {
     visibility: visible;
+    z-index: 10 !important;
   }
 `;
 
