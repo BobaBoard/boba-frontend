@@ -72,16 +72,23 @@ function ThreadPage() {
   const { onNewContribution } = useThreadEditors();
 
   React.useEffect(() => {
+    let timeout: NodeJS.Timeout;
     if (
       !isFetchingThread &&
       !isRefetchingThread &&
       isLoggedIn &&
       !hasMarkedAsRead.current
     ) {
-      markAsRead({ slug, threadId });
-      hasMarkedAsRead.current = true;
-      return;
+      timeout = setTimeout(() => {
+        markAsRead({ slug, threadId });
+        hasMarkedAsRead.current = true;
+      }, 1500);
     }
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    };
   }, [
     markAsRead,
     isFetchingThread,
