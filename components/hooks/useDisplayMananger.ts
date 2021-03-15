@@ -100,8 +100,6 @@ const useThreadViewDisplay = () => {
     currentThreadViewMode,
     timelineViewMode,
     galleryViewMode,
-    addOnChangeHandler,
-    removeOnChangeHandler,
   } = useThreadView();
 
   return React.useMemo(() => {
@@ -152,6 +150,7 @@ const useThreadViewDisplay = () => {
   ]);
 };
 
+export const FIRST_LOAD = 5;
 export const READ_MORE_STEP = 5;
 export const useDisplayManager = (collapseManager: CollapseManager) => {
   const currentModeDisplayElements = useThreadViewDisplay();
@@ -168,12 +167,12 @@ export const useDisplayManager = (collapseManager: CollapseManager) => {
    * Can't be more than max length of current contributions.
    * TODO: check the last statement is true.
    */
-  const [maxDisplay, setMaxDisplay] = useStateWithCallback(READ_MORE_STEP);
+  const [maxDisplay, setMaxDisplay] = useStateWithCallback(FIRST_LOAD);
   const { isFetching } = useThreadContext();
 
   React.useEffect(() => {
     const clearMaxDisplayCallback = () => {
-      setMaxDisplay(READ_MORE_STEP);
+      setMaxDisplay(FIRST_LOAD);
     };
     addOnChangeHandler(clearMaxDisplayCallback);
     return () => {
