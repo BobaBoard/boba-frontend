@@ -162,6 +162,7 @@ const getUpdatedQuery = (
   };
 };
 
+let THREAD_VIEW_CHANGE_HANDLERS: ((mode: THREAD_VIEW_MODES) => void)[] = [];
 export const useThreadView = () => {
   const [threadViewQuery, setThreadViewQuery] = useQueryParams({
     ...ThreadViewQueryParams,
@@ -176,7 +177,6 @@ export const useThreadView = () => {
     threadRoot,
     chronologicalPostsSequence,
   } = useThreadContext();
-
   const setThreadViewMode = React.useCallback(
     (viewMode: THREAD_VIEW_MODES) => {
       const isDefaultView = getViewTypeFromString(defaultView) === viewMode;
@@ -185,6 +185,7 @@ export const useThreadView = () => {
         timeline: !isDefaultView && viewMode == THREAD_VIEW_MODES.TIMELINE,
         thread: !isDefaultView && viewMode == THREAD_VIEW_MODES.THREAD,
       });
+      THREAD_VIEW_CHANGE_HANDLERS.forEach((callback) => callback(viewMode));
     },
     [defaultView, setThreadViewQuery]
   );
@@ -268,6 +269,22 @@ export const useThreadView = () => {
     );
   }, [currentThreadViewMode]);
 
+  const addOnChangeHandler = React.useCallback(
+    (callback: (mode: THREAD_VIEW_MODES) => void) => {
+      THREAD_VIEW_CHANGE_HANDLERS.push(callback);
+    },
+    []
+  );
+
+  const removeOnChangeHandler = React.useCallback(
+    (callback: (mode: THREAD_VIEW_MODES) => void) => {
+      THREAD_VIEW_CHANGE_HANDLERS = THREAD_VIEW_CHANGE_HANDLERS.filter(
+        (savedCallback) => savedCallback != callback
+      );
+    },
+    []
+  );
+
   return {
     currentThreadViewMode,
     timelineViewMode: currentTimelineViewMode,
@@ -275,5 +292,7 @@ export const useThreadView = () => {
     setThreadViewMode,
     setGalleryViewMode,
     setTimelineViewMode,
+    addOnChangeHandler,
+    removeOnChangeHandler,
   };
 };

@@ -100,6 +100,8 @@ const useThreadViewDisplay = () => {
     currentThreadViewMode,
     timelineViewMode,
     galleryViewMode,
+    addOnChangeHandler,
+    removeOnChangeHandler,
   } = useThreadView();
 
   return React.useMemo(() => {
@@ -153,7 +155,11 @@ const useThreadViewDisplay = () => {
 export const READ_MORE_STEP = 5;
 export const useDisplayManager = (collapseManager: CollapseManager) => {
   const currentModeDisplayElements = useThreadViewDisplay();
-  const { currentThreadViewMode } = useThreadView();
+  const {
+    currentThreadViewMode,
+    addOnChangeHandler,
+    removeOnChangeHandler,
+  } = useThreadView();
   const { postsInfoMap } = useThreadContext();
   /**
    * How many contributions are currently displayed (at most) in the current mode.
@@ -166,8 +172,14 @@ export const useDisplayManager = (collapseManager: CollapseManager) => {
   const { isFetching } = useThreadContext();
 
   React.useEffect(() => {
-    setMaxDisplay(READ_MORE_STEP);
-  }, [currentModeDisplayElements, setMaxDisplay]);
+    const clearMaxDisplayCallback = () => {
+      setMaxDisplay(READ_MORE_STEP);
+    };
+    addOnChangeHandler(clearMaxDisplayCallback);
+    return () => {
+      removeOnChangeHandler(clearMaxDisplayCallback);
+    };
+  }, [addOnChangeHandler, removeOnChangeHandler, setMaxDisplay]);
 
   const displayMore = React.useCallback(
     (callback: (newMax: number, hasMore: boolean) => void) => {
@@ -203,7 +215,7 @@ export const useDisplayManager = (collapseManager: CollapseManager) => {
               log(`Creating request for further load at next idle step.`);
               // @ts-ignore
               id = requestIdleCallback(idleCallback /*, { timeout: 2000 }*/);
-            }, 5000);
+            }, 1000);
           }
         })
       );
