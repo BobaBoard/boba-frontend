@@ -1,5 +1,7 @@
+import React from "react";
+
 import { useThreadContext } from "components/thread/ThreadContext";
-import React, { SetStateAction } from "react";
+import { useStateWithCallback } from "components/hooks/useStateWithCallback";
 
 import {
   GALLERY_VIEW_MODE,
@@ -70,28 +72,6 @@ const maybeCollapseToElement = ({
     lastCollapsedLvl1!.postId
   );
   collapseManager.onCollapseLevel(collapseGroupId);
-};
-
-const useStateWithCallback = <T>(
-  initialState: T
-): [T, (value: SetStateAction<T>, callback?: (state: T) => void) => void] => {
-  const callbackRef = React.useRef<(state: T) => void>(null);
-  const [value, setValue] = React.useState(initialState);
-
-  React.useEffect(() => {
-    callbackRef.current?.(value);
-    // @ts-ignore
-    callbackRef.current = null;
-  }, [value]);
-
-  const setValueWithCallback = React.useCallback((newValue, callback) => {
-    // @ts-ignore
-    callbackRef.current = callback;
-
-    return setValue(newValue);
-  }, []);
-
-  return [value, setValueWithCallback];
 };
 
 const useThreadViewDisplay = () => {

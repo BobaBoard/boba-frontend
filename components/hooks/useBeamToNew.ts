@@ -4,6 +4,7 @@ import { isCommentLoaded, scrollToComment } from "../thread/CommentsThread";
 import { isPostLoaded, scrollToPost } from "../thread/ThreadPost";
 import { CommentType, isComment, isPost, PostType } from "../../types/Types";
 import { useThreadContext } from "../thread/ThreadContext";
+import { useStateWithCallback } from "./useStateWithCallback";
 
 import debug from "debug";
 import { DisplayManager } from "./useDisplayMananger";
@@ -33,7 +34,7 @@ export const useBeamToNew = (
 ) => {
   const newRepliesIndex = React.useRef<number>(-1);
   const threadContext = useThreadContext();
-  const [loading, setLoading] = React.useState(false);
+  const [loading, setLoading] = useStateWithCallback(false);
 
   const { threadRoot, newRepliesSequence, isFetching } = threadContext;
 
@@ -62,10 +63,11 @@ export const useBeamToNew = (
     }
     log(`Beaming to new reply with index ${newRepliesIndex}`);
     info(newRepliesSequence);
-    setLoading(true);
-    displayManager.displayToThreadElement(next, () => {
-      tryScrollToElement(next, accentColor);
-      setLoading(false);
+    setLoading(true, () => {
+      displayManager.displayToThreadElement(next, () => {
+        tryScrollToElement(next, accentColor);
+        setLoading(false);
+      });
     });
   }, [
     accentColor,
@@ -73,6 +75,7 @@ export const useBeamToNew = (
     displayManager,
     isFetching,
     newRepliesSequence,
+    setLoading,
   ]);
 
   return {
