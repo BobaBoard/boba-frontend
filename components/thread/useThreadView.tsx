@@ -130,7 +130,10 @@ const getUpdatedQuery = (
       new:
         galleryViewMode?.mode == GALLERY_VIEW_MODE.NEW ||
         (!galleryViewMode && currentParams.new),
-      showCover: currentParams.showCover || galleryViewMode?.showCover,
+      showCover:
+        typeof galleryViewMode?.showCover === "undefined"
+          ? currentParams.showCover
+          : galleryViewMode?.showCover,
     };
   }
   if (threadViewMode == THREAD_VIEW_MODES.TIMELINE) {
@@ -243,7 +246,8 @@ export const useThreadView = () => {
       showCover:
         threadRoot?.isNew ||
         !!threadRoot?.newCommentsAmount ||
-        chronologicalPostsSequence.length == 0,
+        chronologicalPostsSequence.length == 0 ||
+        threadViewQuery.showCover,
     };
     setThreadViewQuery(
       getUpdatedQuery(threadViewQuery, getViewTypeFromString(defaultView), {

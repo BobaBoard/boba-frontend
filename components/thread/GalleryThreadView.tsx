@@ -67,8 +67,8 @@ const ShowCover = ({
   setShowCover: (show: boolean) => void;
 }) => (
   <>
-    <a
-      href="#"
+    <button
+      // TODO: this button should be an a with an href to the page with the cover on/off.
       onClick={(e) => {
         setShowCover(!showCover);
         e.preventDefault();
@@ -77,15 +77,26 @@ const ShowCover = ({
       {showCover ? "Hide" : "Show"} cover (
       {cover?.commentsAmount || 0 /*TODO: wtf?? why do we need this??*/}{" "}
       comments, {cover?.newCommentsAmount} new)
-    </a>
+    </button>
     <style jsx>{`
-      a {
+      button {
         display: block;
         color: white;
         text-align: center;
         font-size: small;
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin: 10px auto;
+        border: 0;
+        background-color: transparent;
+      }
+      button:hover {
+        cursor: pointer;
+        text-decoration: underline;
+      }
+      button:focus {
+        outline: none;
+      }
+      button:focus-visible {
+        outline: auto;
       }
     `}</style>
   </>
