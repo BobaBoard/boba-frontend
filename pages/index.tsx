@@ -7,6 +7,7 @@ import useBoos from "components/hooks/useBoos";
 import moment from "moment";
 import { THREAD_PATH } from "utils/router-utils";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
+import { isStaging } from "utils/server-utils";
 
 function HomePage(props: { lastUpdate?: any }) {
   const { styles } = useBoos();
@@ -27,6 +28,17 @@ function HomePage(props: { lastUpdate?: any }) {
                 "Where the bugs are funny and the people are cool" — Outdated
                 Meme
               </div>
+              {isStaging() && (
+                <div className="staging-warning">
+                  <h2>ATTENTION</h2>
+                  <p>
+                    You're using the <strong>staging</strong> version of
+                    BobaBoard. Unless you're here for a reson, you likely want
+                    to be on <a href="http://v0.boba.social">v0.boba.social</a>{" "}
+                    insted.
+                  </p>
+                </div>
+              )}
               <p>
                 Remember: this is the experimental version of an experimental
                 website. If you experience a problem, then stuff is likely to be{" "}
@@ -108,6 +120,14 @@ function HomePage(props: { lastUpdate?: any }) {
         }
         .intro img {
           height: 100px;
+        }
+        .staging-warning {
+          background-color: orangered;
+          padding: 5px 15px;
+          border-radius: 25px;
+        }
+        .staging-warning a {
+          color: blue;
         }
         .updates {
           background-color: #1c1c1c;

@@ -126,6 +126,13 @@ export const makeClientBoardData = (serverBoardData: any): BoardData => {
   };
 };
 
+export const isStaging = () => {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  return window.location.hostname.startsWith("staging");
+};
+
 export const getServerBaseUrl = (context?: NextPageContext) => {
   let location = "";
   let isStaging = false;
