@@ -190,17 +190,18 @@ export const useDisplayManager = (collapseManager: CollapseManager) => {
       requestAnimationFrame(() =>
         displayMore((newValue, hasMore) => {
           if (hasMore) {
-            timeout = setTimeout(() => {
-              log(`Creating request for further load at next idle step.`);
-              // @ts-ignore
-              id = requestIdleCallback(idleCallback /*, { timeout: 2000 }*/);
-            }, 1000);
+            // NOTE: THE TIMEOUT IS FOR TESTING PURPOSES
+            // timeout = setTimeout(() => {
+            log(`Creating request for further load at next idle step.`);
+            // @ts-ignore
+            id = requestIdleCallback(idleCallback, { timeout: 1000 });
+            // }, 1000);
           }
         })
       );
     };
     // @ts-ignore
-    requestIdleCallback(idleCallback /*, { timeout: 500 }*/);
+    requestIdleCallback(idleCallback);
     return () => {
       if (id) {
         // @ts-ignore
