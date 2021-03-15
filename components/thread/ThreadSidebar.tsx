@@ -70,53 +70,50 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
             selected={props.viewMode}
           />
         </div>
-        <div>
+        {/* <div>
           Showing {props.displayManager.currentModeLoadedElements.length}{" "}
           contributions of{" "}
           {props.displayManager.currentModeDisplayElements.length}
-        </div>
+        </div> */}
       </div>
       {categoryFilterState.length > 1 && (
         <div className="category-filters">
           <h3>Category Filters</h3>
           {
             // TODO: re-enable this after changing logic in the various modes so it... well, works.
-            false ? (
-              <div>
-                <CategoryFilter
-                  categories={categoryFilterState}
-                  onCategoryStateChangeRequest={(name: string) => {
-                    setCategoryFilterState(
-                      categoryFilterState.map((category) => ({
-                        ...category,
-                        active: category.name == name,
-                      }))
-                    );
-                  }}
-                />
-                {categoryFilterState.some((category) => !category.active) && (
-                  <a
-                    className="clear-filters"
-                    href="#"
-                    onClick={() => {
-                      setCategoryFilterState(
-                        categoryFilterState.map((category) => ({
-                          ...category,
-                          active: true,
-                        }))
-                      );
-                    }}
-                  >
-                    Clear filters
-                  </a>
-                )}
-              </div>
-            ) : (
-              <div className="sorry">
-                Sorry! Category filters are not (yet) available in this mode.
-              </div>
-            )
+            // <div>
+            //   <CategoryFilter
+            //     categories={categoryFilterState}
+            //     onCategoryStateChangeRequest={(name: string) => {
+            //       setCategoryFilterState(
+            //         categoryFilterState.map((category) => ({
+            //           ...category,
+            //           active: category.name == name,
+            //         }))
+            //       );
+            //     }}
+            //   />
+            //   {categoryFilterState.some((category) => !category.active) && (
+            //     <a
+            //       className="clear-filters"
+            //       href="#"
+            //       onClick={() => {
+            //         setCategoryFilterState(
+            //           categoryFilterState.map((category) => ({
+            //             ...category,
+            //             active: true,
+            //           }))
+            //         );
+            //       }}
+            //     >
+            //       Clear filters
+            //     </a>
+            //   )}
+            // </div>
           }
+          <div className="sorry">
+            Sorry! Category filters are not (yet) available in this mode.
+          </div>
         </div>
       )}
       <style jsx>{`
