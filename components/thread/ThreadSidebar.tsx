@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  CategoryFilter,
-  PostQuote,
-  SegmentedButton,
-} from "@bobaboard/ui-components";
+import { PostQuote, SegmentedButton } from "@bobaboard/ui-components";
 import { useThreadContext } from "components/thread/ThreadContext";
 import { THREAD_VIEW_MODES } from "components/thread/useThreadView";
 import moment from "moment";
@@ -21,11 +17,7 @@ export interface ThreadSidebarProps {
 
 const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
   const { forceHideIdentity } = useForceHideIdentity();
-  const {
-    threadRoot,
-    categoryFilterState,
-    setCategoryFilterState,
-  } = useThreadContext();
+  const { threadRoot, categoryFilterState } = useThreadContext();
   if (!threadRoot) {
     return null;
   }

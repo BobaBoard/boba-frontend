@@ -33,7 +33,7 @@ function HomePage(props: { lastUpdate?: any }) {
                   <h2>ATTENTION</h2>
                   <p>
                     You're using the <strong>staging</strong> version of
-                    BobaBoard. Unless you're here for a reson, you likely want
+                    BobaBoard. Unless you're here for a reason, you likely want
                     to be on <a href="http://v0.boba.social">v0.boba.social</a>{" "}
                     insted.
                   </p>
