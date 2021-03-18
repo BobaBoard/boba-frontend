@@ -1,4 +1,4 @@
-import React, { SetStateAction, useState } from "react";
+import React, { useState } from "react";
 import {
   FeedWithMenu,
   CycleNewButton,
@@ -11,8 +11,6 @@ import classnames from "classnames";
 import { useBoardContext, useBoardsContext } from "components/BoardContext";
 //import { useHotkeys } from "react-hotkeys-hook";
 import ThreadView from "components/thread/ThreadView";
-import { scrollToComment } from "components/thread/CommentsThread";
-import { scrollToPost } from "components/thread/ThreadPost";
 import ThreadSidebar from "components/thread/ThreadSidebar";
 import GalleryThreadView from "components/thread/GalleryThreadView";
 import TimelineThreadView from "components/thread/TimelineThreadView";
@@ -25,38 +23,18 @@ import {
   useThreadView,
 } from "components/thread/useThreadView";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
+import { useBeamToNew } from "components/hooks/useBeamToNew";
+import { useDisplayManager } from "components/hooks/useDisplayMananger";
 import { useThreadEditors, withEditors } from "components/editors/withEditors";
 import { useReadThread } from "components/hooks/queries/thread";
 import { clearThreadData } from "utils/queries/cache";
 import { useQueryClient } from "react-query";
+import { useThreadCollapseManager } from "components/thread/useCollapseManager";
 
-import debug from "debug";
-import { isPost } from "types/Types";
-const log = debug("bobafrontend:ThreadPage-log");
-const info = debug("bobafrontend:ThreadPage-info");
-
-const useStateWithCallback = <T extends any>(
-  initialState: T
-): [T, (value: SetStateAction<T>, callback: (state: T) => void) => void] => {
-  const callbackRef = React.useRef<(state: T) => void>(null);
-
-  const [value, setValue] = React.useState(initialState);
-
-  React.useEffect(() => {
-    callbackRef.current?.(value);
-    // @ts-ignore
-    callbackRef.current = null;
-  }, [value]);
-
-  const setValueWithCallback = React.useCallback((newValue, callback) => {
-    // @ts-ignore
-    callbackRef.current = callback;
-
-    return setValue(newValue);
-  }, []);
-
-  return [value, setValueWithCallback];
-};
+// import debug from "debug";
+// const error = debug("bobafrontend:ThreadPage-error");
+// const log = debug("bobafrontend:ThreadPage-log");
+// const info = debug("bobafrontend:ThreadPage-info");
 
 const MemoizedThreadSidebar = React.memo(ThreadSidebar);
 const MemoizedThreadView = React.memo(ThreadView);
@@ -70,7 +48,6 @@ function ThreadPage() {
   const { getLinkToBoard } = useCachedLinks();
   const currentBoardData = useBoardContext(slug);
   const { refetch: refetchNotifications } = useBoardsContext();
-  const [maxDisplay, setMaxDisplay] = useStateWithCallback(2);
   const [totalPosts, setTotalPosts] = useState(Infinity);
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
@@ -80,32 +57,39 @@ function ThreadPage() {
   const markAsRead = useReadThread();
   const hasMarkedAsRead = React.useRef(false);
   const { currentThreadViewMode, setThreadViewMode } = useThreadView();
+  const collapseManager = useThreadCollapseManager();
   const {
     threadRoot,
-    newRepliesSequence,
     isLoading: isFetchingThread,
     isRefetching: isRefetchingThread,
   } = useThreadContext();
+  const displayManager = useDisplayManager(collapseManager);
+  const { displayMore } = displayManager;
+  const { hasBeamToNew, onNewAnswersButtonClick, loading } = useBeamToNew(
+    displayManager,
+    currentBoardData?.accentColor
+  );
   const { onNewContribution } = useThreadEditors();
 
   React.useEffect(() => {
+    let timeout: NodeJS.Timeout;
     if (
       !isFetchingThread &&
       !isRefetchingThread &&
       isLoggedIn &&
       !hasMarkedAsRead.current
     ) {
-      markAsRead(
-        { slug, threadId },
-        {
-          onSuccess: () => {
-            hasMarkedAsRead.current = true;
-            refetchNotifications();
-          },
-        }
-      );
-      return;
+      timeout = setTimeout(() => {
+        markAsRead({ slug, threadId });
+        hasMarkedAsRead.current = true;
+        refetchNotifications();
+      }, 1500);
     }
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    };
   }, [
     markAsRead,
     refetchNotifications,
@@ -124,9 +108,7 @@ function ThreadPage() {
       clearThreadData(queryClient, { slug, threadId });
       hasMarkedAsRead.current = false;
     };
-  }, []);
-
-  const newRepliesIndex = React.useRef<number>(-1);
+  }, [queryClient, slug, threadId]);
 
   // TODO: disable this while post editing and readd
   // const currentPostIndex = React.useRef<number>(-1);
@@ -151,40 +133,7 @@ function ThreadPage() {
       // TODO: this happens after the thread has already 403'd
       getLinkToBoard(slug).onClick?.();
     }
-  }, [currentBoardData, isAuthPending, isLoggedIn]);
-
-  // Skip if there's only one new post and it's the root.
-  const hasBeamableReply =
-    newRepliesSequence?.length &&
-    !(newRepliesSequence.length == 1 && newRepliesSequence[0] === threadRoot);
-  const onNewAnswersButtonClick = () => {
-    if (!hasBeamableReply) {
-      return;
-    }
-
-    log(`Finding next new reply...`);
-    // @ts-ignore
-    newRepliesIndex.current =
-      (newRepliesIndex.current + 1) % newRepliesSequence.length;
-    let next = newRepliesSequence[newRepliesIndex.current];
-    // Skip the root post.
-    if (isPost(next) && next.parentPostId == null) {
-      newRepliesIndex.current =
-        (newRepliesIndex.current + 1) % newRepliesSequence.length;
-      // This won't be the root, cause we already addressed the case when the root is the only
-      // new post.
-      next = newRepliesSequence[newRepliesIndex.current];
-      info(`...skipping the root...`);
-    }
-    log(`Beaming to new reply with index ${newRepliesIndex}`);
-    info(newRepliesSequence);
-    isPost(next)
-      ? scrollToPost(next.postId, currentBoardData?.accentColor || "#f96680")
-      : scrollToComment(
-          next.commentId,
-          currentBoardData?.accentColor || "#f96680"
-        );
-  };
+  }, [currentBoardData, isAuthPending, isLoggedIn, getLinkToBoard, slug]);
 
   const canTopLevelPost =
     isLoggedIn &&
@@ -201,21 +150,22 @@ function ThreadPage() {
           <FeedWithMenu
             showSidebar={showSidebar}
             onCloseSidebar={closeSidebar}
-            reachToBottom={maxDisplay < totalPosts}
-            onReachEnd={React.useCallback((more) => {
-              setMaxDisplay(
-                (maxDisplay) => maxDisplay + 4,
-                (maxDisplay) => {
-                  more(maxDisplay < totalPosts);
-                }
-              );
-            }, [])}
+            reachToBottom={displayManager.hasMore()}
+            onReachEnd={React.useCallback(
+              (more) =>
+                displayMore((_, hasMore) => {
+                  more(hasMore);
+                }),
+              [displayMore]
+            )}
           >
             <FeedWithMenu.Sidebar>
               <MemoizedThreadSidebar
                 viewMode={currentThreadViewMode}
                 open={showSidebar}
                 onViewChange={setThreadViewMode}
+                displayManager={displayManager}
+                totalPosts={totalPosts}
               />
             </FeedWithMenu.Sidebar>
             <FeedWithMenu.FeedContent>
@@ -227,15 +177,18 @@ function ThreadPage() {
                 <div className="view-modes">
                   {currentThreadViewMode == THREAD_VIEW_MODES.THREAD ||
                   postId ? (
-                    <MemoizedThreadView onTotalPostsChange={setTotalPosts} />
+                    <MemoizedThreadView
+                      displayManager={displayManager}
+                      collapseManager={collapseManager}
+                    />
                   ) : currentThreadViewMode == THREAD_VIEW_MODES.MASONRY ? (
                     <MemoizedGalleryThreadView
-                      displayAtMost={maxDisplay}
+                      displayManager={displayManager}
                       onTotalPostsChange={setTotalPosts}
                     />
                   ) : (
                     <MemoizedTimelineThreadView
-                      displayAtMost={maxDisplay}
+                      displayManager={displayManager}
                       onTotalPostsChange={setTotalPosts}
                     />
                   )}
@@ -245,7 +198,7 @@ function ThreadPage() {
                 loading={isFetchingThread || isRefetchingThread}
                 idleMessage={
                   // Check whether there's more posts to display
-                  maxDisplay < totalPosts
+                  displayManager.hasMore()
                     ? "..."
                     : currentThreadViewMode == THREAD_VIEW_MODES.THREAD
                     ? ""
@@ -257,9 +210,12 @@ function ThreadPage() {
           </FeedWithMenu>
         </Layout.MainContent>
         <Layout.ActionButton>
-          {currentThreadViewMode == THREAD_VIEW_MODES.THREAD &&
-          hasBeamableReply ? (
-            <CycleNewButton text="Next New" onNext={onNewAnswersButtonClick} />
+          {currentThreadViewMode == THREAD_VIEW_MODES.THREAD && hasBeamToNew ? (
+            <CycleNewButton
+              text="Next New"
+              onNext={onNewAnswersButtonClick}
+              loading={loading}
+            />
           ) : canTopLevelPost ? (
             <PostingActionButton
               accentColor={currentBoardData?.accentColor || "#f96680"}

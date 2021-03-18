@@ -30,6 +30,9 @@ const getCommentsChain = (
   return chain;
 };
 
+export const isCommentLoaded = (commentId: string) => {
+  return !!document.querySelector(`.comment[data-comment-id='${commentId}']`);
+};
 export const scrollToComment = (commentId: string, color: string) => {
   log(`Beaming up to comment with id ${commentId}`);
   const element: HTMLElement | null = document.querySelector(

@@ -4,11 +4,18 @@ import {
   CommentType,
   ThreadPostInfoType,
   ThreadCommentInfoType,
+  isPost,
+  isComment,
 } from "../types/Types";
+const error = debug("bobafrontend:thread-utils-error");
 const log = debug("bobafrontend:thread-utils-log");
 const info = debug("bobafrontend:thread-utils-info");
 
 export const UNCATEGORIZED_LABEL = "uncategorized";
+
+export const getElementId = (element: PostType | CommentType) => {
+  return isPost(element) ? element.postId : element.commentId;
+};
 /**
  * Creates a tree representation of the comments in reply to a single post.
  *
@@ -66,43 +73,66 @@ export const makePostsTree = (
   root: null | PostType;
   parentChildrenMap: Map<string, ThreadPostInfoType>;
   postsDisplaySequence: PostType[];
+  postsInfoMap: Map<string, ThreadPostInfoType>;
 } => {
   log(`Creating posts tree for thread ${threadId}`);
   if (!posts) {
     return {
       root: null,
       parentChildrenMap: new Map<string, ThreadPostInfoType>(),
+      postsInfoMap: new Map<string, ThreadPostInfoType>(),
       postsDisplaySequence: [],
     };
   }
-  let root: PostType | null = null;
+  const root = posts.find((post) => post.parentPostId == null) || null;
   const parentChildrenMap = new Map<string, ThreadPostInfoType>();
+  const postsInfoMap = new Map<string, ThreadPostInfoType>();
   const postsDisplaySequence: PostType[] = [];
 
-  // We add each post to the "parent children map" for its own parent.
-  // Furthermore, we also add the post as a parent for its own parent children map.
+  // We create a map that for each post returns its tree info.
   posts.forEach((post) => {
-    if (!post.parentPostId) {
-      root = post;
+    postsInfoMap.set(post.postId, {
+      parent:
+        posts.find((currentPost) => currentPost.postId == post.parentPostId) ||
+        null,
+      post: post,
+      children: posts.filter(
+        (currentPost) => currentPost.parentPostId == post.postId
+      ),
+    });
+  });
+
+  // We add each post to the "parent children map" for its own parent, thereby constructing
+  // the "three map" of the thread.
+  // posts.forEach((post) => {
+  //   // Our post tree skips the root. The first level of the tree is simply all the entries
+  //   // of the top Map.
+  //   if (!post.parentPostId) {
+  //     return;
+  //   }
+  //   // TODO: here we're are getting the parent again for every child. just do this
+  //   // once if the parent is not already set.
+  //   const parentPost = posts.find(
+  //     (candidate) => candidate.postId == post.parentPostId
+  //   ) as PostType;
+  //   const grandPost =
+  //     posts.find((candidate) => candidate.postId == parentPost?.parentPostId) ||
+  //     null;
+  //   parentChildrenMap.set(post.parentPostId, {
+  //     parent: grandPost,
+  //     post: parentPost,
+  //     children: [
+  //       ...(parentChildrenMap.get(post.parentPostId)?.children ||
+  //         ([] as PostType[])),
+  //       post,
+  //     ],
+  //   });
+  // });
+  postsInfoMap.forEach((postInfo, key) => {
+    if (postInfo.children.length == 0) {
       return;
     }
-    // TODO: here we're are getting the parent again for every child. just do this
-    // once if the parent is not already set.
-    const parentPost = posts.find(
-      (candidate) => candidate.postId == post.parentPostId
-    ) as PostType;
-    const grandPost =
-      posts.find((candidate) => candidate.postId == parentPost?.parentPostId) ||
-      null;
-    parentChildrenMap.set(post.parentPostId, {
-      parent: grandPost,
-      post: parentPost,
-      children: [
-        ...(parentChildrenMap.get(post.parentPostId)?.children ||
-          ([] as PostType[])),
-        post,
-      ],
-    });
+    parentChildrenMap.set(key, postInfo);
   });
 
   // Creates a ordered sequence of posts like they'd be displayed in a thread
@@ -125,7 +155,7 @@ export const makePostsTree = (
     }
   }
 
-  return { root, parentChildrenMap, postsDisplaySequence };
+  return { root, postsInfoMap, parentChildrenMap, postsDisplaySequence };
 };
 
 export const extractNewRepliesSequence = (
@@ -305,4 +335,82 @@ const makeActiveChildrenMap = (
   });
   resultsMap.set(root.postId, hasCategoryChildren);
   return hasCategoryChildren;
+};
+
+const getGrandParentId = (
+  threadElement: PostType | CommentType,
+  postsInfoMap: Map<string, ThreadPostInfoType>
+) => {
+  const parent = isPost(threadElement)
+    ? threadElement.parentPostId
+    : postsInfoMap.get(threadElement.parentPostId)?.parent?.postId;
+  if (!parent) {
+    return null;
+  }
+  return postsInfoMap.get(parent)?.post.parentPostId || null;
+};
+
+export const findFirstLevelParent = (
+  threadElement: PostType | CommentType,
+  postInfoMap: Map<string, ThreadPostInfoType>
+) => {
+  if (isPost(threadElement) && !threadElement.parentPostId) {
+    error("findFirstLevelParent cannot be called on root.");
+    return null;
+  }
+  if (
+    isComment(threadElement) &&
+    !postInfoMap.get(threadElement.parentPostId)?.parent
+  ) {
+    log("findFirstLevelParent called on comment that's a child of root.");
+    return null;
+  }
+  let grandParentId: string | null = getGrandParentId(
+    threadElement,
+    postInfoMap
+  );
+  let currentPost = isPost(threadElement)
+    ? threadElement
+    : postInfoMap.get(threadElement.parentPostId)!.post;
+  while (grandParentId != null) {
+    grandParentId = postInfoMap.get(grandParentId)!.post.parentPostId;
+    currentPost = postInfoMap.get(currentPost.parentPostId!)!.post;
+  }
+  return currentPost;
+};
+
+export const findNextSibling = (
+  post: PostType,
+  postInfoMap: Map<string, ThreadPostInfoType>
+) => {
+  if (!post.parentPostId) {
+    throw new Error("findNextSibling cannot be called on root.");
+  }
+  const siblings = postInfoMap.get(post.parentPostId)!.children;
+  const postIndex = siblings.findIndex(
+    (sibling) => sibling.postId == post.postId
+  );
+  // This was the last sibling.
+  if (postIndex == siblings.length - 1) {
+    return null;
+  }
+  return siblings[postIndex + 1];
+};
+
+export const findPreviousSibling = (
+  post: PostType,
+  parentChildrenMap: Map<string, ThreadPostInfoType>
+) => {
+  if (!post.parentPostId) {
+    return null;
+  }
+  const siblings = parentChildrenMap.get(post.parentPostId)!.children;
+  const postIndex = siblings.findIndex(
+    (sibling) => sibling.postId == post.postId
+  );
+  // This was the first sibling.
+  if (postIndex == 0) {
+    return null;
+  }
+  return siblings[postIndex - 1];
 };

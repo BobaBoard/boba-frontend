@@ -44,6 +44,7 @@ export const makeComment = (properties: {
 }): CommentType => {
   return {
     parentCommentId: null,
+    parentPostId: "",
     chainParentId: null,
     secretIdentity: {
       name: "",

@@ -1,28 +1,23 @@
 import React from "react";
-import {
-  CategoryFilter,
-  PostQuote,
-  SegmentedButton,
-} from "@bobaboard/ui-components";
+import { PostQuote, SegmentedButton } from "@bobaboard/ui-components";
 import { useThreadContext } from "components/thread/ThreadContext";
 import { THREAD_VIEW_MODES } from "components/thread/useThreadView";
 import moment from "moment";
 import classnames from "classnames";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
+import { DisplayManager } from "components/hooks/useDisplayMananger";
 
 export interface ThreadSidebarProps {
   viewMode: THREAD_VIEW_MODES;
   open?: boolean;
   onViewChange: (viewType: THREAD_VIEW_MODES) => void;
+  displayManager: DisplayManager;
+  totalPosts?: number;
 }
 
-const ThreadSidebar: React.FC<ThreadSidebarProps> = ({ ...props }) => {
+const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
   const { forceHideIdentity } = useForceHideIdentity();
-  const {
-    threadRoot,
-    categoryFilterState,
-    setCategoryFilterState,
-  } = useThreadContext();
+  const { threadRoot, categoryFilterState } = useThreadContext();
   if (!threadRoot) {
     return null;
   }
@@ -67,48 +62,50 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = ({ ...props }) => {
             selected={props.viewMode}
           />
         </div>
+        {/* <div>
+          Showing {props.displayManager.currentModeLoadedElements.length}{" "}
+          contributions of{" "}
+          {props.displayManager.currentModeDisplayElements.length}
+        </div> */}
       </div>
       {categoryFilterState.length > 1 && (
         <div className="category-filters">
           <h3>Category Filters</h3>
           {
             // TODO: re-enable this after changing logic in the various modes so it... well, works.
-            false ? (
-              <div>
-                <CategoryFilter
-                  categories={categoryFilterState}
-                  onCategoryStateChangeRequest={(name: string) => {
-                    setCategoryFilterState(
-                      categoryFilterState.map((category) => ({
-                        ...category,
-                        active: category.name == name,
-                      }))
-                    );
-                  }}
-                />
-                {categoryFilterState.some((category) => !category.active) && (
-                  <a
-                    className="clear-filters"
-                    href="#"
-                    onClick={() => {
-                      setCategoryFilterState(
-                        categoryFilterState.map((category) => ({
-                          ...category,
-                          active: true,
-                        }))
-                      );
-                    }}
-                  >
-                    Clear filters
-                  </a>
-                )}
-              </div>
-            ) : (
-              <div className="sorry">
-                Sorry! Category filters are not (yet) available in this mode.
-              </div>
-            )
+            // <div>
+            //   <CategoryFilter
+            //     categories={categoryFilterState}
+            //     onCategoryStateChangeRequest={(name: string) => {
+            //       setCategoryFilterState(
+            //         categoryFilterState.map((category) => ({
+            //           ...category,
+            //           active: category.name == name,
+            //         }))
+            //       );
+            //     }}
+            //   />
+            //   {categoryFilterState.some((category) => !category.active) && (
+            //     <a
+            //       className="clear-filters"
+            //       href="#"
+            //       onClick={() => {
+            //         setCategoryFilterState(
+            //           categoryFilterState.map((category) => ({
+            //             ...category,
+            //             active: true,
+            //           }))
+            //         );
+            //       }}
+            //     >
+            //       Clear filters
+            //     </a>
+            //   )}
+            // </div>
           }
+          <div className="sorry">
+            Sorry! Category filters are not (yet) available in this mode.
+          </div>
         </div>
       )}
       <style jsx>{`

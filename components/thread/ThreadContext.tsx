@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from "react";
 
 import { getThreadData } from "utils/queries";
@@ -17,27 +18,31 @@ import {
   makeCommentsTree,
   extractNewRepliesSequence,
   UNCATEGORIZED_LABEL,
+  extractRepliesSequence,
 } from "utils/thread-utils";
 import { getThreadInBoardCache } from "utils/queries/cache";
+import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import moment from "moment";
 
 import debug from "debug";
-import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 const log = debug("bobafrontend:ThreadContext-log");
 const info = debug("bobafrontend:ThreadContext-info");
 
 export interface ThreadContextType {
   isLoading: boolean;
   isRefetching: boolean;
+  isFetching: boolean;
   defaultView: ThreadType["defaultView"] | null;
   // The root of the thread (a.k.a. the first post).
   threadRoot: PostType | null;
   // The current post targeted by the page.
   currentRoot: PostType | null;
   chronologicalPostsSequence: PostType[];
+  threadDisplaySequence: (PostType | CommentType)[];
   newRepliesSequence: (PostType | CommentType)[];
   filteredRoot: PostType | null;
   parentChildrenMap: Map<string, ThreadPostInfoType>;
+  postsInfoMap: Map<string, ThreadPostInfoType>;
   postCommentsMap: Map<string, ThreadCommentInfoType>;
   filteredParentChildrenMap: Map<string, ThreadPostInfoType>;
   categories: string[];
@@ -46,6 +51,7 @@ export interface ThreadContextType {
     React.SetStateAction<{ name: string; active: boolean }[]>
   >;
   hasNewReplies: boolean;
+  newRepliesCount: number;
   personalIdentity?: {
     name: string;
     avatar: string;
@@ -155,15 +161,18 @@ export const useThreadWithNull = ({
   const {
     root,
     parentChildrenMap,
-    newRepliesSequence: newRepliesSequence,
+    newRepliesSequence,
     postCommentsMap,
+    postsInfoMap,
     chronologicalPostsSequence,
+    threadDisplaySequence,
   } = React.useMemo(() => {
     log(`Building posts tree for thread ${threadId}`);
     info("Thread data:", threadData);
     const {
       root = null,
       parentChildrenMap = new Map(),
+      postsInfoMap = new Map(),
       postsDisplaySequence = [],
     } = threadId ? makePostsTree(threadData?.posts, threadId) : {};
     const postCommentsMap = new Map<string, ThreadCommentInfoType>();
@@ -184,11 +193,17 @@ export const useThreadWithNull = ({
         return 0;
       }) || [];
 
+    const threadDisplaySequence = postsDisplaySequence
+      ? extractRepliesSequence(postsDisplaySequence, postCommentsMap)
+      : [];
+
     return {
       root,
       parentChildrenMap,
+      postsInfoMap,
       postCommentsMap,
       chronologicalPostsSequence,
+      threadDisplaySequence,
       newRepliesSequence: postsDisplaySequence
         ? extractNewRepliesSequence(postsDisplaySequence, postCommentsMap)
         : [],
@@ -232,12 +247,15 @@ export const useThreadWithNull = ({
 
   return {
     isLoading: isFetchingThread,
+    isFetching: isFetchingThread || isRefetching,
     threadRoot: root,
     currentRoot:
       !!postId && threadData
         ? (threadData.posts.find((post) => post.postId == postId) as PostType)
         : root,
-    newRepliesSequence: newRepliesSequence,
+    newRepliesSequence,
+    postsInfoMap,
+    threadDisplaySequence,
     filteredRoot,
     parentChildrenMap,
     filteredParentChildrenMap,
@@ -251,8 +269,8 @@ export const useThreadWithNull = ({
     defaultView: threadData?.defaultView || null,
     personalIdentity: threadData?.personalIdentity,
     isRefetching,
-    hasNewReplies:
-      !!threadData?.newCommentsAmount || !!threadData?.newPostsAmount,
+    hasNewReplies: !!newRepliesSequence.length,
+    newRepliesCount: newRepliesSequence.length,
     parentBoardSlug: threadData?.boardSlug || null,
     threadId: threadId,
   };
