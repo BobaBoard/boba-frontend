@@ -62,8 +62,13 @@ export const commentHandlers = new Map<string, CommentHandler>();
 const ThreadComment: React.FC<{
   rootComment: CommentType;
   parentPostId: string;
-  onAvatarRef: (element: HTMLElement | null) => void;
-}> = ({ rootComment, parentPostId, onAvatarRef }) => {
+  onBoundaryRef: (
+    boundary: {
+      positionX?: HTMLElement;
+      positionY?: HTMLElement;
+    } | null
+  ) => void;
+}> = ({ rootComment, parentPostId, onBoundaryRef }) => {
   const { isLoggedIn } = useAuth();
   const { forceHideIdentity } = useForceHideIdentity();
   const { onNewComment } = useThreadEditors();
@@ -87,9 +92,12 @@ const ThreadComment: React.FC<{
         return;
       }
       chainInfo.forEach((el) => commentHandlers.set(el.id, handler));
-      onAvatarRef(handler.avatarRef?.current || null);
+      onBoundaryRef({
+        positionX: handler.avatarRef?.current || undefined,
+        positionY: handler.headerRef?.current || undefined,
+      });
     },
-    [chainInfo, onAvatarRef]
+    [chainInfo, onBoundaryRef]
   );
   const options = React.useMemo(
     () =>
@@ -149,7 +157,7 @@ const CommentsThreadLevel: React.FC<{
             <ThreadComment
               rootComment={comment}
               parentPostId={parentPostId}
-              onAvatarRef={setBoundaryElement}
+              onBoundaryRef={setBoundaryElement}
             />
           </div>
           {children && (

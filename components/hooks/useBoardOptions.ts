@@ -80,48 +80,72 @@ const useBoardOptions = ({
   const setBoardPinned = usePinBoard();
   const dismissNotifications = useDismissBoardNotifications();
   const setBoardMuted = useMuteBoard();
-
-  const getOption = (option: BoardOptions) => {
-    switch (option) {
-      case BoardOptions.DISMISS_NOTIFICATIONS:
-        if (!isLoggedIn || !boardsData?.[slug]) {
-          return null;
-        }
-        return getDismissNotificationsOption(() =>
-          dismissNotifications({ slug })
-        );
-      case BoardOptions.MUTE:
-        if (!isLoggedIn || !boardsData?.[slug]) {
-          return null;
-        }
-        return getMuteBoardOptions(boardsData?.[slug].muted, (mute) =>
-          setBoardMuted({ slug, mute })
-        );
-      case BoardOptions.PIN:
-        if (!isLoggedIn || !boardsData?.[slug]) {
-          return null;
-        }
-        return getPinBoardOption(boardsData?.[slug].pinnedOrder, (pin) =>
-          setBoardPinned({
-            slug,
-            pin,
-          })
-        );
-      case BoardOptions.EDIT:
-        if (
-          !isLoggedIn ||
-          !boardsData?.[slug]?.permissions?.canEditBoardData ||
-          !callbacks?.editSidebar
-        ) {
-          return null;
-        }
-        return getEditOption(() => callbacks.editSidebar?.(true));
-    }
-  };
+  const { refetch: refetchNotifications } = useBoardsContext();
 
   const dropdownOptions = React.useMemo(() => {
+    const getOption = (option: BoardOptions) => {
+      switch (option) {
+        case BoardOptions.DISMISS_NOTIFICATIONS:
+          if (!isLoggedIn || !boardsData?.[slug]) {
+            return null;
+          }
+          return getDismissNotificationsOption(() =>
+            dismissNotifications(
+              { slug },
+              {
+                onSuccess: () => {
+                  refetchNotifications();
+                },
+              }
+            )
+          );
+        case BoardOptions.MUTE:
+          if (!isLoggedIn || !boardsData?.[slug]) {
+            return null;
+          }
+          return getMuteBoardOptions(boardsData?.[slug].muted, (mute) =>
+            setBoardMuted(
+              { slug, mute },
+              {
+                onSuccess: () => {
+                  refetchNotifications();
+                },
+              }
+            )
+          );
+        case BoardOptions.PIN:
+          if (!isLoggedIn || !boardsData?.[slug]) {
+            return null;
+          }
+          return getPinBoardOption(boardsData?.[slug].pinnedOrder, (pin) =>
+            setBoardPinned({
+              slug,
+              pin,
+            })
+          );
+        case BoardOptions.EDIT:
+          if (
+            !isLoggedIn ||
+            !boardsData?.[slug]?.permissions?.canEditBoardData ||
+            !callbacks?.editSidebar
+          ) {
+            return null;
+          }
+          return getEditOption(() => callbacks.editSidebar?.(true));
+      }
+    };
     return options.map(getOption).filter((option) => option != null);
-  }, [isLoggedIn, slug, boardsData?.[slug]]);
+  }, [
+    options,
+    slug,
+    boardsData,
+    callbacks,
+    dismissNotifications,
+    refetchNotifications,
+    isLoggedIn,
+    setBoardMuted,
+    setBoardPinned,
+  ]);
 
   return dropdownOptions.length
     ? (dropdownOptions as DropdownProps["options"])
