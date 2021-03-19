@@ -22,7 +22,7 @@ import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { log } from "debug";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
-import { useThreadView } from "./useThreadView";
+import { useThreadViewContext } from "./ThreadViewContext";
 
 interface ThreadPostProps
   // This type can add any prop from the original post type
@@ -117,7 +117,7 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
   ...extraProps
 }) => {
   const { slug, threadId } = usePageDetails<ThreadPageDetails>();
-  const { setActiveFilter } = useThreadView();
+  const { setActiveFilter } = useThreadViewContext();
   const cachedLinks = useCachedLinks();
   const {
     defaultView,

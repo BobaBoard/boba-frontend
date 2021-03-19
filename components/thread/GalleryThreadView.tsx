@@ -13,7 +13,7 @@ import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import { useStemOptions } from "components/hooks/useStemOptions";
 import { useBoardContext } from "components/BoardContext";
 
-import { GALLERY_VIEW_MODE, useThreadView } from "./useThreadView";
+import { GALLERY_VIEW_MODE, useThreadViewContext } from "./ThreadViewContext";
 import { useThreadEditors } from "components/editors/withEditors";
 import {
   extractPostId,
@@ -115,7 +115,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
   } = useThreadEditors();
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
   const boardData = useBoardContext(boardSlug);
-  const { galleryViewMode, setGalleryViewMode } = useThreadView();
+  const { galleryViewMode, setGalleryViewMode } = useThreadViewContext();
   const {
     chronologicalPostsSequence,
     newRepliesCount,

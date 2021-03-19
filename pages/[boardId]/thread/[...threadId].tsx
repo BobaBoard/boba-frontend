@@ -19,8 +19,9 @@ import ThreadContextProvider, {
 } from "components/thread/ThreadContext";
 import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
 import {
+  ThreadViewContextProvider,
   THREAD_VIEW_MODES,
-  useThreadView,
+  useThreadViewContext,
 } from "components/thread/useThreadView";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useBeamToNew } from "components/hooks/useBeamToNew";
@@ -60,7 +61,7 @@ function ThreadPage() {
     setThreadViewMode,
     setActiveFilter,
     activeFilters,
-  } = useThreadView();
+  } = useThreadViewContext();
   const collapseManager = useThreadCollapseManager();
   const {
     threadRoot,
@@ -250,7 +251,9 @@ const ThreadPageWithContext: React.FC<Record<string, never>> = () => {
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
   return (
     <ThreadContextProvider postId={postId} slug={slug} threadId={threadId}>
-      <ThreadPage />
+      <ThreadViewContextProvider>
+        <ThreadPage />
+      </ThreadViewContextProvider>
     </ThreadContextProvider>
   );
 };

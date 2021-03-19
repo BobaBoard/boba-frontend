@@ -57,7 +57,7 @@ export const useThreadContext = () => {
   const context = React.useContext<ThreadContextType | null>(ThreadContext);
 
   if (!context) {
-    throw new Error("ThreadContext should be used withing a context provider.");
+    throw new Error("ThreadContext should be used within a context provider.");
   }
 
   return context;

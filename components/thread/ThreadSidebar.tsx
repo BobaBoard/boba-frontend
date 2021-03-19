@@ -5,7 +5,7 @@ import {
   SegmentedButton,
 } from "@bobaboard/ui-components";
 import { useThreadContext } from "components/thread/ThreadContext";
-import { THREAD_VIEW_MODES } from "components/thread/useThreadView";
+import { THREAD_VIEW_MODES } from "components/thread/ThreadViewContext";
 import moment from "moment";
 import classnames from "classnames";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";

@@ -8,8 +8,8 @@ import {
   GALLERY_VIEW_MODE,
   THREAD_VIEW_MODES,
   TIMELINE_VIEW_MODE,
-  useThreadView,
-} from "../thread/useThreadView";
+  useThreadViewContext,
+} from "../thread/ThreadViewContext";
 import {
   findFirstLevelParent,
   findNextSibling,
@@ -127,14 +127,13 @@ const useThreadViewDisplay = () => {
     chronologicalPostsSequence,
     isFetching,
     postsInfoMap,
-    currentRoot,
   } = useThreadContext();
   const {
     currentThreadViewMode,
     timelineViewMode,
     galleryViewMode,
     activeFilters,
-  } = useThreadView();
+  } = useThreadViewContext();
   const { postId } = usePageDetails<ThreadPageDetails>();
 
   return React.useMemo(() => {
@@ -199,7 +198,7 @@ export const useDisplayManager = (collapseManager: CollapseManager) => {
     addOnChangeHandler,
     removeOnChangeHandler,
     activeFilters,
-  } = useThreadView();
+  } = useThreadViewContext();
   const { postsInfoMap } = useThreadContext();
   /**
    * How many contributions are currently displayed (at most) in the current mode.
