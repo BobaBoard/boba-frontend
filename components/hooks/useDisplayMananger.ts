@@ -127,6 +127,7 @@ const useThreadViewDisplay = () => {
     isFetching,
     activeCategories,
     postsInfoMap,
+    currentRoot,
   } = useThreadContext();
   const {
     currentThreadViewMode,
@@ -141,7 +142,9 @@ const useThreadViewDisplay = () => {
     const displayPostsForView = getDisplayPostsForView(
       chronologicalPostsSequence,
       {
-        currentThreadViewMode,
+        currentThreadViewMode: !currentRoot
+          ? currentThreadViewMode
+          : THREAD_VIEW_MODES.THREAD,
         timelineViewMode,
         galleryViewMode,
       }
