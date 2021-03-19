@@ -4,6 +4,7 @@ import { useThreadContext } from "components/thread/ThreadContext";
 import { useStateWithCallback } from "components/hooks/useStateWithCallback";
 
 import {
+  GalleryViewMode,
   GALLERY_VIEW_MODE,
   THREAD_VIEW_MODES,
   TIMELINE_VIEW_MODE,
@@ -71,11 +72,62 @@ const maybeCollapseToElement = ({
     firstCollapsedLvl1!.postId,
     lastCollapsedLvl1!.postId
   );
+  ("");
   collapseManager.onCollapseLevel(collapseGroupId);
 };
 
+const getDisplayPostsForView = (
+  chronologicalPostsSequence: PostType[],
+  viewMode: {
+    currentThreadViewMode: THREAD_VIEW_MODES;
+    timelineViewMode: TIMELINE_VIEW_MODE;
+    galleryViewMode: GalleryViewMode;
+  }
+) => {
+  switch (viewMode.currentThreadViewMode) {
+    case THREAD_VIEW_MODES.THREAD:
+      return chronologicalPostsSequence;
+    case THREAD_VIEW_MODES.TIMELINE: {
+      switch (viewMode.timelineViewMode) {
+        case TIMELINE_VIEW_MODE.ALL:
+          return chronologicalPostsSequence;
+        case TIMELINE_VIEW_MODE.LATEST:
+          return chronologicalPostsSequence.reverse();
+        case TIMELINE_VIEW_MODE.NEW:
+          return chronologicalPostsSequence.filter(
+            (post) => post.isNew || post.newCommentsAmount > 0
+          );
+      }
+      break;
+    }
+    case THREAD_VIEW_MODES.MASONRY: {
+      const [coverPost, ...allGalleryPosts] = chronologicalPostsSequence;
+      switch (viewMode.galleryViewMode.mode) {
+        case GALLERY_VIEW_MODE.ALL:
+          return viewMode.galleryViewMode.showCover
+            ? chronologicalPostsSequence
+            : allGalleryPosts;
+        case GALLERY_VIEW_MODE.NEW: {
+          const newPosts = allGalleryPosts.filter(
+            (post) => post.isNew || post.newCommentsAmount > 0
+          );
+          if (viewMode.galleryViewMode.showCover) {
+            newPosts.unshift(coverPost);
+          }
+          return newPosts;
+        }
+      }
+    }
+  }
+};
+
 const useThreadViewDisplay = () => {
-  const { chronologicalPostsSequence, isFetching } = useThreadContext();
+  const {
+    chronologicalPostsSequence,
+    isFetching,
+    activeCategories,
+    postsInfoMap,
+  } = useThreadContext();
   const {
     currentThreadViewMode,
     timelineViewMode,
@@ -86,47 +138,49 @@ const useThreadViewDisplay = () => {
     if (isFetching) {
       return [];
     }
-    switch (currentThreadViewMode) {
-      case THREAD_VIEW_MODES.THREAD:
-        return chronologicalPostsSequence;
-      case THREAD_VIEW_MODES.TIMELINE: {
-        switch (timelineViewMode) {
-          case TIMELINE_VIEW_MODE.ALL:
-            return chronologicalPostsSequence;
-          case TIMELINE_VIEW_MODE.LATEST:
-            return chronologicalPostsSequence.reverse();
-          case TIMELINE_VIEW_MODE.NEW:
-            return chronologicalPostsSequence.filter(
-              (post) => post.isNew || post.newCommentsAmount > 0
-            );
-        }
-        break;
+    const displayPostsForView = getDisplayPostsForView(
+      chronologicalPostsSequence,
+      {
+        currentThreadViewMode,
+        timelineViewMode,
+        galleryViewMode,
       }
-      case THREAD_VIEW_MODES.MASONRY: {
-        const [coverPost, ...allGalleryPosts] = chronologicalPostsSequence;
-        switch (galleryViewMode.mode) {
-          case GALLERY_VIEW_MODE.ALL:
-            return galleryViewMode.showCover
-              ? chronologicalPostsSequence
-              : allGalleryPosts;
-          case GALLERY_VIEW_MODE.NEW: {
-            const newPosts = allGalleryPosts.filter(
-              (post) => post.isNew || post.newCommentsAmount > 0
-            );
-            if (galleryViewMode.showCover) {
-              newPosts.unshift(coverPost);
-            }
-            return newPosts;
-          }
-        }
+    );
+
+    if (activeCategories != null) {
+      // TODO: add uncategorized
+      const displayPosts = displayPostsForView.filter((post) =>
+        post.tags.categoryTags.some((tag) => !!activeCategories.includes(tag))
+      );
+
+      if (currentThreadViewMode !== THREAD_VIEW_MODES.THREAD) {
+        return displayPosts;
       }
+      // Add all parents of posts, even if they don't have categories.
+      const finalDisplayPosts = [...displayPosts];
+      displayPosts.forEach((post) => {
+        let parent = post.parentPostId;
+        while (parent != null) {
+          const parentData = postsInfoMap.get(parent)!;
+          finalDisplayPosts.push(parentData.post);
+          parent = parentData.parent?.postId || null;
+        }
+      });
+
+      return chronologicalPostsSequence.filter((post) =>
+        finalDisplayPosts.includes(post)
+      );
     }
+
+    return displayPostsForView;
   }, [
     isFetching,
     timelineViewMode,
     galleryViewMode,
     currentThreadViewMode,
     chronologicalPostsSequence,
+    activeCategories,
+    postsInfoMap,
   ]);
 };
 
@@ -139,7 +193,7 @@ export const useDisplayManager = (collapseManager: CollapseManager) => {
     addOnChangeHandler,
     removeOnChangeHandler,
   } = useThreadView();
-  const { postsInfoMap } = useThreadContext();
+  const { postsInfoMap, activeCategories } = useThreadContext();
   /**
    * How many contributions are currently displayed (at most) in the current mode.
    * Automatically reset when view changes. Also automatically increased in case of
@@ -211,7 +265,7 @@ export const useDisplayManager = (collapseManager: CollapseManager) => {
         clearTimeout(timeout);
       }
     };
-  }, [isFetching, currentThreadViewMode, displayMore]);
+  }, [isFetching, currentThreadViewMode, displayMore, activeCategories]);
 
   const hasMore = React.useCallback(() => {
     return maxDisplay < currentModeDisplayElements.length;

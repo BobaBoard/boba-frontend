@@ -7,18 +7,33 @@ const error = debug("bobafrontend:useCollapseManager-error");
 const log = debug("bobafrontend:useCollapseManager-log");
 const info = debug("bobafrontend:useCollapseManager-info");
 
-export type CollapseGroup = [string, string];
+export enum CollapseReasons {
+  MANUAL,
+  SKIPPED_LOADING,
+  FILTERED,
+}
+
+export interface CollapseGroup {
+  startsFrom: string;
+  endsWith: string;
+  collapseReason: CollapseReasons;
+}
 const THREAD_UNRAVEL_STEP = 5;
 
 const getCollapseGroupId = (group: CollapseGroup) => {
-  return `cg:${group[0]}_${group[1]}`;
+  return `cg:${group.startsFrom}_${group.endsWith}`;
 };
 
-const extractCollapseGroupData = (id: string) => {
+const extractCollapseGroupData = (
+  collapseGroups: CollapseGroup[],
+  id: string
+) => {
   const groupStart = id.substring(3, id.lastIndexOf("_"));
   const groupEnd = id.substring(id.lastIndexOf("_") + 1);
 
-  return [groupStart, groupEnd];
+  return collapseGroups.find(
+    (group) => group.startsFrom == groupStart && group.endsWith == groupEnd
+  );
 };
 
 const isCollapseGroupId = (id: string) => {
@@ -40,17 +55,11 @@ export const getPostLevelId = (postId: string) => {
   return postId;
 };
 
-export const getCollapsedPostsForId = (
-  collapseGroupId: string,
+export const getCollapsedPostsForGroup = (
+  collapseGroup: CollapseGroup,
   threadDisplaySequence: (CommentType | PostType)[]
 ) => {
-  if (!isCollapseGroupId(collapseGroupId)) {
-    error(
-      `Called unimplemented "getLevelTotals" on unsupported level ${collapseGroupId}`
-    );
-    return null;
-  }
-  const [first, last] = extractCollapseGroupData(collapseGroupId);
+  const { startsFrom: first, endsWith: last } = collapseGroup;
   const firstCollapsedIndex = threadDisplaySequence.findIndex((threadElement) =>
     isPost(threadElement)
       ? threadElement.postId == first
@@ -67,7 +76,7 @@ export const getCollapsedPostsForId = (
     lastCollapsedIndex < firstCollapsedIndex
   ) {
     error(
-      `Something was wrong with collapse indexes for ${collapseGroupId}: [${firstCollapsedIndex}, ${lastCollapsedIndex}]`
+      `Something was wrong with collapse indexes for collapsedGroup: [${firstCollapsedIndex}, ${lastCollapsedIndex}]`
     );
     return null;
   }
@@ -79,9 +88,20 @@ export const getCollapsedPostsForId = (
 
 const getLevelTotals = (
   levelId: string,
+  collapseGroups: CollapseGroup[],
   threadDisplaySequence: (CommentType | PostType)[]
 ) => {
-  const collapsedPosts = getCollapsedPostsForId(levelId, threadDisplaySequence);
+  const collapseGroup = extractCollapseGroupData(collapseGroups, levelId);
+  if (!collapseGroup) {
+    return {
+      totalPosts: 0,
+      totalComments: 0,
+    };
+  }
+  const collapsedPosts = getCollapsedPostsForGroup(
+    collapseGroup,
+    threadDisplaySequence
+  );
   if (!collapsedPosts) {
     return null;
   }
@@ -126,12 +146,18 @@ export const useThreadCollapseManager = () => {
   }, []);
 
   const addCollapseGroup = React.useCallback(
-    (firstPostId: string, lastPostId: string) => {
-      setCollapseGroups((collapseGroups) => [
-        ...collapseGroups,
-        [firstPostId, lastPostId],
-      ]);
-      return getCollapseGroupId([firstPostId, lastPostId]);
+    (
+      firstPostId: string,
+      lastPostId: string,
+      collapseReason: CollapseReasons = CollapseReasons.MANUAL
+    ) => {
+      const newGroup = {
+        startsFrom: firstPostId,
+        endsWith: lastPostId,
+        collapseReason,
+      };
+      setCollapseGroups((collapseGroups) => [...collapseGroups, newGroup]);
+      return getCollapseGroupId(newGroup);
     },
     []
   );
@@ -139,10 +165,15 @@ export const useThreadCollapseManager = () => {
   const onPartiallyUncollapseGroup = React.useCallback(
     (groupId: string, fromEnd: boolean) => {
       let newGroup: CollapseGroup | null = null;
-      const collapseGroup = extractCollapseGroupData(groupId);
+      const collapseGroup = extractCollapseGroupData(collapseGroups, groupId);
+      if (!collapseGroup) {
+        error(`Somethign went very wrong for group id ${groupId}`);
+        return;
+      }
       const newCollapseGroups = collapseGroups.filter(
         (group) =>
-          collapseGroup[0] !== group[0] || collapseGroup[1] !== group[1]
+          collapseGroup.startsFrom !== group.startsFrom ||
+          collapseGroup.endsWith !== group.endsWith
       );
       const firstLevelContributions =
         postsInfoMap.get(threadRoot!.postId)?.children || [];
@@ -158,16 +189,20 @@ export const useThreadCollapseManager = () => {
           `Current first element is element ${firstElementIndex} of ${firstLevelContributions.length} first level items.`
         );
         newGroup = !fromEnd
-          ? [
-              firstLevelContributions[firstElementIndex + THREAD_UNRAVEL_STEP]
-                .postId,
-              collapseGroup[1],
-            ]
-          : [
-              collapseGroup[0],
-              firstLevelContributions[lastElementIndex - THREAD_UNRAVEL_STEP]
-                .postId,
-            ];
+          ? {
+              startsFrom:
+                firstLevelContributions[firstElementIndex + THREAD_UNRAVEL_STEP]
+                  .postId,
+              endsWith: collapseGroup[1],
+              collapseReason: CollapseReasons.MANUAL,
+            }
+          : {
+              startsFrom: collapseGroup[0],
+              endsWith:
+                firstLevelContributions[lastElementIndex - THREAD_UNRAVEL_STEP]
+                  .postId,
+              collapseReason: CollapseReasons.MANUAL,
+            };
         newCollapseGroups.push(newGroup);
       }
       setCollapseGroups(newCollapseGroups);
@@ -201,10 +236,15 @@ export const useThreadCollapseManager = () => {
     setCollapse((collapse) => collapse.filter((id) => id != levelId));
     lastChanges.current.push({ levelId, collapsed: false });
   }, []);
+
   const getCollapseReason = React.useCallback(
     (levelId: string) => {
       if (isCollapseGroupId(levelId)) {
-        const totals = getLevelTotals(levelId, threadDisplaySequence);
+        const totals = getLevelTotals(
+          levelId,
+          collapseGroups,
+          threadDisplaySequence
+        );
         return (
           <div>
             {totals?.totalPosts} contributions, {totals?.totalComments} comments
@@ -214,8 +254,9 @@ export const useThreadCollapseManager = () => {
       }
       return <div>Subthread manually hidden.</div>;
     },
-    [threadDisplaySequence]
+    [threadDisplaySequence, collapseGroups]
   );
+
   const isCollapsed = React.useCallback(
     (levelId) => {
       return collapse.includes(levelId);
@@ -273,7 +314,11 @@ export const useThreadCollapseManager = () => {
         firstElement: collapseGroup[0],
         lastElement: collapseGroup[1],
         collapseGroupId,
-        totals: getLevelTotals(collapseGroupId, threadDisplaySequence),
+        totals: getLevelTotals(
+          collapseGroupId,
+          collapseGroups,
+          threadDisplaySequence
+        ),
       };
     },
     [collapseGroups, threadDisplaySequence]

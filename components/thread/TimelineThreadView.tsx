@@ -10,7 +10,11 @@ import { useStemOptions } from "components/hooks/useStemOptions";
 import { useBoardContext } from "components/BoardContext";
 import { TIMELINE_VIEW_MODE, useThreadView } from "./useThreadView";
 import { useThreadEditors } from "components/editors/withEditors";
-import { extractPostId, useThreadCollapseManager } from "./useCollapseManager";
+import {
+  extractPostId,
+  getCommentThreadId,
+  useThreadCollapseManager,
+} from "./useCollapseManager";
 import { DisplayManager } from "components/hooks/useDisplayMananger";
 //import { useHotkeys } from "react-hotkeys-hook";
 
@@ -102,43 +106,45 @@ const TimelineView: React.FC<TimelineViewProps> = (props) => {
         {displayPosts.length == 0 && (
           <div className="empty">No new or updated post!</div>
         )}
-        {displayPosts.map((post) => (
-          <div className="thread" key={post.postId}>
-            <NewThread
-              onCollapseLevel={onCollapseLevel}
-              onUncollapseLevel={onUncollapseLevel}
-              getCollapseReason={getCollapseReason}
-              getStemOptions={getStemOptions}
-            >
-              {(setThreadBoundary) => (
-                <>
-                  <div className="post" key={post.postId}>
-                    <ThreadPost
-                      post={post}
-                      isLoggedIn={isLoggedIn}
-                      onNewContribution={onNewContribution}
-                      onNewComment={onNewComment}
-                      onEditPost={onEditContribution}
-                      showThread
-                      avatarRef={setThreadBoundary}
-                      onNotesClick={onToggleCollapseLevel}
-                    />
-                  </div>
-                  {post.comments && (
-                    <NewThread.Indent
-                      id={post.postId}
-                      collapsed={isCollapsed(post.postId)}
-                    >
-                      <div className="comments-thread">
-                        <CommentsThread parentPostId={post.postId} />
-                      </div>
-                    </NewThread.Indent>
-                  )}
-                </>
-              )}
-            </NewThread>
-          </div>
-        ))}
+        {displayPosts.map((post) => {
+          return (
+            <div className="thread" key={post.postId}>
+              <NewThread
+                onCollapseLevel={onCollapseLevel}
+                onUncollapseLevel={onUncollapseLevel}
+                getCollapseReason={getCollapseReason}
+                getStemOptions={getStemOptions}
+              >
+                {(setThreadBoundary) => (
+                  <>
+                    <div className="post" key={post.postId}>
+                      <ThreadPost
+                        post={post}
+                        isLoggedIn={isLoggedIn}
+                        onNewContribution={onNewContribution}
+                        onNewComment={onNewComment}
+                        onEditPost={onEditContribution}
+                        showThread
+                        avatarRef={setThreadBoundary}
+                        onNotesClick={onToggleCollapseLevel}
+                      />
+                    </div>
+                    {post.comments && (
+                      <NewThread.Indent
+                        id={getCommentThreadId(post.postId)}
+                        collapsed={isCollapsed(getCommentThreadId(post.postId))}
+                      >
+                        <div className="comments-thread">
+                          <CommentsThread parentPostId={post.postId} />
+                        </div>
+                      </NewThread.Indent>
+                    )}
+                  </>
+                )}
+              </NewThread>
+            </div>
+          );
+        })}
       </div>
       <style jsx>{`
         .timeline-container {

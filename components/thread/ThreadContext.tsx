@@ -46,6 +46,7 @@ export interface ThreadContextType {
   postCommentsMap: Map<string, ThreadCommentInfoType>;
   filteredParentChildrenMap: Map<string, ThreadPostInfoType>;
   categories: string[];
+  activeCategories: string[] | null;
   categoryFilterState: CategoryFilterType[];
   setCategoryFilterState: React.Dispatch<
     React.SetStateAction<{ name: string; active: boolean }[]>
@@ -262,6 +263,14 @@ export const useThreadWithNull = ({
     categories: React.useMemo(() => extractCategories(threadData?.posts), [
       threadData?.posts,
     ]),
+    activeCategories: React.useMemo(() => {
+      if (categoryFilterState.some((category) => !category.active)) {
+        return categoryFilterState
+          .filter((category) => category.active)
+          .map((category) => category.name);
+      }
+      return null;
+    }, [categoryFilterState]),
     categoryFilterState,
     setCategoryFilterState,
     postCommentsMap,
