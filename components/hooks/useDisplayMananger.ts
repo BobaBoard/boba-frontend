@@ -92,7 +92,7 @@ const getDisplayPostsForView = (
         case TIMELINE_VIEW_MODE.ALL:
           return chronologicalPostsSequence;
         case TIMELINE_VIEW_MODE.LATEST:
-          return chronologicalPostsSequence.reverse();
+          return [...chronologicalPostsSequence].reverse();
         case TIMELINE_VIEW_MODE.NEW:
           return chronologicalPostsSequence.filter(
             (post) => post.isNew || post.newCommentsAmount > 0
