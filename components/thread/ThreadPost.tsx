@@ -4,6 +4,8 @@ import {
   PostSizes,
   PostHandler,
   DefaultTheme,
+  TagsType,
+  TagType,
 } from "@bobaboard/ui-components";
 import { PostProps } from "@bobaboard/ui-components/dist/post/Post";
 import moment from "moment";
@@ -19,6 +21,7 @@ import { usePostOptions, PostOptions } from "../hooks/useOptions";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { log } from "debug";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
+import { faFilter } from "@fortawesome/free-solid-svg-icons";
 
 interface ThreadPostProps
   // This type can add any prop from the original post type
@@ -119,7 +122,35 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
     parentChildrenMap,
     chronologicalPostsSequence,
     threadRoot,
+    setCategoryFilterState,
+    categories,
   } = useThreadContext();
+
+  const tagOptions = React.useCallback(
+    (tag: TagsType) => {
+      if (tag.type == TagType.CATEGORY) {
+        return [
+          {
+            icon: faFilter,
+            name: "Filter",
+            link: {
+              onClick: () => {
+                setCategoryFilterState(
+                  categories.map((category) => ({
+                    name: category,
+                    active: category == tag.name,
+                  }))
+                );
+              },
+            },
+          },
+        ];
+      }
+      return undefined;
+    },
+    [setCategoryFilterState, categories]
+  );
+
   const options = usePostOptions({
     options:
       post.parentPostId == null ? TOP_POST_OPTIONS : REGULAR_POST_OPTIONS,
@@ -220,6 +251,7 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
           tags: post.tags,
           answerable: isLoggedIn,
           menuOptions: options,
+          getOptionsForTag: tagOptions,
           ...extraProps,
         };
       }
