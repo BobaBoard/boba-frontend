@@ -22,6 +22,7 @@ import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { log } from "debug";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
+import { useThreadView } from "./useThreadView";
 
 interface ThreadPostProps
   // This type can add any prop from the original post type
@@ -116,14 +117,13 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
   ...extraProps
 }) => {
   const { slug, threadId } = usePageDetails<ThreadPageDetails>();
+  const { setActiveFilter } = useThreadView();
   const cachedLinks = useCachedLinks();
   const {
     defaultView,
     parentChildrenMap,
     chronologicalPostsSequence,
     threadRoot,
-    setCategoryFilterState,
-    categories,
   } = useThreadContext();
 
   const tagOptions = React.useCallback(
@@ -135,12 +135,7 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
             name: "Filter",
             link: {
               onClick: () => {
-                setCategoryFilterState(
-                  categories.map((category) => ({
-                    name: category,
-                    active: category == tag.name,
-                  }))
-                );
+                setActiveFilter(tag.name);
               },
             },
           },
@@ -148,7 +143,7 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
       }
       return undefined;
     },
-    [setCategoryFilterState, categories]
+    [setActiveFilter]
   );
 
   const options = usePostOptions({

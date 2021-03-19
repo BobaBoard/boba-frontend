@@ -16,16 +16,13 @@ export interface ThreadSidebarProps {
   open?: boolean;
   onViewChange: (viewType: THREAD_VIEW_MODES) => void;
   displayManager: DisplayManager;
-  totalPosts?: number;
+  setActiveFilter: (filter: string | null) => void;
+  activeFilters: string[] | null;
 }
 
 const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
   const { forceHideIdentity } = useForceHideIdentity();
-  const {
-    threadRoot,
-    categoryFilterState,
-    setCategoryFilterState,
-  } = useThreadContext();
+  const { threadRoot, categories } = useThreadContext();
   if (!threadRoot) {
     return null;
   }
@@ -76,36 +73,30 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
           {props.displayManager.currentModeDisplayElements.length}
         </div> */}
       </div>
-      {categoryFilterState.length > 1 && (
+      {categories.length > 1 && (
         <div className="category-filters">
           <h3>Category Filters</h3>
           <div>
             <CategoryFilter
-              categories={categoryFilterState}
-              onCategoryStateChangeRequest={(name: string) => {
-                setCategoryFilterState(
-                  categoryFilterState.map((category) => ({
-                    ...category,
-                    active: category.name == name,
-                  }))
-                );
+              categories={categories.map((category) => ({
+                name: category,
+                active:
+                  props.activeFilters == null ||
+                  props.activeFilters.includes(category),
+              }))}
+              onCategoryStateChangeRequest={(name) => {
+                props.setActiveFilter(name);
               }}
             />
-            {categoryFilterState.some((category) => !category.active) && (
-              <a
+            {props.activeFilters !== null && (
+              <button
                 className="clear-filters"
-                href="#"
                 onClick={() => {
-                  setCategoryFilterState(
-                    categoryFilterState.map((category) => ({
-                      ...category,
-                      active: true,
-                    }))
-                  );
+                  props.setActiveFilter(null);
                 }}
               >
                 Clear filters
-              </a>
+              </button>
             )}
           </div>
         </div>

@@ -1,7 +1,7 @@
 import React from "react";
 
 import { ExistanceParam } from "../QueryParamNextProvider";
-import { DecodedValueMap, useQueryParams } from "use-query-params";
+import { ArrayParam, DecodedValueMap, useQueryParams } from "use-query-params";
 import { ThreadType } from "../../types/Types";
 import { useThreadContext } from "components/thread/ThreadContext";
 
@@ -36,6 +36,10 @@ export const ThreadViewQueryParams = {
   gallery: ExistanceParam,
   timeline: ExistanceParam,
   thread: ExistanceParam,
+};
+
+const FilterParams = {
+  filter: ArrayParam,
 };
 
 const TimelineViewQueryParams = {
@@ -161,6 +165,7 @@ const getUpdatedQuery = (
     gallery: !isDefaultView && threadViewMode == THREAD_VIEW_MODES.MASONRY,
     timeline: !isDefaultView && threadViewMode == THREAD_VIEW_MODES.TIMELINE,
     thread: !isDefaultView && threadViewMode == THREAD_VIEW_MODES.THREAD,
+    filter: currentParams.filter,
     ...specialViewParams,
   };
 };
@@ -171,6 +176,7 @@ export const useThreadView = () => {
     ...ThreadViewQueryParams,
     ...TimelineViewQueryParams,
     ...GalleryViewQueryParams,
+    ...FilterParams,
   });
   const {
     isLoading,
@@ -210,11 +216,17 @@ export const useThreadView = () => {
   const setGalleryViewMode = React.useCallback(
     (viewMode: GalleryViewMode) => {
       setThreadViewQuery(
-        getUpdatedQuery(threadViewQuery, getViewTypeFromString(defaultView), {
-          threadViewMode: THREAD_VIEW_MODES.MASONRY,
-          timelineViewMode: null,
-          galleryViewMode: viewMode,
-        }),
+        {
+          ...getUpdatedQuery(
+            threadViewQuery,
+            getViewTypeFromString(defaultView),
+            {
+              threadViewMode: THREAD_VIEW_MODES.MASONRY,
+              timelineViewMode: null,
+              galleryViewMode: viewMode,
+            }
+          ),
+        },
         "replace"
       );
     },
@@ -289,14 +301,46 @@ export const useThreadView = () => {
     []
   );
 
-  return {
-    currentThreadViewMode,
-    timelineViewMode: currentTimelineViewMode,
-    galleryViewMode: currentGalleryViewMode,
-    setThreadViewMode,
-    setGalleryViewMode,
-    setTimelineViewMode,
-    addOnChangeHandler,
-    removeOnChangeHandler,
-  };
+  const setActiveFilter = React.useCallback(
+    (filter: string | null) => {
+      setThreadViewQuery(
+        {
+          ...threadViewQuery,
+          filter: filter === null ? undefined : [filter],
+        },
+        "replaceIn"
+      );
+    },
+    [threadViewQuery, setThreadViewQuery]
+  );
+
+  return React.useMemo(
+    () => ({
+      currentThreadViewMode,
+      timelineViewMode: currentTimelineViewMode,
+      galleryViewMode: currentGalleryViewMode,
+      activeFilters:
+        threadViewQuery.filter?.filter(
+          (category): category is string => category !== null
+        ) || null,
+      setActiveFilter,
+      setThreadViewMode,
+      setGalleryViewMode,
+      setTimelineViewMode,
+      addOnChangeHandler,
+      removeOnChangeHandler,
+    }),
+    [
+      currentThreadViewMode,
+      currentTimelineViewMode,
+      currentGalleryViewMode,
+      threadViewQuery.filter,
+      setActiveFilter,
+      setThreadViewMode,
+      setGalleryViewMode,
+      setTimelineViewMode,
+      addOnChangeHandler,
+      removeOnChangeHandler,
+    ]
+  );
 };

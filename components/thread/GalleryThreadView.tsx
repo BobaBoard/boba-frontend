@@ -104,7 +104,6 @@ const ShowCover = ({
 
 interface GalleryThreadViewProps {
   displayManager: DisplayManager;
-  onTotalPostsChange: (total: number) => void;
 }
 const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
   const masonryRef = React.createRef<{ reposition: () => void }>();
@@ -135,25 +134,6 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
   const repositionGallery = React.useCallback(() => {
     requestAnimationFrame(() => masonryRef.current?.reposition());
   }, [masonryRef]);
-
-  // const activeCategories = categoryFilterState.filter(
-  //   (category) => category.active
-  // );
-  // const isUntaggedActive = activeCategories.some(
-  //   (category) => category.name == UNCATEGORIZED_LABEL
-  // );
-  // let orderedPosts = unfilteredArray;
-  // if (activeCategories.length != categoryFilterState.length) {
-  //   orderedPosts = unfilteredArray.filter(
-  //     (post) =>
-  //       (post.tags.categoryTags.length == 0 && isUntaggedActive) ||
-  //       post.tags.categoryTags.some((category) =>
-  //         activeCategories.some(
-  //           (activeCategory) => category == activeCategory.name
-  //         )
-  //       )
-  //   );
-  // }
 
   React.useEffect(repositionGallery, [
     galleryViewMode.showCover,

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   FeedWithMenu,
   CycleNewButton,
@@ -48,7 +48,6 @@ function ThreadPage() {
   const { getLinkToBoard } = useCachedLinks();
   const currentBoardData = useBoardContext(slug);
   const { refetch: refetchNotifications } = useBoardsContext();
-  const [totalPosts, setTotalPosts] = useState(Infinity);
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
   const onCompassClick = React.useCallback(() => setShowSidebar(!showSidebar), [
@@ -56,7 +55,12 @@ function ThreadPage() {
   ]);
   const markAsRead = useReadThread();
   const hasMarkedAsRead = React.useRef(false);
-  const { currentThreadViewMode, setThreadViewMode } = useThreadView();
+  const {
+    currentThreadViewMode,
+    setThreadViewMode,
+    setActiveFilter,
+    activeFilters,
+  } = useThreadView();
   const collapseManager = useThreadCollapseManager();
   const {
     threadRoot,
@@ -165,7 +169,8 @@ function ThreadPage() {
                 open={showSidebar}
                 onViewChange={setThreadViewMode}
                 displayManager={displayManager}
-                totalPosts={totalPosts}
+                setActiveFilter={setActiveFilter}
+                activeFilters={activeFilters || null}
               />
             </FeedWithMenu.Sidebar>
             <FeedWithMenu.FeedContent>
@@ -184,12 +189,10 @@ function ThreadPage() {
                   ) : currentThreadViewMode == THREAD_VIEW_MODES.MASONRY ? (
                     <MemoizedGalleryThreadView
                       displayManager={displayManager}
-                      onTotalPostsChange={setTotalPosts}
                     />
                   ) : (
                     <MemoizedTimelineThreadView
                       displayManager={displayManager}
-                      onTotalPostsChange={setTotalPosts}
                     />
                   )}
                 </div>

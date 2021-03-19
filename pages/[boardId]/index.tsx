@@ -85,16 +85,19 @@ function BoardPage() {
     setQuery({
       filter: undefined,
     });
-  }, [slug]);
+  }, [slug, setQuery]);
   const updateBoardMetadata = useUpdateBoardMetadata({
     onSuccess: () => {
       setEditingSidebar(false);
     },
   });
 
-  const onSetFilter = React.useCallback((filter) => {
-    setQuery({ filter: [filter] }, "replace");
-  }, []);
+  const onSetFilter = React.useCallback(
+    (filter) => {
+      setQuery({ filter: [filter] }, "replace");
+    },
+    [setQuery]
+  );
 
   const {
     data: boardActivityData,
@@ -140,7 +143,7 @@ function BoardPage() {
         "replace"
       );
     },
-    []
+    [setQuery]
   );
 
   const showLockedMessage =

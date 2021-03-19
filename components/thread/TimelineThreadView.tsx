@@ -23,7 +23,6 @@ import { DisplayManager } from "components/hooks/useDisplayMananger";
 
 interface TimelineViewProps {
   displayManager: DisplayManager;
-  onTotalPostsChange: (total: number) => void;
 }
 
 const TimelineView: React.FC<TimelineViewProps> = (props) => {

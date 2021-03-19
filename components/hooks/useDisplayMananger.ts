@@ -125,7 +125,6 @@ const useThreadViewDisplay = () => {
   const {
     chronologicalPostsSequence,
     isFetching,
-    activeCategories,
     postsInfoMap,
     currentRoot,
   } = useThreadContext();
@@ -133,6 +132,7 @@ const useThreadViewDisplay = () => {
     currentThreadViewMode,
     timelineViewMode,
     galleryViewMode,
+    activeFilters,
   } = useThreadView();
 
   return React.useMemo(() => {
@@ -150,10 +150,10 @@ const useThreadViewDisplay = () => {
       }
     );
 
-    if (activeCategories != null) {
+    if (activeFilters != null) {
       // TODO: add uncategorized
       const displayPosts = displayPostsForView.filter((post) =>
-        post.tags.categoryTags.some((tag) => !!activeCategories.includes(tag))
+        post.tags.categoryTags.some((tag) => !!activeFilters.includes(tag))
       );
 
       if (currentThreadViewMode !== THREAD_VIEW_MODES.THREAD) {
@@ -182,7 +182,7 @@ const useThreadViewDisplay = () => {
     galleryViewMode,
     currentThreadViewMode,
     chronologicalPostsSequence,
-    activeCategories,
+    activeFilters,
     postsInfoMap,
   ]);
 };
@@ -195,8 +195,9 @@ export const useDisplayManager = (collapseManager: CollapseManager) => {
     currentThreadViewMode,
     addOnChangeHandler,
     removeOnChangeHandler,
+    activeFilters,
   } = useThreadView();
-  const { postsInfoMap, activeCategories } = useThreadContext();
+  const { postsInfoMap } = useThreadContext();
   /**
    * How many contributions are currently displayed (at most) in the current mode.
    * Automatically reset when view changes. Also automatically increased in case of
@@ -268,7 +269,7 @@ export const useDisplayManager = (collapseManager: CollapseManager) => {
         clearTimeout(timeout);
       }
     };
-  }, [isFetching, currentThreadViewMode, displayMore, activeCategories]);
+  }, [isFetching, currentThreadViewMode, displayMore, activeFilters]);
 
   const hasMore = React.useCallback(() => {
     return maxDisplay < currentModeDisplayElements.length;
