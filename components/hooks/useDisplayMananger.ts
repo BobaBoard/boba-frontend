@@ -21,6 +21,7 @@ import { getElementId } from "utils/thread-utils";
 
 import debug from "debug";
 import { CollapseManager } from "components/thread/useCollapseManager";
+import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 const error = debug("bobafrontend:useDisplayManager-error");
 const log = debug("bobafrontend:useDisplayManager-log");
 const info = debug("bobafrontend:useDisplayManager-info");
@@ -134,6 +135,7 @@ const useThreadViewDisplay = () => {
     galleryViewMode,
     activeFilters,
   } = useThreadView();
+  const { postId } = usePageDetails<ThreadPageDetails>();
 
   return React.useMemo(() => {
     if (isFetching) {
@@ -142,7 +144,7 @@ const useThreadViewDisplay = () => {
     const displayPostsForView = getDisplayPostsForView(
       chronologicalPostsSequence,
       {
-        currentThreadViewMode: !currentRoot
+        currentThreadViewMode: !postId
           ? currentThreadViewMode
           : THREAD_VIEW_MODES.THREAD,
         timelineViewMode,
@@ -184,6 +186,7 @@ const useThreadViewDisplay = () => {
     chronologicalPostsSequence,
     activeFilters,
     postsInfoMap,
+    postId,
   ]);
 };
 

@@ -183,6 +183,10 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
     },
   });
 
+  const displayElements = [...currentModeLoadedElements];
+  if (displayElements[0] == threadRoot && !galleryViewMode.showCover) {
+    displayElements.shift();
+  }
   return (
     <div className="gallery">
       <div className="view-controls">
@@ -228,18 +232,18 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
           selected={galleryViewMode.mode}
         />
       </div>
-      {currentModeDisplayElements.length == 0 && (
+      {displayElements.length == 0 && (
         <EmptyGalleryView
           emptyMessage={
-            chronologicalPostsSequence.length == 1
+            galleryViewMode.mode !== GALLERY_VIEW_MODE.NEW
               ? "The gallery is empty :("
               : "No new (or updated) posts!"
           }
         />
       )}
-      {currentModeLoadedElements.length > 0 && (
+      {displayElements.length > 0 && (
         <MasonryView ref={masonryRef}>
-          {currentModeLoadedElements.map((post) => (
+          {displayElements.map((post) => (
             <div
               className="thread"
               key={post.postId}
