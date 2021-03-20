@@ -29,14 +29,29 @@ const log = debug("bobafrontend:ThreadLevel-log");
 const info = debug("bobafrontend:ThreadLevel-info");
 
 const loadingBar = css.resolve`
+  @keyframes delayDisplay {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
   .thread-loading-bar {
     top: ${DefaultTheme.HEADER_HEIGHT_PX}px!important;
-    visibility: hidden;
     transition: visibility 800ms ease-out;
+    opacity: 0;
   }
-  .visible {
+  .thread-loading-bar:not(.visible) {
+    visibility: hidden;
+  }
+  .thread-loading-bar.visible {
     visibility: visible;
     z-index: 10 !important;
+    animation-name: delayDisplay;
+    animation-duration: 0.5s;
+    animation-delay: 1.5s;
+    animation-fill-mode: both;
   }
 `;
 
