@@ -22,7 +22,7 @@ import {
   ThreadViewContextProvider,
   THREAD_VIEW_MODES,
   useThreadViewContext,
-} from "components/thread/useThreadView";
+} from "components/thread/ThreadViewContext";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useBeamToNew } from "components/hooks/useBeamToNew";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
