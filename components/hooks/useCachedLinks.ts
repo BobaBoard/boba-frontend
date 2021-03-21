@@ -115,6 +115,7 @@ const SANDBOXED_LINKS = {
   linkToFeed: linkToCurrent,
   linkToLogs: linkToCurrent,
   linkToPersonalSettings: linkToCurrent,
+  linkToCurrent,
   getLinkToBoard: (slug: string, onLoad?: (() => void) | undefined) =>
     linkToCurrent,
   getLinkToThread: ({

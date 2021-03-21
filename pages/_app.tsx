@@ -247,8 +247,7 @@ MyApp.getInitialProps = async ({ ctx }: { ctx: NextPageContext }) => {
 
   const boardData = await body.data;
 
-  console.log(ctx);
-  console.log(ctx.req?.headers?.sec);
+  console.log(process.env);
   if (!isAllowedSandboxLocation(ctx)) {
     ctx.res?.writeHead(301, {
       location: `http://${getCurrentHost(
