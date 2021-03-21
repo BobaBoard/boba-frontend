@@ -6,7 +6,6 @@ import { useQuery, useQueryClient } from "react-query";
 import {
   PostType,
   ThreadType,
-  CategoryFilterType,
   ThreadPostInfoType,
   ThreadCommentInfoType,
   CommentType,
@@ -14,10 +13,8 @@ import {
 import {
   makePostsTree,
   extractCategories,
-  applyCategoriesFilter,
   makeCommentsTree,
   extractNewRepliesSequence,
-  UNCATEGORIZED_LABEL,
   extractRepliesSequence,
 } from "utils/thread-utils";
 import { getThreadInBoardCache } from "utils/queries/cache";
@@ -40,17 +37,10 @@ export interface ThreadContextType {
   chronologicalPostsSequence: PostType[];
   threadDisplaySequence: (PostType | CommentType)[];
   newRepliesSequence: (PostType | CommentType)[];
-  filteredRoot: PostType | null;
   parentChildrenMap: Map<string, ThreadPostInfoType>;
   postsInfoMap: Map<string, ThreadPostInfoType>;
   postCommentsMap: Map<string, ThreadCommentInfoType>;
-  filteredParentChildrenMap: Map<string, ThreadPostInfoType>;
   categories: string[];
-  activeCategories: string[] | null;
-  categoryFilterState: CategoryFilterType[];
-  setCategoryFilterState: React.Dispatch<
-    React.SetStateAction<{ name: string; active: boolean }[]>
-  >;
   hasNewReplies: boolean;
   newRepliesCount: number;
   personalIdentity?: {
@@ -67,7 +57,7 @@ export const useThreadContext = () => {
   const context = React.useContext<ThreadContextType | null>(ThreadContext);
 
   if (!context) {
-    throw new Error("ThreadContext should be used withing a context provider.");
+    throw new Error("ThreadContext should be used within a context provider.");
   }
 
   return context;
@@ -211,41 +201,6 @@ export const useThreadWithNull = ({
     };
   }, [threadData, threadId]);
 
-  // Listen to category filter changes and update data accordingly.
-  const [categoryFilterState, setCategoryFilterState] = React.useState<
-    CategoryFilterType[]
-  >([]);
-
-  React.useEffect(() => {
-    if (!threadData) {
-      setCategoryFilterState((categoryFilterState) =>
-        categoryFilterState.length > 0 ? [] : categoryFilterState
-      );
-      return;
-    }
-    const currentCategories = extractCategories(threadData?.posts || []);
-    currentCategories.push(UNCATEGORIZED_LABEL);
-    log(`Current categories:`);
-    log(currentCategories);
-    setCategoryFilterState((categoryFilterState) =>
-      currentCategories.map((category) => ({
-        name: category,
-        active:
-          categoryFilterState.find(
-            (stateCategory) => stateCategory.name == category
-          )?.active || true,
-      }))
-    );
-  }, [threadData, threadId]);
-
-  const {
-    root: filteredRoot,
-    parentChildrenMap: filteredParentChildrenMap,
-  } = React.useMemo(
-    () => applyCategoriesFilter(root, parentChildrenMap, categoryFilterState),
-    [root, parentChildrenMap, categoryFilterState]
-  );
-
   return {
     isLoading: isFetchingThread,
     isFetching: isFetchingThread || isRefetching,
@@ -257,22 +212,10 @@ export const useThreadWithNull = ({
     newRepliesSequence,
     postsInfoMap,
     threadDisplaySequence,
-    filteredRoot,
     parentChildrenMap,
-    filteredParentChildrenMap,
     categories: React.useMemo(() => extractCategories(threadData?.posts), [
       threadData?.posts,
     ]),
-    activeCategories: React.useMemo(() => {
-      if (categoryFilterState.some((category) => !category.active)) {
-        return categoryFilterState
-          .filter((category) => category.active)
-          .map((category) => category.name);
-      }
-      return null;
-    }, [categoryFilterState]),
-    categoryFilterState,
-    setCategoryFilterState,
     postCommentsMap,
     chronologicalPostsSequence,
     defaultView: threadData?.defaultView || null,

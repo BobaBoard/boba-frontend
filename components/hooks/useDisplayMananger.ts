@@ -8,8 +8,8 @@ import {
   GALLERY_VIEW_MODE,
   THREAD_VIEW_MODES,
   TIMELINE_VIEW_MODE,
-  useThreadView,
-} from "../thread/useThreadView";
+  useThreadViewContext,
+} from "../thread/ThreadViewContext";
 import {
   findFirstLevelParent,
   findNextSibling,
@@ -21,6 +21,7 @@ import { getElementId } from "utils/thread-utils";
 
 import debug from "debug";
 import { CollapseManager } from "components/thread/useCollapseManager";
+import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 const error = debug("bobafrontend:useDisplayManager-error");
 const log = debug("bobafrontend:useDisplayManager-log");
 const info = debug("bobafrontend:useDisplayManager-info");
@@ -92,7 +93,7 @@ const getDisplayPostsForView = (
         case TIMELINE_VIEW_MODE.ALL:
           return chronologicalPostsSequence;
         case TIMELINE_VIEW_MODE.LATEST:
-          return chronologicalPostsSequence.reverse();
+          return [...chronologicalPostsSequence].reverse();
         case TIMELINE_VIEW_MODE.NEW:
           return chronologicalPostsSequence.filter(
             (post) => post.isNew || post.newCommentsAmount > 0
@@ -125,14 +126,15 @@ const useThreadViewDisplay = () => {
   const {
     chronologicalPostsSequence,
     isFetching,
-    activeCategories,
     postsInfoMap,
   } = useThreadContext();
   const {
     currentThreadViewMode,
     timelineViewMode,
     galleryViewMode,
-  } = useThreadView();
+    activeFilters,
+  } = useThreadViewContext();
+  const { postId } = usePageDetails<ThreadPageDetails>();
 
   return React.useMemo(() => {
     if (isFetching) {
@@ -141,16 +143,18 @@ const useThreadViewDisplay = () => {
     const displayPostsForView = getDisplayPostsForView(
       chronologicalPostsSequence,
       {
-        currentThreadViewMode,
+        currentThreadViewMode: !postId
+          ? currentThreadViewMode
+          : THREAD_VIEW_MODES.THREAD,
         timelineViewMode,
         galleryViewMode,
       }
     );
 
-    if (activeCategories != null) {
+    if (activeFilters != null) {
       // TODO: add uncategorized
       const displayPosts = displayPostsForView.filter((post) =>
-        post.tags.categoryTags.some((tag) => !!activeCategories.includes(tag))
+        post.tags.categoryTags.some((tag) => !!activeFilters.includes(tag))
       );
 
       if (currentThreadViewMode !== THREAD_VIEW_MODES.THREAD) {
@@ -179,8 +183,9 @@ const useThreadViewDisplay = () => {
     galleryViewMode,
     currentThreadViewMode,
     chronologicalPostsSequence,
-    activeCategories,
+    activeFilters,
     postsInfoMap,
+    postId,
   ]);
 };
 
@@ -192,8 +197,9 @@ export const useDisplayManager = (collapseManager: CollapseManager) => {
     currentThreadViewMode,
     addOnChangeHandler,
     removeOnChangeHandler,
-  } = useThreadView();
-  const { postsInfoMap, activeCategories } = useThreadContext();
+    activeFilters,
+  } = useThreadViewContext();
+  const { postsInfoMap } = useThreadContext();
   /**
    * How many contributions are currently displayed (at most) in the current mode.
    * Automatically reset when view changes. Also automatically increased in case of
@@ -265,7 +271,7 @@ export const useDisplayManager = (collapseManager: CollapseManager) => {
         clearTimeout(timeout);
       }
     };
-  }, [isFetching, currentThreadViewMode, displayMore, activeCategories]);
+  }, [isFetching, currentThreadViewMode, displayMore, activeFilters]);
 
   const hasMore = React.useCallback(() => {
     return maxDisplay < currentModeDisplayElements.length;

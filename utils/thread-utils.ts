@@ -242,7 +242,12 @@ export const getTotalNewContributions = (
 
 export const extractCategories = (posts: PostType[] | undefined) => {
   return Array.from(
-    new Set(posts?.flatMap((post) => post.tags.categoryTags))
+    // Skip root's categories as those are the Board's.
+    new Set(
+      posts?.flatMap((post) =>
+        post.parentPostId ? post.tags.categoryTags : []
+      )
+    )
   ) as string[];
 };
 

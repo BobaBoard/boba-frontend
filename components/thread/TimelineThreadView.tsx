@@ -8,7 +8,7 @@ import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import { useAuth } from "components/Auth";
 import { useStemOptions } from "components/hooks/useStemOptions";
 import { useBoardContext } from "components/BoardContext";
-import { TIMELINE_VIEW_MODE, useThreadView } from "./useThreadView";
+import { TIMELINE_VIEW_MODE, useThreadViewContext } from "./ThreadViewContext";
 import { useThreadEditors } from "components/editors/withEditors";
 import {
   extractPostId,
@@ -23,12 +23,11 @@ import { DisplayManager } from "components/hooks/useDisplayMananger";
 
 interface TimelineViewProps {
   displayManager: DisplayManager;
-  onTotalPostsChange: (total: number) => void;
 }
 
 const TimelineView: React.FC<TimelineViewProps> = (props) => {
   const { newRepliesCount, chronologicalPostsSequence } = useThreadContext();
-  const { timelineViewMode, setTimelineViewMode } = useThreadView();
+  const { timelineViewMode, setTimelineViewMode } = useThreadViewContext();
   const {
     onNewComment,
     onNewContribution,

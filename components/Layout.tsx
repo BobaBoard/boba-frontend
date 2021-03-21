@@ -1,5 +1,9 @@
 import React from "react";
-import { SideMenu, Layout as InnerLayout } from "@bobaboard/ui-components";
+import {
+  SideMenu,
+  Layout as InnerLayout,
+  SideMenuHandler,
+} from "@bobaboard/ui-components";
 import LoginModal from "./LoginModal";
 import { dismissAllNotifications } from "../utils/queries";
 import { useAuth } from "./Auth";
@@ -182,6 +186,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const { isPending: isUserPending, user, isLoggedIn } = useAuth();
   const [loginOpen, setLoginOpen] = React.useState(false);
   const layoutRef = React.useRef<{ closeSideMenu: () => void }>(null);
+  const sideMenuRef = React.useRef<SideMenuHandler>(null);
   const { slug, threadId, pageType } = usePageDetails();
   const titleLink = useTitleLink();
   const { boardsData, refetch, hasLoggedInData } = useBoardsContext();
@@ -290,6 +295,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
             showPinned={isUserPending || isLoggedIn}
             onFilterChange={setBoardFilter}
             currentBoardSlug={slug}
+            ref={sideMenuRef}
           >
             {(isUserPending || isLoggedIn) && (
               <SideMenu.BoardsMenuSection
@@ -343,6 +349,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
         updates={isLoggedIn && hasUpdates}
         outdated={isOutdated}
         onSideMenuButtonClick={refetch}
+        onSideMenuFullyOpen={sideMenuRef.current?.focusBoardFilter}
         logoLink={linkToHome}
         menuOptions={menuOptions}
         selectedMenuOption={pageType}

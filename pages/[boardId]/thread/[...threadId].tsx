@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   FeedWithMenu,
   CycleNewButton,
@@ -19,9 +19,10 @@ import ThreadContextProvider, {
 } from "components/thread/ThreadContext";
 import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
 import {
+  ThreadViewContextProvider,
   THREAD_VIEW_MODES,
-  useThreadView,
-} from "components/thread/useThreadView";
+  useThreadViewContext,
+} from "components/thread/ThreadViewContext";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useBeamToNew } from "components/hooks/useBeamToNew";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
@@ -48,7 +49,6 @@ function ThreadPage() {
   const { getLinkToBoard } = useCachedLinks();
   const currentBoardData = useBoardContext(slug);
   const { refetch: refetchNotifications } = useBoardsContext();
-  const [totalPosts, setTotalPosts] = useState(Infinity);
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
   const onCompassClick = React.useCallback(() => setShowSidebar(!showSidebar), [
@@ -56,7 +56,12 @@ function ThreadPage() {
   ]);
   const markAsRead = useReadThread();
   const hasMarkedAsRead = React.useRef(false);
-  const { currentThreadViewMode, setThreadViewMode } = useThreadView();
+  const {
+    currentThreadViewMode,
+    setThreadViewMode,
+    setActiveFilter,
+    activeFilters,
+  } = useThreadViewContext();
   const collapseManager = useThreadCollapseManager();
   const {
     threadRoot,
@@ -165,7 +170,8 @@ function ThreadPage() {
                 open={showSidebar}
                 onViewChange={setThreadViewMode}
                 displayManager={displayManager}
-                totalPosts={totalPosts}
+                setActiveFilter={setActiveFilter}
+                activeFilters={activeFilters || null}
               />
             </FeedWithMenu.Sidebar>
             <FeedWithMenu.FeedContent>
@@ -184,12 +190,10 @@ function ThreadPage() {
                   ) : currentThreadViewMode == THREAD_VIEW_MODES.MASONRY ? (
                     <MemoizedGalleryThreadView
                       displayManager={displayManager}
-                      onTotalPostsChange={setTotalPosts}
                     />
                   ) : (
                     <MemoizedTimelineThreadView
                       displayManager={displayManager}
-                      onTotalPostsChange={setTotalPosts}
                     />
                   )}
                 </div>
@@ -247,7 +251,9 @@ const ThreadPageWithContext: React.FC<Record<string, never>> = () => {
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
   return (
     <ThreadContextProvider postId={postId} slug={slug} threadId={threadId}>
-      <ThreadPage />
+      <ThreadViewContextProvider>
+        <ThreadPage />
+      </ThreadViewContextProvider>
     </ThreadContextProvider>
   );
 };

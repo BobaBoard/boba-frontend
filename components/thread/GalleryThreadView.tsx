@@ -13,7 +13,7 @@ import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import { useStemOptions } from "components/hooks/useStemOptions";
 import { useBoardContext } from "components/BoardContext";
 
-import { GALLERY_VIEW_MODE, useThreadView } from "./useThreadView";
+import { GALLERY_VIEW_MODE, useThreadViewContext } from "./ThreadViewContext";
 import { useThreadEditors } from "components/editors/withEditors";
 import {
   extractPostId,
@@ -104,7 +104,6 @@ const ShowCover = ({
 
 interface GalleryThreadViewProps {
   displayManager: DisplayManager;
-  onTotalPostsChange: (total: number) => void;
 }
 const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
   const masonryRef = React.createRef<{ reposition: () => void }>();
@@ -116,7 +115,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
   } = useThreadEditors();
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
   const boardData = useBoardContext(boardSlug);
-  const { galleryViewMode, setGalleryViewMode } = useThreadView();
+  const { galleryViewMode, setGalleryViewMode } = useThreadViewContext();
   const {
     chronologicalPostsSequence,
     newRepliesCount,
@@ -132,34 +131,31 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
     unsubscribeFromCollapseChange,
   } = useThreadCollapseManager();
 
+  // We reposition more than once because the timing is finnicky.
   const repositionGallery = React.useCallback(() => {
-    requestAnimationFrame(() => masonryRef.current?.reposition());
+    let repositionsCount = 10;
+    let timeout: NodeJS.Timeout | null = setTimeout(function reposition() {
+      masonryRef.current?.reposition();
+      if (repositionsCount > 0) {
+        repositionsCount--;
+        timeout = setTimeout(reposition, 300);
+      } else {
+        timeout = null;
+      }
+    }, 200);
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    };
   }, [masonryRef]);
-
-  // const activeCategories = categoryFilterState.filter(
-  //   (category) => category.active
-  // );
-  // const isUntaggedActive = activeCategories.some(
-  //   (category) => category.name == UNCATEGORIZED_LABEL
-  // );
-  // let orderedPosts = unfilteredArray;
-  // if (activeCategories.length != categoryFilterState.length) {
-  //   orderedPosts = unfilteredArray.filter(
-  //     (post) =>
-  //       (post.tags.categoryTags.length == 0 && isUntaggedActive) ||
-  //       post.tags.categoryTags.some((category) =>
-  //         activeCategories.some(
-  //           (activeCategory) => category == activeCategory.name
-  //         )
-  //       )
-  //   );
-  // }
 
   React.useEffect(repositionGallery, [
     galleryViewMode.showCover,
     masonryRef,
     repositionGallery,
   ]);
+
   React.useEffect(() => {
     subscribeToCollapseChange(repositionGallery);
     return () => unsubscribeFromCollapseChange(repositionGallery);
@@ -183,6 +179,12 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
       .forEach((post) => onCollapseLevel(post.postId));
   }, [currentModeDisplayElements, onCollapseLevel]);
 
+  React.useEffect(() => {
+    if (currentModeLoadedElements.length > 0) {
+      repositionGallery();
+    }
+  }, [currentModeLoadedElements, repositionGallery]);
+
   const getStemOptions = useStemOptions({
     boardSlug,
     threadId,
@@ -202,6 +204,11 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
       onNewContribution(extractPostId(levelId));
     },
   });
+
+  const displayElements = [...currentModeLoadedElements];
+  if (displayElements[0] == threadRoot && !galleryViewMode.showCover) {
+    displayElements.shift();
+  }
 
   return (
     <div className="gallery">
@@ -248,18 +255,18 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
           selected={galleryViewMode.mode}
         />
       </div>
-      {currentModeDisplayElements.length == 0 && (
+      {displayElements.length == 0 && (
         <EmptyGalleryView
           emptyMessage={
-            chronologicalPostsSequence.length == 1
+            galleryViewMode.mode !== GALLERY_VIEW_MODE.NEW
               ? "The gallery is empty :("
               : "No new (or updated) posts!"
           }
         />
       )}
-      {currentModeLoadedElements.length > 0 && (
+      {displayElements.length > 0 && (
         <MasonryView ref={masonryRef}>
-          {currentModeLoadedElements.map((post) => (
+          {displayElements.map((post) => (
             <div
               className="thread"
               key={post.postId}
@@ -292,7 +299,12 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
                     </div>
                     {post.comments && !isCollapsed(post.postId) && (
                       <NewThread.Indent id={getCommentThreadId(post.postId)}>
-                        <CommentsThread parentPostId={post.postId} />
+                        <div className="comments">
+                          <CommentsThread
+                            parentPostId={post.postId}
+                            disableMotionEffect
+                          />
+                        </div>
                       </NewThread.Indent>
                     )}
                   </>
@@ -316,6 +328,9 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
         }
         .post {
           z-index: 1;
+          position: relative;
+        }
+        .comments {
           position: relative;
         }
         .thread {

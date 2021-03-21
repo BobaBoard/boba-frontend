@@ -1,31 +1,30 @@
 import React from "react";
 import {
-  CategoryFilter,
+  TagsFilterSection,
   PostQuote,
   SegmentedButton,
+  TagType,
 } from "@bobaboard/ui-components";
 import { useThreadContext } from "components/thread/ThreadContext";
-import { THREAD_VIEW_MODES } from "components/thread/useThreadView";
+import { THREAD_VIEW_MODES } from "components/thread/ThreadViewContext";
 import moment from "moment";
 import classnames from "classnames";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { DisplayManager } from "components/hooks/useDisplayMananger";
+import { UNCATEGORIZED_LABEL } from "utils/thread-utils";
 
 export interface ThreadSidebarProps {
   viewMode: THREAD_VIEW_MODES;
   open?: boolean;
   onViewChange: (viewType: THREAD_VIEW_MODES) => void;
   displayManager: DisplayManager;
-  totalPosts?: number;
+  setActiveFilter: (filter: string | null) => void;
+  activeFilters: string[] | null;
 }
 
 const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
   const { forceHideIdentity } = useForceHideIdentity();
-  const {
-    threadRoot,
-    categoryFilterState,
-    setCategoryFilterState,
-  } = useThreadContext();
+  const { threadRoot, categories } = useThreadContext();
   if (!threadRoot) {
     return null;
   }
@@ -76,37 +75,32 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
           {props.displayManager.currentModeDisplayElements.length}
         </div> */}
       </div>
-      {categoryFilterState.length > 1 && (
+      {categories.length > 1 && (
         <div className="category-filters">
-          <h3>Category Filters</h3>
           <div>
-            <CategoryFilter
-              categories={categoryFilterState}
-              onCategoryStateChangeRequest={(name: string) => {
-                setCategoryFilterState(
-                  categoryFilterState.map((category) => ({
-                    ...category,
-                    active: category.name == name,
-                  }))
-                );
+            <TagsFilterSection
+              title={"Category Filters"}
+              tags={categories.map((category) => ({
+                name: category,
+                active:
+                  props.activeFilters == null ||
+                  props.activeFilters.includes(category),
+              }))}
+              onTagsStateChangeRequest={(name) => {
+                props.setActiveFilter(name);
               }}
+              onClearFilterRequests={() => {
+                props.setActiveFilter(null);
+              }}
+              uncategorized={
+                props.activeFilters == null ||
+                props.activeFilters.includes(UNCATEGORIZED_LABEL)
+              }
+              onUncategorizedStateChangeRequest={() => {
+                props.setActiveFilter(UNCATEGORIZED_LABEL);
+              }}
+              type={TagType.CATEGORY}
             />
-            {categoryFilterState.some((category) => !category.active) && (
-              <a
-                className="clear-filters"
-                href="#"
-                onClick={() => {
-                  setCategoryFilterState(
-                    categoryFilterState.map((category) => ({
-                      ...category,
-                      active: true,
-                    }))
-                  );
-                }}
-              >
-                Clear filters
-              </a>
-            )}
           </div>
         </div>
       )}
@@ -128,6 +122,7 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
         }
         .category-filters {
           color: white;
+          margin-top: 15px;
         }
         .sorry {
           font-style: italic;
