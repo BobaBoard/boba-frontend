@@ -21,7 +21,13 @@ import { useImageUploader } from "../utils/image-upload";
 import { NextPageContext } from "next";
 import { BoardData } from "types/Types";
 import { QueryParamProvider } from "../components/QueryParamNextProvider";
-import { makeClientBoardData, getServerBaseUrl } from "utils/server-utils";
+import {
+  makeClientBoardData,
+  getServerBaseUrl,
+  isAllowedSandboxLocation,
+  getRedirectToSandboxLocation,
+  getCurrentHost,
+} from "utils/server-utils";
 import debug from "debug";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
@@ -240,12 +246,26 @@ MyApp.getInitialProps = async ({ ctx }: { ctx: NextPageContext }) => {
   const lastUpdate = await getLastUpdate(ctx);
 
   const boardData = await body.data;
+
+  console.log(ctx);
+  console.log(ctx.req?.headers?.sec);
+  if (!isAllowedSandboxLocation(ctx)) {
+    ctx.res?.writeHead(301, {
+      location: `http://${getCurrentHost(
+        ctx,
+        true
+      )}${getRedirectToSandboxLocation(ctx)}`,
+    });
+    ctx.res?.end();
+    return;
+  }
   log(`Returning initial props`);
   return {
     props: {
       boardData,
       slug: ctx.query.boardId?.slice(1),
       lastUpdate: lastUpdate,
+      currentPath: ctx.asPath,
     },
   };
 };
