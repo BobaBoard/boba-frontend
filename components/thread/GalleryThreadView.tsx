@@ -131,8 +131,23 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
     unsubscribeFromCollapseChange,
   } = useThreadCollapseManager();
 
+  // We reposition more than once because the timing is finnicky.
   const repositionGallery = React.useCallback(() => {
-    requestAnimationFrame(() => masonryRef.current?.reposition());
+    let repositionsCount = 10;
+    let timeout: NodeJS.Timeout | null = setTimeout(function reposition() {
+      masonryRef.current?.reposition();
+      if (repositionsCount > 0) {
+        repositionsCount--;
+        timeout = setTimeout(reposition, 300);
+      } else {
+        timeout = null;
+      }
+    }, 200);
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    };
   }, [masonryRef]);
 
   React.useEffect(repositionGallery, [
@@ -140,6 +155,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
     masonryRef,
     repositionGallery,
   ]);
+
   React.useEffect(() => {
     subscribeToCollapseChange(repositionGallery);
     return () => unsubscribeFromCollapseChange(repositionGallery);
@@ -162,6 +178,12 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
       .filter((post) => post.newCommentsAmount === 0)
       .forEach((post) => onCollapseLevel(post.postId));
   }, [currentModeDisplayElements, onCollapseLevel]);
+
+  React.useEffect(() => {
+    if (currentModeLoadedElements.length > 0) {
+      repositionGallery();
+    }
+  }, [currentModeLoadedElements, repositionGallery]);
 
   const getStemOptions = useStemOptions({
     boardSlug,
@@ -187,6 +209,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
   if (displayElements[0] == threadRoot && !galleryViewMode.showCover) {
     displayElements.shift();
   }
+
   return (
     <div className="gallery">
       <div className="view-controls">
@@ -276,7 +299,12 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
                     </div>
                     {post.comments && !isCollapsed(post.postId) && (
                       <NewThread.Indent id={getCommentThreadId(post.postId)}>
-                        <CommentsThread parentPostId={post.postId} />
+                        <div className="comments">
+                          <CommentsThread
+                            parentPostId={post.postId}
+                            disableMotionEffect
+                          />
+                        </div>
                       </NewThread.Indent>
                     )}
                   </>
@@ -300,6 +328,9 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
         }
         .post {
           z-index: 1;
+          position: relative;
+        }
+        .comments {
           position: relative;
         }
         .thread {

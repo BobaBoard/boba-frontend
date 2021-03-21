@@ -68,7 +68,8 @@ const ThreadComment: React.FC<{
       positionY?: HTMLElement;
     } | null
   ) => void;
-}> = ({ rootComment, parentPostId, onBoundaryRef }) => {
+  disableMotionEffect?: boolean;
+}> = ({ rootComment, parentPostId, onBoundaryRef, disableMotionEffect }) => {
   const { isLoggedIn } = useAuth();
   const { forceHideIdentity } = useForceHideIdentity();
   const { onNewComment } = useThreadEditors();
@@ -128,6 +129,7 @@ const ThreadComment: React.FC<{
       onExtraAction={isLoggedIn ? replyToLast : undefined}
       options={options}
       forceHideIdentity={forceHideIdentity}
+      disableMotionEffect={disableMotionEffect}
     />
   );
 };
@@ -135,9 +137,8 @@ const ThreadComment: React.FC<{
 const CommentsThreadLevel: React.FC<{
   comment: CommentType;
   parentPostId: string;
-  parentCommentId?: string | null;
-  level?: number;
-}> = ({ parentPostId, comment }) => {
+  disableMotionEffect?: boolean;
+}> = ({ parentPostId, comment, disableMotionEffect }) => {
   const { postCommentsMap } = useThreadContext();
   const { parentChainMap, parentChildrenMap } = postCommentsMap.get(
     parentPostId
@@ -158,6 +159,7 @@ const CommentsThreadLevel: React.FC<{
               rootComment={comment}
               parentPostId={parentPostId}
               onBoundaryRef={setBoundaryElement}
+              disableMotionEffect={disableMotionEffect}
             />
           </div>
           {children && (
@@ -168,6 +170,7 @@ const CommentsThreadLevel: React.FC<{
                     key={comment.commentId}
                     comment={comment}
                     parentPostId={parentPostId}
+                    disableMotionEffect={disableMotionEffect}
                   />
                 );
               })}
@@ -184,6 +187,7 @@ interface CommentsThreadProps {
   parentPostId: string;
   parentCommentId?: string | null;
   level?: number;
+  disableMotionEffect?: boolean;
 }
 
 const CommentsThread: React.FC<CommentsThreadProps> = (props) => {
@@ -203,11 +207,12 @@ const CommentsThread: React.FC<CommentsThreadProps> = (props) => {
       {actualRoots.map((comment) => {
         return (
           <div className="comments-thread" key={comment.commentId}>
-            <NewCommentsThread>
+            <NewCommentsThread disableMotionEffect={props.disableMotionEffect}>
               <MemoizedThreadLevel
                 key={comment.commentId}
                 comment={comment}
                 parentPostId={props.parentPostId}
+                disableMotionEffect={props.disableMotionEffect}
               />
             </NewCommentsThread>
           </div>
