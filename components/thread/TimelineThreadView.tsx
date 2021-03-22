@@ -16,6 +16,7 @@ import {
   useThreadCollapseManager,
 } from "./useCollapseManager";
 import { DisplayManager } from "components/hooks/useDisplayMananger";
+import EmptyView from "./EmptyView";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // import debug from "debug";
@@ -102,9 +103,7 @@ const TimelineView: React.FC<TimelineViewProps> = (props) => {
         />
       </div>
       <div>
-        {displayPosts.length == 0 && (
-          <div className="empty">No new or updated post!</div>
-        )}
+        {displayPosts.length == 0 && <EmptyView />}
         {displayPosts.map((post) => {
           return (
             <div className="thread" key={post.postId}>

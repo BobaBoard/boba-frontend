@@ -6,6 +6,7 @@ import {
 } from "@bobaboard/ui-components";
 import { useThreadContext } from "components/thread/ThreadContext";
 import CommentsThread from "./CommentsThread";
+import EmptyView from "./EmptyView";
 import { PostType } from "types/Types";
 import ThreadPost, { scrollToPost } from "./ThreadPost";
 import { useAuth } from "components/Auth";
@@ -24,37 +25,6 @@ import { DisplayManager } from "components/hooks/useDisplayMananger";
 
 // import debug from "debug";
 // const log = debug("bobafrontend:threadPage:GalleryView-log");
-
-const EmptyGalleryView = (props: { emptyMessage: string }) => (
-  <div>
-    <div className="image">
-      <img src="/empty_gallery.gif" />
-    </div>
-    <div className="empty">{props.emptyMessage}</div>
-    <style jsx>{`
-      .image {
-        text-align: center;
-      }
-      .image img {
-        max-width: 100%;
-      }
-      .empty {
-        color: white;
-        text-align: center;
-        margin-top: 10px;
-        font-size: normal;
-      }
-      a {
-        display: block;
-        color: white;
-        text-align: center;
-        font-size: small;
-        margin-top: 10px;
-        margin-bottom: 10px;
-      }
-    `}</style>
-  </div>
-);
 
 // This is just a temporary component until we get a better handler here.
 const ShowCover = ({
@@ -255,15 +225,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
           selected={galleryViewMode.mode}
         />
       </div>
-      {displayElements.length == 0 && (
-        <EmptyGalleryView
-          emptyMessage={
-            galleryViewMode.mode !== GALLERY_VIEW_MODE.NEW
-              ? "The gallery is empty :("
-              : "No new (or updated) posts!"
-          }
-        />
-      )}
+      {displayElements.length == 0 && <EmptyView />}
       {displayElements.length > 0 && (
         <MasonryView ref={masonryRef}>
           {displayElements.map((post) => (
