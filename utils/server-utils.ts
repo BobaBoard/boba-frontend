@@ -133,7 +133,12 @@ export const getCurrentHost = (
   const serverHost = context?.req?.headers.host;
   return typeof window !== "undefined"
     ? window.location.hostname
-    : serverHost?.substr(0, withPort ? undefined : serverHost?.indexOf(":"));
+    : serverHost?.substr(
+        0,
+        withPort || serverHost?.indexOf(":") == -1
+          ? undefined
+          : serverHost?.indexOf(":")
+      );
 };
 
 const SANDBOX_LOCATIONS = [
