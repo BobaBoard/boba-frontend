@@ -141,26 +141,18 @@ export const getCurrentHost = (
       );
 };
 
-const SANDBOX_LOCATIONS = [
-  "localhost",
-  //"tys-sandbox.boba.social/"
-];
+const SANDBOX_LOCATIONS = ["tys-sandbox.boba.social"];
 export const isSandbox = (context: NextPageContext | undefined) => {
+  if (process.env.NEXT_PUBLIC_TEST_SANDBOX === "true") {
+    return true;
+  }
   const currentHost = getCurrentHost(context);
-  console.log("*******************");
-  console.log("*******************");
-  console.log("*******************");
-  console.log(context);
-  console.log(currentHost);
-  console.log("*******************");
-  console.log("*******************");
-  console.log("*******************");
-  console.log("*******************");
   return currentHost && SANDBOX_LOCATIONS.includes(currentHost);
 };
 
 const ALLOWED_SANDBOX_LOCATIONS = {
-  [SANDBOX_LOCATIONS[0]]: [
+  ["localhost"]: ["/!gore/thread/8b2646af-2778-487e-8e44-7ae530c2549c"],
+  "tys-sandbox.boba.social": [
     "/!challenge/thread/659dc185-b10d-4dbb-84c5-641fc1a65e58",
   ],
 };
