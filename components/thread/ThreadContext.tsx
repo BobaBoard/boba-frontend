@@ -13,6 +13,7 @@ import {
 import {
   makePostsTree,
   extractCategories,
+  extractContentNotices,
   makeCommentsTree,
   extractNewRepliesSequence,
   extractRepliesSequence,
@@ -41,6 +42,7 @@ export interface ThreadContextType {
   postsInfoMap: Map<string, ThreadPostInfoType>;
   postCommentsMap: Map<string, ThreadCommentInfoType>;
   categories: string[];
+  contentNotices: string[];
   hasNewReplies: boolean;
   newRepliesCount: number;
   personalIdentity?: {
@@ -216,6 +218,10 @@ export const useThreadWithNull = ({
     categories: React.useMemo(() => extractCategories(threadData?.posts), [
       threadData?.posts,
     ]),
+    contentNotices: React.useMemo(
+      () => extractContentNotices(threadData?.posts),
+      [threadData?.posts]
+    ),
     postCommentsMap,
     chronologicalPostsSequence,
     defaultView: threadData?.defaultView || null,

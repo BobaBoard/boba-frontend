@@ -14,6 +14,7 @@ import {
   findFirstLevelParent,
   findNextSibling,
   findPreviousSibling,
+  UNCATEGORIZED_LABEL,
 } from "../../utils/thread-utils";
 
 import { CommentType, isPost, PostType, ThreadPostInfoType } from "types/Types";
@@ -133,6 +134,7 @@ const useThreadViewDisplay = () => {
     timelineViewMode,
     galleryViewMode,
     activeFilters,
+    excludedNotices,
   } = useThreadViewContext();
   const { postId } = usePageDetails<ThreadPageDetails>();
 
@@ -151,28 +153,47 @@ const useThreadViewDisplay = () => {
       }
     );
 
-    if (activeFilters != null) {
-      // TODO: add uncategorized
-      const displayPosts = displayPostsForView.filter((post) =>
-        post.tags.categoryTags.some((tag) => !!activeFilters.includes(tag))
-      );
+    if (excludedNotices != null || activeFilters != null) {
+      const finalDisplayPosts: PostType[] = [];
+
+      displayPostsForView.forEach((post) => {
+        if (
+          post.tags.contentWarnings.some((tag) =>
+            excludedNotices?.includes(tag)
+          )
+        ) {
+          return;
+        }
+        if (activeFilters == null) {
+          finalDisplayPosts.push(post);
+        } else if (
+          activeFilters.includes(UNCATEGORIZED_LABEL) &&
+          post.tags.categoryTags.length === 0
+        ) {
+          finalDisplayPosts.push(post);
+        } else if (
+          post.tags.categoryTags.some((tag) => !!activeFilters.includes(tag))
+        ) {
+          finalDisplayPosts.push(post);
+        }
+      });
 
       if (currentThreadViewMode !== THREAD_VIEW_MODES.THREAD) {
-        return displayPosts;
+        return finalDisplayPosts;
       }
       // Add all parents of posts, even if they don't have categories.
-      const finalDisplayPosts = [...displayPosts];
-      displayPosts.forEach((post) => {
+      const displayPostsWithParents = [...finalDisplayPosts];
+      finalDisplayPosts.forEach((post) => {
         let parent = post.parentPostId;
         while (parent != null) {
           const parentData = postsInfoMap.get(parent)!;
-          finalDisplayPosts.push(parentData.post);
+          displayPostsWithParents.push(parentData.post);
           parent = parentData.parent?.postId || null;
         }
       });
 
       return chronologicalPostsSequence.filter((post) =>
-        finalDisplayPosts.includes(post)
+        displayPostsWithParents.includes(post)
       );
     }
 
@@ -186,6 +207,7 @@ const useThreadViewDisplay = () => {
     activeFilters,
     postsInfoMap,
     postId,
+    excludedNotices,
   ]);
 };
 

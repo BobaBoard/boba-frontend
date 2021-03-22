@@ -6,7 +6,10 @@ import {
   TagType,
 } from "@bobaboard/ui-components";
 import { useThreadContext } from "components/thread/ThreadContext";
-import { THREAD_VIEW_MODES } from "components/thread/ThreadViewContext";
+import {
+  THREAD_VIEW_MODES,
+  useThreadViewContext,
+} from "components/thread/ThreadViewContext";
 import moment from "moment";
 import classnames from "classnames";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
@@ -18,13 +21,17 @@ export interface ThreadSidebarProps {
   open?: boolean;
   onViewChange: (viewType: THREAD_VIEW_MODES) => void;
   displayManager: DisplayManager;
-  setActiveFilter: (filter: string | null) => void;
-  activeFilters: string[] | null;
 }
 
 const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
   const { forceHideIdentity } = useForceHideIdentity();
-  const { threadRoot, categories } = useThreadContext();
+  const { threadRoot, categories, contentNotices } = useThreadContext();
+  const {
+    setActiveFilter,
+    activeFilters,
+    setExcludedNotices,
+    excludedNotices,
+  } = useThreadViewContext();
   if (!threadRoot) {
     return null;
   }
@@ -75,33 +82,57 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
           {props.displayManager.currentModeDisplayElements.length}
         </div> */}
       </div>
-      {categories.length > 1 && (
+      {contentNotices.length >= 1 && (
         <div className="category-filters">
-          <div>
-            <TagsFilterSection
-              title={"Category Filters"}
-              tags={categories.map((category) => ({
-                name: category,
-                active:
-                  props.activeFilters == null ||
-                  props.activeFilters.includes(category),
-              }))}
-              onTagsStateChangeRequest={(name) => {
-                props.setActiveFilter(name);
-              }}
-              onClearFilterRequests={() => {
-                props.setActiveFilter(null);
-              }}
-              uncategorized={
-                props.activeFilters == null ||
-                props.activeFilters.includes(UNCATEGORIZED_LABEL)
+          <TagsFilterSection
+            title={"Content Notices"}
+            tags={contentNotices.map((notice) => ({
+              name: notice,
+              active:
+                excludedNotices == null || !excludedNotices.includes(notice),
+            }))}
+            onTagsStateChangeRequest={(notice) => {
+              if (excludedNotices?.includes(notice)) {
+                const newNotices = excludedNotices.filter(
+                  (existingNotice) => existingNotice != notice
+                );
+                setExcludedNotices(newNotices.length > 0 ? newNotices : null);
+                return;
               }
-              onUncategorizedStateChangeRequest={() => {
-                props.setActiveFilter(UNCATEGORIZED_LABEL);
-              }}
-              type={TagType.CATEGORY}
-            />
-          </div>
+              setExcludedNotices(
+                excludedNotices ? [...excludedNotices, notice] : [notice]
+              );
+            }}
+            onClearFilterRequests={() => {
+              setExcludedNotices(null);
+            }}
+            type={TagType.CONTENT_WARNING}
+          />
+        </div>
+      )}
+      {categories.length >= 1 && (
+        <div className="category-filters">
+          <TagsFilterSection
+            title={"Category Filters"}
+            tags={categories.map((category) => ({
+              name: category,
+              active: activeFilters == null || activeFilters.includes(category),
+            }))}
+            onTagsStateChangeRequest={(name) => {
+              setActiveFilter(name);
+            }}
+            onClearFilterRequests={() => {
+              setActiveFilter(null);
+            }}
+            uncategorized={
+              activeFilters == null ||
+              activeFilters.includes(UNCATEGORIZED_LABEL)
+            }
+            onUncategorizedStateChangeRequest={() => {
+              setActiveFilter(UNCATEGORIZED_LABEL);
+            }}
+            type={TagType.CATEGORY}
+          />
         </div>
       )}
       <style jsx>{`

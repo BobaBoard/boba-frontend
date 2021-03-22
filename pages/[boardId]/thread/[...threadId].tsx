@@ -56,12 +56,7 @@ function ThreadPage() {
   ]);
   const markAsRead = useReadThread();
   const hasMarkedAsRead = React.useRef(false);
-  const {
-    currentThreadViewMode,
-    setThreadViewMode,
-    setActiveFilter,
-    activeFilters,
-  } = useThreadViewContext();
+  const { currentThreadViewMode, setThreadViewMode } = useThreadViewContext();
   const collapseManager = useThreadCollapseManager();
   const {
     threadRoot,
@@ -170,8 +165,6 @@ function ThreadPage() {
                 open={showSidebar}
                 onViewChange={setThreadViewMode}
                 displayManager={displayManager}
-                setActiveFilter={setActiveFilter}
-                activeFilters={activeFilters || null}
               />
             </FeedWithMenu.Sidebar>
             <FeedWithMenu.FeedContent>

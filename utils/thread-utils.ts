@@ -102,32 +102,6 @@ export const makePostsTree = (
     });
   });
 
-  // We add each post to the "parent children map" for its own parent, thereby constructing
-  // the "three map" of the thread.
-  // posts.forEach((post) => {
-  //   // Our post tree skips the root. The first level of the tree is simply all the entries
-  //   // of the top Map.
-  //   if (!post.parentPostId) {
-  //     return;
-  //   }
-  //   // TODO: here we're are getting the parent again for every child. just do this
-  //   // once if the parent is not already set.
-  //   const parentPost = posts.find(
-  //     (candidate) => candidate.postId == post.parentPostId
-  //   ) as PostType;
-  //   const grandPost =
-  //     posts.find((candidate) => candidate.postId == parentPost?.parentPostId) ||
-  //     null;
-  //   parentChildrenMap.set(post.parentPostId, {
-  //     parent: grandPost,
-  //     post: parentPost,
-  //     children: [
-  //       ...(parentChildrenMap.get(post.parentPostId)?.children ||
-  //         ([] as PostType[])),
-  //       post,
-  //     ],
-  //   });
-  // });
   postsInfoMap.forEach((postInfo, key) => {
     if (postInfo.children.length == 0) {
       return;
@@ -246,6 +220,17 @@ export const extractCategories = (posts: PostType[] | undefined) => {
     new Set(
       posts?.flatMap((post) =>
         post.parentPostId ? post.tags.categoryTags : []
+      )
+    )
+  ) as string[];
+};
+
+export const extractContentNotices = (posts: PostType[] | undefined) => {
+  return Array.from(
+    // Skip root's notices as we assume the user willingly clicked.
+    new Set(
+      posts?.flatMap((post) =>
+        post.parentPostId ? post.tags.contentWarnings : []
       )
     )
   ) as string[];

@@ -40,6 +40,7 @@ export const ThreadViewQueryParams = {
 
 const FilterParams = {
   filter: ArrayParam,
+  excludedNotices: ArrayParam,
 };
 
 const TimelineViewQueryParams = {
@@ -59,7 +60,9 @@ interface ThreadViewContextType {
   timelineViewMode: TIMELINE_VIEW_MODE;
   galleryViewMode: GalleryViewMode;
   activeFilters: string[] | null;
+  excludedNotices: string[] | null;
   setActiveFilter: (filter: string | null) => void;
+  setExcludedNotices: (notices: string[] | null) => void;
   setThreadViewMode: (view: THREAD_VIEW_MODES) => void;
   setGalleryViewMode: (view: GalleryViewMode) => void;
   setTimelineViewMode: (view: TIMELINE_VIEW_MODE) => void;
@@ -183,6 +186,7 @@ const getUpdatedQuery = (
     timeline: !isDefaultView && threadViewMode == THREAD_VIEW_MODES.TIMELINE,
     thread: !isDefaultView && threadViewMode == THREAD_VIEW_MODES.THREAD,
     filter: currentParams.filter,
+    excludedNotices: currentParams.excludedNotices,
     ...specialViewParams,
   };
 };
@@ -331,6 +335,19 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
     [threadViewQuery, setThreadViewQuery]
   );
 
+  const setExcludedNotices = React.useCallback(
+    (notices: string[] | null) => {
+      setThreadViewQuery(
+        {
+          ...threadViewQuery,
+          excludedNotices: notices === null ? undefined : notices,
+        },
+        "replaceIn"
+      );
+    },
+    [threadViewQuery, setThreadViewQuery]
+  );
+
   return (
     <ThreadViewContext.Provider
       value={React.useMemo(
@@ -342,7 +359,12 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
             threadViewQuery.filter?.filter(
               (category): category is string => category !== null
             ) || null,
+          excludedNotices:
+            threadViewQuery.excludedNotices?.filter(
+              (notice): notice is string => notice !== null
+            ) || null,
           setActiveFilter,
+          setExcludedNotices,
           setThreadViewMode,
           setGalleryViewMode,
           setTimelineViewMode,
@@ -354,7 +376,9 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
           currentTimelineViewMode,
           currentGalleryViewMode,
           threadViewQuery.filter,
+          threadViewQuery.excludedNotices,
           setActiveFilter,
+          setExcludedNotices,
           setThreadViewMode,
           setGalleryViewMode,
           setTimelineViewMode,
