@@ -172,7 +172,7 @@ const usePostOptions = ({
   const hideThread = useSetThreadHidden();
   const muteThread = useMuteThread();
   const setThreadView = useSetThreadView();
-  const { refetch: refetchNotifications } = useBoardsContext();
+  const { refetch: refetchNotifications, boardsData } = useBoardsContext();
 
   const editTagsCallback = React.useCallback(() => {
     editorDispatch({
@@ -286,7 +286,10 @@ const usePostOptions = ({
         }
         return getUpdateViewOption(data.currentView, setThreadViewCallback);
       case PostOptions.EDIT_TAGS:
-        if (!isLoggedIn || !data.own) {
+        if (
+          !isLoggedIn ||
+          (!data.own && !boardsData[slug].permissions?.postsPermissions.length)
+        ) {
           return null;
         }
         return getEditTagsOption(editTagsCallback);

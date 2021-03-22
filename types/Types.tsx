@@ -94,8 +94,17 @@ export interface Role {
   avatarUrl: string;
 }
 
+export enum PostPermissions {
+  editContent = "edit_content",
+  editWhisperTags = "edit_whisper_tags",
+  editCategoryTags = "edit_category_tags",
+  editIndexTags = "edit_index_tags",
+  editContentNotices = "edit_content_notices",
+}
+
 export interface Permissions {
   canEditBoardData: boolean;
+  postsPermissions: PostPermissions;
 }
 
 export interface BoardData {
