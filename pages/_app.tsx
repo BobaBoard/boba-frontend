@@ -248,7 +248,10 @@ MyApp.getInitialProps = async ({ ctx }: { ctx: NextPageContext }) => {
   const boardData = await body.data;
 
   if (!isAllowedSandboxLocation(ctx)) {
-    ctx.res?.writeHead(301, {
+    // We should use 302 redirect here rather than 301 because
+    // 301 will be cached by the client and trap us forever until
+    // the cache is cleared.
+    ctx.res?.writeHead(302, {
       location: `http://${getCurrentHost(
         ctx,
         true

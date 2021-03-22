@@ -151,9 +151,13 @@ export const isSandbox = (context: NextPageContext | undefined) => {
 };
 
 const ALLOWED_SANDBOX_LOCATIONS = {
-  ["localhost"]: ["/!gore/thread/8b2646af-2778-487e-8e44-7ae530c2549c"],
+  ["localhost"]: [
+    "/!gore/thread/8b2646af-2778-487e-8e44-7ae530c2549c",
+    "/!anime/thread/b27710a8-0a9f-4c09-b3a5-54668bab7051",
+  ],
   "tys-sandbox.boba.social": [
     "/!challenge/thread/659dc185-b10d-4dbb-84c5-641fc1a65e58",
+    "/!steamy/thread/9719a1dd-96da-497e-bd71-21634c20416c",
   ],
 };
 export const isAllowedSandboxLocation = (

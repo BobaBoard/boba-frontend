@@ -4,3 +4,5 @@ dispatch:
     service: frontend
   - url: "tys-sandbox.boba.social/*"
     service: tys-sandbox
+  - url: "sexythomas.boba.social/*"
+    service: sexythomas
