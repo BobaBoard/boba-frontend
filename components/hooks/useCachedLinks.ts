@@ -9,6 +9,7 @@ import {
   PERSONAL_SETTINGS_PATH,
   THREAD_PATH,
 } from "utils/router-utils";
+import { isSandbox } from "utils/server-utils";
 
 interface LinkWithNotNullAction {
   href: string;
@@ -98,7 +99,7 @@ const getLinkToPost = ({
 };
 const linkToHome = createLinkTo({ url: "/" });
 const linkToCurrent = createLinkTo({
-  url: typeof window === "undefined" ? "" : location.href,
+  url: typeof window === "undefined" ? "" : location.pathname,
 });
 const linkToFeed = createLinkTo({ url: FEED_PATH });
 const linkToLogs = createLinkTo({
@@ -108,15 +109,40 @@ const linkToLogs = createLinkTo({
 const linkToPersonalSettings = createLinkTo({ url: PERSONAL_SETTINGS_PATH });
 // TODO: rename this because it's not a hook and can be used outside of a
 // component context.
-export const useCachedLinks = () => {
-  return {
-    linkToHome,
-    linkToFeed,
-    linkToLogs,
-    linkToPersonalSettings,
+
+const SANDBOXED_LINKS = {
+  linkToHome: linkToCurrent,
+  linkToFeed: linkToCurrent,
+  linkToLogs: linkToCurrent,
+  linkToPersonalSettings: linkToCurrent,
+  linkToCurrent,
+  getLinkToBoard: (slug: string, onLoad?: (() => void) | undefined) =>
     linkToCurrent,
-    getLinkToBoard,
-    getLinkToThread,
-    getLinkToPost,
-  };
+  getLinkToThread: ({
+    slug,
+    threadId,
+    view,
+  }: {
+    slug: string;
+    threadId: string;
+    view?: "thread" | "gallery" | "timeline" | undefined;
+  }) => linkToCurrent,
+  getLinkToPost,
+};
+
+const REGULAR_LINKS = {
+  linkToHome,
+  linkToFeed,
+  linkToLogs,
+  linkToPersonalSettings,
+  linkToCurrent,
+  getLinkToBoard,
+  getLinkToThread,
+  getLinkToPost,
+};
+export const useCachedLinks = () => {
+  if (isSandbox(undefined)) {
+    return SANDBOXED_LINKS;
+  }
+  return REGULAR_LINKS;
 };

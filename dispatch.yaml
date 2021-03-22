@@ -2,3 +2,5 @@ dispatch:
   # Default service serves simple hostname request.
   - url: "v0.boba.social/*"
     service: frontend
+  - url: "tys-sandbox.boba.social/*"
+    service: tys-sandbox
