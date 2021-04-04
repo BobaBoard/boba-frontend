@@ -27,6 +27,7 @@ import {
   isAllowedSandboxLocation,
   getRedirectToSandboxLocation,
   getCurrentHost,
+  isStaging,
 } from "utils/server-utils";
 import debug from "debug";
 import { QueryClient, QueryClientProvider } from "react-query";
@@ -124,7 +125,9 @@ const getLastUpdate = async (ctx: NextPageContext) => {
   try {
     const response = await axios.get(
       `${getServerBaseUrl(ctx)}subscriptions/${
-        process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID
+        isStaging()
+          ? process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID_STAGING
+          : process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID
       }/latest`
     );
     return await response.data[0];

@@ -188,6 +188,9 @@ export const getRedirectToSandboxLocation = (
 };
 
 export const isStaging = () => {
+  if (process.env.NEXT_PUBLIC_ENV == "staging") {
+    return true;
+  }
   if (typeof window === "undefined") {
     return false;
   }

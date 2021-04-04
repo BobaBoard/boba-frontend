@@ -61,7 +61,11 @@ function HomePage(props: { lastUpdate?: any }) {
                     .{" "}
                     <Link
                       href={THREAD_PATH}
-                      as={process.env.NEXT_PUBLIC_RELEASE_THREAD_URL || ""}
+                      as={
+                        isStaging()
+                          ? process.env.NEXT_PUBLIC_RELEASE_THREAD_URL_STAGING
+                          : process.env.NEXT_PUBLIC_RELEASE_THREAD_URL || ""
+                      }
                     >
                       <a>Older logs.</a>
                     </Link>
