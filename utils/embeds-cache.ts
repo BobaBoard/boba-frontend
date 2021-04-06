@@ -6,7 +6,9 @@ const embedsCache = new Proxy(CACHE, {
     if (prop === "get") {
       value = (property: string) => {
         TIMESTAMPS.set(property, Date.now());
-        return CACHE.get(property);
+        const element = CACHE.get(property);
+        element?.classList.add("from-cache");
+        return element;
       };
     } else if (prop === "set") {
       value = (property: string, value: HTMLElement) => {
