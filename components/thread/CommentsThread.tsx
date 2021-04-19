@@ -123,7 +123,6 @@ const ThreadComment: React.FC<{
       secretIdentity={rootComment.secretIdentity}
       userIdentity={rootComment.userIdentity}
       createdTime={moment.utc(rootComment.created).fromNow()}
-      accessory={rootComment.accessory}
       comments={chainInfo}
       muted={isLoggedIn && !rootComment.isNew}
       onExtraAction={isLoggedIn ? replyToLast : undefined}

@@ -1,7 +1,6 @@
 import {
   CompactPostThread,
   Post,
-  PostSizes,
   PostHandler,
   DefaultTheme,
   TagsType,
@@ -221,7 +220,6 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
           postId: post.postId,
         });
         return {
-          size: post.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR,
           createdTime: moment.utc(post.created).fromNow(),
           text: post.content,
           secretIdentity: post.secretIdentity,
@@ -231,7 +229,6 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
             onClick: directLink.onClick,
           },
           notesLink: threadLink,
-          accessory: post.accessory,
           onNewContribution: onNewContributionCallback,
           onNewComment: onNewCommentCallback,
           totalComments: post.comments?.length,

@@ -26,6 +26,7 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
     additionalIdentities,
     secretIdentity,
     userIdentity,
+    accessories,
   } = useThreadDetails(state);
 
   const { mutate: postComment } = useMutation(
@@ -87,7 +88,8 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
         userIdentity={userIdentity}
         additionalIdentities={additionalIdentities}
         loading={isCommentLoading}
-        onSubmit={async ({ texts, identityId }) => {
+        accessories={secretIdentity ? undefined : accessories}
+        onSubmit={async ({ texts, identityId, accessoryId }) => {
           setCommentLoading(true);
           const uploadedTexts = await texts;
           if (uploadedTexts.length > 1) {
@@ -97,6 +99,7 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
                 content: t,
                 forceAnonymous: false,
                 identityId,
+                accessoryId,
                 replyToCommentId: state.newComment.replyToCommentId,
               })),
             });
@@ -107,6 +110,7 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
                 content: uploadedTexts[0],
                 forceAnonymous: false,
                 identityId,
+                accessoryId,
                 replyToCommentId: state.newComment.replyToCommentId,
               },
             });

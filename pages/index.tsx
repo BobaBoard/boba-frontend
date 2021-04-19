@@ -81,6 +81,8 @@ function HomePage(props: { lastUpdate?: any }) {
                       secretIdentity={{
                         name: props?.lastUpdate.secret_identity_name,
                         avatar: props?.lastUpdate.secret_identity_avatar,
+                        color: props?.lastUpdate.secret_identity_color,
+                        accessory: props?.lastUpdate.secret_identity_accessory,
                       }}
                     />
                   </div>

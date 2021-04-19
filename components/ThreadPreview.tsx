@@ -1,5 +1,5 @@
 import React from "react";
-import { Post, PostSizes, TagsType, TagType } from "@bobaboard/ui-components";
+import { Post, TagsType, TagType } from "@bobaboard/ui-components";
 import moment from "moment";
 import { ThreadType } from "../types/Types";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
@@ -123,10 +123,8 @@ const ThreadPreview: React.FC<{
       tags={rootPost.tags}
       secretIdentity={rootPost.secretIdentity}
       userIdentity={rootPost.userIdentity}
-      accessory={rootPost.accessory}
       onNewContribution={noop}
       onNewComment={noop}
-      size={rootPost?.options?.wide ? PostSizes.WIDE : PostSizes.REGULAR}
       newPost={isLoggedIn && !thread.muted && rootPost.isNew}
       newComments={
         isLoggedIn ? (thread.muted ? undefined : thread.newCommentsAmount) : 0

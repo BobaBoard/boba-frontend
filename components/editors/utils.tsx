@@ -85,5 +85,6 @@ export const useThreadDetails = (
         }
       : undefined,
     secretIdentity: threadData.personalIdentity,
+    accessories: currentBoardData?.accessories,
   };
 };

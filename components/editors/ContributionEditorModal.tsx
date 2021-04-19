@@ -43,6 +43,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
     suggestedCategories,
     secretIdentity,
     userIdentity,
+    accessories,
   } = useThreadDetails(state);
   const [isPostLoading, setPostLoading] = React.useState(false);
   const { isLoggedIn } = useAuth();
@@ -152,6 +153,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
       secretIdentity={secretIdentity}
       userIdentity={userIdentity}
       additionalIdentities={additionalIdentities}
+      accessories={secretIdentity ? undefined : accessories}
       viewOptions={isNewThread(state) ? THREAD_VIEW_OPTIONS : undefined}
       loading={isPostLoading}
       suggestedCategories={suggestedCategories || []}
@@ -169,6 +171,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
             text,
             tags,
             identityId,
+            accessoryId,
             viewOptionName,
             boardSlug: postedBoardSlug,
           }) => {
@@ -190,6 +193,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
                 forceAnonymous: false,
                 defaultView: getViewIdFromName(viewOptionName),
                 identityId,
+                accessoryId,
                 ...processedTags,
               },
             });

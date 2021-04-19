@@ -71,6 +71,7 @@ const updateBoardData = (
         : oldBoardData?.lastVisit,
     pinnedOrder: newBoardData.pinnedOrder,
     permissions: newBoardData.permissions || oldBoardData?.permissions,
+    accessories: newBoardData.accessories || oldBoardData?.accessories,
     postingIdentities:
       newBoardData.postingIdentities || oldBoardData?.postingIdentities || [],
     suggestedCategories: descriptions.flatMap(

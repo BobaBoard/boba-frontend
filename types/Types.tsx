@@ -6,12 +6,13 @@ export interface CommentType {
   secretIdentity: {
     name: string;
     avatar: string;
+    accessory?: string;
+    color?: string;
   };
   userIdentity?: {
     name: string;
     avatar: string;
   };
-  accessory?: string;
   content: string;
   created: string;
   isNew: boolean;
@@ -32,12 +33,13 @@ export interface PostType {
   secretIdentity: {
     name: string;
     avatar: string;
+    accessory?: string;
+    color?: string;
   };
   userIdentity?: {
     name: string;
     avatar: string;
   };
-  accessory?: string;
   created: string;
   content: string;
   options: {
@@ -94,6 +96,12 @@ export interface Role {
   avatarUrl: string;
 }
 
+export interface Accessory {
+  id: string;
+  name: string;
+  accessory: string;
+}
+
 export enum PostPermissions {
   editContent = "edit_content",
   editWhisperTags = "edit_whisper_tags",
@@ -124,6 +132,7 @@ export interface BoardData {
   permissions?: Permissions;
   postingIdentities?: Role[];
   suggestedCategories?: string[];
+  accessories?: Accessory[];
 }
 
 export interface PostData {
@@ -135,6 +144,7 @@ export interface PostData {
   categoryTags: string[];
   contentWarnings: string[];
   identityId?: string;
+  accessoryId?: string;
 }
 
 export interface CommentData {
@@ -142,6 +152,7 @@ export interface CommentData {
   forceAnonymous: boolean;
   replyToCommentId: string | null;
   identityId?: string;
+  accessoryId?: string;
 }
 
 export interface CategoryFilterType {

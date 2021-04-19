@@ -15,12 +15,13 @@ export const makeClientComment = (
   secretIdentity: {
     name: serverComment.secret_identity.name,
     avatar: serverComment.secret_identity.avatar,
+    color: serverComment.secret_identity.color,
+    accessory: serverComment.secret_identity.accessory,
   },
   userIdentity: serverComment.user_identity && {
     name: serverComment.user_identity.name || DEFAULT_USER_NAME,
     avatar: serverComment.user_identity.avatar || DEFAULT_USER_AVATAR,
   },
-  accessory: serverComment.accessory_avatar,
   created: serverComment.created,
   content: serverComment.content,
   isNew: serverComment.is_new,
@@ -34,12 +35,13 @@ export const makeClientPost = (serverPost: any): PostType => ({
   secretIdentity: {
     name: serverPost.secret_identity.name,
     avatar: serverPost.secret_identity.avatar,
+    accessory: serverPost.secret_identity.accessory,
+    color: serverPost.secret_identity.color,
   },
   userIdentity: serverPost.user_identity && {
     name: serverPost.user_identity.name || DEFAULT_USER_NAME,
     avatar: serverPost.user_identity.avatar || DEFAULT_USER_AVATAR,
   },
-  accessory: serverPost.accessory_avatar,
   created: serverPost.created,
   content: serverPost.content,
   options: {
@@ -123,6 +125,7 @@ export const makeClientBoardData = (serverBoardData: any): BoardData => {
       : null,
     postingIdentities: serverBoardData.postingIdentities,
     permissions: serverBoardData.permissions,
+    accessories: serverBoardData.accessories,
   };
 };
 
