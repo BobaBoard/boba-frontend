@@ -264,10 +264,14 @@ export const updateCommentCache = (
       ...newComments,
     ],
   };
-  queryClient.setQueryData(["threadData", { threadId }], () => ({
+  const newThreadData = {
     ...threadData,
     posts: newPosts,
-  }));
+  };
+  if (!newThreadData.personalIdentity && newComments[0].isOwn) {
+    newThreadData.personalIdentity = newComments[0].secretIdentity;
+  }
+  queryClient.setQueryData(["threadData", { threadId }], () => newThreadData);
   return true;
 };
 
