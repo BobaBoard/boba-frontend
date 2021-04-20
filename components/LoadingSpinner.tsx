@@ -1,3 +1,4 @@
+import React from "react";
 import classnames from "classnames";
 
 const LoadingSpinner: React.FC<{
@@ -69,17 +70,23 @@ const LoadingSpinner: React.FC<{
           overflow: hidden;
         }
         .bobadab {
-          background-image: url("/bobadab.png");
+          background-image: url("/snoop.png");
           background-size: contain;
+          background-repeat: no-repeat;
+          background-position: center;
           width: 50px;
-          height: 50px;
+          // TODO: revert to 50px;
+          height: 70px;
           position: absolute;
           bottom: 0;
           left: 10px;
         }
         .bobadab.refetching {
-          animation: rotation 2s infinite linear;
-          transform-origin: center;
+          background-image: url("/snoop.gif");
+           {
+            /* animation: rotation 2s infinite linear;
+          transform-origin: center; */
+          }
         }
         @keyframes rotation {
           from {

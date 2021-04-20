@@ -109,6 +109,9 @@ function HomePage(props: { lastUpdate?: any }) {
         </Layout.MainContent>
       </Layout>
       <style jsx>{`
+        .main {
+          --header-background-image: url(/weed4.png);
+        }
         .intro {
           max-width: 600px;
           margin: 0 auto;

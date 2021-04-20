@@ -3,6 +3,7 @@ import {
   SideMenu,
   Layout as InnerLayout,
   SideMenuHandler,
+  CustomCursor,
 } from "@bobaboard/ui-components";
 import LoginModal from "./LoginModal";
 import { dismissAllNotifications } from "../utils/queries";
@@ -260,12 +261,17 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const actionButton = React.Children.toArray(props.children).find((child) =>
     isActionButton(child)
   ) as typeof ActionButton | undefined;
-
+  ``;
   return (
     <div>
       <Head>
         <title>{getTitle(boardData)}</title>
       </Head>
+      <CustomCursor
+        cursorImage={"https://cur.cursors-4u.net/nature/nat-2/nat120.cur"}
+        cursorTrail={"/smoke.gif"}
+        offset={20}
+      />
       {loginOpen && (
         <LoginModal
           isOpen={loginOpen}
