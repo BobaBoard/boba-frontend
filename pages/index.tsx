@@ -22,7 +22,9 @@ function HomePage(props: { lastUpdate?: any }) {
           <div className="content">
             <div className="intro">
               <div className="title">
+                <img src="https://lh3.googleusercontent.com/proxy/KGZYWMbM7w4sGwYoui5Vc6BtjUnog1k0pHQuZdDYgeT8fbxD0pnnPFFGww0gALo7_i8CKKv2dEEhNNAJEqIWRNk5MZgI6aQKFJUBrk4vsfnz" />
                 <h1>Welcome to BobaBoard!</h1>
+                <img src="https://lh3.googleusercontent.com/proxy/KGZYWMbM7w4sGwYoui5Vc6BtjUnog1k0pHQuZdDYgeT8fbxD0pnnPFFGww0gALo7_i8CKKv2dEEhNNAJEqIWRNk5MZgI6aQKFJUBrk4vsfnz" />
               </div>
               <div className="tagline">
                 "Where the bugs are funny and the people are cool" — Outdated
