@@ -68,9 +68,6 @@ const AxiosInterceptor = () => {
       (err) => {
         toast.error(err.message, {
           toastId: err.message,
-          autoClose: false,
-          hideProgressBar: true,
-          closeOnClick: false,
         });
       }
     );

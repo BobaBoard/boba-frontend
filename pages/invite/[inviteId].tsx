@@ -13,6 +13,7 @@ import debug from "debug";
 import { useRouter } from "next/router";
 import classnames from "classnames";
 import { acceptInvite } from "../../utils/queries/user";
+import { PERSONAL_SETTINGS_PATH } from "utils/router-utils";
 
 const log = debug("bobafrontend:index-log");
 
@@ -44,9 +45,13 @@ function InvitesPage() {
   useEffect(() => {
     if (!isUserPending && isLoggedIn) {
       router
-        .push("/users/me?inviteSuccess", "/users/me?inviteSuccess", {
-          shallow: true,
-        })
+        .push(
+          PERSONAL_SETTINGS_PATH + "?inviteSuccess",
+          PERSONAL_SETTINGS_PATH + "?inviteSuccess",
+          {
+            shallow: true,
+          }
+        )
         .then(() => window.scrollTo(0, 0));
     }
   }, [isLoggedIn, isUserPending]);

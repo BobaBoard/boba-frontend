@@ -172,6 +172,14 @@ export interface ThreadCommentInfoType {
   parentChildrenMap: Map<string, CommentType[]>;
 }
 
+export interface SettingsType {
+  decorations: {
+    name: string;
+    value: unknown;
+    type: string;
+  }[];
+}
+
 export const isPost = (object: PostType | CommentType): object is PostType => {
   return (object as PostType).postId !== undefined;
 };

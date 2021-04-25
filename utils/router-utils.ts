@@ -53,7 +53,7 @@ export const BOARD_PATH = "/[boardId]";
 export const THREAD_PATH = "/[boardId]/thread/[...threadId]";
 export const POST_PATH = "/[boardId]/thread/[...threadId]";
 export const FEED_PATH = "/users/feed";
-export const PERSONAL_SETTINGS_PATH = "/users/me";
+export const PERSONAL_SETTINGS_PATH = "/users/settings";
 export const INVITE_PAGE_PATH = "/invite/[inviteId]";
 
 export const usePageDetails = <T extends PageDetails>() => {

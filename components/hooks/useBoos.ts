@@ -102,8 +102,8 @@ const newGhost = (callback: () => void) => {
     }
     const deltaX = getRandomInt(2) % 2 ? 100 : -100;
     const deltaY = getRandomInt(2) % 2 ? 100 : -100;
-    let currentX = ghost.getBoundingClientRect().left;
-    let currentY =
+    const currentX = ghost.getBoundingClientRect().left;
+    const currentY =
       ghost.getBoundingClientRect().top -
       (ghost.offsetParent?.getBoundingClientRect().top || 0);
     let nextX = currentX + deltaX;
@@ -168,7 +168,7 @@ const newGhost = (callback: () => void) => {
   return newGhost;
 };
 
-export default () => {
+const useBoos = () => {
   const ghosts = React.useRef<HTMLElement[]>([]);
   const timeout = React.useRef<NodeJS.Timeout>(null);
   const [active, setActive] = React.useState(false);
@@ -222,3 +222,5 @@ export default () => {
 
   return { styles, setActive };
 };
+
+export default useBoos;

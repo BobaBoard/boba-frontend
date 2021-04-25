@@ -1,3 +1,4 @@
+import { SettingType } from "@bobaboard/ui-components";
 import axios from "axios";
 import debug from "debug";
 import { BoardActivityResponse } from "types/Types";
@@ -58,4 +59,27 @@ export const getUserActivityData = async (
     nextPageCursor: response.data.next_page_cursor || null,
     activity: response.data.activity.map(makeClientThread),
   };
+};
+
+export const getUserSettings = async (): Promise<SettingType> => {
+  const response = await axios.get(`/users/settings`);
+  log(`Got user settings from server:`);
+  log(response.data);
+  return response.data;
+};
+
+export const updateUserSettings = async (
+  name: string,
+  value: unknown
+): Promise<any> => {
+  const response = await axios.post(`/users/settings/update`, {
+    name,
+    value,
+  });
+  if (response.status !== 200) {
+    throw new Error("Error while updating settings.");
+  }
+  log(`Got user settings from server:`);
+  log(response?.data);
+  return response?.data;
 };
