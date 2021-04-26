@@ -7,6 +7,7 @@ import firebase from "firebase/app";
 import debug from "debug";
 import { useAuth } from "components/Auth";
 import { useRouter } from "next/router";
+import { SettingPageIds } from "pages/users/settings/[[...settingId]]";
 
 const log = debug("bobafrontend:settings:UserSettings-log");
 
@@ -53,7 +54,7 @@ const UserSettings = () => {
 
   return (
     <>
-      <h2>You</h2>
+      <h2 id={SettingPageIds.DISPLAY_DATA}>You</h2>
       <div className="description">
         This is how your own posts will appear to yourself. In the future,
         you'll be able to share this identity with your friends.
@@ -115,7 +116,7 @@ const UserSettings = () => {
           accentColor={"#f96680"}
         />
       </div>
-      <h2>BobaDex</h2>
+      <h2 id={SettingPageIds.BOBADEX}>BobaDex</h2>
       <div className="description">
         A random identity is assigned to you on each thread you make (or join!)
         on BobaBoard. Collect them all!
@@ -138,6 +139,7 @@ const UserSettings = () => {
         }
 
         h2 {
+          font-size: var(--font-size-large);
           margin-top: 50px;
         }
 

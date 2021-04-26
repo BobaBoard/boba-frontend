@@ -11,10 +11,12 @@ export const useServerCssVariables = (ref: React.RefObject<HTMLDivElement>) => {
   } = useRealmContext();
   const { pageType } = usePageDetails();
   const previousValues = React.useRef({});
+  const previousPage = React.useRef<PageTypes>();
   React.useEffect(() => {
     if (!ref.current || !previousValues.current) {
       return;
     }
+    const currentPage = pageType;
     const currentRef = ref.current;
     const currentPrevious = previousValues.current;
     let settings: CssVariableSetting[] = [];
@@ -38,12 +40,16 @@ export const useServerCssVariables = (ref: React.RefObject<HTMLDivElement>) => {
     });
     return () => {
       settings.forEach((setting) => {
+        if (currentPage === previousPage.current) {
+          return;
+        }
         const propertyName = `--${setting.name}`;
         currentRef.style.setProperty(
           propertyName,
           currentPrevious![setting.name]
         );
         previousValues.current = {};
+        previousPage.current = currentPage || undefined;
       });
     };
   }, [pageType, boardPageSettings, indexPageSettings, threadPageSettings, ref]);

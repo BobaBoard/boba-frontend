@@ -10,6 +10,7 @@ import { getUserSettings, updateUserSettings } from "utils/queries/user";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { SettingsType } from "types/Types";
 import { useRealmContext } from "contexts/RealmContext";
+import { SettingPageIds } from "pages/users/settings/[[...settingId]]";
 
 const log = debug("bobafrontend:settings:Decorations-log");
 const error = debug("bobafrontend:settings:Decorations-error");
@@ -168,7 +169,7 @@ const Decorations = () => {
 
   return (
     <>
-      <div className="settings-section">
+      <div className="settings-section" id={SettingPageIds.DECORATIONS}>
         <SettingsContainer
           title="Background Settings"
           values={data.backgroundSettings}

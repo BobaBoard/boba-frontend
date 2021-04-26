@@ -8,6 +8,7 @@ import {
   TabsGroup,
   SettingsContainer,
   SettingType,
+  DefaultTheme,
 } from "@bobaboard/ui-components";
 import { v4 as uuidv4 } from "uuid";
 import firebase from "firebase/app";
@@ -18,10 +19,11 @@ import { FeedWithMenu } from "@bobaboard/ui-components";
 import { faHollyBerry, faUser } from "@fortawesome/free-solid-svg-icons";
 import UserSettings from "components/settings/UserSettings";
 import DecorationsSettings from "components/settings/DecorationsSettings";
+import { useCachedLinks } from "components/hooks/useCachedLinks";
 
 const log = debug("bobafrontend:index-log");
 
-enum SettingPageIds {
+export enum SettingPageIds {
   DISPLAY_DATA = "display-data",
   BOBADEX = "bobadex",
   DECORATIONS = "decorations",
@@ -38,19 +40,19 @@ const getComponentForSettingId = (id: SettingPageIds) => {
 };
 
 function UserPage() {
-  // const {
-  //   isPending: isUserPending,
-  //   user,
-  //   isLoggedIn,
-  //   refreshUserData,
-  // } = useAuth();
+  const { isPending: isUserPending, isLoggedIn } = useAuth();
+  const { linkToHome } = useCachedLinks();
+  const [showSidebar, setShowSidebar] = React.useState(false);
+  const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
+  const onCompassClick = React.useCallback(() => setShowSidebar(!showSidebar), [
+    showSidebar,
+  ]);
 
   const router = useRouter();
 
   const link = React.useMemo(
     () => ({
       onClick: (link: string | undefined) => {
-        console.log(router);
         router.push(
           router.route,
           router.pathname.substr(0, router.pathname.indexOf("[[")) + link,
@@ -63,17 +65,35 @@ function UserPage() {
     [router]
   );
 
-  // TODO: redirect upon log out.
-
   const currentSettingId =
     (router.query.settingId?.[0] as SettingPageIds) ||
     SettingPageIds.DISPLAY_DATA;
 
+  React.useEffect(() => {
+    let top = 0;
+    if (currentSettingId && document.getElementById(currentSettingId)) {
+      top =
+        document.getElementById(currentSettingId)!.getBoundingClientRect().top +
+        window.pageYOffset -
+        (DefaultTheme.HEADER_HEIGHT_PX + 15);
+    }
+    window.scroll({
+      top,
+      behavior: "smooth",
+    });
+  }, [currentSettingId]);
+
+  React.useEffect(() => {
+    if (!isUserPending && !isLoggedIn) {
+      linkToHome.onClick();
+    }
+  }, [isLoggedIn, isUserPending, linkToHome]);
+
   return (
     <div className="main">
-      <Layout title={`Settings`}>
+      <Layout title={`Settings`} onCompassClick={onCompassClick}>
         <Layout.MainContent>
-          <FeedWithMenu>
+          <FeedWithMenu showSidebar={showSidebar} onCloseSidebar={closeSidebar}>
             <FeedWithMenu.Sidebar>
               <div className="sidebar-container">
                 <TabsGroup title="User Data" icon={faUser}>
@@ -115,6 +135,7 @@ function UserPage() {
                 </div>
                 <style jsx>{`
                   .page {
+                    font-size: var(--font-size-normal);
                     width: 80%;
                     max-width: 800px;
                     color: white;

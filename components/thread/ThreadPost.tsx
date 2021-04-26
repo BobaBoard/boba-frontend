@@ -74,7 +74,7 @@ export const scrollToPost = (postId: string, color: string | undefined) => {
     top:
       element.getBoundingClientRect().top +
       window.pageYOffset -
-      (DefaultTheme.HEADER_HEIGHT_PX + 2),
+      (DefaultTheme.HEADER_HEIGHT_PX + 20),
     behavior: "smooth",
   });
 };
