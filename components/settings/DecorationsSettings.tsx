@@ -9,6 +9,7 @@ import { useAuth } from "components/Auth";
 import { getUserSettings, updateUserSettings } from "utils/queries/user";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { SettingsType } from "types/Types";
+import { useRealmContext } from "contexts/RealmContext";
 
 const log = debug("bobafrontend:settings:Decorations-log");
 const error = debug("bobafrontend:settings:Decorations-error");
@@ -94,6 +95,7 @@ const dataToSettings = (data: SettingsType): DecorationSettings => {
 const Decorations = () => {
   const queryClient = useQueryClient();
   const { isLoggedIn } = useAuth();
+  const { name: realmId } = useRealmContext();
   const { data } = useQuery<SettingsType, unknown, DecorationSettings>(
     [SETTINGS_QUERY_KEY],
     // @ts-expect-error
@@ -149,10 +151,13 @@ const Decorations = () => {
         queryClient.setQueryData(SETTINGS_QUERY_KEY, context?.previousSettings);
       },
       onSuccess: () => {
-        toast.success("Setting saved.");
+        toast.success("Setting saved.", {
+          autoClose: 1000,
+        });
       },
       onSettled: () => {
         queryClient.invalidateQueries(SETTINGS_QUERY_KEY);
+        queryClient.invalidateQueries(["realmData", { isLoggedIn, realmId }]);
       },
     }
   );

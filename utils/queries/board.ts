@@ -75,6 +75,7 @@ export const getBoardData = async ({ slug }: { slug: string | null }) => {
 export const getAllBoardsData = async (): Promise<BoardData[]> => {
   log(`Fetching all boards data.`);
   const response = await axios.get(`boards`);
+  console.log(response.data);
   log(`Got response for all boards data.`);
   info(response.data);
 

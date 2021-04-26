@@ -255,7 +255,6 @@ function BoardPage() {
         .main {
           width: 100%;
           box-sizing: border-box;
-          --feed-background-image: url(/weed4.png);
         }
         .post.hidden {
           max-width: 500px;

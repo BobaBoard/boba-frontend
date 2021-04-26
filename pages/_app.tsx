@@ -8,6 +8,7 @@ import axios from "axios";
 import Head from "next/head";
 import { AuthProvider, useAuth } from "../components/Auth";
 import { BoardContextProvider } from "../components/BoardContext";
+import { RealmContextProvider } from "../contexts/RealmContext";
 import useFromBackButton from "../components/hooks/useFromBackButton";
 import { useScrollRestoration } from "../components/hooks/useScrollRestoration";
 import type { AppProps } from "next/app";
@@ -47,6 +48,7 @@ if (typeof window !== "undefined") {
 axios.defaults.baseURL = getServerBaseUrl();
 // We make the axios interceptor be a component so we can have auth
 // provided within.
+// TODO: make this into a hook.
 const AxiosInterceptor = () => {
   const { getAuthIdToken } = useAuth();
   React.useEffect(() => {
@@ -56,15 +58,26 @@ const AxiosInterceptor = () => {
         logRequest(
           `Sending request for ${config.url} ${
             idToken ? "WITH" : "WITHOUT"
-          } id token.`
+          } id token ${idToken ? `(${idToken.substr(0, 5)}...)` : ""}.`
         );
         log(idToken);
+        console.log("***********");
+        console.log("***********");
+        console.log("***********");
+        console.log("***********");
+        console.log("***********");
+        console.log("***********");
         config.headers.authorization = idToken;
         return config;
       });
     });
     axios.interceptors.response.use(
-      (res) => res,
+      (res) => {
+        console.log("...got response!");
+        console.log(res.config.headers.authorization);
+        console.log(res.config.url);
+        return res;
+      },
       (err) => {
         toast.error(err.message, {
           toastId: err.message,
@@ -219,17 +232,19 @@ function MyApp({
               <AuthProvider>
                 <AxiosInterceptor />
                 <ToastContainer />
-                <BoardContextProvider
-                  initialData={boardData}
-                  slug={props.slug || null}
-                >
-                  {React.useMemo(
-                    () => (
-                      <Component lastUpdate={props.lastUpdate} />
-                    ),
-                    [Component, props.lastUpdate]
-                  )}
-                </BoardContextProvider>
+                <RealmContextProvider initialData={props.realmData}>
+                  <BoardContextProvider
+                    initialData={boardData}
+                    slug={props.slug || null}
+                  >
+                    {React.useMemo(
+                      () => (
+                        <Component lastUpdate={props.lastUpdate} />
+                      ),
+                      [Component, props.lastUpdate]
+                    )}
+                  </BoardContextProvider>
+                </RealmContextProvider>
               </AuthProvider>
             </ImageUploaderContext.Provider>
           </EditorContext.Provider>
@@ -242,10 +257,12 @@ function MyApp({
 export default MyApp;
 
 MyApp.getInitialProps = async ({ ctx }: { ctx: NextPageContext }) => {
-  const body = await axios.get(`${getServerBaseUrl(ctx)}boards`);
+  const boardsBody = await axios.get(`${getServerBaseUrl(ctx)}boards`);
+  const realmBody = await axios.get(`${getServerBaseUrl(ctx)}realms/v0`);
   const lastUpdate = await getLastUpdate(ctx);
 
-  const boardData = await body.data;
+  const boardData = await boardsBody.data;
+  const realmData = await realmBody.data;
 
   if (!isAllowedSandboxLocation(ctx)) {
     // We should use 302 redirect here rather than 301 because
@@ -264,6 +281,7 @@ MyApp.getInitialProps = async ({ ctx }: { ctx: NextPageContext }) => {
   return {
     props: {
       boardData,
+      realmData,
       slug: ctx.query.boardId?.slice(1),
       lastUpdate: lastUpdate,
       currentPath: ctx.asPath,

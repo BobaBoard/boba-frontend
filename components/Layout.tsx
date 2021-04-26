@@ -13,6 +13,7 @@ import { useMutation, useQueryClient } from "react-query";
 import { useBoardsContext } from "./BoardContext";
 import { processBoardsUpdates } from "../utils/boards-utils";
 import { useCachedLinks } from "./hooks/useCachedLinks";
+import { useServerCssVariables } from "./hooks/useServerCssVariables";
 import { useForceHideIdentity } from "./hooks/useForceHideIdentity";
 import debug from "debug";
 import {
@@ -31,6 +32,7 @@ import {
 import Head from "next/head";
 import { getTitle } from "pages/_app";
 import { PageTypes, usePageDetails } from "utils/router-utils";
+import { useRealmContext } from "contexts/RealmContext";
 
 const log = debug("bobafrontend:Layout-log");
 const error = debug("bobafrontend:Layout-error");
@@ -190,6 +192,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const sideMenuRef = React.useRef<SideMenuHandler>(null);
   const { slug, threadId, pageType } = usePageDetails();
   const titleLink = useTitleLink();
+  const { rootSettings } = useRealmContext();
   const { boardsData, refetch, hasLoggedInData } = useBoardsContext();
   const [boardFilter, setBoardFilter] = React.useState("");
   const queryClient = useQueryClient();
@@ -254,6 +257,9 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
     [boardFilter, boardsData, isLoggedIn, getLinkToBoard, onBoardChange]
   );
 
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  useServerCssVariables(containerRef);
+
   const boardData = slug ? boardsData[slug] : null;
   const mainContent = React.Children.toArray(props.children).find((child) =>
     isMainContent(child)
@@ -263,13 +269,13 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   ) as typeof ActionButton | undefined;
   ``;
   return (
-    <div>
+    <div ref={containerRef}>
       <Head>
         <title>{getTitle(boardData)}</title>
       </Head>
       <CustomCursor
-        cursorImage={"https://cur.cursors-4u.net/nature/nat-2/nat120.cur"}
-        cursorTrail={"/smoke.gif"}
+        cursorImage={rootSettings.cursor?.image}
+        cursorTrail={rootSettings.cursor?.trail}
         offset={20}
       />
       {loginOpen && (

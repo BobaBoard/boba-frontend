@@ -225,9 +225,6 @@ function ThreadPage() {
       </Layout>
       <style jsx>
         {`
-          .main {
-            --sidebar-background-image: url(/weed4.png);
-          }
           .feed {
             width: 100%;
             max-width: 100%;

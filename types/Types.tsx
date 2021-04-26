@@ -189,3 +189,9 @@ export const isComment = (
 ): object is CommentType => {
   return (object as CommentType).commentId !== undefined;
 };
+
+export interface CssVariableSetting {
+  name: string;
+  type: "CssVariable";
+  value: string;
+}

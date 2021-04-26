@@ -40,11 +40,16 @@ class MyDocument extends Document {
             src="//platform.twitter.com/widgets.js"
           ></script>
           <style>{`
+            html {
+              font-size: 62.5%;
+              --font-size-regular: 1.6rem;
+              --font-size-small: 1.3rem;
+              --font-size-large: 1.8rem;
+            }
             body {
               font-family: Inter, sans-serif;
               background-color: rgb(47, 47, 48);
             }
-
             * {
               scrollbar-width: thin;
               scrollbar-color: #2f2f30 #1c1c1c;
