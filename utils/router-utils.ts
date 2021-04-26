@@ -155,6 +155,7 @@ export const createLinkTo = ({
     onClick: () => {
       Router.push(urlPattern || url, url, {
         shallow: true,
+        // @ts-expect-error
         query: queryParams,
       }).then(() => {
         window.scrollTo(0, 0);

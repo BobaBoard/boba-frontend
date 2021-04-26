@@ -23,7 +23,7 @@ interface RealmData {
 
 import debug from "debug";
 import { getRealmData } from "../utils/queries/realm";
-const log = debug("bobafrontend:contexts:RealmContext-log");
+//const log = debug("bobafrontend:contexts:RealmContext-log");
 const info = debug("bobafrontend:contexts:RealmContext-info");
 
 const RealmContext = React.createContext<RealmData | undefined>(undefined);

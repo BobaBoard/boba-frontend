@@ -1,27 +1,16 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Layout from "components/Layout";
-import { updateUserData, getBobadex } from "utils/queries/user";
-import { useQuery, useMutation } from "react-query";
-import {
-  UserDetails,
-  BobaDex,
-  TabsGroup,
-  SettingsContainer,
-  SettingType,
-  DefaultTheme,
-} from "@bobaboard/ui-components";
-import { v4 as uuidv4 } from "uuid";
-import firebase from "firebase/app";
-import debug from "debug";
+import { TabsGroup, DefaultTheme } from "@bobaboard/ui-components";
 import { useAuth } from "components/Auth";
-import { Router, useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { FeedWithMenu } from "@bobaboard/ui-components";
 import { faHollyBerry, faUser } from "@fortawesome/free-solid-svg-icons";
 import UserSettings from "components/settings/UserSettings";
 import DecorationsSettings from "components/settings/DecorationsSettings";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 
-const log = debug("bobafrontend:index-log");
+//import debug from "debug";
+//const log = debug("bobafrontend:index-log");
 
 export enum SettingPageIds {
   DISPLAY_DATA = "display-data",

@@ -12,7 +12,7 @@ import { SettingsType } from "types/Types";
 import { useRealmContext } from "contexts/RealmContext";
 import { SettingPageIds } from "pages/users/settings/[[...settingId]]";
 
-const log = debug("bobafrontend:settings:Decorations-log");
+//const log = debug("bobafrontend:settings:Decorations-log");
 const error = debug("bobafrontend:settings:Decorations-error");
 
 enum BackgroundSettings {
