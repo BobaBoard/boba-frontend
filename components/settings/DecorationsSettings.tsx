@@ -16,9 +16,9 @@ const log = debug("bobafrontend:settings:Decorations-log");
 const error = debug("bobafrontend:settings:Decorations-error");
 
 enum BackgroundSettings {
-  FESTIVE_HEADER_BACKGROUND = "FESTIVE_HEADER_BACKGROUND",
-  FESTIVE_BOARD_BACKGROUND = "FESTIVE_BOARD_BACKGROUND",
-  FESTIVE_THREAD_BACKGROUND = "FESTIVE_THREAD_BACKGROUND",
+  FESTIVE_HEADER_BACKGROUND = "FESTIVE_BACKGROUND_HEADER",
+  FESTIVE_FEED_BACKGROUND = "FESTIVE_BACKGROUND_FEED",
+  FESTIVE_SIDEBAR_BACKGROUND = "FESTIVE_BACKGROUND_SIDEBAR",
 }
 
 enum CursorSettings {
@@ -45,38 +45,38 @@ const dataToSettings = (data: SettingsType): DecorationSettings => {
           (decorations.find(
             (setting) =>
               setting.name == BackgroundSettings.FESTIVE_HEADER_BACKGROUND
-          )?.value as boolean) || false,
+          )?.value as boolean) ?? true,
       },
       {
         type: "checkbox",
-        name: BackgroundSettings.FESTIVE_BOARD_BACKGROUND,
-        label: "Festive board background",
+        name: BackgroundSettings.FESTIVE_FEED_BACKGROUND,
+        label: "Festive feed background",
         currentValue:
           (decorations.find(
             (setting) =>
-              setting.name == BackgroundSettings.FESTIVE_BOARD_BACKGROUND
-          )?.value as boolean) || false,
+              setting.name == BackgroundSettings.FESTIVE_FEED_BACKGROUND
+          )?.value as boolean) ?? true,
       },
       {
         type: "checkbox",
-        name: BackgroundSettings.FESTIVE_THREAD_BACKGROUND,
-        label: "Festive thread background",
+        name: BackgroundSettings.FESTIVE_SIDEBAR_BACKGROUND,
+        label: "Festive sidebar background",
         currentValue:
           (decorations.find(
             (setting) =>
-              setting.name == BackgroundSettings.FESTIVE_THREAD_BACKGROUND
-          )?.value as boolean) || false,
+              setting.name == BackgroundSettings.FESTIVE_SIDEBAR_BACKGROUND
+          )?.value as boolean) ?? true,
       },
     ],
     cursorSettings: [
       {
         type: "checkbox",
         name: CursorSettings.FESTIVE_CURSOR,
-        label: "Festive Cursor",
+        label: "Festive cursor",
         currentValue:
           (decorations.find(
             (setting) => setting.name == CursorSettings.FESTIVE_CURSOR
-          )?.value as boolean) || false,
+          )?.value as boolean) ?? true,
       },
 
       {
@@ -86,8 +86,7 @@ const dataToSettings = (data: SettingsType): DecorationSettings => {
         currentValue:
           (decorations.find(
             (setting) => setting.name == CursorSettings.FESTIVE_CURSOR_TRAIL
-          )?.value as boolean) || false,
-        helperText: "Whether to show the trail following a custom cursor.",
+          )?.value as boolean) ?? true,
       },
     ],
   };
