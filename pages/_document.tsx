@@ -49,6 +49,7 @@ class MyDocument extends Document {
             body {
               font-family: Inter, sans-serif;
               background-color: rgb(47, 47, 48);
+              font-size: 1.6rem;
             }
             * {
               scrollbar-width: thin;
