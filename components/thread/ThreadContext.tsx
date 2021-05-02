@@ -51,6 +51,8 @@ export interface ThreadContextType {
   };
   parentBoardSlug: string | null;
   threadId: string | null;
+  muted: boolean | undefined;
+  hidden: boolean | undefined;
 }
 
 const ThreadContext = React.createContext<ThreadContextType | null>(null);
@@ -231,6 +233,8 @@ export const useThreadWithNull = ({
     newRepliesCount: newRepliesSequence.length,
     parentBoardSlug: threadData?.boardSlug || null,
     threadId: threadId,
+    muted: threadData?.muted,
+    hidden: threadData?.hidden,
   };
 };
 

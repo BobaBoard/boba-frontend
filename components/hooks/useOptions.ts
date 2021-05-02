@@ -66,7 +66,7 @@ const getEditTagsOption = (callback: () => void) => ({
 
 const getMarkReadOption = (callback: () => void) => ({
   icon: faBookOpen,
-  name: "Mark Read",
+  name: "Mark read",
   link: {
     onClick: callback,
   },
@@ -77,7 +77,7 @@ const getMuteThreadOption = (
   callback: (muted: boolean) => void
 ) => ({
   icon: muted ? faVolumeUp : faVolumeMute,
-  name: muted ? "Unmute" : "Mute",
+  name: muted ? "Unmute thread" : "Mute thread",
   link: {
     onClick: () => callback(!muted),
   },
@@ -88,7 +88,7 @@ const getHideThreadOption = (
   callback: (hidden: boolean) => void
 ) => ({
   icon: hidden ? faEye : faEyeSlash,
-  name: hidden ? "Unhide" : "Hide",
+  name: hidden ? "Unhide thread" : "Hide thread",
   link: {
     onClick: () => callback(!hidden),
   },

@@ -80,6 +80,24 @@ const updateThreadInQueries = (
   });
 };
 
+const updateThreadInCache = (
+  queryClient: QueryClient,
+  threadId: string,
+  updateThread: (thread: ThreadType) => void
+) => {
+  const threadData = queryClient.getQueryData<ThreadType>([
+    "threadData",
+    { threadId },
+  ]);
+  if (threadData) {
+    const newThreadData = {
+      ...threadData,
+    };
+    updateThread(newThreadData);
+    queryClient.setQueryData(["threadData", { threadId }], newThreadData);
+  }
+};
+
 const removeThreadActivityInQueries = (queries: Query[], threadId: string) => {
   updateThreadInQueries(queries, threadId, (thread) => {
     thread.posts[0].isNew = false;
@@ -125,6 +143,8 @@ export const setThreadMutedInCache = (
   queries.map((query) =>
     queryClient.setQueryData(query.queryKey, () => query.state.data)
   );
+
+  updateThreadInCache(queryClient, threadId, (thread) => (thread.muted = mute));
 };
 
 export const setBoardMutedInCache = (
@@ -191,9 +211,14 @@ export const setThreadHiddenInCache = (
 ) => {
   const queries = getActivityQueries(queryClient, { slug });
   updateThreadInQueries(queries, threadId, (thread) => (thread.hidden = hide));
-
   queries.map((query) =>
     queryClient.setQueryData(query.queryKey, () => query.state.data)
+  );
+
+  updateThreadInCache(
+    queryClient,
+    threadId,
+    (thread) => (thread.hidden = hide)
   );
 };
 

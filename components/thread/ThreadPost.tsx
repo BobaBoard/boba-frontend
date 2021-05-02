@@ -43,6 +43,8 @@ const REGULAR_POST_OPTIONS = [
   PostOptions.COPY_LINK,
   PostOptions.COPY_THREAD_LINK,
   PostOptions.EDIT_TAGS,
+  PostOptions.MUTE,
+  PostOptions.HIDE,
 ];
 const TOP_POST_OPTIONS = [
   ...REGULAR_POST_OPTIONS.filter((option) => option != PostOptions.COPY_LINK),
@@ -123,6 +125,8 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
     parentChildrenMap,
     chronologicalPostsSequence,
     threadRoot,
+    muted,
+    hidden,
   } = useThreadContext();
 
   const tagOptions = React.useCallback(
@@ -155,6 +159,8 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
       postId: post.postId,
       own: post.isOwn,
       currentView: defaultView!,
+      muted,
+      hidden,
     },
   });
   const directLink = cachedLinks.getLinkToPost({

@@ -61,21 +61,12 @@ const AxiosInterceptor = () => {
           } id token ${idToken ? `(${idToken.substr(0, 5)}...)` : ""}.`
         );
         log(idToken);
-        console.log("***********");
-        console.log("***********");
-        console.log("***********");
-        console.log("***********");
-        console.log("***********");
-        console.log("***********");
         config.headers.authorization = idToken;
         return config;
       });
     });
     axios.interceptors.response.use(
       (res) => {
-        console.log("...got response!");
-        console.log(res.config.headers.authorization);
-        console.log(res.config.url);
         return res;
       },
       (err) => {
