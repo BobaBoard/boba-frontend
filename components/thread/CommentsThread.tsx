@@ -124,7 +124,7 @@ const ThreadComment: React.FC<{
       userIdentity={rootComment.userIdentity}
       createdTime={moment.utc(rootComment.created).fromNow()}
       comments={chainInfo}
-      muted={isLoggedIn && !rootComment.isNew}
+      new={isLoggedIn && rootComment.isNew}
       onExtraAction={isLoggedIn ? replyToLast : undefined}
       options={options}
       forceHideIdentity={forceHideIdentity}
