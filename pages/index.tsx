@@ -22,9 +22,7 @@ function HomePage(props: { lastUpdate?: any }) {
           <div className="content">
             <div className="intro">
               <div className="title">
-                <img src="/weed.gif" />
                 <h1>Welcome to BobaBoard!</h1>
-                <img src="/weed.gif" />
               </div>
               <div className="tagline">
                 "Where the bugs are funny and the people are cool" — Outdated
@@ -111,9 +109,6 @@ function HomePage(props: { lastUpdate?: any }) {
         </Layout.MainContent>
       </Layout>
       <style jsx>{`
-        .main {
-          --header-background-image: url(/weed4.png);
-        }
         .intro {
           max-width: 600px;
           margin: 0 auto;
