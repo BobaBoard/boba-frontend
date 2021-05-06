@@ -18,11 +18,11 @@ interface LinkWithNotNullAction {
 
 const BOARDS_CACHE = new Map<
   string,
-  Map<(() => void) | undefined, LinkWithNotNullAction>
+  Map<((slug: string) => void) | undefined, LinkWithNotNullAction>
 >();
 const getLinkToBoard = (
   slug: string,
-  onLoad?: () => void
+  onLoad?: (slug: string) => void
 ): LinkWithNotNullAction => {
   const memoized = BOARDS_CACHE.get(slug)?.get(onLoad);
   if (memoized) {
@@ -38,7 +38,7 @@ const getLinkToBoard = (
     createLinkTo({
       urlPattern: BOARD_PATH,
       url: `/!${slug.replace(" ", "_")}`,
-      onLoad,
+      onLoad: onLoad ? () => onLoad(slug) : undefined,
     })
   );
   return slugCache.get(onLoad) as LinkWithNotNullAction;

@@ -211,10 +211,17 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
       },
     }
   );
-  const onBoardChange = React.useCallback(() => {
-    layoutRef.current?.closeSideMenu();
-    refetch();
-  }, [refetch]);
+  const onBoardChange = React.useCallback(
+    (nextSlug) => {
+      layoutRef.current?.closeSideMenu();
+      if (nextSlug == slug) {
+        log("Detected switch to same board. Refetching activity data.");
+        queryClient.refetchQueries(["boardActivityData", { slug: nextSlug }]);
+      }
+      refetch();
+    },
+    [refetch, queryClient, slug]
+  );
   const isChangingRoute = useChangingRoute();
   const { forceHideIdentity } = useForceHideIdentity();
   const loggedInMenuOptions = useLoggedInDropdownOptions(
