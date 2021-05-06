@@ -88,7 +88,9 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
         userIdentity={userIdentity}
         additionalIdentities={additionalIdentities}
         loading={isCommentLoading}
-        accessories={secretIdentity ? undefined : accessories}
+        accessories={
+          secretIdentity || !accessories?.length ? undefined : accessories
+        }
         onSubmit={async ({ texts, identityId, accessoryId }) => {
           setCommentLoading(true);
           const uploadedTexts = await texts;

@@ -153,7 +153,9 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
       secretIdentity={secretIdentity}
       userIdentity={userIdentity}
       additionalIdentities={additionalIdentities}
-      accessories={secretIdentity ? undefined : accessories}
+      accessories={
+        secretIdentity || !accessories?.length ? undefined : accessories
+      }
       viewOptions={isNewThread(state) ? THREAD_VIEW_OPTIONS : undefined}
       loading={isPostLoading}
       suggestedCategories={suggestedCategories || []}
