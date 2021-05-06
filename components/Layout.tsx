@@ -162,7 +162,14 @@ function useTitleLink() {
     linkToPersonalSettings,
     getLinkToBoard,
   } = useCachedLinks();
+  const queryClient = useQueryClient();
   const { slug, pageType } = usePageDetails();
+  const onBoardChange = React.useCallback(
+    (slug) => {
+      queryClient.refetchQueries(["boardActivityData", { slug }]);
+    },
+    [queryClient]
+  );
   switch (pageType) {
     case PageTypes.THREAD:
     case PageTypes.POST:
@@ -171,7 +178,7 @@ function useTitleLink() {
         error("Attempted to get link to board on page with no slug.");
         return linkToCurrent;
       }
-      return getLinkToBoard(slug);
+      return getLinkToBoard(slug, onBoardChange);
     case PageTypes.SETTINGS:
       return linkToPersonalSettings;
     case PageTypes.INVITE:
