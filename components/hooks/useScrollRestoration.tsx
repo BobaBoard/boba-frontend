@@ -2,7 +2,10 @@ import React from "react";
 import { NextRouter } from "next/router";
 
 let toRestore: { x: number; y: number } | null = null;
-const saveScrollPosition = () => {
+const saveScrollPosition = (nextRoute: string) => {
+  if (window.history.state.as === nextRoute) {
+    return;
+  }
   if (window.history.state["cachedScrollPosition"]) {
     return;
   }
