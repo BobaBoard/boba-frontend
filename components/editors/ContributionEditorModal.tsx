@@ -146,67 +146,75 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
   }
 
   return (
-    <PostEditor
-      ref={editorRef}
-      initialText={editingContribution?.content}
-      initialTags={editingContribution?.tags}
-      secretIdentity={secretIdentity}
-      userIdentity={userIdentity}
-      additionalIdentities={additionalIdentities}
-      accessories={
-        secretIdentity || !accessories?.length ? undefined : accessories
-      }
-      viewOptions={isNewThread(state) ? THREAD_VIEW_OPTIONS : undefined}
-      loading={isPostLoading}
-      suggestedCategories={suggestedCategories || []}
-      editableSections={
-        isEditContribution(state)
-          ? {
-              tags: true,
-            }
-          : undefined
-      }
-      onSubmit={(textPromise) => {
-        setPostLoading(true);
-        textPromise.then(
-          ({
-            text,
-            tags,
-            identityId,
-            accessoryId,
-            viewOptionName,
-            boardSlug: postedBoardSlug,
-          }) => {
-            const processedTags = processTags(tags);
+    <div className="editor">
+      <PostEditor
+        ref={editorRef}
+        initialText={editingContribution?.content}
+        initialTags={editingContribution?.tags}
+        secretIdentity={secretIdentity}
+        userIdentity={userIdentity}
+        additionalIdentities={additionalIdentities}
+        accessories={
+          secretIdentity || !accessories?.length ? undefined : accessories
+        }
+        viewOptions={isNewThread(state) ? THREAD_VIEW_OPTIONS : undefined}
+        loading={isPostLoading}
+        suggestedCategories={suggestedCategories || []}
+        editableSections={
+          isEditContribution(state)
+            ? {
+                tags: true,
+              }
+            : undefined
+        }
+        onSubmit={(textPromise) => {
+          setPostLoading(true);
+          textPromise.then(
+            ({
+              text,
+              tags,
+              identityId,
+              accessoryId,
+              viewOptionName,
+              boardSlug: postedBoardSlug,
+            }) => {
+              const processedTags = processTags(tags);
 
-            if (isEditContribution(state)) {
-              editContribution({
-                postId: editingContribution!.postId,
-                tags: processedTags,
+              if (isEditContribution(state)) {
+                editContribution({
+                  postId: editingContribution!.postId,
+                  tags: processedTags,
+                });
+                return;
+              }
+              log(identityId);
+              postContribution({
+                slug: postedBoardSlug ? postedBoardSlug : state.boardSlug,
+                replyToPostId: parentContribution?.postId || null,
+                postData: {
+                  content: text,
+                  forceAnonymous: false,
+                  defaultView: getViewIdFromName(viewOptionName),
+                  identityId,
+                  accessoryId,
+                  ...processedTags,
+                },
               });
-              return;
             }
-            log(identityId);
-            postContribution({
-              slug: postedBoardSlug ? postedBoardSlug : state.boardSlug,
-              replyToPostId: parentContribution?.postId || null,
-              postData: {
-                content: text,
-                forceAnonymous: false,
-                defaultView: getViewIdFromName(viewOptionName),
-                identityId,
-                accessoryId,
-                ...processedTags,
-              },
-            });
-          }
-        );
-      }}
-      onCancel={props.onCancel}
-      centered
-      initialBoard={state.boardSlug}
-      availableBoards={isNewThread(state) ? allBoards : undefined}
-    />
+          );
+        }}
+        onCancel={props.onCancel}
+        initialBoard={state.boardSlug}
+        availableBoards={isNewThread(state) ? allBoards : undefined}
+      />
+      <style jsx>{`
+        .editor {
+          display: flex;
+          justify-content: center;
+          padding: 15px;
+        }
+      `}</style>
+    </div>
   );
 };
 

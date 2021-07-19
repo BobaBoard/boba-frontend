@@ -115,10 +115,24 @@ export const createPost = async (
   replyToPostId: string,
   postData: PostData
 ): Promise<PostType> => {
-  const response = await axios.post(
-    `/posts/${replyToPostId}/contribute`,
-    postData
-  );
+  const {
+    whisperTags,
+    categoryTags,
+    indexTags,
+    contentWarnings,
+    identityId,
+    accessoryId,
+    ...otherData
+  } = postData;
+  const response = await axios.post(`/posts/${replyToPostId}/contribute`, {
+    ...otherData,
+    whisper_tags: whisperTags,
+    category_tags: categoryTags,
+    index_tags: indexTags,
+    content_warnings: contentWarnings,
+    identity_id: identityId,
+    accessory_id: accessoryId,
+  });
   const post = makeClientPost(response.data.contribution);
   log(`Received post from server:`);
   log(post);
