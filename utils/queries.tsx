@@ -139,23 +139,6 @@ export const createPost = async (
   return post;
 };
 
-export const createComment = async ({
-  replyToPostId,
-  commentData,
-}: {
-  replyToPostId: string | null;
-  commentData: CommentData;
-}): Promise<CommentType> => {
-  const response = await axios.post(
-    `/posts/${replyToPostId}/comment`,
-    commentData
-  );
-  const comment = makeClientComment(response.data.comment, replyToPostId!);
-  log(`Received comment from server:`);
-  log(comment);
-  return comment;
-};
-
 export const createCommentChain = async ({
   replyToPostId,
   commentData,
@@ -163,11 +146,12 @@ export const createCommentChain = async ({
   replyToPostId: string | null;
   commentData: CommentData[];
 }): Promise<CommentType[]> => {
-  const response = await axios.post(`/posts/${replyToPostId}/comment/chain`, {
-    contentArray: commentData.map((comment) => comment.content),
+  const response = await axios.post(`/posts/${replyToPostId}/comment`, {
+    contents: commentData.map((comment) => comment.content),
     forceAnonymous: commentData.some((data) => data.forceAnonymous),
-    replyToCommentId: commentData[0].replyToCommentId,
-    identityId: commentData[0].identityId,
+    reply_to_comment_id: commentData[0].replyToCommentId,
+    identity_id: commentData[0].identityId,
+    accessory_id: commentData[0].accessoryId,
   });
   const comments = response.data.comments.map((comment: any) =>
     makeClientComment(comment, replyToPostId!)
