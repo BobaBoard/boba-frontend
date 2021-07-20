@@ -124,7 +124,7 @@ export const createPost = async (
     accessoryId,
     ...otherData
   } = postData;
-  const response = await axios.post(`/posts/${replyToPostId}/contribute`, {
+  const response = await axios.post(`/posts/${replyToPostId}/contribution`, {
     ...otherData,
     whisper_tags: whisperTags,
     category_tags: categoryTags,
