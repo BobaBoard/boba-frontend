@@ -1,4 +1,10 @@
-import { PostType, CommentType, ThreadType, BoardData } from "../types/Types";
+import {
+  PostType,
+  CommentType,
+  ThreadType,
+  BoardData,
+  BoardSummary,
+} from "../types/Types";
 
 import { DEFAULT_USER_NAME, DEFAULT_USER_AVATAR } from "../components/Auth";
 import { NextPageContext } from "next/dist/next-server/lib/utils";
@@ -111,6 +117,35 @@ export const makeClientBoardData = (serverBoardData: any): BoardData => {
     loggedInOnly: serverBoardData.loggedInOnly,
     delisted: serverBoardData.delisted,
     lastUpdate: lastUpdate ? lastUpdate.toDate() : undefined,
+    lastUpdateFromOthers: serverBoardData.last_activity_from_others
+      ? moment.utc(serverBoardData.last_activity_from_others).toDate()
+      : undefined,
+    lastVisit: serverBoardData.last_visit
+      ? moment.utc(serverBoardData.last_visit).toDate()
+      : undefined,
+    descriptions: serverBoardData.descriptions || [],
+    hasUpdates: serverBoardData.has_updates,
+    muted: serverBoardData.muted,
+    pinnedOrder: serverBoardData.pinned_order
+      ? parseInt(serverBoardData.pinned_order)
+      : null,
+    postingIdentities: serverBoardData.postingIdentities,
+    permissions: serverBoardData.permissions,
+    accessories: serverBoardData.accessories,
+  };
+};
+
+export const makeClientBoardSummary = (serverBoardData: any): BoardSummary => {
+  return {
+    slug: serverBoardData.slug,
+    tagline: serverBoardData.tagline,
+    avatarUrl: serverBoardData.avatar_url,
+    accentColor: serverBoardData.accent_color,
+    loggedInOnly: serverBoardData.logged_in_only,
+    delisted: serverBoardData.delisted,
+    lastActivityAt: serverBoardData.last_activity_at
+      ? moment.utc(serverBoardData.last_activity_at).toDate()
+      : null,
     lastUpdateFromOthers: serverBoardData.last_activity_from_others
       ? moment.utc(serverBoardData.last_activity_from_others).toDate()
       : undefined,

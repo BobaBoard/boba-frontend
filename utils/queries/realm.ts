@@ -1,6 +1,7 @@
 import axios from "axios";
 import { RealmType } from "types/Types";
 import { URL } from "url";
+import { makeClientBoardSummary } from "utils/server-utils";
 
 export const getRealmData = async ({
   realmId,
@@ -14,7 +15,6 @@ export const getRealmData = async ({
     url = new URL(baseUrl);
     url.pathname = `/realms/slug/${realmId}`;
   }
-  console.log(url?.toString());
   const response = await axios.get(
     url ? url.toString() : `/realms/slug/${realmId}`
   );
@@ -28,5 +28,6 @@ export const getRealmData = async ({
       boardPage: data.settings.board_page,
       threadPage: data.settings.thread_page,
     },
+    boards: data.boards.map(makeClientBoardSummary),
   };
 };

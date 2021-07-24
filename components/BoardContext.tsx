@@ -1,11 +1,15 @@
 import React from "react";
 import { useQuery } from "react-query";
 import { getBoardData, getAllBoardsData } from "../utils/queries/board";
-import { BoardData } from "../types/Types";
+import { BoardData, BoardSummary } from "../types/Types";
 import noop from "noop-ts";
 import { useAuth } from "./Auth";
 
 import debug from "debug";
+import {
+  useRealmBoards,
+  useRealmContextUpdatedAt,
+} from "contexts/RealmContext";
 const log = debug("bobafrontend:BoardContext-log");
 const info = debug("bobafrontend:BoardContext-info");
 
@@ -80,6 +84,39 @@ const updateBoardData = (
   };
 };
 
+const mergeBoardsSummary = (
+  currentData: BoardsDataMap,
+  newData: BoardSummary[]
+) => {
+  const result = newData.reduce((current, value) => {
+    current[value.slug] = {
+      slug: value.slug,
+      avatarUrl: value.avatarUrl,
+      tagline: value.tagline,
+      accentColor: value.accentColor,
+      loggedInOnly: value.loggedInOnly,
+      delisted: value.delisted,
+      lastUpdate: value.lastActivityAt || undefined,
+      muted: false,
+      pinnedOrder: null,
+      descriptions: [],
+    };
+    return current;
+  }, {} as { [key: string]: BoardData });
+  Object.entries(result).forEach(([slug, data]) => {
+    result[slug] = updateBoardData(data, currentData[slug]);
+  });
+  // If there's data that was in the old data but it's not in the new we keep it.
+  // At some point, when boards can be deleted or added, we'll need to revisit this.
+  // TODO: revisit this.
+  Object.entries(currentData).forEach(([slug, data]) => {
+    if (!result[slug]) {
+      result[slug] = { ...data };
+    }
+  });
+  return result;
+};
+
 const mergeBoardsDataMaps = (
   currentData: BoardsDataMap,
   newData: BoardsDataMap | null | undefined
@@ -104,14 +141,18 @@ const mergeBoardsDataMaps = (
 
 const mergeBoardsData = (
   currentData: BoardsDataMap,
-  toMerge: (BoardsDataMap | null | undefined)[]
+  toMerge: (BoardsDataMap | BoardSummary[] | null | undefined)[]
 ) => {
   if (!toMerge.length) {
     return currentData;
   }
   let result = currentData;
   toMerge.forEach((merge) => {
-    result = mergeBoardsDataMaps(result, merge);
+    if (Array.isArray(merge)) {
+      result = mergeBoardsSummary(result, merge);
+    } else {
+      result = mergeBoardsDataMaps(result, merge);
+    }
   });
   return result;
 };
@@ -150,6 +191,8 @@ const BoardContextProvider: React.FC<{
   const latestBoardData = React.useRef<BoardsDataMap>(
     toBoardsDataObject(props.initialData)
   );
+  const realmData = useRealmBoards();
+  const realmDataUpdatedAt = useRealmContextUpdatedAt();
 
   // This handler takes care of transforming the board result returned from a query
   // to the /boards endpoint (i.e. the one returning details for ALL boards).
@@ -188,34 +231,36 @@ const BoardContextProvider: React.FC<{
 
   // This handler takes care of transforming the board result returned from a query
   // to the /boards/:slug endpoint (i.e. the one returning details for the "slug" board).
-  const {
-    data: currentBoardData,
-    dataUpdatedAt: lastCurrentBoardUpdate,
-  } = useQuery<BoardData | null, unknown, BoardsDataMap | null>(
-    ["boardThemeData", { slug, isLoggedIn }],
-    () => {
-      info(
-        `Fetching theme data for slug "${slug}" and user ${
-          isLoggedIn ? "" : "NOT "
-        }logged in.`
-      );
-      return getBoardData({ slug });
-    },
-    {
-      staleTime: Infinity,
-      notifyOnChangeProps: ["data"],
-      enabled: !!slug,
-      select: (data) => (data ? toBoardsDataObject([data]) : null),
-    }
-  );
+  const { data: currentBoardData, dataUpdatedAt: lastCurrentBoardUpdate } =
+    useQuery<BoardData | null, unknown, BoardsDataMap | null>(
+      ["boardThemeData", { slug, isLoggedIn }],
+      () => {
+        info(
+          `Fetching theme data for slug "${slug}" and user ${
+            isLoggedIn ? "" : "NOT "
+          }logged in.`
+        );
+        return getBoardData({ slug });
+      },
+      {
+        staleTime: Infinity,
+        notifyOnChangeProps: ["data"],
+        enabled: !!slug,
+        select: (data) => (data ? toBoardsDataObject([data]) : null),
+      }
+    );
 
-  const newData = mergeBoardsData(
-    latestBoardData.current,
-    // Update in order of data "freshness"
-    lastAllBoardsUpdate > lastCurrentBoardUpdate
-      ? [currentBoardData, allBoardsData]
-      : [allBoardsData, currentBoardData]
-  );
+  const dataByFreshness = [
+    {
+      data: allBoardsData,
+      updatedAt: lastAllBoardsUpdate,
+    },
+    { data: currentBoardData, updatedAt: lastCurrentBoardUpdate },
+    { data: realmData, updatedAt: realmDataUpdatedAt },
+  ]
+    .sort((a, b) => a.updatedAt - b.updatedAt)
+    .map((board) => board.data);
+  const newData = mergeBoardsData(latestBoardData.current, dataByFreshness);
   // Keep referential integrity for currentData to avoid unnecessary re-renders.
   const currentData = isSameBoardsData(latestBoardData.current, newData)
     ? latestBoardData.current

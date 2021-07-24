@@ -8,7 +8,13 @@ import { RealmType } from "types/Types";
 //const log = debug("bobafrontend:contexts:RealmContext-log");
 const info = debug("bobafrontend:contexts:RealmContext-info");
 
-const RealmContext = React.createContext<RealmType | undefined>(undefined);
+const RealmContext = React.createContext<
+  | {
+      realmData: RealmType;
+      dataUpdatedAt: number;
+    }
+  | undefined
+>(undefined);
 
 const useRealmContext = () => {
   const context = React.useContext(RealmContext);
@@ -17,7 +23,17 @@ const useRealmContext = () => {
       "useRealmContext must be used within a RealmContextProvider"
     );
   }
-  return context;
+  return context.realmData;
+};
+
+const useRealmContextUpdatedAt = () => {
+  const context = React.useContext(RealmContext);
+  if (context === undefined) {
+    throw new Error(
+      "useRealmContext must be used within a RealmContextProvider"
+    );
+  }
+  return context.dataUpdatedAt;
 };
 
 const useRealmSettings = () => {
@@ -27,7 +43,17 @@ const useRealmSettings = () => {
       "useRealmSettings must be used within a RealmContextProvider"
     );
   }
-  return context.settings;
+  return context.realmData.settings;
+};
+
+const useRealmBoards = () => {
+  const context = React.useContext(RealmContext);
+  if (context === undefined) {
+    throw new Error(
+      "useRealmSettings must be used within a RealmContextProvider"
+    );
+  }
+  return context.realmData.boards;
 };
 
 const RealmContextProvider: React.FC<{
@@ -36,7 +62,11 @@ const RealmContextProvider: React.FC<{
 }> = ({ initialData, children }) => {
   const realmId = "v0";
   const { isLoggedIn } = useAuth();
-  const { data: realmData } = useQuery<RealmType, unknown, RealmType>(
+  const { data: realmData, dataUpdatedAt } = useQuery<
+    RealmType,
+    unknown,
+    RealmType
+  >(
     ["realmData", { isLoggedIn, realmId }],
     () => {
       info(
@@ -48,12 +78,22 @@ const RealmContextProvider: React.FC<{
       placeholderData: initialData,
       staleTime: Infinity,
       refetchOnWindowFocus: true,
-      notifyOnChangeProps: ["data"],
+      notifyOnChangeProps: ["data", "dataUpdatedAt"],
     }
   );
 
   return (
-    <RealmContext.Provider value={realmData}>{children}</RealmContext.Provider>
+    <RealmContext.Provider
+      value={React.useMemo(
+        () => ({
+          realmData: realmData!,
+          dataUpdatedAt,
+        }),
+        [realmData, dataUpdatedAt]
+      )}
+    >
+      {children}
+    </RealmContext.Provider>
   );
 };
 const MemoizedProvider = React.memo(RealmContextProvider);
@@ -62,4 +102,6 @@ export {
   MemoizedProvider as RealmContextProvider,
   useRealmContext,
   useRealmSettings,
+  useRealmBoards,
+  useRealmContextUpdatedAt,
 };

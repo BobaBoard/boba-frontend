@@ -135,6 +135,16 @@ export interface BoardData {
   accessories?: Accessory[];
 }
 
+export interface BoardSummary {
+  slug: string;
+  avatarUrl: string;
+  tagline: string;
+  accentColor: string;
+  loggedInOnly: boolean;
+  delisted: boolean;
+  lastActivityAt: Date | null;
+}
+
 export interface PostData {
   content: string;
   forceAnonymous: boolean;
@@ -209,4 +219,5 @@ export interface RealmType {
     boardPage: CssVariableSetting[];
     threadPage: CssVariableSetting[];
   };
+  boards: BoardSummary[];
 }
