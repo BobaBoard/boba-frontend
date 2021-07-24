@@ -195,3 +195,18 @@ export interface CssVariableSetting {
   type: "CssVariable";
   value: string;
 }
+
+export interface RealmType {
+  slug: string;
+  settings: {
+    root: {
+      cursor?: {
+        image: string | undefined;
+        trail: string | undefined;
+      };
+    };
+    indexPage: CssVariableSetting[];
+    boardPage: CssVariableSetting[];
+    threadPage: CssVariableSetting[];
+  };
+}

@@ -35,6 +35,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import embedsCache from "../utils/embeds-cache";
 import { usePageDataListener } from "utils/router-utils";
+import { getRealmData } from "utils/queries/realm";
 const error = debug("bobafrontend:app-error");
 const log = debug("bobafrontend:app-log");
 
@@ -249,11 +250,14 @@ export default MyApp;
 
 MyApp.getInitialProps = async ({ ctx }: { ctx: NextPageContext }) => {
   const boardsBody = await axios.get(`${getServerBaseUrl(ctx)}boards`);
-  const realmBody = await axios.get(`${getServerBaseUrl(ctx)}realms/v0`);
+  const realmBody = await getRealmData({
+    baseUrl: getServerBaseUrl(ctx),
+    realmId: `v0`,
+  });
   const lastUpdate = await getLastUpdate(ctx);
 
   const boardData = await boardsBody.data;
-  const realmData = await realmBody.data;
+  const realmData = await realmBody;
 
   if (!isAllowedSandboxLocation(ctx)) {
     // We should use 302 redirect here rather than 301 because

@@ -13,7 +13,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "deploy": "rm -rf .next/ && rm -rf build/ && yarn run build && gcloud config set project bobaboard && gcloud app deploy --version live",
-    "stage": "rm -rf .next/ && rm -rf build/ && yarn run build && gcloud config set project bobaboard && gcloud app deploy --quiet --version staging  && gcloud app services set-traffic frontend --splits live=1  --quiet"
+    "stage": "rm -rf .next/ && rm -rf build/ && yarn run build && gcloud config set project bobaboard && gcloud app deploy --quiet --version staging --no-promote"
   },
   "author": "",
   "license": "ISC",

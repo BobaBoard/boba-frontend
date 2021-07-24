@@ -2,31 +2,13 @@ import React from "react";
 import { useQuery } from "react-query";
 import { useAuth } from "../components/Auth";
 
-interface CssVariableType {
-  name: string;
-  type: "CssVariable";
-  value: string;
-}
-
-interface RealmData {
-  name: string;
-  rootSettings: {
-    cursor?: {
-      image: string | undefined;
-      trail: string | undefined;
-    };
-  };
-  indexPageSettings: CssVariableType[];
-  boardPageSettings: CssVariableType[];
-  threadPageSettings: CssVariableType[];
-}
-
 import debug from "debug";
 import { getRealmData } from "../utils/queries/realm";
+import { RealmType } from "types/Types";
 //const log = debug("bobafrontend:contexts:RealmContext-log");
 const info = debug("bobafrontend:contexts:RealmContext-info");
 
-const RealmContext = React.createContext<RealmData | undefined>(undefined);
+const RealmContext = React.createContext<RealmType | undefined>(undefined);
 
 const useRealmContext = () => {
   const context = React.useContext(RealmContext);
@@ -38,13 +20,23 @@ const useRealmContext = () => {
   return context;
 };
 
+const useRealmSettings = () => {
+  const context = React.useContext(RealmContext);
+  if (context === undefined) {
+    throw new Error(
+      "useRealmSettings must be used within a RealmContextProvider"
+    );
+  }
+  return context.settings;
+};
+
 const RealmContextProvider: React.FC<{
-  initialData: RealmData;
+  initialData: RealmType;
   children: React.ReactNode;
 }> = ({ initialData, children }) => {
   const realmId = "v0";
   const { isLoggedIn } = useAuth();
-  const { data: realmData } = useQuery<RealmData, unknown, RealmData>(
+  const { data: realmData } = useQuery<RealmType, unknown, RealmType>(
     ["realmData", { isLoggedIn, realmId }],
     () => {
       info(
@@ -66,4 +58,8 @@ const RealmContextProvider: React.FC<{
 };
 const MemoizedProvider = React.memo(RealmContextProvider);
 
-export { MemoizedProvider as RealmContextProvider, useRealmContext };
+export {
+  MemoizedProvider as RealmContextProvider,
+  useRealmContext,
+  useRealmSettings,
+};

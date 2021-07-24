@@ -33,7 +33,7 @@ import {
 import Head from "next/head";
 import { getTitle } from "pages/_app";
 import { PageTypes, usePageDetails } from "utils/router-utils";
-import { useRealmContext } from "contexts/RealmContext";
+import { useRealmContext, useRealmSettings } from "contexts/RealmContext";
 
 const log = debug("bobafrontend:Layout-log");
 const error = debug("bobafrontend:Layout-error");
@@ -198,7 +198,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const sideMenuRef = React.useRef<SideMenuHandler>(null);
   const { slug, threadId, pageType } = usePageDetails();
   const titleLink = useTitleLink();
-  const { rootSettings } = useRealmContext();
+  const { root: rootSettings } = useRealmSettings();
   const { boardsData, refetch, hasLoggedInData } = useBoardsContext();
   const [boardFilter, setBoardFilter] = React.useState("");
   const queryClient = useQueryClient();

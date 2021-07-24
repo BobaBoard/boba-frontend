@@ -95,7 +95,7 @@ const dataToSettings = (data: SettingsType): DecorationSettings => {
 const Decorations = () => {
   const queryClient = useQueryClient();
   const { isLoggedIn } = useAuth();
-  const { name: realmId } = useRealmContext();
+  const { slug: realmId } = useRealmContext();
   const { data } = useQuery<SettingsType, unknown, DecorationSettings>(
     [SETTINGS_QUERY_KEY],
     // @ts-expect-error
@@ -117,9 +117,8 @@ const Decorations = () => {
     {
       onMutate: async (updatedValue: SettingType) => {
         await queryClient.cancelQueries("decorationsSettings");
-        const previousSettings = queryClient.getQueryData<SettingsType>(
-          SETTINGS_QUERY_KEY
-        )!;
+        const previousSettings =
+          queryClient.getQueryData<SettingsType>(SETTINGS_QUERY_KEY)!;
         const newSettings: SettingsType = {
           decorations: [...previousSettings.decorations],
         };

@@ -1,14 +1,14 @@
-import { useRealmContext } from "contexts/RealmContext";
+import { useRealmSettings } from "contexts/RealmContext";
 import React from "react";
 import { CssVariableSetting } from "types/Types";
 import { PageTypes, usePageDetails } from "utils/router-utils";
 
 export const useServerCssVariables = (ref: React.RefObject<HTMLDivElement>) => {
   const {
-    indexPageSettings,
-    boardPageSettings,
-    threadPageSettings,
-  } = useRealmContext();
+    indexPage: indexPageSettings,
+    boardPage: boardPageSettings,
+    threadPage: threadPageSettings,
+  } = useRealmSettings();
   const { pageType } = usePageDetails();
   const previousValues = React.useRef({});
   const previousPage = React.useRef<PageTypes>();
@@ -33,9 +33,8 @@ export const useServerCssVariables = (ref: React.RefObject<HTMLDivElement>) => {
     }
     settings.forEach((setting) => {
       const propertyName = `--${setting.name}`;
-      currentPrevious[setting.name] = currentRef.style.getPropertyValue(
-        propertyName
-      );
+      currentPrevious[setting.name] =
+        currentRef.style.getPropertyValue(propertyName);
       currentRef.style.setProperty(propertyName, setting.value);
     });
     return () => {
