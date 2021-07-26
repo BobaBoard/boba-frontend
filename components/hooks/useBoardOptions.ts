@@ -9,7 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
 import { useAuth } from "../../components/Auth";
-import { useBoardsContext } from "../../components/BoardContext";
+import { useBoardsContext } from "../boards/BoardContext";
 import {
   useDismissBoardNotifications,
   useMuteBoard,

@@ -1,9 +1,9 @@
 import React from "react";
 import { useQuery } from "react-query";
-import { getBoardData, getAllBoardsData } from "../utils/queries/board";
-import { BoardData, BoardSummary } from "../types/Types";
+import { getBoardData, getAllBoardsData } from "../../utils/queries/board";
+import { BoardData, BoardSummary } from "../../types/Types";
 import noop from "noop-ts";
-import { useAuth } from "./Auth";
+import { useAuth } from "../Auth";
 
 import debug from "debug";
 import {

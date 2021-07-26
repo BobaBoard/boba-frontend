@@ -2,7 +2,7 @@ import React from "react";
 import Layout from "../components/Layout";
 import { BoardsDisplay, PostQuote } from "@bobaboard/ui-components";
 import Link from "next/link";
-import { useBoardsContext } from "components/BoardContext";
+import { useBoardsContext } from "../components/boards/BoardContext";
 import useBoos from "components/hooks/useBoos";
 import moment from "moment";
 import { THREAD_PATH } from "utils/router-utils";

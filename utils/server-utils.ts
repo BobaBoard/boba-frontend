@@ -146,21 +146,6 @@ export const makeClientBoardSummary = (serverBoardData: any): BoardSummary => {
     lastActivityAt: serverBoardData.last_activity_at
       ? moment.utc(serverBoardData.last_activity_at).toDate()
       : null,
-    lastUpdateFromOthers: serverBoardData.last_activity_from_others
-      ? moment.utc(serverBoardData.last_activity_from_others).toDate()
-      : undefined,
-    lastVisit: serverBoardData.last_visit
-      ? moment.utc(serverBoardData.last_visit).toDate()
-      : undefined,
-    descriptions: serverBoardData.descriptions || [],
-    hasUpdates: serverBoardData.has_updates,
-    muted: serverBoardData.muted,
-    pinnedOrder: serverBoardData.pinned_order
-      ? parseInt(serverBoardData.pinned_order)
-      : null,
-    postingIdentities: serverBoardData.postingIdentities,
-    permissions: serverBoardData.permissions,
-    accessories: serverBoardData.accessories,
   };
 };
 

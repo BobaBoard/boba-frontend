@@ -24,7 +24,7 @@ import {
 } from "../../types/Types";
 
 import debug from "debug";
-import { useBoardsContext } from "components/BoardContext";
+import { useBoardsContext } from "../boards/BoardContext";
 const log = debug("bobafrontend:postEditor-log");
 const error = debug("bobafrontend:postEditor-error");
 

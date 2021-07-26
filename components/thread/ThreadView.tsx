@@ -9,7 +9,7 @@ import CommentsThread from "./CommentsThread";
 import { usePageDetails, ThreadPageDetails } from "utils/router-utils";
 import { useAuth } from "components/Auth";
 import { useStemOptions } from "components/hooks/useStemOptions";
-import { useBoardContext } from "components/BoardContext";
+import { useBoardContext } from "../boards/BoardContext";
 import { useThreadEditors } from "components/editors/withEditors";
 import {
   CollapseManager,
@@ -67,12 +67,8 @@ const CollapseGroupDisplay: React.FC<{
 }> = ({ parentPostId, collapseGroupData, collapseManager, toDisplay }) => {
   const { parentChildrenMap } = useThreadContext();
   const children = parentChildrenMap.get(parentPostId)?.children;
-  const {
-    firstElement,
-    lastElement,
-    collapseGroupId,
-    totals,
-  } = collapseGroupData;
+  const { firstElement, lastElement, collapseGroupId, totals } =
+    collapseGroupData;
   const firstElementIndex = children?.findIndex(
     (post) => post.postId == firstElement
   );
@@ -141,11 +137,8 @@ const ThreadLevel: React.FC<{
   toDisplay: (PostType | CommentType)[];
   collapseManager: ReturnType<typeof useThreadCollapseManager>;
 }> = (props) => {
-  const {
-    onNewComment,
-    onNewContribution,
-    onEditContribution,
-  } = useThreadEditors();
+  const { onNewComment, onNewContribution, onEditContribution } =
+    useThreadEditors();
   const { isLoggedIn } = useAuth();
   //info(`Rendering subtree starting with post with id ${props.post.postId}`);
   const { parentChildrenMap } = useThreadContext();
@@ -277,11 +270,8 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
   const { currentRoot } = useThreadContext();
   log(`Rerendering ThreadView.`);
 
-  const {
-    onCollapseLevel,
-    onUncollapseLevel,
-    getCollapseReason,
-  } = props.collapseManager;
+  const { onCollapseLevel, onUncollapseLevel, getCollapseReason } =
+    props.collapseManager;
 
   const getStemOptions = useStemOptions({
     boardSlug,
@@ -304,10 +294,8 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
   if (!currentRoot) {
     return <div />;
   }
-  const {
-    currentModeLoadedElements,
-    currentModeDisplayElements,
-  } = props.displayManager;
+  const { currentModeLoadedElements, currentModeDisplayElements } =
+    props.displayManager;
   return (
     <div className="thread-container">
       <LoadingBar

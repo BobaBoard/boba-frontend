@@ -10,7 +10,7 @@ import { useAuth } from "../../components/Auth";
 import {
   useBoardContext,
   useBoardsContext,
-} from "../../components/BoardContext";
+} from "../../components/boards/BoardContext";
 import { getBoardActivityData } from "../../utils/queries";
 import { useUpdateBoardMetadata } from "../../components/hooks/queries/board";
 import axios from "axios";
@@ -63,9 +63,10 @@ function BoardPage() {
   const { slug } = usePageDetails<BoardPageDetails>();
   const { isPending: isAuthPending, isLoggedIn } = useAuth();
   const boardData = useBoardContext(slug);
-  const onCompassClick = React.useCallback(() => setShowSidebar(!showSidebar), [
-    showSidebar,
-  ]);
+  const onCompassClick = React.useCallback(
+    () => setShowSidebar(!showSidebar),
+    [showSidebar]
+  );
   const [editingSidebar, setEditingSidebar] = React.useState(false);
   const stopEditing = React.useCallback(() => setEditingSidebar(false), []);
   const [{ filter: categoryFilter }, setQuery] = useQueryParams(BoardParams);

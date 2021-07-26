@@ -7,7 +7,7 @@ import ThreadPost, { scrollToPost } from "./ThreadPost";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import { useAuth } from "components/Auth";
 import { useStemOptions } from "components/hooks/useStemOptions";
-import { useBoardContext } from "components/BoardContext";
+import { useBoardContext } from "../boards/BoardContext";
 import { TIMELINE_VIEW_MODE, useThreadViewContext } from "./ThreadViewContext";
 import { useThreadEditors } from "components/editors/withEditors";
 import {
@@ -29,11 +29,8 @@ interface TimelineViewProps {
 const TimelineView: React.FC<TimelineViewProps> = (props) => {
   const { newRepliesCount, chronologicalPostsSequence } = useThreadContext();
   const { timelineViewMode, setTimelineViewMode } = useThreadViewContext();
-  const {
-    onNewComment,
-    onNewContribution,
-    onEditContribution,
-  } = useThreadEditors();
+  const { onNewComment, onNewContribution, onEditContribution } =
+    useThreadEditors();
   const {
     onCollapseLevel,
     onUncollapseLevel,

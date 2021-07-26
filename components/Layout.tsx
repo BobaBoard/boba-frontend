@@ -11,7 +11,7 @@ import { dismissAllNotifications } from "../utils/queries";
 import { useAuth } from "./Auth";
 import { useRouter } from "next/router";
 import { useMutation, useQueryClient } from "react-query";
-import { useBoardsContext } from "./BoardContext";
+import { useBoardsContext } from "./boards/BoardContext";
 import { processBoardsUpdates } from "../utils/boards-utils";
 import { useCachedLinks } from "./hooks/useCachedLinks";
 import { useServerCssVariables } from "./hooks/useServerCssVariables";
@@ -33,7 +33,7 @@ import {
 import Head from "next/head";
 import { getTitle } from "pages/_app";
 import { PageTypes, usePageDetails } from "utils/router-utils";
-import { useRealmContext, useRealmSettings } from "contexts/RealmContext";
+import { useRealmSettings } from "contexts/RealmContext";
 
 const log = debug("bobafrontend:Layout-log");
 const error = debug("bobafrontend:Layout-error");

@@ -7,7 +7,7 @@ import {
   isNewThread,
 } from "./types";
 import { useThreadWithNull } from "components/thread/ThreadContext";
-import { useBoardContext } from "components/BoardContext";
+import { useBoardContext } from "../boards/BoardContext";
 import { useAuth } from "components/Auth";
 
 export const THREAD_VIEW_OPTIONS = [

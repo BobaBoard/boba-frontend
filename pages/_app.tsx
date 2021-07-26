@@ -7,7 +7,7 @@ import React from "react";
 import axios from "axios";
 import Head from "next/head";
 import { AuthProvider, useAuth } from "../components/Auth";
-import { BoardContextProvider } from "../components/BoardContext";
+import { BoardContextProvider } from "../components/boards/BoardContext";
 import { RealmContextProvider } from "../contexts/RealmContext";
 import useFromBackButton from "../components/hooks/useFromBackButton";
 import { useScrollRestoration } from "../components/hooks/useScrollRestoration";

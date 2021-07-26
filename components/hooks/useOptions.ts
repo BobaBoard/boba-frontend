@@ -27,7 +27,7 @@ import {
   useSetThreadView,
 } from "./queries/thread";
 import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
-import { useBoardsContext } from "components/BoardContext";
+import { useBoardsContext } from "../boards/BoardContext";
 
 export enum PostOptions {
   COPY_LINK = "COPY_LINK",

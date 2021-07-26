@@ -12,7 +12,7 @@ import {
 } from "../../../utils/queries/cache";
 import debug from "debug";
 import { BoardData, BoardDescription } from "../../../types/Types";
-import { useBoardsContext } from "components/BoardContext";
+import { useBoardsContext } from "../../boards/BoardContext";
 
 const error = debug("bobafrontend:hooks:queries:board-error");
 const log = debug("bobafrontend:hooks:queries:board-log");

@@ -11,7 +11,7 @@ import FeedSidebar from "../../components/feed/FeedSidebar";
 import LoadingSpinner from "components/LoadingSpinner";
 import ThreadPreview from "components/ThreadPreview";
 import { withEditors } from "components/editors/withEditors";
-import { useBoardsContext } from "components/BoardContext";
+import { useBoardsContext } from "../../components/boards/BoardContext";
 import { isFromBackButton } from "components/hooks/useFromBackButton";
 import { ExistanceParam } from "components/QueryParamNextProvider";
 import { useQueryParams } from "use-query-params";

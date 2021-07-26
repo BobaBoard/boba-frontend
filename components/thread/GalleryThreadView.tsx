@@ -12,7 +12,7 @@ import ThreadPost, { scrollToPost } from "./ThreadPost";
 import { useAuth } from "components/Auth";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import { useStemOptions } from "components/hooks/useStemOptions";
-import { useBoardContext } from "components/BoardContext";
+import { useBoardContext } from "../boards/BoardContext";
 
 import { GALLERY_VIEW_MODE, useThreadViewContext } from "./ThreadViewContext";
 import { useThreadEditors } from "components/editors/withEditors";
@@ -78,19 +78,13 @@ interface GalleryThreadViewProps {
 const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
   const masonryRef = React.createRef<{ reposition: () => void }>();
   const { isLoggedIn } = useAuth();
-  const {
-    onNewComment,
-    onNewContribution,
-    onEditContribution,
-  } = useThreadEditors();
+  const { onNewComment, onNewContribution, onEditContribution } =
+    useThreadEditors();
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
   const boardData = useBoardContext(boardSlug);
   const { galleryViewMode, setGalleryViewMode } = useThreadViewContext();
-  const {
-    chronologicalPostsSequence,
-    newRepliesCount,
-    threadRoot,
-  } = useThreadContext();
+  const { chronologicalPostsSequence, newRepliesCount, threadRoot } =
+    useThreadContext();
   const {
     onCollapseLevel,
     onUncollapseLevel,
@@ -135,10 +129,8 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
     unsubscribeFromCollapseChange,
   ]);
 
-  const {
-    currentModeDisplayElements,
-    currentModeLoadedElements,
-  } = props.displayManager;
+  const { currentModeDisplayElements, currentModeLoadedElements } =
+    props.displayManager;
 
   const cover = threadRoot;
 
