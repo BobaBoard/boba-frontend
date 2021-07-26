@@ -16,6 +16,7 @@ import { processBoardsUpdates } from "../utils/boards-utils";
 import { useCachedLinks } from "./hooks/useCachedLinks";
 import { useServerCssVariables } from "./hooks/useServerCssVariables";
 import { useForceHideIdentity } from "./hooks/useForceHideIdentity";
+import { usePinnedBoards } from "./hooks/queries/pinned-boards";
 import debug from "debug";
 import {
   faArchive,
@@ -234,36 +235,55 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
     React.useCallback(() => setLoginOpen(true), [])
   );
   const menuOptions = useMenuBarOptions();
+  const { data: pinnedBoards } = usePinnedBoards();
 
-  const { pinnedBoards, recentBoards, allBoards, hasUpdates, isOutdated } =
-    React.useMemo(
-      () =>
-        processBoardsUpdates(
-          Object.values(boardsData).reduce((agg, board) => {
-            agg[board.slug] = {
-              slug: board.slug.replace("_", " "),
-              avatar: `${board.avatarUrl}`,
-              description: board.tagline,
-              color: board.accentColor,
-              lastUpdate: isLoggedIn
-                ? board.lastUpdateFromOthers
-                : board.lastUpdate,
-              updates: isLoggedIn && board.hasUpdates,
-              outdated:
-                board.lastUpdateFromOthers &&
-                board.lastVisit &&
-                board.lastUpdateFromOthers < board.lastVisit,
-              muted: board.muted,
-              link: getLinkToBoard(board.slug, onBoardChange),
-              pinnedOrder: board.pinnedOrder,
-            };
-            return agg;
-          }, {} as Parameters<typeof processBoardsUpdates>[0]),
-          boardFilter,
-          isLoggedIn
-        ),
-      [boardFilter, boardsData, isLoggedIn, getLinkToBoard, onBoardChange]
-    );
+  const { recentBoards, allBoards, hasUpdates, isOutdated } = React.useMemo(
+    () =>
+      processBoardsUpdates(
+        Object.values(boardsData).reduce((agg, board) => {
+          agg[board.slug] = {
+            slug: board.slug.replace("_", " "),
+            avatar: `${board.avatarUrl}`,
+            description: board.tagline,
+            color: board.accentColor,
+            lastUpdate: isLoggedIn
+              ? board.lastUpdateFromOthers
+              : board.lastUpdate,
+            updates: isLoggedIn && board.hasUpdates,
+            outdated:
+              board.lastUpdateFromOthers &&
+              board.lastVisit &&
+              board.lastUpdateFromOthers < board.lastVisit,
+            muted: board.muted,
+            link: getLinkToBoard(board.slug, onBoardChange),
+            pinnedOrder: board.pinnedOrder,
+          };
+          return agg;
+        }, {} as Parameters<typeof processBoardsUpdates>[0]),
+        boardFilter,
+        isLoggedIn
+      ),
+    [boardFilter, boardsData, isLoggedIn, getLinkToBoard, onBoardChange]
+  );
+
+  const processedPinnedBoards = React.useMemo(() => {
+    if (!pinnedBoards) {
+      return [];
+    }
+    return Object.values(pinnedBoards)
+      .map((board) => {
+        return {
+          slug: board.slug.replace("_", " "),
+          avatar: `${board.avatarUrl}`,
+          description: board.tagline,
+          color: board.accentColor,
+          muted: board.muted,
+          link: getLinkToBoard(board.slug, onBoardChange),
+          pinnedOrder: board.pinnedIndex,
+        };
+      })
+      .sort((b1, b2) => (b1.pinnedOrder || 0) - (b2.pinnedOrder || 0));
+  }, [pinnedBoards, getLinkToBoard, onBoardChange]);
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   useServerCssVariables(containerRef);
@@ -297,7 +317,10 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
         ref={layoutRef}
         mainContent={mainContent}
         pinnedMenuContent={
-          <PinnedBoardsMenu boards={pinnedBoards} currentBoardSlug={slug} />
+          <PinnedBoardsMenu
+            boards={processedPinnedBoards}
+            currentBoardSlug={slug}
+          />
         }
         sideMenuContent={
           <SideMenu

@@ -136,13 +136,16 @@ export interface BoardData {
 }
 
 export interface BoardSummary {
+  id: string;
+  realmId: string;
   slug: string;
   avatarUrl: string;
   tagline: string;
   accentColor: string;
   loggedInOnly: boolean;
   delisted: boolean;
-  lastActivityAt: Date | null;
+  muted?: boolean;
+  pinned?: boolean;
 }
 
 export interface PostData {

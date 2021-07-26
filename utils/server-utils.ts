@@ -137,15 +137,16 @@ export const makeClientBoardData = (serverBoardData: any): BoardData => {
 
 export const makeClientBoardSummary = (serverBoardData: any): BoardSummary => {
   return {
+    id: serverBoardData.id,
+    realmId: serverBoardData.realm_id,
     slug: serverBoardData.slug,
     tagline: serverBoardData.tagline,
     avatarUrl: serverBoardData.avatar_url,
     accentColor: serverBoardData.accent_color,
     loggedInOnly: serverBoardData.logged_in_only,
     delisted: serverBoardData.delisted,
-    lastActivityAt: serverBoardData.last_activity_at
-      ? moment.utc(serverBoardData.last_activity_at).toDate()
-      : null,
+    muted: serverBoardData.muted,
+    pinned: serverBoardData.pinned,
   };
 };
 

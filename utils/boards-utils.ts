@@ -20,11 +20,10 @@ export const processBoardsUpdates = (
 ) => {
   info(`Processing board updates: `, boardsData);
   let recentBoards: BoardUpdateData[] = [];
-  let pinnedBoards: BoardUpdateData[] = [];
   let allBoards: BoardUpdateData[] = [];
   const availableBoards = Object.values(boardsData);
   if (!availableBoards.length) {
-    return { recentBoards, pinnedBoards, allBoards, hasUpdates: false };
+    return { recentBoards, allBoards, hasUpdates: false };
   }
 
   allBoards = availableBoards.sort((b1, b2) => b1.slug.localeCompare(b2.slug));
@@ -41,15 +40,8 @@ export const processBoardsUpdates = (
       return 0;
     });
 
-  pinnedBoards = allBoards
-    .filter((board) => board.pinnedOrder !== null)
-    .sort((b1, b2) => (b1.pinnedOrder || 0) - (b2.pinnedOrder || 0));
-
   return {
     recentBoards: recentBoards.filter((b) =>
-      maybeApplyBoardsFilter(b, boardsFilter)
-    ),
-    pinnedBoards: pinnedBoards.filter((b) =>
       maybeApplyBoardsFilter(b, boardsFilter)
     ),
     allBoards: allBoards.filter((b) => maybeApplyBoardsFilter(b, boardsFilter)),
