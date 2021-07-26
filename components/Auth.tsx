@@ -106,7 +106,7 @@ const AuthProvider: React.FC<{
         return;
       }
       resolveFirebaseUserPromise(user);
-      axios.get("users/me/").then((userResponse) => {
+      axios.get("users/@me/").then((userResponse) => {
         if (!userResponse) {
           log(`Request for user data has returned no user.`);
           // Error state
@@ -124,7 +124,7 @@ const AuthProvider: React.FC<{
           user: {
             ...userResponse.data,
             username: userResponse.data.username || DEFAULT_USER_NAME,
-            avatarUrl: userResponse.data.avatarUrl || DEFAULT_USER_AVATAR,
+            avatarUrl: userResponse.data.avatar_url || DEFAULT_USER_AVATAR,
           },
         });
       });
@@ -137,19 +137,18 @@ const AuthProvider: React.FC<{
     });
   }, []);
 
-  const getAuthIdToken: () => Promise<
-    string | undefined
-  > = React.useCallback(() => {
-    return firebaseUserPromise.then((user) => {
-      log(`Firebase is done authenticating! Getting token...`);
-      return user?.getIdTokenResult().then((token) => {
-        log(`Returning token!`);
-        info(`Token was issued at ${new Date(token.issuedAtTime)}`);
-        info(`Token will expire at ${new Date(token.expirationTime)}`);
-        return token.token;
+  const getAuthIdToken: () => Promise<string | undefined> =
+    React.useCallback(() => {
+      return firebaseUserPromise.then((user) => {
+        log(`Firebase is done authenticating! Getting token...`);
+        return user?.getIdTokenResult().then((token) => {
+          log(`Returning token!`);
+          info(`Token was issued at ${new Date(token.issuedAtTime)}`);
+          info(`Token will expire at ${new Date(token.expirationTime)}`);
+          return token.token;
+        });
       });
-    });
-  }, []);
+    }, []);
 
   const refreshUserData = React.useCallback(
     (data: { username: string; avatarUrl: string }) => {
