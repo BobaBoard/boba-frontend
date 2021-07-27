@@ -17,6 +17,10 @@ import { useCachedLinks } from "./hooks/useCachedLinks";
 import { useServerCssVariables } from "./hooks/useServerCssVariables";
 import { useForceHideIdentity } from "./hooks/useForceHideIdentity";
 import { usePinnedBoards } from "./hooks/queries/pinned-boards";
+import {
+  useInvalidateNotifications,
+  useNotifications,
+} from "./hooks/queries/notifications";
 import debug from "debug";
 import {
   faArchive,
@@ -236,8 +240,15 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   );
   const menuOptions = useMenuBarOptions();
   const { data: pinnedBoards } = usePinnedBoards();
+  const {
+    pinnedBoards: pinnedBoardsNotifications,
+    hasNotifications,
+    notificationsOutdated,
+    realmBoards: realmBoardsNotifications,
+  } = useNotifications();
+  const refetchNotifications = useInvalidateNotifications();
 
-  const { recentBoards, allBoards, hasUpdates, isOutdated } = React.useMemo(
+  const { recentBoards, allBoards } = React.useMemo(
     () =>
       processBoardsUpdates(
         Object.values(boardsData).reduce((agg, board) => {
@@ -280,10 +291,15 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
           muted: board.muted,
           link: getLinkToBoard(board.slug, onBoardChange),
           pinnedOrder: board.pinnedIndex,
+          updates:
+            pinnedBoardsNotifications[board.slug]?.hasNotifications || false,
+          outdated:
+            pinnedBoardsNotifications[board.slug]?.notificationsOutdated ||
+            false,
         };
       })
       .sort((b1, b2) => (b1.pinnedOrder || 0) - (b2.pinnedOrder || 0));
-  }, [pinnedBoards, getLinkToBoard, onBoardChange]);
+  }, [pinnedBoards, pinnedBoardsNotifications, getLinkToBoard, onBoardChange]);
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   useServerCssVariables(containerRef);
@@ -391,9 +407,12 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
         forceHideIdentity={forceHideIdentity}
         loading={props.loading || isUserPending || isChangingRoute}
         userLoading={isUserPending}
-        updates={isLoggedIn && hasUpdates}
-        outdated={isOutdated}
-        onSideMenuButtonClick={refetch}
+        updates={hasNotifications}
+        outdated={notificationsOutdated}
+        onSideMenuButtonClick={() => {
+          refetchNotifications();
+          refetch();
+        }}
         onSideMenuFullyOpen={sideMenuRef.current?.focusBoardFilter}
         logoLink={linkToHome}
         menuOptions={menuOptions}
