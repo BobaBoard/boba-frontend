@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "react-query";
 import debug from "debug";
 import axios from "axios";
 import { useAuth } from "../../Auth";
+import moment from "moment";
 
 const error = debug("bobafrontend:hooks:queries:PinnedBoards-error");
 const log = debug("bobafrontend:hooks:queries:PinnedBoards-log");
@@ -9,6 +10,7 @@ const log = debug("bobafrontend:hooks:queries:PinnedBoards-log");
 interface NotificationType {
   hasNotifications: boolean;
   notificationsOutdated: boolean;
+  lastUpdateFromOthersAt: Date;
 }
 
 interface NotificationsType {
@@ -24,6 +26,9 @@ const parseServerNotifications = (notifications: Record<string, any>) => {
       agg[curr.id] = {
         hasNotifications: curr.has_updates,
         notificationsOutdated: curr.is_outdated,
+        lastUpdateFromOthersAt: moment
+          .utc(curr.last_activity_from_others_at)
+          .toDate(),
       };
       return agg;
     },

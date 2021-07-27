@@ -207,6 +207,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const { boardsData, refetch, hasLoggedInData } = useBoardsContext();
   const [boardFilter, setBoardFilter] = React.useState("");
   const queryClient = useQueryClient();
+  const refetchNotifications = useInvalidateNotifications();
   const { mutate: dismissNotifications } = useMutation(
     dismissAllNotifications,
     {
@@ -229,9 +230,10 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
         log("Detected switch to same board. Refetching activity data.");
         queryClient.refetchQueries(["boardActivityData", { slug: nextSlug }]);
       }
+      refetchNotifications();
       refetch();
     },
-    [refetch, queryClient, slug]
+    [refetch, queryClient, slug, refetchNotifications]
   );
   const isChangingRoute = useChangingRoute();
   const { forceHideIdentity } = useForceHideIdentity();
@@ -246,7 +248,6 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
     notificationsOutdated,
     realmBoards: realmBoardsNotifications,
   } = useNotifications();
-  const refetchNotifications = useInvalidateNotifications();
 
   const { recentBoards, allBoards } = React.useMemo(
     () =>
@@ -257,14 +258,11 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
             avatar: `${board.avatarUrl}`,
             description: board.tagline,
             color: board.accentColor,
-            lastUpdate: isLoggedIn
-              ? board.lastUpdateFromOthers
-              : board.lastUpdate,
-            updates: isLoggedIn && board.hasUpdates,
+            lastUpdate:
+              realmBoardsNotifications[board.slug]?.lastUpdateFromOthersAt,
+            updates: !!realmBoardsNotifications[board.slug]?.hasNotifications,
             outdated:
-              board.lastUpdateFromOthers &&
-              board.lastVisit &&
-              board.lastUpdateFromOthers < board.lastVisit,
+              !!realmBoardsNotifications[board.slug]?.notificationsOutdated,
             muted: board.muted,
             link: getLinkToBoard(board.slug, onBoardChange),
             pinnedOrder: board.pinnedOrder,

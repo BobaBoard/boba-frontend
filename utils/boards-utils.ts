@@ -23,7 +23,7 @@ export const processBoardsUpdates = (
   let allBoards: BoardUpdateData[] = [];
   const availableBoards = Object.values(boardsData);
   if (!availableBoards.length) {
-    return { recentBoards, allBoards, hasUpdates: false };
+    return { recentBoards, allBoards };
   }
 
   allBoards = availableBoards.sort((b1, b2) => b1.slug.localeCompare(b2.slug));
@@ -45,7 +45,5 @@ export const processBoardsUpdates = (
       maybeApplyBoardsFilter(b, boardsFilter)
     ),
     allBoards: allBoards.filter((b) => maybeApplyBoardsFilter(b, boardsFilter)),
-    hasUpdates: allBoards.some((board) => board.updates),
-    isOutdated: allBoards.every((board) => !board.updates || board.outdated),
   };
 };
