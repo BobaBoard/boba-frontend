@@ -18,7 +18,7 @@ export const muteBoard = async ({
   if (mute) {
     await axios.post(`boards/${slug}/mute`);
   } else {
-    await axios.post(`boards/${slug}/unmute`);
+    await axios.delete(`boards/${slug}/mute`);
   }
   return true;
 };
@@ -34,7 +34,7 @@ export const pinBoard = async ({
   if (pin) {
     await axios.post(`boards/${slug}/pin`);
   } else {
-    await axios.post(`boards/${slug}/unpin`);
+    await axios.delete(`boards/${slug}/pin`);
   }
   return true;
 };
