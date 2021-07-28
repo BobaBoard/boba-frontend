@@ -6,13 +6,14 @@ import {
   dismissBoardNotifications,
   pinBoard,
 } from "../../../utils/queries/board";
-import {
-  setBoardMutedInCache,
-  setBoardPinnedInCache,
-} from "../../../utils/queries/cache";
+import { setBoardMutedInCache } from "../../../utils/queries/cache";
 import debug from "debug";
 import { BoardData, BoardDescription } from "../../../types/Types";
 import { useBoardsContext } from "../../boards/BoardContext";
+import {
+  maybeSetBoardPinnedInCache,
+  useRefetchPinnedBoards,
+} from "./pinned-boards";
 
 const error = debug("bobafrontend:hooks:queries:board-error");
 const log = debug("bobafrontend:hooks:queries:board-log");
@@ -53,6 +54,7 @@ export const useMuteBoard = () => {
 export const usePinBoard = () => {
   const queryClient = useQueryClient();
   const { nextPinnedOrder } = useBoardsContext();
+  const refetchPinnedBoards = useRefetchPinnedBoards();
   const { mutate: setBoardPinned } = useMutation(
     ({ slug, pin }: { slug: string; pin: boolean }) => pinBoard({ slug, pin }),
     {
@@ -62,7 +64,7 @@ export const usePinBoard = () => {
             pin ? "pinned" : "unpinned"
           }.`
         );
-        setBoardPinnedInCache(queryClient, { slug, pin, nextPinnedOrder });
+        maybeSetBoardPinnedInCache(queryClient, { boardId: slug, pin });
       },
       onError: (error: Error, { slug, pin }) => {
         toast.error(
@@ -77,7 +79,7 @@ export const usePinBoard = () => {
         log(
           `Successfully marked board ${slug} as ${pin ? "pinned" : "unpinned"}.`
         );
-        queryClient.invalidateQueries("allBoardsData");
+        refetchPinnedBoards();
       },
     }
   );

@@ -1,11 +1,11 @@
 import { useQuery, useQueryClient } from "react-query";
-import debug from "debug";
 import axios from "axios";
 import { useAuth } from "../../Auth";
 import moment from "moment";
 
-const error = debug("bobafrontend:hooks:queries:PinnedBoards-error");
-const log = debug("bobafrontend:hooks:queries:PinnedBoards-log");
+// import debug from "debug";
+// const error = debug("bobafrontend:hooks:queries:notifications-error");
+// const log = debug("bobafrontend:hooks:queries:notifications-log");
 
 interface NotificationType {
   hasNotifications: boolean;

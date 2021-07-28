@@ -6,6 +6,7 @@ import {
   PostType,
   ThreadType,
   TagsType,
+  BoardSummary,
 } from "../../types/Types";
 
 import debug from "debug";
@@ -74,9 +75,8 @@ const updateThreadInQueries = (
 
     updateThread(newThread);
 
-    data.pages[threadData.activityDataIndex].activity[
-      threadData.threadIndex
-    ] = newThread;
+    data.pages[threadData.activityDataIndex].activity[threadData.threadIndex] =
+      newThread;
   });
 };
 
@@ -183,10 +183,11 @@ export const setBoardPinnedInCache = (
     nextPinnedOrder: number;
   }
 ) => {
-  const boardData = queryClient.getQueryData<BoardData>([
-    "boardThemeData",
-    { slug },
-  ]);
+  const boardData = queryClient.getQueryData<BoardData>(
+    ["boardThemeData", { slug }],
+    { exact: false }
+  );
+  console.log(boardData);
   if (!boardData) {
     error(`Board wasn't found in data after marking board ${slug} as muted`);
     return;
@@ -427,4 +428,20 @@ export const getThreadInBoardCache = (
     }
   }
   return null;
+};
+
+export const getBoardSummaryInCache = (
+  queryClient: QueryClient,
+  { boardId }: { boardId: string }
+) => {
+  const boardsData = queryClient.getQueryData<{ boards: BoardSummary[] }>(
+    ["realmData"],
+    {
+      exact: false,
+    }
+  );
+  if (!boardsData) {
+    return null;
+  }
+  return boardsData.boards.find((board) => board.id === boardId) || null;
 };
