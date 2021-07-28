@@ -7,6 +7,7 @@ import {
   ThreadType,
   TagsType,
   BoardSummary,
+  RealmType,
 } from "../../types/Types";
 
 import debug from "debug";
@@ -444,4 +445,34 @@ export const getBoardSummaryInCache = (
     return null;
   }
   return boardsData.boards.find((board) => board.id === boardId) || null;
+};
+
+export const updateBoardSummaryInCache = (
+  queryClient: QueryClient,
+  { boardId }: { boardId: string },
+  transform: (summary: BoardSummary) => BoardSummary
+) => {
+  queryClient.setQueriesData(
+    {
+      queryKey: "realmData",
+      exact: false,
+    },
+    (data: RealmType) => {
+      const containsBoard = data.boards.find(
+        (realmBoard) => realmBoard.id == boardId
+      );
+      if (!containsBoard) {
+        return data;
+      }
+      return {
+        ...data,
+        boards: data.boards.map((realmBoard) => {
+          if (realmBoard.id !== boardId) {
+            return realmBoard;
+          }
+          return transform({ ...realmBoard });
+        }),
+      };
+    }
+  );
 };

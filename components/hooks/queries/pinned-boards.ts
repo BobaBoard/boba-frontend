@@ -3,7 +3,10 @@ import { BoardSummary } from "../../../types/Types";
 import axios from "axios";
 import { useAuth } from "../../Auth";
 import { makeClientBoardSummary } from "utils/server-utils";
-import { getBoardSummaryInCache } from "utils/queries/cache";
+import {
+  getBoardSummaryInCache,
+  updateBoardSummaryInCache,
+} from "utils/queries/cache";
 
 // import debug from "debug";
 // const error = debug("bobafrontend:hooks:queries:PinnedBoards-error");
@@ -78,5 +81,9 @@ export const maybeSetBoardPinnedInCache = (
   } else {
     delete newCachedData[boardId];
   }
+  updateBoardSummaryInCache(queryClient, { boardId }, (board) => {
+    board.pinned = pin;
+    return board;
+  });
   queryClient.setQueryData(PINNED_BOARDS_QUERY_KEY, newCachedData);
 };
