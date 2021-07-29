@@ -77,6 +77,7 @@ const RealmContextProvider: React.FC<{
     {
       placeholderData: initialData,
       staleTime: Infinity,
+      refetchInterval: 60 * 1000,
       refetchOnWindowFocus: true,
       notifyOnChangeProps: ["data", "dataUpdatedAt"],
     }

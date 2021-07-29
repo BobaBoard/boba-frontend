@@ -158,7 +158,7 @@ const mergeBoardsData = (
 };
 
 const toBoardsDataObject = (boardsArray: BoardData[]) => {
-  return boardsArray.reduce<BoardsDataMap>((agg, value) => {
+  return boardsArray?.reduce<BoardsDataMap>((agg, value) => {
     agg[value.slug] = value;
     return agg;
   }, {});

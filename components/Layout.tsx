@@ -1,18 +1,16 @@
 import React from "react";
 import {
-  SideMenu,
   Layout as InnerLayout,
   SideMenuHandler,
   CustomCursor,
   PinnedBoardsMenu,
 } from "@bobaboard/ui-components";
+import Sidemenu from "./layout/SideMenu";
 import LoginModal from "./LoginModal";
-import { dismissAllNotifications } from "../utils/queries";
 import { useAuth } from "./Auth";
 import { useRouter } from "next/router";
-import { useMutation, useQueryClient } from "react-query";
+import { useQueryClient } from "react-query";
 import { useBoardsContext } from "./boards/BoardContext";
-import { processBoardsUpdates } from "../utils/boards-utils";
 import { useCachedLinks } from "./hooks/useCachedLinks";
 import { useServerCssVariables } from "./hooks/useServerCssVariables";
 import { useForceHideIdentity } from "./hooks/useForceHideIdentity";
@@ -21,17 +19,13 @@ import {
   useInvalidateNotifications,
   useNotifications,
 } from "./hooks/queries/notifications";
-import debug from "debug";
 import {
   faArchive,
   faBook,
-  faCommentSlash,
   faCogs,
   faComments,
   faInbox,
   faSignOutAlt,
-  faTh,
-  faClock,
   faLock,
   faLockOpen,
 } from "@fortawesome/free-solid-svg-icons";
@@ -40,8 +34,10 @@ import { getTitle } from "pages/_app";
 import { PageTypes, usePageDetails } from "utils/router-utils";
 import { useRealmSettings } from "contexts/RealmContext";
 
+import debug from "debug";
 const log = debug("bobafrontend:Layout-log");
 const error = debug("bobafrontend:Layout-error");
+
 const useMenuBarOptions = () => {
   const { isLoggedIn } = useAuth();
   const { linkToFeed } = useCachedLinks();
@@ -194,35 +190,18 @@ function useTitleLink() {
   }
 }
 
-const MAX_UNREAD_BOARDS_DISPLAY = 4;
 const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const { linkToHome, getLinkToBoard } = useCachedLinks();
   const { isPending: isUserPending, user, isLoggedIn } = useAuth();
   const [loginOpen, setLoginOpen] = React.useState(false);
   const layoutRef = React.useRef<{ closeSideMenu: () => void }>(null);
   const sideMenuRef = React.useRef<SideMenuHandler>(null);
-  const { slug, threadId, pageType } = usePageDetails();
+  const { slug, pageType } = usePageDetails();
   const titleLink = useTitleLink();
   const { root: rootSettings } = useRealmSettings();
-  const { boardsData, refetch, hasLoggedInData } = useBoardsContext();
-  const [boardFilter, setBoardFilter] = React.useState("");
+  const { boardsData, refetch } = useBoardsContext();
   const queryClient = useQueryClient();
   const refetchNotifications = useInvalidateNotifications();
-  const { mutate: dismissNotifications } = useMutation(
-    dismissAllNotifications,
-    {
-      onSuccess: () => {
-        log(`Successfully dismissed all notifications. Refetching...`);
-        queryClient.invalidateQueries(["allBoardsData", { isLoggedIn }]);
-        if (slug) {
-          queryClient.invalidateQueries(["boardActivityData", { slug }]);
-        }
-        if (threadId) {
-          queryClient.invalidateQueries(["threadData", { threadId }]);
-        }
-      },
-    }
-  );
   const onBoardChange = React.useCallback(
     (nextSlug) => {
       layoutRef.current?.closeSideMenu();
@@ -242,38 +221,8 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   );
   const menuOptions = useMenuBarOptions();
   const { data: pinnedBoards } = usePinnedBoards();
-  const {
-    pinnedBoards: pinnedBoardsNotifications,
-    hasNotifications,
-    notificationsOutdated,
-    realmBoards: realmBoardsNotifications,
-  } = useNotifications();
-
-  const { recentBoards, allBoards } = React.useMemo(
-    () =>
-      processBoardsUpdates(
-        Object.values(boardsData).reduce((agg, board) => {
-          agg[board.slug] = {
-            slug: board.slug.replace("_", " "),
-            avatar: `${board.avatarUrl}`,
-            description: board.tagline,
-            color: board.accentColor,
-            lastUpdate:
-              realmBoardsNotifications[board.slug]?.lastUpdateFromOthersAt,
-            updates: !!realmBoardsNotifications[board.slug]?.hasNotifications,
-            outdated:
-              !!realmBoardsNotifications[board.slug]?.notificationsOutdated,
-            muted: board.muted,
-            link: getLinkToBoard(board.slug, onBoardChange),
-            pinnedOrder: board.pinnedOrder,
-          };
-          return agg;
-        }, {} as Parameters<typeof processBoardsUpdates>[0]),
-        boardFilter,
-        isLoggedIn
-      ),
-    [boardFilter, boardsData, isLoggedIn, getLinkToBoard, onBoardChange]
-  );
+  const { pinnedBoardsNotifications, hasNotifications, notificationsOutdated } =
+    useNotifications();
 
   const processedPinnedBoards = React.useMemo(() => {
     if (!pinnedBoards) {
@@ -336,62 +285,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
             currentBoardSlug={slug}
           />
         }
-        sideMenuContent={
-          <SideMenu
-            menuOptions={React.useMemo(
-              () =>
-                isLoggedIn
-                  ? [
-                      {
-                        icon: faCommentSlash,
-                        name: "Dismiss notifications",
-                        link: { onClick: dismissNotifications },
-                      },
-                    ]
-                  : [],
-              [isLoggedIn, dismissNotifications]
-            )}
-            showPinned={isUserPending || isLoggedIn}
-            onFilterChange={setBoardFilter}
-            currentBoardSlug={slug}
-            ref={sideMenuRef}
-          >
-            {(isUserPending || isLoggedIn) && (
-              <SideMenu.BoardsMenuSection
-                key="recent-unreads"
-                title={
-                  // TODO: this board is hidden cause the last update data
-                  // comes from the cache for logged out users, which
-                  // means we can't show them in order of update
-                  isUserPending || isLoggedIn
-                    ? "recent unreads"
-                    : "recent updates"
-                }
-                icon={faClock}
-                boards={recentBoards.filter(
-                  (board, index) => index < MAX_UNREAD_BOARDS_DISPLAY
-                )}
-                emptyTitle="Congratulations!"
-                emptyDescription="You read 'em all."
-                placeholdersHeight={
-                  isUserPending || !hasLoggedInData
-                    ? MAX_UNREAD_BOARDS_DISPLAY
-                    : 0
-                }
-                accentColor={boardData?.accentColor || "#f96680"}
-                loading={isUserPending || (isLoggedIn && !hasLoggedInData)}
-              />
-            )}
-            <SideMenu.BoardsMenuSection
-              key="all-boards"
-              title="all boards"
-              icon={faTh}
-              boards={allBoards}
-              emptyTitle="There's no board here."
-              emptyDescription="Somehow, that feels wrong."
-            />
-          </SideMenu>
-        }
+        sideMenuContent={<Sidemenu />}
         actionButton={actionButton}
         headerAccent={boardData?.accentColor || "#f96680"}
         onUserBarClick={React.useCallback(

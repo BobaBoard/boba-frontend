@@ -1,40 +1,45 @@
-import { BoardType } from "@bobaboard/ui-components/dist/types";
 import moment from "moment";
 
 import debug from "debug";
+import { BoardSummary } from "types/Types";
+import { NotificationsType } from "components/hooks/queries/notifications";
 const info = debug("bobafrontend:board-utils-info");
 
-type BoardUpdateData = BoardType & {
-  lastUpdate: Date | undefined;
-  pinnedOrder: number | null;
-};
-
-const maybeApplyBoardsFilter = ({ slug }: BoardUpdateData, filter: string) => {
+const maybeApplyBoardsFilter = ({ slug }: BoardSummary, filter: string) => {
   return filter == "" || slug.toLowerCase().includes(filter.toLowerCase());
 };
 
-export const processBoardsUpdates = (
-  boardsData: { [slug: string]: BoardUpdateData },
-  boardsFilter: string,
-  isLoggedIn: boolean
-) => {
+export const processBoardsUpdates = ({
+  boardsData,
+  boardsNotifications,
+  boardsFilter,
+  isLoggedIn,
+}: {
+  boardsData: BoardSummary[];
+  boardsNotifications: NotificationsType["realmBoards"];
+  boardsFilter: string;
+  isLoggedIn: boolean;
+}) => {
   info(`Processing board updates: `, boardsData);
-  let recentBoards: BoardUpdateData[] = [];
-  let allBoards: BoardUpdateData[] = [];
-  const availableBoards = Object.values(boardsData);
-  if (!availableBoards.length) {
-    return { recentBoards, allBoards };
-  }
+  const allBoards = boardsData.sort((b1, b2) => b1.slug.localeCompare(b2.slug));
 
-  allBoards = availableBoards.sort((b1, b2) => b1.slug.localeCompare(b2.slug));
-
-  recentBoards = allBoards
-    .filter((board) => board.lastUpdate && (!isLoggedIn || !!board.updates))
+  const recentBoards = allBoards
+    .filter(
+      (board) =>
+        boardsNotifications[board.slug]?.lastUpdateFromOthersAt &&
+        (!isLoggedIn || boardsNotifications[board.slug].hasNotifications)
+    )
     .sort((b1, b2) => {
-      if (moment.utc(b1.lastUpdate).isBefore(moment.utc(b2.lastUpdate))) {
+      const lastUpdateB1 = moment.utc(
+        boardsNotifications[b1.slug].lastUpdateFromOthersAt
+      );
+      const lastUpdateB2 = moment.utc(
+        boardsNotifications[b2.slug].lastUpdateFromOthersAt
+      );
+      if (lastUpdateB1.isBefore(lastUpdateB2)) {
         return 1;
       }
-      if (moment.utc(b1.lastUpdate).isAfter(moment.utc(b2.lastUpdate))) {
+      if (lastUpdateB1.isAfter(lastUpdateB2)) {
         return -1;
       }
       return 0;
