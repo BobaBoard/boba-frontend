@@ -3,9 +3,9 @@ import {
   Layout as InnerLayout,
   SideMenuHandler,
   CustomCursor,
-  PinnedBoardsMenu,
 } from "@bobaboard/ui-components";
 import Sidemenu from "./layout/SideMenu";
+import PinnedMenu from "./layout/PinnedMenu";
 import LoginModal from "./LoginModal";
 import { useAuth } from "./Auth";
 import { useRouter } from "next/router";
@@ -14,7 +14,6 @@ import { useBoardsContext } from "./boards/BoardContext";
 import { useCachedLinks } from "./hooks/useCachedLinks";
 import { useServerCssVariables } from "./hooks/useServerCssVariables";
 import { useForceHideIdentity } from "./hooks/useForceHideIdentity";
-import { usePinnedBoards } from "./hooks/queries/pinned-boards";
 import {
   useInvalidateNotifications,
   useNotifications,
@@ -35,7 +34,7 @@ import { PageTypes, usePageDetails } from "utils/router-utils";
 import { useRealmSettings } from "contexts/RealmContext";
 
 import debug from "debug";
-const log = debug("bobafrontend:Layout-log");
+// const log = debug("bobafrontend:Layout-log");
 const error = debug("bobafrontend:Layout-error");
 
 const useMenuBarOptions = () => {
@@ -191,7 +190,7 @@ function useTitleLink() {
 }
 
 const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
-  const { linkToHome, getLinkToBoard } = useCachedLinks();
+  const { linkToHome } = useCachedLinks();
   const { isPending: isUserPending, user, isLoggedIn } = useAuth();
   const [loginOpen, setLoginOpen] = React.useState(false);
   const layoutRef = React.useRef<{ closeSideMenu: () => void }>(null);
@@ -200,53 +199,14 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const titleLink = useTitleLink();
   const { root: rootSettings } = useRealmSettings();
   const { boardsData, refetch } = useBoardsContext();
-  const queryClient = useQueryClient();
   const refetchNotifications = useInvalidateNotifications();
-  const onBoardChange = React.useCallback(
-    (nextSlug) => {
-      layoutRef.current?.closeSideMenu();
-      if (nextSlug == slug) {
-        log("Detected switch to same board. Refetching activity data.");
-        queryClient.refetchQueries(["boardActivityData", { slug: nextSlug }]);
-      }
-      refetchNotifications();
-      refetch();
-    },
-    [refetch, queryClient, slug, refetchNotifications]
-  );
   const isChangingRoute = useChangingRoute();
   const { forceHideIdentity } = useForceHideIdentity();
   const loggedInMenuOptions = useLoggedInDropdownOptions(
     React.useCallback(() => setLoginOpen(true), [])
   );
   const menuOptions = useMenuBarOptions();
-  const { data: pinnedBoards } = usePinnedBoards();
-  const { pinnedBoardsNotifications, hasNotifications, notificationsOutdated } =
-    useNotifications();
-
-  const processedPinnedBoards = React.useMemo(() => {
-    if (!pinnedBoards) {
-      return [];
-    }
-    return Object.values(pinnedBoards)
-      .map((board) => {
-        return {
-          slug: board.slug.replace("_", " "),
-          avatar: `${board.avatarUrl}`,
-          description: board.tagline,
-          color: board.accentColor,
-          muted: board.muted,
-          link: getLinkToBoard(board.slug, onBoardChange),
-          pinnedOrder: board.pinnedIndex,
-          updates:
-            pinnedBoardsNotifications[board.slug]?.hasNotifications || false,
-          outdated:
-            pinnedBoardsNotifications[board.slug]?.notificationsOutdated ||
-            false,
-        };
-      })
-      .sort((b1, b2) => (b1.pinnedOrder || 0) - (b2.pinnedOrder || 0));
-  }, [pinnedBoards, pinnedBoardsNotifications, getLinkToBoard, onBoardChange]);
+  const { hasNotifications, notificationsOutdated } = useNotifications();
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   useServerCssVariables(containerRef);
@@ -279,12 +239,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
       <InnerLayout
         ref={layoutRef}
         mainContent={mainContent}
-        pinnedMenuContent={
-          <PinnedBoardsMenu
-            boards={processedPinnedBoards}
-            currentBoardSlug={slug}
-          />
-        }
+        pinnedMenuContent={<PinnedMenu />}
         sideMenuContent={<Sidemenu />}
         actionButton={actionButton}
         headerAccent={boardData?.accentColor || "#f96680"}
