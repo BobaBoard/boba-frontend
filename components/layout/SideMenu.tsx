@@ -52,7 +52,6 @@ const makeUiBoard = ({
 
 const SideMenu = () => {
   const [boardsFilter, setBoardsFilter] = React.useState("");
-  const sideMenuRef = React.useRef<SideMenuHandler>(null);
   const { isPending: isUserPending, isLoggedIn } = useAuth();
   const { slug, threadId } = usePageDetails();
   const queryClient = useQueryClient();
@@ -132,7 +131,6 @@ const SideMenu = () => {
       showPinned={isUserPending || isLoggedIn}
       onFilterChange={setBoardsFilter}
       currentBoardSlug={slug}
-      ref={sideMenuRef}
     >
       {(isUserPending || isLoggedIn) && (
         <LibrarySideMenu.BoardsMenuSection

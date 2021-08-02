@@ -1,19 +1,15 @@
 import React from "react";
-import {
-  Layout as InnerLayout,
-  SideMenuHandler,
-  CustomCursor,
-} from "@bobaboard/ui-components";
+import { Layout as InnerLayout, CustomCursor } from "@bobaboard/ui-components";
 import Sidemenu from "./layout/SideMenu";
 import PinnedMenu from "./layout/PinnedMenu";
 import LoginModal from "./LoginModal";
 import { useAuth } from "./Auth";
-import { useRouter } from "next/router";
 import { useQueryClient } from "react-query";
 import { useBoardsContext } from "./boards/BoardContext";
 import { useCachedLinks } from "./hooks/useCachedLinks";
 import { useServerCssVariables } from "./hooks/useServerCssVariables";
 import { useForceHideIdentity } from "./hooks/useForceHideIdentity";
+import { useIsChangingRoute } from "./hooks/useIsChangingRoute";
 import {
   useInvalidateNotifications,
   useNotifications,
@@ -106,29 +102,6 @@ const useLoggedInDropdownOptions = (openLogin: () => void) => {
   );
 };
 
-const useChangingRoute = () => {
-  const router = useRouter();
-  const [isChangingRoute, setChangingRoute] = React.useState(false);
-  React.useEffect(() => {
-    const changeStartHandler = () => {
-      setChangingRoute(true);
-    };
-    const changeEndHandler = () => {
-      setChangingRoute(false);
-    };
-    router.events.on("routeChangeStart", changeStartHandler);
-    router.events.on("beforeHistoryChange", changeStartHandler);
-    router.events.on("routeChangeComplete", changeEndHandler);
-    return () => {
-      router.events.off("routeChangeStart", changeStartHandler);
-      router.events.off("beforeHistoryChange", changeStartHandler);
-      router.events.off("routeChangeComplete", changeEndHandler);
-    };
-  }, [router.events]);
-
-  return isChangingRoute;
-};
-
 interface LayoutComposition {
   MainContent: React.FC<{
     children: React.ReactNode;
@@ -194,13 +167,12 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const { isPending: isUserPending, user, isLoggedIn } = useAuth();
   const [loginOpen, setLoginOpen] = React.useState(false);
   const layoutRef = React.useRef<{ closeSideMenu: () => void }>(null);
-  const sideMenuRef = React.useRef<SideMenuHandler>(null);
   const { slug, pageType } = usePageDetails();
   const titleLink = useTitleLink();
   const { root: rootSettings } = useRealmSettings();
   const { boardsData, refetch } = useBoardsContext();
   const refetchNotifications = useInvalidateNotifications();
-  const isChangingRoute = useChangingRoute();
+  const isChangingRoute = useIsChangingRoute();
   const { forceHideIdentity } = useForceHideIdentity();
   const loggedInMenuOptions = useLoggedInDropdownOptions(
     React.useCallback(() => setLoginOpen(true), [])
@@ -218,7 +190,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const actionButton = React.Children.toArray(props.children).find((child) =>
     isActionButton(child)
   ) as typeof ActionButton | undefined;
-  ``;
+
   return (
     <div ref={containerRef}>
       <Head>
@@ -238,10 +210,6 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
       )}
       <InnerLayout
         ref={layoutRef}
-        mainContent={mainContent}
-        pinnedMenuContent={<PinnedMenu />}
-        sideMenuContent={<Sidemenu />}
-        actionButton={actionButton}
         headerAccent={boardData?.accentColor || "#f96680"}
         onUserBarClick={React.useCallback(
           () => setLoginOpen(!isUserPending && !isLoggedIn),
@@ -260,13 +228,21 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
           refetchNotifications();
           refetch();
         }}
-        onSideMenuFullyOpen={sideMenuRef.current?.focusBoardFilter}
         logoLink={linkToHome}
         menuOptions={menuOptions}
         selectedMenuOption={pageType}
         titleLink={titleLink}
         onCompassClick={props.onCompassClick}
-      />
+      >
+        <InnerLayout.SideMenuContent>
+          <Sidemenu />
+        </InnerLayout.SideMenuContent>
+        <InnerLayout.PinnedMenuContent>
+          <PinnedMenu />
+        </InnerLayout.PinnedMenuContent>
+        <InnerLayout.MainContent>{mainContent}</InnerLayout.MainContent>
+        <InnerLayout.ActionButton>{actionButton}</InnerLayout.ActionButton>
+      </InnerLayout>
     </div>
   );
 };
