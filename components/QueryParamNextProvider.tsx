@@ -25,14 +25,12 @@ export const QueryParamProviderComponent = (props: {
       push: ({ search }: Location) =>
         router.push(
           { pathname: router.pathname, query: router.query },
-          { search, pathname },
-          { shallow: true }
+          { search, pathname }
         ),
       replace: ({ search }: Location) =>
         router.replace(
           { pathname: router.pathname, query: router.query },
-          { search, pathname },
-          { shallow: true }
+          { search, pathname }
         ),
       location,
     }),

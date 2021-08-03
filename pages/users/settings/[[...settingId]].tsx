@@ -33,9 +33,10 @@ function UserPage() {
   const { linkToHome } = useCachedLinks();
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
-  const onCompassClick = React.useCallback(() => setShowSidebar(!showSidebar), [
-    showSidebar,
-  ]);
+  const onCompassClick = React.useCallback(
+    () => setShowSidebar(!showSidebar),
+    [showSidebar]
+  );
 
   const router = useRouter();
 
@@ -44,10 +45,7 @@ function UserPage() {
       onClick: (link: string | undefined) => {
         router.push(
           router.route,
-          router.pathname.substr(0, router.pathname.indexOf("[[")) + link,
-          {
-            shallow: true,
-          }
+          router.pathname.substr(0, router.pathname.indexOf("[[")) + link
         );
       },
     }),
