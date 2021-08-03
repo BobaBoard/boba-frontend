@@ -11,11 +11,11 @@ import FeedSidebar from "../../components/feed/FeedSidebar";
 import LoadingSpinner from "components/LoadingSpinner";
 import ThreadPreview from "components/ThreadPreview";
 import { withEditors } from "components/editors/withEditors";
-import { useBoardsContext } from "../../components/boards/BoardContext";
 import { isFromBackButton } from "components/hooks/useFromBackButton";
 import { ExistanceParam } from "components/QueryParamNextProvider";
 import { useQueryParams } from "use-query-params";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
+import { useRealmBoards } from "contexts/RealmContext";
 
 const info = debug("bobafrontend:boardPage-info");
 info.log = console.info.bind(console);
@@ -29,7 +29,7 @@ function UserFeedPage() {
   const [isShowingSidebar, setShowSidebar] = React.useState(false);
   const [{ showRead, ownOnly }, setQuery] = useQueryParams(FeedParams);
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
-  const { boardsData } = useBoardsContext();
+  const realmBoards = useRealmBoards();
   const { linkToHome } = useCachedLinks();
 
   React.useEffect(() => {
@@ -134,7 +134,9 @@ function UserFeedPage() {
                           <ThreadPreview
                             thread={thread}
                             isLoggedIn={isLoggedIn}
-                            originBoard={boardsData[thread.boardSlug]}
+                            originBoard={realmBoards.find(
+                              (board) => board.slug == thread.boardSlug
+                            )}
                           />
                         </div>
                       );

@@ -8,10 +8,6 @@ import Layout from "components/Layout";
 import LoadingSpinner from "components/LoadingSpinner";
 import { useAuth } from "components/Auth";
 import classnames from "classnames";
-import {
-  useBoardContext,
-  useBoardsContext,
-} from "components/boards/BoardContext";
 //import { useHotkeys } from "react-hotkeys-hook";
 import ThreadView from "components/thread/ThreadView";
 import ThreadSidebar from "components/thread/ThreadSidebar";
@@ -34,6 +30,8 @@ import { useReadThread } from "components/hooks/queries/thread";
 import { clearThreadData } from "utils/queries/cache";
 import { useQueryClient } from "react-query";
 import { useThreadCollapseManager } from "components/thread/useCollapseManager";
+import { useInvalidateNotifications } from "components/hooks/queries/notifications";
+import { useBoardSummary } from "contexts/RealmContext";
 
 // import debug from "debug";
 // const error = debug("bobafrontend:ThreadPage-error");
@@ -50,8 +48,8 @@ function ThreadPage() {
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const { getLinkToBoard } = useCachedLinks();
-  const currentBoardData = useBoardContext(slug);
-  const { refetch: refetchNotifications } = useBoardsContext();
+  const currentBoardData = useBoardSummary({ boardId: slug });
+  const refetchNotifications = useInvalidateNotifications();
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
   const onCompassClick = React.useCallback(

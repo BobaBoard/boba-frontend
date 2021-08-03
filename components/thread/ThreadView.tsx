@@ -9,7 +9,6 @@ import CommentsThread from "./CommentsThread";
 import { usePageDetails, ThreadPageDetails } from "utils/router-utils";
 import { useAuth } from "components/Auth";
 import { useStemOptions } from "components/hooks/useStemOptions";
-import { useBoardContext } from "../boards/BoardContext";
 import { useThreadEditors } from "components/editors/withEditors";
 import {
   CollapseManager,
@@ -24,6 +23,7 @@ import {
 import css from "styled-jsx/css";
 
 import debug from "debug";
+import { useBoardSummaryBySlug } from "components/hooks/queries/board";
 const error = debug("bobafrontend:ThreadLevel-log");
 const log = debug("bobafrontend:ThreadLevel-log");
 const info = debug("bobafrontend:ThreadLevel-info");
@@ -266,7 +266,7 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
     threadId,
   } = usePageDetails<ThreadPageDetails>();
   const { onNewContribution } = useThreadEditors();
-  const boardData = useBoardContext(boardSlug);
+  const boardData = useBoardSummaryBySlug(boardSlug);
   const { currentRoot } = useThreadContext();
   log(`Rerendering ThreadView.`);
 

@@ -7,8 +7,8 @@ import {
   isNewThread,
 } from "./types";
 import { useThreadWithNull } from "components/thread/ThreadContext";
-import { useBoardContext } from "../boards/BoardContext";
 import { useAuth } from "components/Auth";
+import { useBoardMetadata } from "components/hooks/queries/board";
 
 export const THREAD_VIEW_OPTIONS = [
   { name: "Thread", id: "thread" },
@@ -56,12 +56,14 @@ export const useThreadDetails = (
       : (state["newContribution"] || state["newComment"])
           ?.replyToContributionId || null,
   });
-  const currentBoardData = useBoardContext(boardSlug);
+  const { boardMetadata: currentBoardMetadata } = useBoardMetadata({
+    boardId: boardSlug,
+  });
   const { user } = useAuth();
 
   const additionalIdentities =
-    !threadData?.personalIdentity && currentBoardData?.postingIdentities
-      ? currentBoardData.postingIdentities.map((identity) => ({
+    !threadData?.personalIdentity && currentBoardMetadata?.postingIdentities
+      ? currentBoardMetadata.postingIdentities.map((identity) => ({
           ...identity,
           avatar: identity.avatarUrl,
         }))
@@ -76,7 +78,9 @@ export const useThreadDetails = (
       ? threadData.currentRoot
       : undefined,
     suggestedCategories: isNewThread(state)
-      ? currentBoardData?.suggestedCategories
+      ? currentBoardMetadata?.descriptions.flatMap(
+          (description) => description.categories || []
+        )
       : threadData.categories,
     userIdentity: user
       ? {
@@ -85,6 +89,6 @@ export const useThreadDetails = (
         }
       : undefined,
     secretIdentity: threadData.personalIdentity,
-    accessories: currentBoardData?.accessories,
+    accessories: currentBoardMetadata?.accessories,
   };
 };

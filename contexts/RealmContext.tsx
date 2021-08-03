@@ -56,6 +56,16 @@ const useRealmBoards = () => {
   return context.realmData.boards;
 };
 
+const useBoardSummary = ({ boardId }: { boardId: string }) => {
+  const context = React.useContext(RealmContext);
+  if (context === undefined) {
+    throw new Error(
+      "useRealmSettings must be used within a RealmContextProvider"
+    );
+  }
+  return context.realmData.boards.find((summary) => (summary.id = boardId));
+};
+
 const RealmContextProvider: React.FC<{
   initialData: RealmType;
   children: React.ReactNode;
@@ -101,4 +111,5 @@ export {
   useRealmSettings,
   useRealmBoards,
   useRealmContextUpdatedAt,
+  useBoardSummary,
 };

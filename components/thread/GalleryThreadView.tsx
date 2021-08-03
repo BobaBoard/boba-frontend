@@ -12,7 +12,6 @@ import ThreadPost, { scrollToPost } from "./ThreadPost";
 import { useAuth } from "components/Auth";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import { useStemOptions } from "components/hooks/useStemOptions";
-import { useBoardContext } from "../boards/BoardContext";
 
 import { GALLERY_VIEW_MODE, useThreadViewContext } from "./ThreadViewContext";
 import { useThreadEditors } from "components/editors/withEditors";
@@ -22,6 +21,7 @@ import {
   useThreadCollapseManager,
 } from "./useCollapseManager";
 import { DisplayManager } from "components/hooks/useDisplayMananger";
+import { useBoardSummaryBySlug } from "components/hooks/queries/board";
 
 // import debug from "debug";
 // const log = debug("bobafrontend:threadPage:GalleryView-log");
@@ -81,7 +81,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
   const { onNewComment, onNewContribution, onEditContribution } =
     useThreadEditors();
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
-  const boardData = useBoardContext(boardSlug);
+  const boardData = useBoardSummaryBySlug(boardSlug);
   const { galleryViewMode, setGalleryViewMode } = useThreadViewContext();
   const { chronologicalPostsSequence, newRepliesCount, threadRoot } =
     useThreadContext();

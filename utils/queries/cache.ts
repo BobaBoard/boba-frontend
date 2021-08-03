@@ -16,7 +16,7 @@ import {
   PinnedBoardType,
   PINNED_BOARDS_QUERY_KEY,
 } from "components/hooks/queries/pinned-boards";
-const error = debug("bobafrontend:boardPage-error");
+//const error = debug("bobafrontend:boardPage-error");
 const log = debug("bobafrontend:boardPage-log");
 
 interface ThreadInActivityData {

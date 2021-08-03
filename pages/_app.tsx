@@ -7,7 +7,6 @@ import React from "react";
 import axios from "axios";
 import Head from "next/head";
 import { AuthProvider, useAuth } from "../components/Auth";
-import { BoardContextProvider } from "../components/boards/BoardContext";
 import { RealmContextProvider } from "../contexts/RealmContext";
 import useFromBackButton from "../components/hooks/useFromBackButton";
 import { useScrollRestoration } from "../components/hooks/useScrollRestoration";
@@ -229,17 +228,12 @@ function MyApp({
                 <AxiosInterceptor />
                 <ToastContainer />
                 <RealmContextProvider initialData={props.realmData}>
-                  <BoardContextProvider
-                    initialData={boardData}
-                    slug={props.slug || null}
-                  >
-                    {React.useMemo(
-                      () => (
-                        <Component lastUpdate={props.lastUpdate} />
-                      ),
-                      [Component, props.lastUpdate]
-                    )}
-                  </BoardContextProvider>
+                  {React.useMemo(
+                    () => (
+                      <Component lastUpdate={props.lastUpdate} />
+                    ),
+                    [Component, props.lastUpdate]
+                  )}
                 </RealmContextProvider>
               </AuthProvider>
             </ImageUploaderContext.Provider>

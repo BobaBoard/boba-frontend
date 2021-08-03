@@ -2,17 +2,19 @@ import React from "react";
 import Layout from "../components/Layout";
 import { BoardsDisplay, PostQuote } from "@bobaboard/ui-components";
 import Link from "next/link";
-import { useBoardsContext } from "../components/boards/BoardContext";
 import useBoos from "components/hooks/useBoos";
 import moment from "moment";
 import { THREAD_PATH } from "utils/router-utils";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { isStaging } from "utils/server-utils";
+import { useRealmBoards } from "contexts/RealmContext";
+import { useNotifications } from "components/hooks/queries/notifications";
 
 function HomePage(props: { lastUpdate?: any }) {
   const { styles } = useBoos();
-  const { boardsData } = useBoardsContext();
   const { getLinkToBoard } = useCachedLinks();
+  const boards = useRealmBoards();
+  const { realmBoardsNotifications } = useNotifications();
 
   const updatesThreadUrl = `${process.env.NEXT_PUBLIC_RELEASE_THREAD_URL}/${props?.lastUpdate?.latest_post_string_id}`;
   return (
@@ -91,14 +93,15 @@ function HomePage(props: { lastUpdate?: any }) {
             </div>
             <div className="display">
               <BoardsDisplay
-                boards={Object.values(boardsData)
+                boards={boards
                   .filter((board) => !board.delisted)
                   .map((board) => ({
                     slug: board.slug.replace("_", " "),
                     avatar: board.avatarUrl,
                     description: board.tagline,
                     color: board.accentColor,
-                    updates: board.hasUpdates,
+                    updates:
+                      !!realmBoardsNotifications[board.id]?.hasNotifications,
                     muted: board.muted,
                     link: getLinkToBoard(board.slug),
                   }))}

@@ -27,8 +27,8 @@ import {
   useSetThreadView,
 } from "./queries/thread";
 import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
-import { useBoardsContext } from "../boards/BoardContext";
 import { useBoardMetadata } from "./queries/board";
+import { useInvalidateNotifications } from "./queries/notifications";
 
 export enum PostOptions {
   COPY_LINK = "COPY_LINK",
@@ -174,7 +174,7 @@ const usePostOptions = ({
   const muteThread = useMuteThread();
   const setThreadView = useSetThreadView();
   const { boardMetadata } = useBoardMetadata({ boardId: slug });
-  const { refetch: refetchNotifications } = useBoardsContext();
+  const refetchNotifications = useInvalidateNotifications();
 
   const editTagsCallback = React.useCallback(() => {
     editorDispatch({

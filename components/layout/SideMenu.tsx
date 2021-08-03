@@ -13,13 +13,13 @@ import {
   NotificationsType,
   useNotifications,
 } from "components/hooks/queries/notifications";
-import { useBoardContext } from "../boards/BoardContext";
 import { useRealmBoards } from "contexts/RealmContext";
 import { processBoardsUpdates } from "utils/boards-utils";
 
 import debug from "debug";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { BoardSummary } from "types/Types";
+import { useBoardSummaryBySlug } from "components/hooks/queries/board";
 const log = debug("bobafrontend:SideMenu-log");
 
 const MAX_UNREAD_BOARDS_DISPLAY = 4;
@@ -52,7 +52,7 @@ const SideMenu = () => {
   const { isPending: isUserPending, isLoggedIn } = useAuth();
   const { slug, threadId } = usePageDetails();
   const queryClient = useQueryClient();
-  const boardData = useBoardContext(slug || "");
+  const boardData = useBoardSummaryBySlug(slug || "");
   const { mutate: dismissNotifications } = useMutation(
     dismissAllNotifications,
     {
