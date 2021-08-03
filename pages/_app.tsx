@@ -153,8 +153,8 @@ function MyApp({
 }: AppProps<{ [key: string]: BoardData }>) {
   log(`Re-rendering app`);
   const boardData: BoardData[] = React.useMemo(
-    () => props?.boardData.map(makeClientBoardData) || [],
-    [props?.boardData]
+    () => props?.realmData.boards.map(makeClientBoardData) || [],
+    [props?.realmData]
   );
   const currentBoardData = boardData.find((board) => board.slug == props.slug);
   useFromBackButton(router);
@@ -247,14 +247,12 @@ function MyApp({
 export default MyApp;
 
 MyApp.getInitialProps = async ({ ctx }: { ctx: NextPageContext }) => {
-  const boardsBody = await axios.get(`${getServerBaseUrl(ctx)}boards`);
   const realmBody = await getRealmData({
     baseUrl: getServerBaseUrl(ctx),
     realmId: `v0`,
   });
   const lastUpdate = await getLastUpdate(ctx);
 
-  const boardData = await boardsBody.data;
   const realmData = await realmBody;
 
   if (!isAllowedSandboxLocation(ctx)) {
@@ -273,7 +271,6 @@ MyApp.getInitialProps = async ({ ctx }: { ctx: NextPageContext }) => {
   log(`Returning initial props`);
   return {
     props: {
-      boardData,
       realmData,
       slug: ctx.query.boardId?.slice(1),
       lastUpdate: lastUpdate,

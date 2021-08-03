@@ -81,7 +81,7 @@ const RealmContextProvider: React.FC<{
       return getRealmData({ realmId });
     },
     {
-      placeholderData: initialData,
+      initialData: initialData,
       staleTime: Infinity,
       refetchInterval: 60 * 1000,
       refetchOnWindowFocus: true,

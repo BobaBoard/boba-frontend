@@ -21,7 +21,9 @@ export const processBoardsUpdates = ({
   isLoggedIn: boolean;
 }) => {
   info(`Processing board updates: `, boardsData);
-  const allBoards = boardsData.sort((b1, b2) => b1.slug.localeCompare(b2.slug));
+  const allBoards = [...boardsData].sort((b1, b2) =>
+    b1.slug.localeCompare(b2.slug)
+  );
 
   const recentBoards = allBoards
     .filter(

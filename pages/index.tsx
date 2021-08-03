@@ -10,13 +10,104 @@ import { isStaging } from "utils/server-utils";
 import { useRealmBoards } from "contexts/RealmContext";
 import { useNotifications } from "components/hooks/queries/notifications";
 
+const StagingWarning = () => {
+  return (
+    <div className="staging-warning">
+      <h2>ATTENTION</h2>
+      <p>
+        You're using the <strong>staging</strong> version of BobaBoard. Unless
+        you're here for a reason, you likely want to be on{" "}
+        <a href="http://v0.boba.social">v0.boba.social</a> insted.
+      </p>
+      <style jsx>{`
+        .staging-warning {
+          background-color: orangered;
+          padding: 5px 15px;
+          border-radius: 25px;
+        }
+        .staging-warning a {
+          color: blue;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+const UpdatesDisplay = (props: { lastUpdate: any }) => {
+  const updatesThreadUrl = `${process.env.NEXT_PUBLIC_RELEASE_THREAD_URL}/${props?.lastUpdate?.latest_post_string_id}`;
+
+  return (
+    <div className="updates">
+      <h2>New Stuff </h2>
+      {props?.lastUpdate && (
+        <div className="last">
+          [Last Updated:{" "}
+          {moment.utc(props?.lastUpdate.last_updated).format("MM/DD/YY")}.{" "}
+          <Link
+            href={THREAD_PATH}
+            as={
+              isStaging()
+                ? process.env.NEXT_PUBLIC_RELEASE_THREAD_URL_STAGING
+                : process.env.NEXT_PUBLIC_RELEASE_THREAD_URL || ""
+            }
+          >
+            <a>Older logs.</a>
+          </Link>
+          ]
+          <PostQuote
+            createdTime={moment.utc(props?.lastUpdate.last_updated).fromNow()}
+            createdTimeLink={{
+              href: updatesThreadUrl,
+            }}
+            text={props?.lastUpdate.post_content}
+            secretIdentity={{
+              name: props?.lastUpdate.secret_identity_name,
+              avatar: props?.lastUpdate.secret_identity_avatar,
+              color: props?.lastUpdate.secret_identity_color,
+              accessory: props?.lastUpdate.secret_identity_accessory,
+            }}
+          />
+        </div>
+      )}
+      <style jsx>{`
+        .updates {
+          background-color: #1c1c1c;
+          padding: 15px;
+          border-radius: 25px;
+          position: relative;
+        }
+        .updates .last {
+          font-size: small;
+          margin-bottom: 5px;
+        }
+        .updates :global(.expand-overlay) :global(svg) {
+          margin-top: 15px;
+        }
+      `}</style>
+    </div>
+  );
+};
+
 function HomePage(props: { lastUpdate?: any }) {
   const { styles } = useBoos();
   const { getLinkToBoard } = useCachedLinks();
   const boards = useRealmBoards();
   const { realmBoardsNotifications } = useNotifications();
 
-  const updatesThreadUrl = `${process.env.NEXT_PUBLIC_RELEASE_THREAD_URL}/${props?.lastUpdate?.latest_post_string_id}`;
+  const boardsToDisplay = React.useMemo(() => {
+    return boards
+      .filter((board) => !board.delisted)
+      .map((board) => ({
+        slug: board.slug.replace("_", " "),
+        avatar: board.avatarUrl,
+        description: board.tagline,
+        color: board.accentColor,
+        updates: !!realmBoardsNotifications[board.id]?.hasNotifications,
+        muted: board.muted,
+        link: getLinkToBoard(board.slug),
+      }));
+  }, [boards, realmBoardsNotifications, getLinkToBoard]);
+
   return (
     <div className="main">
       <Layout title={`Hello!`}>
@@ -30,17 +121,7 @@ function HomePage(props: { lastUpdate?: any }) {
                 "Where the bugs are funny and the people are cool" — Outdated
                 Meme
               </div>
-              {isStaging() && (
-                <div className="staging-warning">
-                  <h2>ATTENTION</h2>
-                  <p>
-                    You're using the <strong>staging</strong> version of
-                    BobaBoard. Unless you're here for a reason, you likely want
-                    to be on <a href="http://v0.boba.social">v0.boba.social</a>{" "}
-                    insted.
-                  </p>
-                </div>
-              )}
+              {isStaging() && <StagingWarning />}
               <p>
                 Remember: this is the experimental version of an experimental
                 website. If you experience a problem, then stuff is likely to be{" "}
@@ -52,60 +133,10 @@ function HomePage(props: { lastUpdate?: any }) {
                 channel, the <code>!bobaland</code> board or the (even more)
                 anonymous feedback form in the user menu.
               </p>
-              <div className="updates">
-                <h2>New Stuff </h2>
-                {props?.lastUpdate && (
-                  <div className="last">
-                    [Last Updated:{" "}
-                    {moment
-                      .utc(props?.lastUpdate.last_updated)
-                      .format("MM/DD/YY")}
-                    .{" "}
-                    <Link
-                      href={THREAD_PATH}
-                      as={
-                        isStaging()
-                          ? process.env.NEXT_PUBLIC_RELEASE_THREAD_URL_STAGING
-                          : process.env.NEXT_PUBLIC_RELEASE_THREAD_URL || ""
-                      }
-                    >
-                      <a>Older logs.</a>
-                    </Link>
-                    ]
-                    <PostQuote
-                      createdTime={moment
-                        .utc(props?.lastUpdate.last_updated)
-                        .fromNow()}
-                      createdTimeLink={{
-                        href: updatesThreadUrl,
-                      }}
-                      text={props?.lastUpdate.post_content}
-                      secretIdentity={{
-                        name: props?.lastUpdate.secret_identity_name,
-                        avatar: props?.lastUpdate.secret_identity_avatar,
-                        color: props?.lastUpdate.secret_identity_color,
-                        accessory: props?.lastUpdate.secret_identity_accessory,
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
+              <UpdatesDisplay lastUpdate={props.lastUpdate} />
             </div>
             <div className="display">
-              <BoardsDisplay
-                boards={boards
-                  .filter((board) => !board.delisted)
-                  .map((board) => ({
-                    slug: board.slug.replace("_", " "),
-                    avatar: board.avatarUrl,
-                    description: board.tagline,
-                    color: board.accentColor,
-                    updates:
-                      !!realmBoardsNotifications[board.id]?.hasNotifications,
-                    muted: board.muted,
-                    link: getLinkToBoard(board.slug),
-                  }))}
-              />
+              <BoardsDisplay boards={boardsToDisplay} />
             </div>
             {styles}
           </div>
@@ -130,27 +161,7 @@ function HomePage(props: { lastUpdate?: any }) {
         .intro img {
           height: 100px;
         }
-        .staging-warning {
-          background-color: orangered;
-          padding: 5px 15px;
-          border-radius: 25px;
-        }
-        .staging-warning a {
-          color: blue;
-        }
-        .updates {
-          background-color: #1c1c1c;
-          padding: 15px;
-          border-radius: 25px;
-          position: relative;
-        }
-        .updates .last {
-          font-size: small;
-          margin-bottom: 5px;
-        }
-        .updates :global(.expand-overlay) :global(svg) {
-          margin-top: 15px;
-        }
+
         .intro ul {
           list-style-position: inside;
           list-style-type: lower-greek;
