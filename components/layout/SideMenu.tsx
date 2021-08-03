@@ -1,8 +1,5 @@
 import React from "react";
-import {
-  SideMenu as LibrarySideMenu,
-  SideMenuHandler,
-} from "@bobaboard/ui-components";
+import { SideMenu as LibrarySideMenu } from "@bobaboard/ui-components";
 import {
   faCommentSlash,
   faTh,

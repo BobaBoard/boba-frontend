@@ -62,11 +62,7 @@ const RealmContextProvider: React.FC<{
 }> = ({ initialData, children }) => {
   const realmId = "v0";
   const { isLoggedIn } = useAuth();
-  const { data: realmData, dataUpdatedAt } = useQuery<
-    RealmType,
-    unknown,
-    RealmType
-  >(
+  const { data: realmData, dataUpdatedAt } = useQuery<RealmType>(
     ["realmData", { isLoggedIn, realmId }],
     () => {
       info(

@@ -96,7 +96,7 @@ const mergeBoardsSummary = (
       accentColor: value.accentColor,
       loggedInOnly: value.loggedInOnly,
       delisted: value.delisted,
-      lastUpdate: value.lastActivityAt || undefined,
+      lastUpdate: undefined,
       muted: false,
       pinnedOrder: null,
       descriptions: [],
@@ -213,18 +213,11 @@ const BoardContextProvider: React.FC<{
       return getAllBoardsData();
     },
     {
-      placeholderData: toBoardsDataObject(props.initialData),
       staleTime: STALE_TIME,
       refetchInterval: REFETCH_TIME,
       refetchOnWindowFocus: true,
       // We never notify because we let the state update on result deal with this.
       notifyOnChangeProps: ["data"],
-      isDataEqual: (oldD, newD) => {
-        info("Checking if all boards data has changed...");
-        const equal = isSameBoardsData(newD, oldD);
-        info(`...it has${equal ? "n't" : ""}.`);
-        return equal;
-      },
       select: (data) => toBoardsDataObject(data),
     }
   );

@@ -93,6 +93,8 @@ export interface BoardDescription {
 export interface Role {
   id: string;
   name: string;
+  color?: string;
+  accessory?: string;
   avatarUrl: string;
 }
 
@@ -100,6 +102,15 @@ export interface Accessory {
   id: string;
   name: string;
   accessory: string;
+}
+
+export enum ThreadPermissions {
+  editDefaultView,
+  moveThread = "move_thread",
+}
+
+export enum BoardPermissions {
+  editMetadata = "edit_metadata",
 }
 
 export enum PostPermissions {
@@ -111,8 +122,9 @@ export enum PostPermissions {
 }
 
 export interface Permissions {
-  canEditBoardData: boolean;
-  postsPermissions: PostPermissions;
+  boardPermissions: BoardPermissions;
+  postPermissions: PostPermissions;
+  threadPermissions: ThreadPermissions;
 }
 
 export interface BoardData {
@@ -146,6 +158,13 @@ export interface BoardSummary {
   delisted: boolean;
   muted?: boolean;
   pinned?: boolean;
+}
+
+export interface BoardMetadata extends BoardSummary {
+  descriptions: BoardDescription[];
+  permissions?: Permissions;
+  postingIdentities?: Role[];
+  accessories?: Accessory[];
 }
 
 export interface PostData {

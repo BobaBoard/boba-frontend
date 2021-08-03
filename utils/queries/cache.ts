@@ -1,16 +1,21 @@
 import { InfiniteData, Query, QueryClient } from "react-query";
 import {
   BoardActivityResponse,
-  BoardData,
   CommentType,
   PostType,
   ThreadType,
   TagsType,
   BoardSummary,
   RealmType,
+  BoardMetadata,
 } from "../../types/Types";
 
 import debug from "debug";
+import { BOARD_METADATA_KEY } from "components/hooks/queries/board";
+import {
+  PinnedBoardType,
+  PINNED_BOARDS_QUERY_KEY,
+} from "components/hooks/queries/pinned-boards";
 const error = debug("bobafrontend:boardPage-error");
 const log = debug("bobafrontend:boardPage-log");
 
@@ -158,45 +163,22 @@ export const setBoardMutedInCache = (
     mute: boolean;
   }
 ) => {
-  const boardData = queryClient.getQueryData<BoardData>([
-    "boardThemeData",
-    { slug },
-  ]);
-  if (!boardData) {
-    error(`Board wasn't found in data after marking board ${slug} as muted`);
-    return;
-  }
-
-  boardData.muted = mute;
-
-  queryClient.setQueryData(["boardThemeData", { slug }], { ...boardData });
-};
-
-export const setBoardPinnedInCache = (
-  queryClient: QueryClient,
-  {
-    slug,
-    pin,
-    nextPinnedOrder,
-  }: {
-    slug: string;
-    pin: boolean;
-    nextPinnedOrder: number;
-  }
-) => {
-  const boardData = queryClient.getQueryData<BoardData>(
-    ["boardThemeData", { slug }],
-    { exact: false }
+  updateBoardMetadataInCache(
+    queryClient,
+    { boardId: slug },
+    (boardMetadata) => {
+      boardMetadata.muted = mute;
+      return boardMetadata;
+    }
   );
-  console.log(boardData);
-  if (!boardData) {
-    error(`Board wasn't found in data after marking board ${slug} as muted`);
-    return;
-  }
-
-  boardData.pinnedOrder = nextPinnedOrder;
-
-  queryClient.setQueryData(["boardThemeData", { slug }], { ...boardData });
+  updatePinnedBoardInCache(queryClient, { boardId: slug }, (board) => {
+    board.muted = mute;
+    return board;
+  });
+  updateBoardSummaryInCache(queryClient, { boardId: slug }, (board) => {
+    board.muted = mute;
+    return board;
+  });
 };
 
 export const setThreadHiddenInCache = (
@@ -472,6 +454,46 @@ export const updateBoardSummaryInCache = (
           }
           return transform({ ...realmBoard });
         }),
+      };
+    }
+  );
+};
+
+export const updateBoardMetadataInCache = (
+  queryClient: QueryClient,
+  { boardId }: { boardId: string },
+  transform: (summary: BoardMetadata) => BoardMetadata
+) => {
+  queryClient.setQueriesData(
+    {
+      queryKey: [BOARD_METADATA_KEY, { boardId }],
+      exact: false,
+    },
+    (data: BoardMetadata) => {
+      const transformedData = transform({ ...data });
+      return transformedData;
+    }
+  );
+};
+
+export const updatePinnedBoardInCache = (
+  queryClient: QueryClient,
+  { boardId }: { boardId: string },
+  transform: (pinnedBoard: PinnedBoardType) => PinnedBoardType
+) => {
+  queryClient.setQueriesData(
+    {
+      queryKey: PINNED_BOARDS_QUERY_KEY,
+    },
+    (data: Record<string, PinnedBoardType>) => {
+      const pinnedBoard = data[boardId];
+      if (!pinnedBoard) {
+        return data;
+      }
+      const transformedData = transform({ ...pinnedBoard });
+      return {
+        ...data,
+        [boardId]: transformedData,
       };
     }
   );

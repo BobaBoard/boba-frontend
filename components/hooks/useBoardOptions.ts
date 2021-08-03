@@ -9,12 +9,14 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
 import { useAuth } from "../../components/Auth";
-import { useBoardsContext } from "../boards/BoardContext";
 import {
+  useBoardMetadata,
   useDismissBoardNotifications,
   useMuteBoard,
   usePinBoard,
 } from "../../components/hooks/queries/board";
+import { BoardPermissions } from "types/Types";
+import { useInvalidateNotifications } from "./queries/notifications";
 
 export enum BoardOptions {
   DISMISS_NOTIFICATIONS = "DISMISS_NOTIFICATIONS",
@@ -37,13 +39,13 @@ const getMuteBoardOptions = (
 });
 
 const getPinBoardOption = (
-  pinnedOrder: number | null,
+  pinned: boolean,
   callback: (pin: boolean) => void
 ): OptionType => ({
   icon: faThumbtack,
-  name: pinnedOrder ? "Unpin" : "Pin",
+  name: pinned ? "Unpin" : "Pin",
   link: {
-    onClick: () => callback(!pinnedOrder),
+    onClick: () => callback(!pinned),
   },
 });
 
@@ -74,19 +76,19 @@ const useBoardOptions = ({
     editSidebar?: (edit: boolean) => void;
   };
 }): DropdownProps["options"] | undefined => {
-  const { boardsData } = useBoardsContext();
+  const { boardMetadata } = useBoardMetadata({ boardId: slug });
   const { isLoggedIn } = useAuth();
 
   const setBoardPinned = usePinBoard();
   const dismissNotifications = useDismissBoardNotifications();
   const setBoardMuted = useMuteBoard();
-  const { refetch: refetchNotifications } = useBoardsContext();
+  const refetchNotifications = useInvalidateNotifications();
 
   const dropdownOptions = React.useMemo(() => {
     const getOption = (option: BoardOptions) => {
       switch (option) {
         case BoardOptions.DISMISS_NOTIFICATIONS:
-          if (!isLoggedIn || !boardsData?.[slug]) {
+          if (!isLoggedIn || !boardMetadata) {
             return null;
           }
           return getDismissNotificationsOption(() =>
@@ -100,10 +102,10 @@ const useBoardOptions = ({
             )
           );
         case BoardOptions.MUTE:
-          if (!isLoggedIn || !boardsData?.[slug]) {
+          if (!isLoggedIn || !boardMetadata) {
             return null;
           }
-          return getMuteBoardOptions(boardsData?.[slug].muted, (mute) =>
+          return getMuteBoardOptions(!!boardMetadata.muted, (mute) =>
             setBoardMuted(
               { slug, mute },
               {
@@ -114,10 +116,10 @@ const useBoardOptions = ({
             )
           );
         case BoardOptions.PIN:
-          if (!isLoggedIn || !boardsData?.[slug]) {
+          if (!isLoggedIn || !boardMetadata) {
             return null;
           }
-          return getPinBoardOption(boardsData?.[slug].pinnedOrder, (pin) =>
+          return getPinBoardOption(!!boardMetadata.pinned, (pin) =>
             setBoardPinned({
               slug,
               pin,
@@ -126,7 +128,9 @@ const useBoardOptions = ({
         case BoardOptions.EDIT:
           if (
             !isLoggedIn ||
-            !boardsData?.[slug]?.permissions?.canEditBoardData ||
+            !boardMetadata?.permissions?.boardPermissions.includes(
+              BoardPermissions.editMetadata
+            ) ||
             !callbacks?.editSidebar
           ) {
             return null;
@@ -138,7 +142,7 @@ const useBoardOptions = ({
   }, [
     options,
     slug,
-    boardsData,
+    boardMetadata,
     callbacks,
     dismissNotifications,
     refetchNotifications,

@@ -1,8 +1,13 @@
 import axios from "axios";
 import debug from "debug";
-import { makeClientBoardData } from "../server-utils";
+import {
+  makeClientBoardData,
+  makeClientBoardSummary,
+  makeClientPermissions,
+  makeClientRole,
+} from "../server-utils";
 
-import { BoardData, BoardDescription } from "../../types/Types";
+import { BoardData, BoardDescription, BoardMetadata } from "../../types/Types";
 
 const log = debug("bobafrontend:queries:board-log");
 const info = debug("bobafrontend:queries:board-info");
@@ -70,6 +75,25 @@ export const getBoardData = async ({ slug }: { slug: string | null }) => {
   log(`Got response for board data with slug ${slug}.`);
   info(response.data);
   return makeClientBoardData(response.data);
+};
+
+export const getBoardMetadata = async ({
+  boardId,
+}: {
+  boardId: string;
+}): Promise<BoardMetadata> => {
+  const data = (await axios.get(`/boards/${boardId}`))?.data;
+  const summary = makeClientBoardSummary(data);
+  return {
+    ...summary,
+    descriptions: data.descriptions,
+    permissions: data.permissions
+      ? makeClientPermissions(data.permissions)
+      : undefined,
+    postingIdentities:
+      data.posting_identities?.map(makeClientRole) || undefined,
+    accessories: data.accessories,
+  };
 };
 
 export const getAllBoardsData = async (): Promise<BoardData[]> => {

@@ -5,6 +5,7 @@ import { useAuth } from "../../Auth";
 import { makeClientBoardSummary } from "utils/server-utils";
 import {
   getBoardSummaryInCache,
+  updateBoardMetadataInCache,
   updateBoardSummaryInCache,
 } from "utils/queries/cache";
 
@@ -12,7 +13,7 @@ import {
 // const error = debug("bobafrontend:hooks:queries:PinnedBoards-error");
 // const log = debug("bobafrontend:hooks:queries:PinnedBoards-log");
 
-interface PinnedBoardType extends BoardSummary {
+export interface PinnedBoardType extends BoardSummary {
   pinnedIndex: number;
 }
 
@@ -53,10 +54,21 @@ export const useRefetchPinnedBoards = () => {
   return () => queryClient.invalidateQueries(PINNED_BOARDS_QUERY_KEY);
 };
 
+export const useBoardPinnedIndex = (boardId: string | null) => {
+  const { data: boardsData, isFetched } = usePinnedBoards();
+
+  if (!isFetched || !boardsData || !boardId) {
+    return null;
+  }
+
+  return boardsData[boardId].pinnedIndex;
+};
+
 export const maybeSetBoardPinnedInCache = (
   queryClient: QueryClient,
   { boardId, pin }: { boardId: string; pin: boolean }
 ) => {
+  // TODO: use "setQueriesData" for this method
   const cachedData = queryClient.getQueryData<Record<string, PinnedBoardType>>(
     PINNED_BOARDS_QUERY_KEY
   );
@@ -81,6 +93,10 @@ export const maybeSetBoardPinnedInCache = (
   } else {
     delete newCachedData[boardId];
   }
+  updateBoardMetadataInCache(queryClient, { boardId }, (boardMetadata) => {
+    boardMetadata.pinned = pin;
+    return boardMetadata;
+  });
   updateBoardSummaryInCache(queryClient, { boardId }, (board) => {
     board.pinned = pin;
     return board;

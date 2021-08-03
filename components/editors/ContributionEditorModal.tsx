@@ -24,7 +24,7 @@ import {
 } from "../../types/Types";
 
 import debug from "debug";
-import { useBoardsContext } from "../boards/BoardContext";
+import { useRealmBoards } from "contexts/RealmContext";
 const log = debug("bobafrontend:postEditor-log");
 const error = debug("bobafrontend:postEditor-error");
 
@@ -47,7 +47,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
   } = useThreadDetails(state);
   const [isPostLoading, setPostLoading] = React.useState(false);
   const { isLoggedIn } = useAuth();
-  const { boardsData } = useBoardsContext();
+  const boards = useRealmBoards();
 
   const { mutate: postContribution } = useMutation<
     PostType | ThreadType,
@@ -125,11 +125,11 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
     requestAnimationFrame(() => {
       editorRef.current?.focus();
     });
-  }, []);
+  }, [editorRef]);
 
   const allBoards = React.useMemo(
     () =>
-      Object.values(boardsData)
+      boards
         .map((data) => {
           return {
             slug: data.slug,
@@ -138,7 +138,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
           };
         })
         .sort((b1, b2) => b1.slug.localeCompare(b2.slug)),
-    [boardsData]
+    [boards]
   );
 
   if (!isLoggedIn || !userIdentity) {

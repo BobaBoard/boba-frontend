@@ -5,7 +5,6 @@ import PinnedMenu from "./layout/PinnedMenu";
 import LoginModal from "./LoginModal";
 import { useAuth } from "./Auth";
 import { useQueryClient } from "react-query";
-import { useBoardsContext } from "./boards/BoardContext";
 import { useCachedLinks } from "./hooks/useCachedLinks";
 import { useServerCssVariables } from "./hooks/useServerCssVariables";
 import { useForceHideIdentity } from "./hooks/useForceHideIdentity";
@@ -30,6 +29,7 @@ import { PageTypes, usePageDetails } from "utils/router-utils";
 import { useRealmSettings } from "contexts/RealmContext";
 
 import debug from "debug";
+import { useBoardSummaryBySlug } from "./hooks/queries/board";
 // const log = debug("bobafrontend:Layout-log");
 const error = debug("bobafrontend:Layout-error");
 
@@ -170,7 +170,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const { slug, pageType } = usePageDetails();
   const titleLink = useTitleLink();
   const { root: rootSettings } = useRealmSettings();
-  const { boardsData, refetch } = useBoardsContext();
+  const currentBoardSummary = useBoardSummaryBySlug(slug);
   const refetchNotifications = useInvalidateNotifications();
   const isChangingRoute = useIsChangingRoute();
   const { forceHideIdentity } = useForceHideIdentity();
@@ -183,7 +183,6 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
   useServerCssVariables(containerRef);
 
-  const boardData = slug ? boardsData[slug] : null;
   const mainContent = React.Children.toArray(props.children).find((child) =>
     isMainContent(child)
   ) as typeof MainContent | undefined;
@@ -194,7 +193,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   return (
     <div ref={containerRef}>
       <Head>
-        <title>{getTitle(boardData)}</title>
+        <title>{getTitle(currentBoardSummary)}</title>
       </Head>
       <CustomCursor
         cursorImage={rootSettings.cursor?.image}
@@ -205,12 +204,12 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
         <LoginModal
           isOpen={loginOpen}
           onCloseModal={() => setLoginOpen(false)}
-          color={boardData?.accentColor || "#f96680"}
+          color={currentBoardSummary?.accentColor || "#f96680"}
         />
       )}
       <InnerLayout
         ref={layoutRef}
-        headerAccent={boardData?.accentColor || "#f96680"}
+        headerAccent={currentBoardSummary?.accentColor || "#f96680"}
         onUserBarClick={React.useCallback(
           () => setLoginOpen(!isUserPending && !isLoggedIn),
           [isUserPending, isLoggedIn]
@@ -226,7 +225,6 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
         outdated={notificationsOutdated}
         onSideMenuButtonClick={() => {
           refetchNotifications();
-          refetch();
         }}
         logoLink={linkToHome}
         menuOptions={menuOptions}

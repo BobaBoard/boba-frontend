@@ -28,6 +28,7 @@ import {
 } from "./queries/thread";
 import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
 import { useBoardsContext } from "../boards/BoardContext";
+import { useBoardMetadata } from "./queries/board";
 
 export enum PostOptions {
   COPY_LINK = "COPY_LINK",
@@ -172,7 +173,8 @@ const usePostOptions = ({
   const hideThread = useSetThreadHidden();
   const muteThread = useMuteThread();
   const setThreadView = useSetThreadView();
-  const { refetch: refetchNotifications, boardsData } = useBoardsContext();
+  const { boardMetadata } = useBoardMetadata({ boardId: slug });
+  const { refetch: refetchNotifications } = useBoardsContext();
 
   const editTagsCallback = React.useCallback(() => {
     editorDispatch({
@@ -246,76 +248,87 @@ const usePostOptions = ({
     [setThreadView, threadId, slug]
   );
 
-  const getOption = (option: PostOptions) => {
-    switch (option) {
-      case PostOptions.COPY_LINK:
-        return getCopyLinkOption(
-          getLinkToPost({
-            slug: slug,
-            postId: postId,
-            threadId: threadId,
-          })?.href as string,
-          "Copy link"
-        );
-      case PostOptions.COPY_THREAD_LINK:
-        return getCopyLinkOption(
-          getLinkToThread({
-            slug: slug,
-            threadId: threadId,
-          })?.href as string,
-          "Copy thread link"
-        );
-      case PostOptions.HIDE:
-        if (!isLoggedIn || data.hidden == undefined) {
-          return null;
-        }
-        return getHideThreadOption(data.hidden, hideThreadCallback);
-      case PostOptions.MUTE:
-        if (!isLoggedIn || data.muted == undefined) {
-          return null;
-        }
-        return getMuteThreadOption(data.muted, muteThreadCallback);
-      case PostOptions.MARK_READ:
-        if (!isLoggedIn) {
-          return null;
-        }
-        return getMarkReadOption(markReadCallback);
-      case PostOptions.UPDATE_VIEW:
-        if (!isLoggedIn || !data.own) {
-          return null;
-        }
-        return getUpdateViewOption(data.currentView, setThreadViewCallback);
-      case PostOptions.EDIT_TAGS:
-        if (
-          !isLoggedIn ||
-          (!data.own && !boardsData[slug].permissions?.postsPermissions.length)
-        ) {
-          return null;
-        }
-        return getEditTagsOption(editTagsCallback);
-      case PostOptions.OPEN_AS:
-        return getOpenAsOptions((view) =>
-          getLinkToThread({
-            slug: slug,
-            threadId: threadId,
-            view,
-          })
-        );
-    }
-  };
+  const getOption = React.useCallback(
+    (option: PostOptions) => {
+      switch (option) {
+        case PostOptions.COPY_LINK:
+          return getCopyLinkOption(
+            getLinkToPost({
+              slug: slug,
+              postId: postId,
+              threadId: threadId,
+            })?.href as string,
+            "Copy link"
+          );
+        case PostOptions.COPY_THREAD_LINK:
+          return getCopyLinkOption(
+            getLinkToThread({
+              slug: slug,
+              threadId: threadId,
+            })?.href as string,
+            "Copy thread link"
+          );
+        case PostOptions.HIDE:
+          if (!isLoggedIn || data.hidden == undefined) {
+            return null;
+          }
+          return getHideThreadOption(data.hidden, hideThreadCallback);
+        case PostOptions.MUTE:
+          if (!isLoggedIn || data.muted == undefined) {
+            return null;
+          }
+          return getMuteThreadOption(data.muted, muteThreadCallback);
+        case PostOptions.MARK_READ:
+          if (!isLoggedIn) {
+            return null;
+          }
+          return getMarkReadOption(markReadCallback);
+        case PostOptions.UPDATE_VIEW:
+          if (!isLoggedIn || !data.own) {
+            return null;
+          }
+          return getUpdateViewOption(data.currentView, setThreadViewCallback);
+        case PostOptions.EDIT_TAGS:
+          if (
+            !isLoggedIn ||
+            (!data.own && !boardMetadata?.permissions?.postPermissions.length)
+          ) {
+            return null;
+          }
+          return getEditTagsOption(editTagsCallback);
+        case PostOptions.OPEN_AS:
+          return getOpenAsOptions((view) =>
+            getLinkToThread({
+              slug: slug,
+              threadId: threadId,
+              view,
+            })
+          );
+      }
+    },
+    [
+      isLoggedIn,
+      slug,
+      postId,
+      threadId,
+      boardMetadata,
+      editTagsCallback,
+      getLinkToPost,
+      getLinkToThread,
+      hideThreadCallback,
+      markReadCallback,
+      muteThreadCallback,
+      setThreadViewCallback,
+      data.hidden,
+      data.muted,
+      data.own,
+      data.currentView,
+    ]
+  );
 
   const dropdownOptions = React.useMemo(() => {
     return options.map(getOption).filter((option) => option != null);
-  }, [
-    isLoggedIn,
-    slug,
-    postId,
-    threadId,
-    data.hidden,
-    data.muted,
-    data.own,
-    data.currentView,
-  ]);
+  }, [options, getOption]);
 
   return dropdownOptions as DropdownProps["options"];
 };

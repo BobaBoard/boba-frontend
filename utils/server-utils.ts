@@ -4,6 +4,8 @@ import {
   ThreadType,
   BoardData,
   BoardSummary,
+  Permissions,
+  Role,
 } from "../types/Types";
 
 import { DEFAULT_USER_NAME, DEFAULT_USER_AVATAR } from "../components/Auth";
@@ -147,6 +149,26 @@ export const makeClientBoardSummary = (serverBoardData: any): BoardSummary => {
     delisted: serverBoardData.delisted,
     muted: serverBoardData.muted,
     pinned: serverBoardData.pinned,
+  };
+};
+
+export const makeClientPermissions = (
+  serverPermissionsData: any
+): Permissions => {
+  return {
+    boardPermissions: serverPermissionsData.board_permissions,
+    threadPermissions: serverPermissionsData.thread_permissions,
+    postPermissions: serverPermissionsData.post_permissions,
+  };
+};
+
+export const makeClientRole = (serverRoleData: any): Role => {
+  return {
+    id: serverRoleData.id,
+    name: serverRoleData.name,
+    color: serverRoleData.color,
+    accessory: serverRoleData.accessory,
+    avatarUrl: serverRoleData.avatar,
   };
 };
 

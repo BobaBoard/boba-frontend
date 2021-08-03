@@ -7,12 +7,11 @@ import {
 import Layout from "../../components/Layout";
 import { useInfiniteQuery } from "react-query";
 import { useAuth } from "../../components/Auth";
-import {
-  useBoardContext,
-  useBoardsContext,
-} from "../../components/boards/BoardContext";
 import { getBoardActivityData } from "../../utils/queries";
-import { useUpdateBoardMetadata } from "../../components/hooks/queries/board";
+import {
+  useBoardMetadata,
+  useUpdateBoardMetadata,
+} from "../../components/hooks/queries/board";
 import axios from "axios";
 import debug from "debug";
 import { ThreadType } from "../../types/Types";
@@ -35,11 +34,11 @@ const info = debug("bobafrontend:BoardPage-info");
 info.log = console.info.bind(console);
 
 const NewThreadButton = withEditors<{ slug: string }>((props) => {
-  const { boardsData } = useBoardsContext();
+  const { boardMetadata } = useBoardMetadata({ boardId: props.slug });
   const editorDispatch = useEditorsDispatch();
   return (
     <MemoizedActionButton
-      accentColor={boardsData[props.slug]?.accentColor || "#f96680"}
+      accentColor={boardMetadata?.accentColor || "#f96680"}
       onNewPost={React.useCallback(() => {
         editorDispatch({
           type: EditorActions.NEW_THREAD,
@@ -62,7 +61,7 @@ function BoardPage() {
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
   const { slug } = usePageDetails<BoardPageDetails>();
   const { isPending: isAuthPending, isLoggedIn } = useAuth();
-  const boardData = useBoardContext(slug);
+  const { boardMetadata } = useBoardMetadata({ boardId: slug });
   const onCompassClick = React.useCallback(
     () => setShowSidebar(!showSidebar),
     [showSidebar]
@@ -118,7 +117,7 @@ function BoardPage() {
         return lastGroup?.nextPageCursor;
       },
       // Block this query for loggedInOnly boards (unless we're logged in)
-      enabled: !boardData?.loggedInOnly || (!isAuthPending && isLoggedIn),
+      enabled: !boardMetadata?.loggedInOnly || (!isAuthPending && isLoggedIn),
       keepPreviousData: true,
       refetchOnWindowFocus: false,
     }
@@ -148,7 +147,7 @@ function BoardPage() {
   );
 
   const showLockedMessage =
-    !isAuthPending && !isLoggedIn && boardData?.loggedInOnly;
+    !isAuthPending && !isLoggedIn && boardMetadata?.loggedInOnly;
   const showEmptyMessage =
     !showLockedMessage &&
     !isFetchingBoardActivity &&
@@ -183,20 +182,20 @@ function BoardPage() {
             <FeedWithMenu.Sidebar>
               <div>
                 <MemoizedBoardSidebar
-                  slug={boardData?.slug || slug}
-                  avatarUrl={boardData?.avatarUrl || "/"}
-                  tagline={boardData?.tagline || "loading..."}
-                  accentColor={boardData?.accentColor || "#f96680"}
-                  muted={boardData?.muted}
+                  slug={boardMetadata?.slug || slug}
+                  avatarUrl={boardMetadata?.avatarUrl || "/"}
+                  tagline={boardMetadata?.tagline || "loading..."}
+                  accentColor={boardMetadata?.accentColor || "#f96680"}
+                  muted={boardMetadata?.muted}
                   previewOptions={boardOptions}
-                  descriptions={boardData?.descriptions || []}
+                  descriptions={boardMetadata?.descriptions || []}
                   editing={editingSidebar}
                   onCancelEditing={stopEditing}
                   onUpdateMetadata={updateBoardMetadata}
                   activeCategory={categoryFilter?.[0]}
                   onCategoriesStateChange={onCategoriesStateChange}
                 />
-                {!boardData?.descriptions && !editingSidebar && (
+                {!boardMetadata?.descriptions && !editingSidebar && (
                   <img
                     className="under-construction"
                     src="/under_construction_icon.png"

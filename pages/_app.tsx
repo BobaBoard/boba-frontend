@@ -20,7 +20,7 @@ import {
 } from "@bobaboard/ui-components";
 import { useImageUploader } from "../utils/image-upload";
 import { NextPageContext } from "next";
-import { BoardData } from "types/Types";
+import { BoardData, BoardSummary } from "types/Types";
 import { QueryParamProvider } from "../components/QueryParamNextProvider";
 import {
   makeClientBoardData,
@@ -105,19 +105,23 @@ const editorContext = {
   fetchers: embedsFetchers,
 };
 
-export const getTitle = (currentBoardData: BoardData | undefined | null) => {
+export const getTitle = (
+  currentBoardData: BoardSummary | BoardData | undefined | null
+) => {
   return currentBoardData
     ? `BobaBoard v0 — !${currentBoardData.slug} — Where the bugs are funny and the people are cool!`
     : "BobaBoard v0 — Where the bugs are funny and the people are cool!";
 };
 
-const getImage = (currentBoardData: BoardData | undefined) => {
+const getImage = (currentBoardData: BoardData | BoardData | undefined) => {
   return currentBoardData
     ? currentBoardData.avatarUrl
     : "https://v0.boba.social/bobatan.png";
 };
 
-const getDescription = (currentBoardData: BoardData | undefined) => {
+const getDescription = (
+  currentBoardData: BoardData | BoardData | undefined
+) => {
   return currentBoardData
     ? currentBoardData.tagline
     : `BobaBoard is an upcoming commmunity (and platform) aiming to balance the freedom and wonder of the early 00s web with a modern user experience and ethos. Feel free to look around, but remember: what you see is Work in Progress! Read more (and get involved) at www.bobaboard.com.`;

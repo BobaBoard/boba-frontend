@@ -1,25 +1,36 @@
 import { toast } from "@bobaboard/ui-components";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
   updateBoardSettings,
   muteBoard,
   dismissBoardNotifications,
   pinBoard,
+  getBoardMetadata,
 } from "../../../utils/queries/board";
-import { setBoardMutedInCache } from "../../../utils/queries/cache";
+import {
+  getBoardSummaryInCache,
+  setBoardMutedInCache,
+} from "../../../utils/queries/cache";
 import debug from "debug";
-import { BoardData, BoardDescription } from "../../../types/Types";
-import { useBoardsContext } from "../../boards/BoardContext";
+import {
+  BoardData,
+  BoardDescription,
+  BoardMetadata,
+} from "../../../types/Types";
 import {
   maybeSetBoardPinnedInCache,
   useRefetchPinnedBoards,
 } from "./pinned-boards";
+import { useRealmBoards } from "contexts/RealmContext";
+import { useAuth } from "components/Auth";
+import { useInvalidateNotifications } from "./notifications";
 
 const error = debug("bobafrontend:hooks:queries:board-error");
 const log = debug("bobafrontend:hooks:queries:board-log");
 
 export const useMuteBoard = () => {
   const queryClient = useQueryClient();
+  const refetchNotifications = useInvalidateNotifications();
   const { mutate: setBoardMuted } = useMutation(
     ({ slug, mute }: { slug: string; mute: boolean }) =>
       muteBoard({ slug, mute }),
@@ -43,7 +54,7 @@ export const useMuteBoard = () => {
         log(
           `Successfully marked board ${slug} as  ${mute ? "muted" : "unmuted"}.`
         );
-        queryClient.invalidateQueries("allBoardsData");
+        refetchNotifications();
       },
     }
   );
@@ -53,7 +64,6 @@ export const useMuteBoard = () => {
 
 export const usePinBoard = () => {
   const queryClient = useQueryClient();
-  const { nextPinnedOrder } = useBoardsContext();
   const refetchPinnedBoards = useRefetchPinnedBoards();
   const { mutate: setBoardPinned } = useMutation(
     ({ slug, pin }: { slug: string; pin: boolean }) => pinBoard({ slug, pin }),
@@ -103,6 +113,42 @@ export const useDismissBoardNotifications = () => {
   return dismissNotifications;
 };
 
+export const BOARD_METADATA_KEY = "boardMetadata";
+export const useBoardMetadata = ({ boardId }: { boardId: string }) => {
+  const { isLoggedIn } = useAuth();
+  const queryClient = useQueryClient();
+
+  const { data: boardMetadata, isFetched } = useQuery<BoardMetadata>(
+    [BOARD_METADATA_KEY, { boardId, isLoggedIn }],
+    async () => await getBoardMetadata({ boardId }),
+    {
+      placeholderData: () => {
+        const boardSummary = getBoardSummaryInCache(queryClient, { boardId });
+        if (!boardSummary) {
+          return undefined;
+        }
+        return {
+          ...boardSummary,
+          descriptions: [],
+        };
+      },
+      staleTime: Infinity,
+      refetchInterval: 60 * 1000,
+      refetchOnWindowFocus: true,
+    }
+  );
+
+  return { boardMetadata, isFetched };
+};
+
+export const useRefetchBoardMetadata = ({ boardId }: { boardId: string }) => {
+  const queryClient = useQueryClient();
+  return () =>
+    queryClient.invalidateQueries([BOARD_METADATA_KEY, { boardId }], {
+      exact: false,
+    });
+};
+
 export const useUpdateBoardMetadata = (callbacks: {
   onSuccess: () => void;
 }) => {
@@ -120,7 +166,7 @@ export const useUpdateBoardMetadata = (callbacks: {
       tagline: string;
     }) => updateBoardSettings({ slug, descriptions, accentColor, tagline }),
     {
-      onError: (serverError: Error, {}) => {
+      onError: (serverError: Error) => {
         toast.error("Error while updating the board sidebar.");
         error(serverError);
       },
@@ -135,4 +181,12 @@ export const useUpdateBoardMetadata = (callbacks: {
   );
 
   return updateBoardMetadata;
+};
+
+export const useBoardSummaryBySlug = (slug: string | null) => {
+  const boards = useRealmBoards();
+  if (!slug) {
+    return null;
+  }
+  return boards?.find((board) => board.slug == slug);
 };
