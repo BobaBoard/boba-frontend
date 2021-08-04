@@ -3,10 +3,18 @@ import React from "react";
 import { useRouter } from "next/router";
 import { usePageDetails } from "utils/router-utils";
 
-export const useIsChangingRoute = () => {
+export const useIsChangingRoute = (props?: { onRouteChange?: () => void }) => {
   const router = useRouter();
   const [isChangingRoute, setChangingRoute] = React.useState(false);
   const { slug } = usePageDetails();
+  const { onRouteChange = undefined } = props || {};
+
+  React.useEffect(() => {
+    if (isChangingRoute) {
+      onRouteChange?.();
+    }
+  }, [isChangingRoute, onRouteChange]);
+
   React.useEffect(() => {
     const changeStartHandler = (destination: string) => {
       if (window.location.pathname !== destination) {
@@ -29,8 +37,7 @@ export const useIsChangingRoute = () => {
       router.events.off("beforeHistoryChange", beforeHistoryChangeHandler);
       router.events.off("routeChangeComplete", changeEndHandler);
     };
-  }, [router.events, slug, router.asPath]);
+  }, [router.events, slug, router.asPath, onRouteChange]);
 
-  //  return React.memo({isChangingRoute, destination: router.asPath}, [isChangingRoute, router.asPath];
   return isChangingRoute;
 };

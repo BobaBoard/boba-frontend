@@ -172,7 +172,9 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const { root: rootSettings } = useRealmSettings();
   const currentBoardSummary = useBoardSummaryBySlug(slug);
   const refetchNotifications = useInvalidateNotifications();
-  const isChangingRoute = useIsChangingRoute();
+  const isChangingRoute = useIsChangingRoute({
+    onRouteChange: layoutRef.current?.closeSideMenu,
+  });
   const { forceHideIdentity } = useForceHideIdentity();
   const loggedInMenuOptions = useLoggedInDropdownOptions(
     React.useCallback(() => setLoginOpen(true), [])
