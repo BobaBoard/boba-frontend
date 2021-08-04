@@ -24,6 +24,7 @@ import {
 import { useRealmBoards } from "contexts/RealmContext";
 import { useAuth } from "components/Auth";
 import { useInvalidateNotifications } from "./notifications";
+import { useRefetchBoardActivity } from "./board-activity";
 
 const error = debug("bobafrontend:hooks:queries:board-error");
 const log = debug("bobafrontend:hooks:queries:board-log");
@@ -98,14 +99,15 @@ export const usePinBoard = () => {
 };
 
 export const useDismissBoardNotifications = () => {
-  const queryClient = useQueryClient();
+  const refetchNotifications = useInvalidateNotifications();
+  const refetchBoardActivity = useRefetchBoardActivity();
   const { mutate: dismissNotifications } = useMutation(
     ({ slug }: { slug: string }) => dismissBoardNotifications({ slug }),
     {
       onSuccess: (_, { slug }) => {
         log(`Successfully dismissed board notifications. Refetching...`);
-        queryClient.invalidateQueries("allBoardsData");
-        queryClient.invalidateQueries(["boardActivityData", { slug }]);
+        refetchNotifications();
+        refetchBoardActivity({ slug });
       },
     }
   );

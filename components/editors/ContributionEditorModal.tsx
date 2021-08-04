@@ -158,7 +158,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
           secretIdentity || !accessories?.length ? undefined : accessories
         }
         viewOptions={isNewThread(state) ? THREAD_VIEW_OPTIONS : undefined}
-        loading={isPostLoading}
+        loading={isPostLoading || props.loading}
         suggestedCategories={suggestedCategories || []}
         editableSections={
           isEditContribution(state)
@@ -221,6 +221,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
 export interface PostEditorModalProps {
   onCancel: (empty: boolean) => void;
   onPostSaved: (post: PostType, board?: string) => void;
+  loading?: boolean;
 }
 
 export default ContributionEditorModal;

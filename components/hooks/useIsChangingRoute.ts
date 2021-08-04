@@ -17,12 +17,12 @@ export const useIsChangingRoute = (props?: { onRouteChange?: () => void }) => {
 
   React.useEffect(() => {
     const changeStartHandler = (destination: string) => {
-      if (window.location.pathname !== destination) {
+      if (router.asPath !== destination) {
         setChangingRoute(true);
       }
     };
     const beforeHistoryChangeHandler = (destination: string) => {
-      if (window.location.pathname !== destination) {
+      if (router.asPath !== destination) {
         setChangingRoute(true);
       }
     };
