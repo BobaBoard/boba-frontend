@@ -3,7 +3,7 @@ import classnames from "classnames";
 
 const LoadingSpinner: React.FC<{
   loading: boolean;
-  loadingMessage: string;
+  loadingMessage?: string;
   idleMessage?: string;
 }> = (props) => {
   return (
@@ -16,13 +16,15 @@ const LoadingSpinner: React.FC<{
         >
           {props.idleMessage}
         </div>
-        <div
-          className={classnames("loading-indicator", {
-            loading: props.loading,
-          })}
-        >
-          {props.loadingMessage}
-        </div>
+        {props.loadingMessage && (
+          <div
+            className={classnames("loading-indicator", {
+              loading: props.loading,
+            })}
+          >
+            {props.loadingMessage}
+          </div>
+        )}
         <div className="bobadab-container">
           <div
             className={classnames("bobadab", {
@@ -42,6 +44,7 @@ const LoadingSpinner: React.FC<{
         .container {
           position: absolute;
           bottom: 0;
+          width: 100%;
         }
         .spacer {
           height: 90px;

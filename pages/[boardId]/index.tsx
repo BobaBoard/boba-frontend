@@ -61,7 +61,9 @@ function BoardPage() {
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
   const { slug } = usePageDetails<BoardPageDetails>();
   const { isPending: isAuthPending, isLoggedIn } = useAuth();
-  const { boardMetadata } = useBoardMetadata({ boardId: slug });
+  const { boardMetadata, isFetched: isBoardMetadataFetched } = useBoardMetadata(
+    { boardId: slug }
+  );
   const onCompassClick = React.useCallback(
     () => setShowSidebar(!showSidebar),
     [showSidebar]
@@ -180,7 +182,7 @@ function BoardPage() {
             }, [hasNextPage, isFetchingNextPage, fetchNextPage])}
           >
             <FeedWithMenu.Sidebar>
-              <div>
+              <div style={{ position: "relative" }}>
                 <MemoizedBoardSidebar
                   slug={boardMetadata?.slug || slug}
                   avatarUrl={boardMetadata?.avatarUrl || "/"}
@@ -200,6 +202,9 @@ function BoardPage() {
                     className="under-construction"
                     src="/under_construction_icon.png"
                   />
+                )}
+                {!isBoardMetadataFetched && (
+                  <LoadingSpinner loading={!isBoardMetadataFetched} />
                 )}
               </div>
             </FeedWithMenu.Sidebar>
