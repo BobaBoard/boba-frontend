@@ -6,30 +6,28 @@ import {
 } from "../hooks/queries/notifications";
 
 import debug from "debug";
-import { useQueryClient } from "react-query";
 import React from "react";
 const log = debug("bobafrontend:PinnedMenu-log");
 import { useCachedLinks } from "../hooks/useCachedLinks";
 import { usePageDetails } from "utils/router-utils";
+import { useRefetchBoardActivity } from "components/hooks/queries/board-activity";
 
 const PinnedMenu = () => {
   const { getLinkToBoard } = useCachedLinks();
   const { data: pinnedBoards } = usePinnedBoards();
   const refetchNotifications = useInvalidateNotifications();
   const { pinnedBoardsNotifications } = useNotifications();
-  const queryClient = useQueryClient();
+  const refetchBoardActivity = useRefetchBoardActivity();
   const { slug } = usePageDetails();
   const onBoardChange = React.useCallback(
     (nextSlug) => {
-      // layoutRef.current?.closeSideMenu();
       if (nextSlug == slug) {
         log("Detected switch to same board. Refetching activity data.");
-        queryClient.refetchQueries(["boardActivityData", { slug: nextSlug }]);
+        refetchBoardActivity({ slug: nextSlug });
       }
       refetchNotifications();
-      // refetch();
     },
-    [queryClient, slug, refetchNotifications]
+    [slug, refetchNotifications, refetchBoardActivity]
   );
 
   const processedPinnedBoards = React.useMemo(() => {

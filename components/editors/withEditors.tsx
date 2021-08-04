@@ -28,6 +28,7 @@ import {
   isNewThread,
 } from "./types";
 import { usePageDetails } from "utils/router-utils";
+import { useRefetchBoardActivity } from "components/hooks/queries/board-activity";
 const log = debug("bobafrontend:useEditors-log");
 
 const Editors = () => {
@@ -50,6 +51,8 @@ const Editors = () => {
     setAskConfirmation(false);
     onClose();
   }, [onClose]);
+  const refetchBoardActivity = useRefetchBoardActivity();
+  const [isRefetching, setRefetching] = React.useState(false);
   if (!isLoggedIn || isAuthPending || !state.isOpen) {
     return null;
   }
@@ -59,17 +62,22 @@ const Editors = () => {
       <Modal isOpen={true}>
         {isContributionEditorState(state) && (
           <ContributionEditorModal
+            loading={isRefetching}
             onPostSaved={(post: PostType, postedSlug: string) => {
-              let redirectToBoard: string | null = null;
               if (isNewThread(state)) {
-                queryClient.invalidateQueries([
-                  "boardActivityData",
-                  { slug: state.boardSlug },
-                ]);
-                if (postedSlug != state.boardSlug) {
-                  redirectToBoard = postedSlug;
-                }
-              } else if (isEditContribution(state)) {
+                setRefetching(true);
+                // We can't do update the cache here because we don't know
+                // which random identity will have been assigned by the server.
+                refetchBoardActivity({ slug: postedSlug }).then(() => {
+                  onClose();
+                  if (postedSlug != state.boardSlug) {
+                    getLinkToBoard(postedSlug).onClick?.();
+                  }
+                  setRefetching(false);
+                });
+                return;
+              }
+              if (isEditContribution(state)) {
                 if (
                   !updatePostTagsInCache(queryClient, {
                     threadId: state.threadId,
@@ -92,9 +100,6 @@ const Editors = () => {
                 }
               }
               onClose();
-              if (redirectToBoard) {
-                getLinkToBoard(redirectToBoard).onClick?.();
-              }
             }}
             onCancel={onCancel}
           />

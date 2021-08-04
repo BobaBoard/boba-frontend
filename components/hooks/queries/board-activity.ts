@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from "react-query";
+import { useInfiniteQuery, useQueryClient } from "react-query";
 import { getBoardActivityData } from "../../../utils/queries";
 import { useBoardSummaryBySlug } from "./board";
 import { useAuth } from "../../Auth";
@@ -32,3 +32,9 @@ export function useBoardActivity(props: {
     }
   );
 }
+
+export const useRefetchBoardActivity = () => {
+  const queryClient = useQueryClient();
+  return ({ slug }: { slug: string | null }) =>
+    queryClient.invalidateQueries([BOARD_ACTIVITY_KEY, { slug }]);
+};

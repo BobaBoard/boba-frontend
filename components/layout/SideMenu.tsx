@@ -11,6 +11,7 @@ import { usePageDetails } from "utils/router-utils";
 import { useAuth } from "components/Auth";
 import {
   NotificationsType,
+  useInvalidateNotifications,
   useNotifications,
 } from "components/hooks/queries/notifications";
 import { useRealmBoards } from "contexts/RealmContext";
@@ -20,6 +21,7 @@ import debug from "debug";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { BoardSummary } from "types/Types";
 import { useBoardSummaryBySlug } from "components/hooks/queries/board";
+import { useRefetchBoardActivity } from "components/hooks/queries/board-activity";
 const log = debug("bobafrontend:SideMenu-log");
 
 const MAX_UNREAD_BOARDS_DISPLAY = 4;
@@ -53,15 +55,15 @@ const SideMenu = () => {
   const { slug, threadId } = usePageDetails();
   const queryClient = useQueryClient();
   const boardData = useBoardSummaryBySlug(slug || "");
+  const refetchBoardActivity = useRefetchBoardActivity();
+  const refetchNotifications = useInvalidateNotifications();
   const { mutate: dismissNotifications } = useMutation(
     dismissAllNotifications,
     {
       onSuccess: () => {
         log(`Successfully dismissed all notifications. Refetching...`);
-        queryClient.invalidateQueries(["allBoardsData", { isLoggedIn }]);
-        if (slug) {
-          queryClient.invalidateQueries(["boardActivityData", { slug }]);
-        }
+        refetchNotifications();
+        refetchBoardActivity({ slug });
         if (threadId) {
           queryClient.invalidateQueries(["threadData", { threadId }]);
         }
@@ -71,12 +73,6 @@ const SideMenu = () => {
   const { realmBoardsNotifications, notificationsFetched } = useNotifications();
   const realmBoards = useRealmBoards();
   const { getLinkToBoard } = useCachedLinks();
-  const onBoardChange = React.useCallback(
-    (slug) => {
-      queryClient.refetchQueries(["boardActivityData", { slug }]);
-    },
-    [queryClient]
-  );
   const { recentBoards, allBoards } = React.useMemo(() => {
     const { recentBoards, allBoards } = processBoardsUpdates({
       boardsData: realmBoards,
@@ -90,14 +86,18 @@ const SideMenu = () => {
         makeUiBoard({
           board,
           notifications: realmBoardsNotifications,
-          link: getLinkToBoard(board.slug, onBoardChange),
+          link: getLinkToBoard(board.slug, (slug) => {
+            refetchBoardActivity({ slug });
+          }),
         })
       ),
       allBoards: allBoards.map((board) =>
         makeUiBoard({
           board,
           notifications: realmBoardsNotifications,
-          link: getLinkToBoard(board.slug, onBoardChange),
+          link: getLinkToBoard(board.slug, (slug) => {
+            refetchBoardActivity({ slug });
+          }),
         })
       ),
     };
@@ -106,7 +106,7 @@ const SideMenu = () => {
     realmBoards,
     isLoggedIn,
     realmBoardsNotifications,
-    onBoardChange,
+    refetchBoardActivity,
     getLinkToBoard,
   ]);
 
