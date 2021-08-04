@@ -5,9 +5,7 @@ import {
   PostingActionButton,
 } from "@bobaboard/ui-components";
 import Layout from "../../components/Layout";
-import { useInfiniteQuery } from "react-query";
 import { useAuth } from "../../components/Auth";
-import { getBoardActivityData } from "../../utils/queries";
 import {
   useBoardMetadata,
   useUpdateBoardMetadata,
@@ -27,6 +25,7 @@ import {
   useBoardOptions,
   BoardOptions,
 } from "components/hooks/useBoardOptions";
+import { useBoardActivity } from "components/hooks/queries/board-activity";
 import { ArrayParam, useQueryParams } from "use-query-params";
 
 const log = debug("bobafrontend:BoardPage-log");
@@ -83,17 +82,17 @@ function BoardPage() {
       editSidebar: setEditingSidebar,
     },
   });
-  React.useEffect(() => {
-    setQuery({
-      filter: undefined,
-    });
-  }, [slug, setQuery]);
   const updateBoardMetadata = useUpdateBoardMetadata({
     onSuccess: () => {
       setEditingSidebar(false);
     },
   });
 
+  React.useEffect(() => {
+    setQuery({
+      filter: undefined,
+    });
+  }, [slug, setQuery]);
   const onSetFilter = React.useCallback(
     (filter) => {
       setQuery({ filter: [filter] }, "replace");
@@ -104,33 +103,21 @@ function BoardPage() {
   const {
     data: boardActivityData,
     isFetching: isFetchingBoardActivity,
+    isFetched: boardActivityFetched,
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useInfiniteQuery(
-    ["boardActivityData", { slug, categoryFilter }],
-    ({ pageParam = undefined }) =>
-      getBoardActivityData(
-        { slug, categoryFilter: categoryFilter?.[0] || null },
-        pageParam
-      ),
-    {
-      getNextPageParam: (lastGroup) => {
-        return lastGroup?.nextPageCursor;
-      },
-      // Block this query for loggedInOnly boards (unless we're logged in)
-      enabled: !boardMetadata?.loggedInOnly || (!isAuthPending && isLoggedIn),
-      keepPreviousData: true,
-      refetchOnWindowFocus: false,
-    }
-  );
+  } = useBoardActivity({
+    slug,
+    categoryFilter,
+  });
 
   React.useEffect(() => {
-    if (!isAuthPending && isLoggedIn) {
+    if (!isAuthPending && isLoggedIn && boardActivityFetched) {
       log(`Marking board ${slug} as visited`);
       axios.get(`boards/${slug}/visit`);
     }
-  }, [isAuthPending, isLoggedIn, slug]);
+  }, [isAuthPending, isLoggedIn, slug, boardActivityFetched]);
 
   const onCategoriesStateChange = React.useCallback(
     (categories: { name: string; active: boolean }[]) => {
@@ -197,12 +184,14 @@ function BoardPage() {
                   activeCategory={categoryFilter?.[0]}
                   onCategoriesStateChange={onCategoriesStateChange}
                 />
-                {!boardMetadata?.descriptions && !editingSidebar && (
-                  <img
-                    className="under-construction"
-                    src="/under_construction_icon.png"
-                  />
-                )}
+                {isBoardMetadataFetched &&
+                  !boardMetadata?.descriptions.length &&
+                  !editingSidebar && (
+                    <img
+                      className="under-construction"
+                      src="/under_construction_icon.png"
+                    />
+                  )}
                 {!isBoardMetadataFetched && (
                   <LoadingSpinner loading={!isBoardMetadataFetched} />
                 )}
@@ -238,15 +227,15 @@ function BoardPage() {
                       );
                     })}
               </div>
-              {!showLockedMessage &&
-                !showEmptyMessage &&
-                boardActivityData?.pages?.length && (
-                  <LoadingSpinner
-                    loading={isFetchingNextPage || isFetchingBoardActivity}
-                    idleMessage={hasNextPage ? "..." : "Nothing more to load."}
-                    loadingMessage={"Loading more"}
-                  />
-                )}
+              {!showLockedMessage && !showEmptyMessage && (
+                <LoadingSpinner
+                  loading={isFetchingNextPage || isFetchingBoardActivity}
+                  idleMessage={hasNextPage ? "..." : "Nothing more to load."}
+                  loadingMessage={
+                    isFetchingBoardActivity ? "Loading" : "Loading more"
+                  }
+                />
+              )}
             </FeedWithMenu.FeedContent>
           </FeedWithMenu>
         </Layout.MainContent>

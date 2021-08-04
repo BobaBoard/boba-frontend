@@ -17,7 +17,10 @@ import {
 const log = debug("bobafrontend:queries-log");
 
 export const getBoardActivityData = async (
-  { slug, categoryFilter }: { slug: string; categoryFilter: string | null },
+  {
+    slug,
+    categoryFilter,
+  }: { slug: string | null; categoryFilter: string | null },
   cursor?: string
 ): Promise<BoardActivityResponse | undefined> => {
   log(`Fetching board activity for board with slug ${slug}.`);
