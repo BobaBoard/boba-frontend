@@ -242,7 +242,7 @@ function BoardPage() {
                 !showEmptyMessage &&
                 boardActivityData?.pages?.length && (
                   <LoadingSpinner
-                    loading={isFetchingNextPage}
+                    loading={isFetchingNextPage || isFetchingBoardActivity}
                     idleMessage={hasNextPage ? "..." : "Nothing more to load."}
                     loadingMessage={"Loading more"}
                   />
