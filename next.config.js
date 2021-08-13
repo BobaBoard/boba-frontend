@@ -2,7 +2,7 @@ const withTM = require("next-transpile-modules")(["@bobaboard/ui-components"]);
 const path = require("path");
 
 module.exports = withTM({
-  webpack: (config, options) => {
+  webpack: (config, { webpack, buildId, isServer }) => {
     config.resolve.alias["react"] = path.resolve(
       __dirname,
       ".",
@@ -15,9 +15,17 @@ module.exports = withTM({
       "node_modules",
       "react-dom"
     );
-    if (options.isServer) {
+    if (isServer) {
       config.externals = ["react", "react-dom", ...config.externals];
     }
+
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        "process.env": {
+          BUILD_ID: JSON.stringify(buildId),
+        },
+      })
+    );
 
     return config;
   },

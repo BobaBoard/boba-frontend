@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from "../components/Auth";
 import { RealmContextProvider } from "../contexts/RealmContext";
 import useFromBackButton from "../components/hooks/useFromBackButton";
 import { useScrollRestoration } from "../components/hooks/useScrollRestoration";
+import { UpdateNotice } from "../components/UpdateNotice";
 import type { AppProps } from "next/app";
 import {
   ToastContainer,
@@ -227,6 +228,7 @@ function MyApp({
               <AuthProvider>
                 <AxiosInterceptor />
                 <ToastContainer />
+                <UpdateNotice />
                 <RealmContextProvider initialData={props.realmData}>
                   {React.useMemo(
                     () => (
