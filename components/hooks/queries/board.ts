@@ -10,17 +10,15 @@ import {
 import {
   getBoardSummaryInCache,
   setBoardMutedInCache,
-} from "../../../utils/queries/cache";
+  setBoardPinnedInCache,
+} from "../../../cache/board";
 import debug from "debug";
 import {
   BoardData,
   BoardDescription,
   BoardMetadata,
 } from "../../../types/Types";
-import {
-  maybeSetBoardPinnedInCache,
-  useRefetchPinnedBoards,
-} from "./pinned-boards";
+import { useRefetchPinnedBoards } from "./pinned-boards";
 import { useRealmBoards } from "contexts/RealmContext";
 import { useAuth } from "components/Auth";
 import { useInvalidateNotifications } from "./notifications";
@@ -75,7 +73,7 @@ export const usePinBoard = () => {
             pin ? "pinned" : "unpinned"
           }.`
         );
-        maybeSetBoardPinnedInCache(queryClient, { boardId: slug, pin });
+        setBoardPinnedInCache(queryClient, { boardId: slug, pin });
       },
       onError: (error: Error, { slug, pin }) => {
         toast.error(

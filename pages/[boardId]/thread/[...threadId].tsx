@@ -14,6 +14,7 @@ import ThreadSidebar from "components/thread/ThreadSidebar";
 import GalleryThreadView from "components/thread/GalleryThreadView";
 import TimelineThreadView from "components/thread/TimelineThreadView";
 import ThreadContextProvider, {
+  useInvalidateThreadData,
   useThreadContext,
 } from "components/thread/ThreadContext";
 import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
@@ -27,8 +28,6 @@ import { useBeamToNew } from "components/hooks/useBeamToNew";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
 import { useThreadEditors, withEditors } from "components/editors/withEditors";
 import { useReadThread } from "components/hooks/queries/thread";
-import { clearThreadData } from "utils/queries/cache";
-import { useQueryClient } from "react-query";
 import { useThreadCollapseManager } from "components/thread/useCollapseManager";
 import { useInvalidateNotifications } from "components/hooks/queries/notifications";
 import { useBoardSummary } from "contexts/RealmContext";
@@ -44,7 +43,6 @@ const MemoizedGalleryThreadView = React.memo(GalleryThreadView);
 const MemoizedTimelineThreadView = React.memo(TimelineThreadView);
 
 function ThreadPage() {
-  const queryClient = useQueryClient();
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const { getLinkToBoard } = useCachedLinks();
@@ -71,6 +69,7 @@ function ThreadPage() {
     displayManager,
     currentBoardData?.accentColor
   );
+  const invalidateThreadData = useInvalidateThreadData({ threadId });
   const { onNewContribution } = useThreadEditors();
 
   React.useEffect(() => {
@@ -102,15 +101,17 @@ function ThreadPage() {
     threadId,
   ]);
 
+  // Make sure that the thread is refetched if the page changes.
+  // TODO: I feel this doesn't achieve what I want it to achieve.
   React.useEffect(() => {
     return () => {
       if (!threadId || !slug) {
         return;
       }
-      clearThreadData(queryClient, { slug, threadId });
+      invalidateThreadData();
       hasMarkedAsRead.current = false;
     };
-  }, [queryClient, slug, threadId]);
+  }, [slug, threadId, invalidateThreadData]);
 
   // TODO: disable this while post editing and readd
   // const currentPostIndex = React.useRef<number>(-1);

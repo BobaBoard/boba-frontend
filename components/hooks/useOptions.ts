@@ -21,7 +21,7 @@ import { EditorActions } from "components/editors/types";
 import { PostData } from "types/Types";
 import { useAuth } from "components/Auth";
 import {
-  useMarkThreadAsRead,
+  useReadThread,
   useMuteThread,
   useSetThreadHidden,
   useSetThreadView,
@@ -169,7 +169,7 @@ const usePostOptions = ({
   const { getLinkToPost, getLinkToThread } = useCachedLinks();
   const { isLoggedIn } = useAuth();
   const editorDispatch = useEditorsDispatch();
-  const readThread = useMarkThreadAsRead();
+  const readThread = useReadThread();
   const hideThread = useSetThreadHidden();
   const muteThread = useMuteThread();
   const setThreadView = useSetThreadView();

@@ -5,14 +5,9 @@ import CommentEditorModal from "./CommentEditorModal";
 import { useAuth } from "../Auth";
 import { CommentType, PostType } from "../../types/Types";
 import { useCachedLinks } from "../hooks/useCachedLinks";
-import { Modal, ModalWithButtons, toast } from "@bobaboard/ui-components";
-import {
-  updateCommentCache,
-  updatePostCache,
-  updatePostTagsInCache,
-} from "../../utils/queries/cache";
-
-import debug from "debug";
+import { Modal, ModalWithButtons } from "@bobaboard/ui-components";
+import { addPostInCache, setPostTagsInCache } from "../../cache/post";
+import { addCommentInCache } from "../../cache/comment";
 import { useQueryClient } from "react-query";
 import {
   EditorActions,
@@ -29,7 +24,6 @@ import {
 } from "./types";
 import { usePageDetails } from "utils/router-utils";
 import { useRefetchBoardActivity } from "components/hooks/queries/board-activity";
-const log = debug("bobafrontend:useEditors-log");
 
 const Editors = () => {
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
@@ -78,26 +72,18 @@ const Editors = () => {
                 return;
               }
               if (isEditContribution(state)) {
-                if (
-                  !updatePostTagsInCache(queryClient, {
-                    threadId: state.threadId,
-                    postId: post.postId,
-                    tags: post.tags,
-                  })
-                ) {
-                  toast.error(`Error updating post cache after editing tags.`);
-                }
+                setPostTagsInCache(queryClient, {
+                  threadId: state.threadId,
+                  postId: post.postId,
+                  slug: postedSlug,
+                  tags: post.tags,
+                });
               } else {
-                if (
-                  !updatePostCache(queryClient, {
-                    threadId: state.threadId,
-                    post,
-                  })
-                ) {
-                  toast.error(
-                    `Error updating post cache after posting new post.`
-                  );
-                }
+                addPostInCache(queryClient, {
+                  threadId: state.threadId,
+                  post,
+                  slug: postedSlug,
+                });
               }
               onClose();
             }}
@@ -107,25 +93,15 @@ const Editors = () => {
         {isCommentEditorState(state) && (
           <CommentEditorModal
             onCommentsSaved={(comments: CommentType[]) => {
-              if (
-                !updateCommentCache(queryClient, {
-                  threadId: state.threadId,
-                  newComments: comments,
-                  replyTo: {
-                    postId: state.newComment.replyToContributionId,
-                    commentId: state.newComment.replyToCommentId,
-                  },
-                })
-              ) {
-                toast.error(
-                  `Error updating comment cache after posting new comment.`
-                );
-              } else {
-                log(
-                  `Saved new comment(s) to thread ${state.threadId}, replying to post ${state.newComment.replyToContributionId}.`
-                );
-                log(comments);
-              }
+              addCommentInCache(queryClient, {
+                threadId: state.threadId,
+                newComments: comments,
+                slug: state.boardSlug,
+                replyTo: {
+                  postId: state.newComment.replyToContributionId,
+                  commentId: state.newComment.replyToCommentId,
+                },
+              });
               onClose();
             }}
             onCancel={onCancel}

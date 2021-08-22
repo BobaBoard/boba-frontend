@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from "react";
 
 import { getThreadData } from "utils/queries";
@@ -18,11 +17,11 @@ import {
   extractNewRepliesSequence,
   extractRepliesSequence,
 } from "utils/thread-utils";
-import { getThreadInBoardCache } from "utils/queries/cache";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import moment from "moment";
 
 import debug from "debug";
+import { getThreadInCache } from "cache/thread";
 const log = debug("bobafrontend:ThreadContext-log");
 const info = debug("bobafrontend:ThreadContext-info");
 
@@ -92,6 +91,7 @@ const ThreadContextProvider: React.FC<{
 
 export default ThreadContextProvider;
 
+export const THREAD_QUERY_KEY = "threadData";
 export const useThreadWithNull = ({
   threadId,
   postId,
@@ -118,7 +118,7 @@ export const useThreadWithNull = ({
       }
     ]
   >(
-    ["threadData", { threadId }],
+    [THREAD_QUERY_KEY, { threadId }],
     () => {
       if (!threadId || !slug) {
         return null;
@@ -134,10 +134,9 @@ export const useThreadWithNull = ({
         info(
           `Searching board activity data for board ${slug} and thread ${threadId}`
         );
-        const thread = getThreadInBoardCache(queryClient, {
+        const thread = getThreadInCache(queryClient, {
           slug,
           threadId,
-          categoryFilter: null,
         });
         info(`...${thread ? "found" : "NOT found"}!`);
         return thread;
@@ -217,9 +216,10 @@ export const useThreadWithNull = ({
     postsInfoMap,
     threadDisplaySequence,
     parentChildrenMap,
-    categories: React.useMemo(() => extractCategories(threadData?.posts), [
-      threadData?.posts,
-    ]),
+    categories: React.useMemo(
+      () => extractCategories(threadData?.posts),
+      [threadData?.posts]
+    ),
     contentNotices: React.useMemo(
       () => extractContentNotices(threadData?.posts),
       [threadData?.posts]
@@ -263,4 +263,12 @@ export const withThreadData = <P extends ThreadContextType>(
   }_withThreadData`;
   ReturnedComponent.whyDidYouRender = true;
   return ReturnedComponent;
+};
+
+export const useInvalidateThreadData = ({ threadId }: { threadId: string }) => {
+  const queryClient = useQueryClient();
+  return () =>
+    queryClient.invalidateQueries([THREAD_QUERY_KEY, { threadId }], {
+      exact: false,
+    });
 };

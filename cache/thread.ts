@@ -1,6 +1,7 @@
+import { THREAD_QUERY_KEY } from "components/thread/ThreadContext";
 import { QueryClient } from "react-query";
 import { BoardActivityResponse, ThreadType } from "../types/Types";
-import { setActivitiesInCache } from "./activity";
+import { getActivitiesInCache, setActivitiesInCache } from "./activity";
 
 const setThreadInActivityCache = (
   queryClient: QueryClient,
@@ -13,7 +14,7 @@ const setThreadInActivityCache = (
     (activity: BoardActivityResponse) => {
       const threads = activity.activity;
       if (!threads) {
-        return undefined;
+        return activity;
       }
       const threadIndex = threads.findIndex(
         (thread) => thread.threadId == key.threadId
@@ -41,7 +42,7 @@ export const setThreadInCache = (
   setThreadInActivityCache(queryClient, key, transform);
   queryClient.setQueriesData(
     {
-      queryKey: ["threadData", { threadId: key.threadId }],
+      queryKey: [THREAD_QUERY_KEY, { threadId: key.threadId }],
       exact: false,
     },
     transform
@@ -157,48 +158,55 @@ export const setThreadHiddenInCache = (
   );
 };
 
-export const setThreadIdentityInCache = () => {
-  // TODO: fill this
-  // Get personal identity from thread in cache
-  // Update the thread with it
+export const setThreadPersonalIdentityInCache = (
+  queryClient: QueryClient,
+  {
+    slug,
+    threadId,
+    personalIdentity,
+  }: {
+    slug: string;
+    threadId: string;
+    personalIdentity:
+      | {
+          name: string;
+          avatar: string;
+        }
+      | undefined;
+  }
+) => {
+  setThreadInCache(queryClient, { slug, threadId }, (thread: ThreadType) => {
+    if (thread.personalIdentity) {
+      return thread;
+    }
+    const newThreadData = {
+      ...thread,
+      personalIdentity,
+    };
+    return newThreadData;
+  });
 };
 
-// export const getThreadInCache = (
-//   queryClient: QueryClient,
-//   {
-//     slug,
-//     threadId,
-//   }: {
-//     slug?: string;
-//     threadId: string;
-//   }
-// ) => {
-//   const queries = getActivityQueries(queryClient, { slug });
-
-//   for (const query of queries) {
-//     const thread = getThreadInActivityData(
-//       query.state.data as InfiniteData<BoardActivityResponse>,
-//       threadId
-//     )?.thread;
-//     if (thread) {
-//       return thread;
-//     }
-//   }
-//   return null;
-// };
-
-// export const clearThreadData = (
-//   queryClient: QueryClient,
-//   {
-//     slug,
-//     threadId,
-//   }: {
-//     slug: string;
-//     threadId: string;
-//   }
-// ) => {
-//   queryClient.setQueryData(["threadData", { threadId }], () =>
-//     getThreadInCache(queryClient, { slug, threadId })
-//   );
-//   queryClient.invalidateQueries(["threadData", { threadId }]);
-// };
+export const getThreadInCache = (
+  queryClient: QueryClient,
+  {
+    slug,
+    threadId,
+  }: {
+    slug: string;
+    threadId: string;
+  }
+) => {
+  const activities = getActivitiesInCache(queryClient, { slug });
+  for (const activity of activities) {
+    for (const page of activity.pages) {
+      const thread = page.activity.find(
+        (thread) => (thread.threadId = threadId)
+      );
+      if (thread) {
+        return thread;
+      }
+    }
+  }
+  return null;
+};

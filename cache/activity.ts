@@ -4,13 +4,16 @@ import { BoardActivityResponse } from "../types/Types";
 export const getActivitiesInCache = (
   queryClient: QueryClient,
   key: { slug: string }
-) => {
-  const boardActivityData = queryClient
+  // TODO: swap type with generic activity response
+): InfiniteData<BoardActivityResponse>[] => {
+  const boardActivityData: InfiniteData<BoardActivityResponse>[] = queryClient
     .getQueryCache()
-    .findAll(["boardActivityData", { slug: key.slug }]);
-  const userActivityData = queryClient
+    .findAll(["boardActivityData", { slug: key.slug }])
+    .map((data) => data.state.data) as InfiniteData<BoardActivityResponse>[];
+  const userActivityData: InfiniteData<BoardActivityResponse>[] = queryClient
     .getQueryCache()
-    .findAll(["userActivityData"]);
+    .findAll(["userActivityData"])
+    .map((data) => data.state.data) as InfiniteData<BoardActivityResponse>[];
 
   return [...boardActivityData, ...userActivityData];
 };

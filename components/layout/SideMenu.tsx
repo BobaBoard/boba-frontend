@@ -22,6 +22,7 @@ import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { BoardSummary } from "types/Types";
 import { useBoardSummaryBySlug } from "components/hooks/queries/board";
 import { useRefetchBoardActivity } from "components/hooks/queries/board-activity";
+import { THREAD_QUERY_KEY } from "components/thread/ThreadContext";
 const log = debug("bobafrontend:SideMenu-log");
 
 const MAX_UNREAD_BOARDS_DISPLAY = 4;
@@ -65,7 +66,8 @@ const SideMenu = () => {
         refetchNotifications();
         refetchBoardActivity({ slug });
         if (threadId) {
-          queryClient.invalidateQueries(["threadData", { threadId }]);
+          // TODO: swap this with method exported from query itself
+          queryClient.invalidateQueries([THREAD_QUERY_KEY, { threadId }]);
         }
       },
     }

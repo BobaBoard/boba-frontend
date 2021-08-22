@@ -97,6 +97,53 @@ export const setPinnedBoardInCache = (
   );
 };
 
+export const addPinnedBoardInCache = (
+  queryClient: QueryClient,
+  { board }: { board: BoardSummary }
+) => {
+  queryClient.setQueriesData(
+    {
+      queryKey: PINNED_BOARDS_QUERY_KEY,
+    },
+    (data: Record<string, PinnedBoardType>) => {
+      const currentBoardData = data[board.id];
+      if (currentBoardData) {
+        return data;
+      }
+      const currentMaxIndex =
+        Math.max(...Object.values(data).map((board) => board.pinnedIndex)) || 0;
+      const newData: PinnedBoardType = {
+        ...board,
+        pinned: true,
+        pinnedIndex: currentMaxIndex + 1,
+      };
+      return {
+        ...data,
+        [newData.id]: newData,
+      };
+    }
+  );
+};
+
+export const removePinnedBoardInCache = (
+  queryClient: QueryClient,
+  { boardId }: { boardId: string }
+) => {
+  queryClient.setQueriesData(
+    {
+      queryKey: PINNED_BOARDS_QUERY_KEY,
+    },
+    (data: Record<string, PinnedBoardType>) => {
+      if (!data[boardId]) {
+        return data;
+      }
+      const newData = { ...data };
+      delete newData[boardId];
+      return newData;
+    }
+  );
+};
+
 export const setBoardMutedInCache = (
   queryClient: QueryClient,
   {
@@ -117,6 +164,32 @@ export const setBoardMutedInCache = (
   });
   setBoardSummaryInCache(queryClient, { boardId: slug }, (board) => {
     board.muted = mute;
+    return board;
+  });
+};
+
+export const setBoardPinnedInCache = (
+  queryClient: QueryClient,
+  {
+    boardId,
+    pin,
+  }: {
+    boardId: string;
+    pin: boolean;
+  }
+) => {
+  setBoardMetadataInCache(queryClient, { boardId }, (boardMetadata) => {
+    boardMetadata.pinned = pin;
+    return boardMetadata;
+  });
+  if (pin) {
+    const boardSummary = getBoardSummaryInCache(queryClient, { boardId });
+    boardSummary && addPinnedBoardInCache(queryClient, { board: boardSummary });
+  } else {
+    removePinnedBoardInCache(queryClient, { boardId });
+  }
+  setBoardSummaryInCache(queryClient, { boardId }, (board) => {
+    board.pinned = pin;
     return board;
   });
 };

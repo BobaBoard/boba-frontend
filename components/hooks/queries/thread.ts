@@ -5,45 +5,19 @@ import {
   muteThread,
   hideThread,
 } from "../../../utils/queries";
-import {
-  removeThreadActivityFromCache,
-  setDefaultThreadViewInCache,
-  setThreadHiddenInCache,
-  setThreadMutedInCache,
-} from "../../../utils/queries/cache";
 import debug from "debug";
 import { ThreadType } from "../../../types/Types";
 import { updateThreadView } from "../../../utils/queries/post";
 import { useAuth } from "components/Auth";
+import {
+  setThreadActivityClearedInCache,
+  setThreadDefaultViewInCache,
+  setThreadHiddenInCache,
+  setThreadMutedInCache,
+} from "cache/thread";
 
 const error = debug("bobafrontend:hooks:queries:thread-error");
 const log = debug("bobafrontend:hooks:queries:thread-log");
-
-export const useMarkThreadAsRead = () => {
-  const queryClient = useQueryClient();
-  const { mutate: readThread } = useMutation(
-    ({ threadId }: { threadId: string; slug: string }) =>
-      markThreadAsRead({ threadId }),
-    {
-      onMutate: ({ threadId, slug }) => {
-        log(`Optimistically marking thread ${threadId} as visited.`);
-        removeThreadActivityFromCache(queryClient, {
-          slug,
-          threadId,
-        });
-      },
-      onError: (serverError: Error, threadId) => {
-        toast.error("Error while marking thread as visited");
-        error(`Error while marking thread ${threadId} as visited:`);
-        error(serverError);
-      },
-      onSuccess: (data: boolean, { threadId }) => {
-        log(`Successfully marked thread ${threadId} as visited.`);
-      },
-    }
-  );
-  return readThread;
-};
 
 export const useMuteThread = () => {
   const queryClient = useQueryClient();
@@ -57,8 +31,6 @@ export const useMuteThread = () => {
             mute ? "muted" : "unmuted"
           }.`
         );
-        // TODO: the thread should be searched in the appropriate activity
-        // caches.
         setThreadMutedInCache(queryClient, {
           slug,
           threadId,
@@ -102,7 +74,7 @@ export const useSetThreadView = () => {
         log(
           `Optimistically switched thread ${threadId} to default view ${view}.`
         );
-        setDefaultThreadViewInCache(queryClient, {
+        setThreadDefaultViewInCache(queryClient, {
           slug,
           categoryFilter: null,
           threadId,
@@ -180,15 +152,23 @@ export const useReadThread = () => {
       return markThreadAsRead({ threadId });
     },
     {
-      onSuccess: (_, { threadId, slug }) => {
+      onMutate: ({ threadId, slug }) => {
         if (!threadId || !slug) {
           return;
         }
-        log(`Successfully marked thread as read`);
-        removeThreadActivityFromCache(queryClient, {
-          threadId,
+        log(`Optimistically marking thread ${threadId} as visited.`);
+        setThreadActivityClearedInCache(queryClient, {
           slug,
+          threadId,
         });
+      },
+      onError: (serverError: Error, threadId) => {
+        toast.error("Error while marking thread as visited");
+        error(`Error while marking thread ${threadId} as visited:`);
+        error(serverError);
+      },
+      onSuccess: (data: boolean, { threadId }) => {
+        log(`Successfully marked thread ${threadId} as visited.`);
       },
     }
   );
