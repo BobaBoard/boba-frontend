@@ -69,7 +69,7 @@ function ThreadPage() {
     displayManager,
     currentBoardData?.accentColor
   );
-  const invalidateThreadData = useInvalidateThreadData({ threadId });
+  const invalidateThreadData = useInvalidateThreadData();
   const { onNewContribution } = useThreadEditors();
 
   React.useEffect(() => {
@@ -103,15 +103,16 @@ function ThreadPage() {
 
   // Make sure that the thread is refetched if the page changes.
   // TODO: I feel this doesn't achieve what I want it to achieve.
-  React.useEffect(() => {
-    return () => {
-      if (!threadId || !slug) {
-        return;
-      }
-      invalidateThreadData();
-      hasMarkedAsRead.current = false;
-    };
-  }, [slug, threadId, invalidateThreadData]);
+  // Anyway, it's likely the wrong place to do this.
+  // React.useEffect(() => {
+  //   return () => {
+  //     if (!threadId || !slug || !hasMarkedAsRead.current) {
+  //       return;
+  //     }
+  //     invalidateThreadData({ threadId });
+  //     hasMarkedAsRead.current = false;
+  //   };
+  // }, [slug, threadId, invalidateThreadData]);
 
   // TODO: disable this while post editing and readd
   // const currentPostIndex = React.useRef<number>(-1);

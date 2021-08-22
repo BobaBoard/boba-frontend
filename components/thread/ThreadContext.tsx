@@ -265,9 +265,9 @@ export const withThreadData = <P extends ThreadContextType>(
   return ReturnedComponent;
 };
 
-export const useInvalidateThreadData = ({ threadId }: { threadId: string }) => {
+export const useInvalidateThreadData = () => {
   const queryClient = useQueryClient();
-  return () =>
+  return ({ threadId }: { threadId: string }) =>
     queryClient.invalidateQueries([THREAD_QUERY_KEY, { threadId }], {
       exact: false,
     });

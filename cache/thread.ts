@@ -60,12 +60,12 @@ export const setThreadActivityClearedInCache = (
     const newThread = {
       ...thread,
     };
-    thread.posts[0].isNew = false;
-    thread.posts[0].newCommentsAmount = 0;
-    thread.posts[0].newPostsAmount = 0;
-    thread.isNew = false;
-    thread.newCommentsAmount = 0;
-    thread.newPostsAmount = 0;
+    newThread.posts[0].isNew = false;
+    newThread.posts[0].newCommentsAmount = 0;
+    newThread.posts[0].newPostsAmount = 0;
+    newThread.isNew = false;
+    newThread.newCommentsAmount = 0;
+    newThread.newPostsAmount = 0;
     return newThread;
   });
 };
@@ -198,10 +198,11 @@ export const getThreadInCache = (
   }
 ) => {
   const activities = getActivitiesInCache(queryClient, { slug });
+  debugger;
   for (const activity of activities) {
     for (const page of activity.pages) {
       const thread = page.activity.find(
-        (thread) => (thread.threadId = threadId)
+        (thread) => thread.threadId == threadId
       );
       if (thread) {
         return thread;

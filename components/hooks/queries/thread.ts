@@ -80,6 +80,7 @@ export const useSetThreadView = () => {
           threadId,
           view,
         });
+        toast.success("Thread view updated!");
       },
       onError: (error: Error, { threadId, view }) => {
         toast.error(
@@ -91,7 +92,6 @@ export const useSetThreadView = () => {
         log(
           `Successfully switched thread ${threadId} to default view ${view}.`
         );
-        toast.success("Successfully updated thread view!");
       },
     }
   );
