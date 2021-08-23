@@ -1,7 +1,6 @@
 import React from "react";
 
-import { getThreadData } from "utils/queries";
-import { useQuery, useQueryClient } from "react-query";
+import { useQueryClient } from "react-query";
 import {
   PostType,
   ThreadType,
@@ -17,11 +16,10 @@ import {
   extractNewRepliesSequence,
   extractRepliesSequence,
 } from "utils/thread-utils";
-import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import moment from "moment";
 
 import debug from "debug";
-import { getThreadInCache } from "cache/thread";
+import { THREAD_QUERY_KEY, useThread } from "components/hooks/queries/thread";
 const log = debug("bobafrontend:ThreadContext-log");
 const info = debug("bobafrontend:ThreadContext-info");
 
@@ -91,67 +89,14 @@ const ThreadContextProvider: React.FC<{
 
 export default ThreadContextProvider;
 
-export const THREAD_QUERY_KEY = "threadData";
-export const useThreadWithNull = ({
-  threadId,
+export const useThreadMetadata = ({
+  threadData,
   postId,
-  slug,
-  fetch,
 }: {
-  threadId: string | null;
-  postId: string | null;
-  slug: string | null;
-  fetch?: boolean;
-}): ThreadContextType => {
-  log(`Using thread with null`);
-  const queryClient = useQueryClient();
-  const {
-    data: threadData,
-    isLoading: isFetchingThread,
-    isFetching: isRefetching,
-  } = useQuery<
-    ThreadType | null,
-    [
-      string,
-      {
-        threadId: string;
-      }
-    ]
-  >(
-    [THREAD_QUERY_KEY, { threadId }],
-    () => {
-      if (!threadId || !slug) {
-        return null;
-      }
-      return getThreadData({ threadId });
-    },
-    {
-      refetchOnWindowFocus: false,
-      placeholderData: () => {
-        if (!threadId || !slug) {
-          return null;
-        }
-        info(
-          `Searching board activity data for board ${slug} and thread ${threadId}`
-        );
-        const thread = getThreadInCache(queryClient, {
-          slug,
-          threadId,
-        });
-        info(`...${thread ? "found" : "NOT found"}!`);
-        return thread;
-      },
-      staleTime: 30 * 1000,
-      notifyOnChangeProps: ["data", "isLoading", "isFetching"],
-      refetchOnMount: !!fetch,
-      onSuccess: (data) => {
-        log(`Retrieved thread data for thread with id ${threadId}`);
-        info(data);
-      },
-    }
-  );
-
-  // Extract posts data in a format that is easily consumable by context consumers.
+  postId?: string | null;
+  threadData?: ThreadType | null;
+}) => {
+  const threadId = threadData?.threadId;
   const {
     root,
     parentChildrenMap,
@@ -205,8 +150,6 @@ export const useThreadWithNull = ({
   }, [threadData, threadId]);
 
   return {
-    isLoading: isFetchingThread,
-    isFetching: isFetchingThread || isRefetching,
     threadRoot: root,
     currentRoot:
       !!postId && threadData
@@ -228,7 +171,6 @@ export const useThreadWithNull = ({
     chronologicalPostsSequence,
     defaultView: threadData?.defaultView || null,
     personalIdentity: threadData?.personalIdentity,
-    isRefetching,
     hasNewReplies: !!newRepliesSequence.length,
     newRepliesCount: newRepliesSequence.length,
     parentBoardSlug: threadData?.boardSlug || null,
@@ -238,31 +180,36 @@ export const useThreadWithNull = ({
   };
 };
 
-// TODO: readd mark as read.
-type Subtract<T, V> = Pick<T, Exclude<keyof T, keyof V>>;
-export const withThreadData = <P extends ThreadContextType>(
-  WrappedComponent: React.ComponentType<P>,
-  options?: {
-    fetch?: boolean;
-  }
-) => {
-  const ReturnedComponent: React.FC<Subtract<P, ThreadContextType>> = (
-    props: P
-  ) => {
-    const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
-    const threadData = useThreadWithNull({
-      threadId,
-      postId,
-      slug,
-      fetch: options?.fetch,
-    });
-    return <WrappedComponent {...threadData} {...props} />;
+export const useThreadWithNull = ({
+  threadId,
+  postId,
+  slug,
+  fetch,
+}: {
+  threadId: string | null;
+  postId: string | null;
+  slug: string | null;
+  fetch?: boolean;
+}): ThreadContextType => {
+  log(`Using thread with null`);
+  const {
+    data: threadData,
+    isLoading: isFetchingThread,
+    isFetching: isRefetching,
+  } = useThread({
+    threadId,
+    slug,
+    fetch,
+  });
+  const threadMetadata = useThreadMetadata({ threadData, postId });
+
+  return {
+    isLoading: isFetchingThread,
+    isFetching: isFetchingThread || isRefetching,
+    isRefetching: isRefetching,
+    ...threadMetadata,
+    threadId,
   };
-  ReturnedComponent.displayName = `${
-    WrappedComponent.displayName || WrappedComponent.name
-  }_withThreadData`;
-  ReturnedComponent.whyDidYouRender = true;
-  return ReturnedComponent;
 };
 
 export const useInvalidateThreadData = () => {

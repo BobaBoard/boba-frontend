@@ -1,4 +1,4 @@
-import { THREAD_QUERY_KEY } from "components/thread/ThreadContext";
+import { THREAD_QUERY_KEY } from "components/hooks/queries/thread";
 import { QueryClient } from "react-query";
 import { BoardActivityResponse, ThreadType } from "../types/Types";
 import { getActivitiesInCache, setActivitiesInCache } from "./activity";
@@ -54,9 +54,13 @@ export const setThreadActivityClearedInCache = (
   key: {
     threadId: string;
     slug: string;
+  },
+  options?: {
+    activityOnly?: boolean;
   }
 ) => {
-  setThreadInCache(queryClient, key, (thread) => {
+  const activityOnly = options?.activityOnly ?? false;
+  const transformer = (thread: ThreadType) => {
     const newThread = {
       ...thread,
     };
@@ -67,7 +71,12 @@ export const setThreadActivityClearedInCache = (
     newThread.newCommentsAmount = 0;
     newThread.newPostsAmount = 0;
     return newThread;
-  });
+  };
+  if (!activityOnly) {
+    setThreadInCache(queryClient, key, transformer);
+  } else {
+    setThreadInActivityCache(queryClient, key, transformer);
+  }
 };
 
 export const setThreadMutedInCache = (

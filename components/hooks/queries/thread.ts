@@ -1,23 +1,86 @@
 import { toast } from "@bobaboard/ui-components";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
   markThreadAsRead,
   muteThread,
   hideThread,
+  getThreadData,
 } from "../../../utils/queries";
 import debug from "debug";
 import { ThreadType } from "../../../types/Types";
 import { updateThreadView } from "../../../utils/queries/post";
 import { useAuth } from "components/Auth";
 import {
+  getThreadInCache,
   setThreadActivityClearedInCache,
   setThreadDefaultViewInCache,
   setThreadHiddenInCache,
   setThreadMutedInCache,
 } from "cache/thread";
 
+const info = debug("bobafrontend:hooks:queries:thread-info");
 const error = debug("bobafrontend:hooks:queries:thread-error");
 const log = debug("bobafrontend:hooks:queries:thread-log");
+
+export const THREAD_QUERY_KEY = "threadData";
+export const useThread = ({
+  threadId,
+  slug,
+  fetch,
+}: {
+  threadId: string | null;
+  slug: string | null;
+  fetch?: boolean;
+}) => {
+  const queryClient = useQueryClient();
+  const { data, isLoading, isFetching } = useQuery<
+    ThreadType | null,
+    [
+      string,
+      {
+        threadId: string;
+      }
+    ]
+  >(
+    [THREAD_QUERY_KEY, { threadId }],
+    () => {
+      if (!threadId || !slug) {
+        return null;
+      }
+      return getThreadData({ threadId });
+    },
+    {
+      refetchOnWindowFocus: false,
+      placeholderData: () => {
+        if (!threadId || !slug) {
+          return null;
+        }
+        info(
+          `Searching board activity data for board ${slug} and thread ${threadId}`
+        );
+        const thread = getThreadInCache(queryClient, {
+          slug,
+          threadId,
+        });
+        info(`...${thread ? "found" : "NOT found"}!`);
+        return thread;
+      },
+      staleTime: 30 * 1000,
+      notifyOnChangeProps: ["data", "isLoading", "isFetching"],
+      enabled: !!(fetch ?? true) && !!slug && !!threadId,
+      onSuccess: (data) => {
+        log(`Retrieved thread data for thread with id ${threadId}`);
+        info(data);
+      },
+    }
+  );
+
+  return {
+    data,
+    isLoading,
+    isFetching,
+  };
+};
 
 export const useMuteThread = () => {
   const queryClient = useQueryClient();
@@ -137,7 +200,7 @@ export const useSetThreadHidden = () => {
   return setThreadHidden;
 };
 
-export const useReadThread = () => {
+export const useReadThread = (args?: { activityOnly?: boolean }) => {
   const queryClient = useQueryClient();
   const { isLoggedIn } = useAuth();
   // Mark thread as read on authentication and thread fetch
@@ -157,10 +220,16 @@ export const useReadThread = () => {
           return;
         }
         log(`Optimistically marking thread ${threadId} as visited.`);
-        setThreadActivityClearedInCache(queryClient, {
-          slug,
-          threadId,
-        });
+        setThreadActivityClearedInCache(
+          queryClient,
+          {
+            slug,
+            threadId,
+          },
+          {
+            activityOnly: args?.activityOnly,
+          }
+        );
       },
       onError: (serverError: Error, threadId) => {
         toast.error("Error while marking thread as visited");

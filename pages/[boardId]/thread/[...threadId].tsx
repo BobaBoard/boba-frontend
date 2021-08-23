@@ -54,7 +54,7 @@ function ThreadPage() {
     () => setShowSidebar(!showSidebar),
     [showSidebar]
   );
-  const markAsRead = useReadThread();
+  const markAsRead = useReadThread({ activityOnly: true });
   const hasMarkedAsRead = React.useRef(false);
   const { currentThreadViewMode, setThreadViewMode } = useThreadViewContext();
   const collapseManager = useThreadCollapseManager();
@@ -69,7 +69,6 @@ function ThreadPage() {
     displayManager,
     currentBoardData?.accentColor
   );
-  const invalidateThreadData = useInvalidateThreadData();
   const { onNewContribution } = useThreadEditors();
 
   React.useEffect(() => {
@@ -101,18 +100,15 @@ function ThreadPage() {
     threadId,
   ]);
 
-  // Make sure that the thread is refetched if the page changes.
-  // TODO: I feel this doesn't achieve what I want it to achieve.
-  // Anyway, it's likely the wrong place to do this.
-  // React.useEffect(() => {
-  //   return () => {
-  //     if (!threadId || !slug || !hasMarkedAsRead.current) {
-  //       return;
-  //     }
-  //     invalidateThreadData({ threadId });
-  //     hasMarkedAsRead.current = false;
-  //   };
-  // }, [slug, threadId, invalidateThreadData]);
+  // Make sure that the thread is marked as read again if the page changes.
+  React.useEffect(() => {
+    return () => {
+      if (!threadId || !slug || !hasMarkedAsRead.current) {
+        return;
+      }
+      hasMarkedAsRead.current = false;
+    };
+  }, [slug, threadId]);
 
   // TODO: disable this while post editing and readd
   // const currentPostIndex = React.useRef<number>(-1);
