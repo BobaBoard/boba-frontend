@@ -94,6 +94,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
     subscribeToCollapseChange,
     unsubscribeFromCollapseChange,
   } = useThreadCollapseManager();
+  const { postCommentsMap } = useThreadContext();
 
   // We reposition more than once because the timing is finnicky.
   const repositionGallery = React.useCallback(() => {
@@ -251,16 +252,17 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
                         avatarRef={setThreadBoundary}
                       />
                     </div>
-                    {post.comments && !isCollapsed(post.postId) && (
-                      <NewThread.Indent id={getCommentThreadId(post.postId)}>
-                        <div className="comments">
-                          <CommentsThread
-                            parentPostId={post.postId}
-                            disableMotionEffect
-                          />
-                        </div>
-                      </NewThread.Indent>
-                    )}
+                    {postCommentsMap.has(post.postId) &&
+                      !isCollapsed(post.postId) && (
+                        <NewThread.Indent id={getCommentThreadId(post.postId)}>
+                          <div className="comments">
+                            <CommentsThread
+                              parentPostId={post.postId}
+                              disableMotionEffect
+                            />
+                          </div>
+                        </NewThread.Indent>
+                      )}
                   </>
                 )}
               </NewThread>

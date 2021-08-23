@@ -123,6 +123,7 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
   const {
     defaultView,
     parentChildrenMap,
+    postCommentsMap,
     chronologicalPostsSequence,
     threadRoot,
     muted,
@@ -218,42 +219,40 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
   const { forceHideIdentity } = useForceHideIdentity();
 
   const memoizedPropsMap = React.useMemo(() => {
-    return posts.map(
-      (post): PostProps => {
-        const directLink = cachedLinks.getLinkToPost({
-          slug,
-          threadId,
-          postId: post.postId,
-        });
-        return {
-          createdTime: moment.utc(post.created).fromNow(),
-          text: post.content,
-          secretIdentity: post.secretIdentity,
-          userIdentity: post.userIdentity,
-          createdTimeLink: {
-            href: `${directLink.href}${window.location.search}`,
-            onClick: directLink.onClick,
-          },
-          notesLink: threadLink,
-          onNewContribution: onNewContributionCallback,
-          onNewComment: onNewCommentCallback,
-          totalComments: post.comments?.length,
-          directContributions: parentChildrenMap.get(post.postId)?.children
-            .length,
-          totalContributions: getTotalContributions(post, parentChildrenMap),
-          newPost: isLoggedIn && post.isNew,
-          newComments: isLoggedIn ? post.newCommentsAmount : 0,
-          newContributions: isLoggedIn
-            ? getTotalNewContributions(post, parentChildrenMap)
-            : 0,
-          tags: post.tags,
-          answerable: isLoggedIn,
-          menuOptions: options,
-          getOptionsForTag: tagOptions,
-          ...extraProps,
-        };
-      }
-    );
+    return posts.map((post): PostProps => {
+      const directLink = cachedLinks.getLinkToPost({
+        slug,
+        threadId,
+        postId: post.postId,
+      });
+      return {
+        createdTime: moment.utc(post.created).fromNow(),
+        text: post.content,
+        secretIdentity: post.secretIdentity,
+        userIdentity: post.userIdentity,
+        createdTimeLink: {
+          href: `${directLink.href}${window.location.search}`,
+          onClick: directLink.onClick,
+        },
+        notesLink: threadLink,
+        onNewContribution: onNewContributionCallback,
+        onNewComment: onNewCommentCallback,
+        totalComments: postCommentsMap.get(post.postId)?.total || 0,
+        directContributions: parentChildrenMap.get(post.postId)?.children
+          .length,
+        totalContributions: getTotalContributions(post, parentChildrenMap),
+        newPost: post.isNew,
+        newComments: postCommentsMap.get(post.postId)?.new || 0,
+        newContributions: isLoggedIn
+          ? getTotalNewContributions(post, parentChildrenMap)
+          : 0,
+        tags: post.tags,
+        answerable: isLoggedIn,
+        menuOptions: options,
+        getOptionsForTag: tagOptions,
+        ...extraProps,
+      };
+    });
   }, [
     posts,
     cachedLinks,

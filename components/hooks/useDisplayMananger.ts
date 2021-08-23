@@ -17,7 +17,13 @@ import {
   UNCATEGORIZED_LABEL,
 } from "../../utils/thread-utils";
 
-import { CommentType, isPost, PostType, ThreadPostInfoType } from "types/Types";
+import {
+  CommentType,
+  isPost,
+  PostType,
+  ThreadCommentInfoType,
+  ThreadPostInfoType,
+} from "types/Types";
 import { getElementId } from "utils/thread-utils";
 
 import debug from "debug";
@@ -80,6 +86,7 @@ const maybeCollapseToElement = ({
 
 const getDisplayPostsForView = (
   chronologicalPostsSequence: PostType[],
+  postCommentsMap: Map<string, ThreadCommentInfoType>,
   viewMode: {
     currentThreadViewMode: THREAD_VIEW_MODES;
     timelineViewMode: TIMELINE_VIEW_MODE;
@@ -97,7 +104,7 @@ const getDisplayPostsForView = (
           return [...chronologicalPostsSequence].reverse();
         case TIMELINE_VIEW_MODE.NEW:
           return chronologicalPostsSequence.filter(
-            (post) => post.isNew || post.newCommentsAmount > 0
+            (post) => post.isNew || !!postCommentsMap.get(post.postId)?.new
           );
       }
       break;
@@ -111,7 +118,7 @@ const getDisplayPostsForView = (
             : allGalleryPosts;
         case GALLERY_VIEW_MODE.NEW: {
           const newPosts = allGalleryPosts.filter(
-            (post) => post.isNew || post.newCommentsAmount > 0
+            (post) => post.isNew || !!postCommentsMap.get(post.postId)?.new
           );
           if (viewMode.galleryViewMode.showCover) {
             newPosts.unshift(coverPost);
@@ -126,6 +133,7 @@ const getDisplayPostsForView = (
 const useThreadViewDisplay = () => {
   const {
     chronologicalPostsSequence,
+    postCommentsMap,
     isFetching,
     postsInfoMap,
   } = useThreadContext();
@@ -144,6 +152,7 @@ const useThreadViewDisplay = () => {
     }
     const displayPostsForView = getDisplayPostsForView(
       chronologicalPostsSequence,
+      postCommentsMap,
       {
         currentThreadViewMode: !postId
           ? currentThreadViewMode
@@ -208,6 +217,7 @@ const useThreadViewDisplay = () => {
     postsInfoMap,
     postId,
     excludedNotices,
+    postCommentsMap,
   ]);
 };
 

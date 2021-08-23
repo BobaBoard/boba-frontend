@@ -1,18 +1,22 @@
+export interface SecretIdentityType {
+  name: string;
+  avatar: string;
+  accessory?: string;
+  color?: string;
+}
+
+export interface UserIdentityType {
+  name: string;
+  avatar: string;
+}
+
 export interface CommentType {
   commentId: string;
   parentCommentId: string | null;
   parentPostId: string;
   chainParentId: string | null;
-  secretIdentity: {
-    name: string;
-    avatar: string;
-    accessory?: string;
-    color?: string;
-  };
-  userIdentity?: {
-    name: string;
-    avatar: string;
-  };
+  secretIdentity: SecretIdentityType;
+  userIdentity?: UserIdentityType;
   content: string;
   created: string;
   isNew: boolean;
@@ -30,33 +34,20 @@ export interface PostType {
   postId: string;
   threadId: string;
   parentPostId: string | null;
-  secretIdentity: {
-    name: string;
-    avatar: string;
-    accessory?: string;
-    color?: string;
-  };
-  userIdentity?: {
-    name: string;
-    avatar: string;
-  };
+  secretIdentity: SecretIdentityType;
+  userIdentity?: UserIdentityType;
   created: string;
   content: string;
   options: {
     wide?: boolean;
   };
   tags: TagsType;
-  comments?: CommentType[];
-  postsAmount: number;
-  commentsAmount: number;
-  threadsAmount: number;
-  newPostsAmount: number;
-  newCommentsAmount: number;
   isNew: boolean;
   isOwn: boolean;
 }
 export interface ThreadType {
   posts: PostType[];
+  comments: Record<string, CommentType[]>;
   threadId: string;
   boardSlug: string;
   isNew: boolean;
@@ -69,10 +60,7 @@ export interface ThreadType {
   muted: boolean;
   hidden: boolean;
   defaultView: "thread" | "gallery" | "timeline";
-  personalIdentity?: {
-    name: string;
-    avatar: string;
-  };
+  personalIdentity?: UserIdentityType;
 }
 
 export interface BoardActivityResponse {
@@ -202,6 +190,8 @@ export interface ThreadCommentInfoType {
   roots: CommentType[];
   parentChainMap: Map<string, CommentType>;
   parentChildrenMap: Map<string, CommentType[]>;
+  total: number;
+  new: number;
 }
 
 export interface SettingsType {

@@ -27,7 +27,8 @@ interface TimelineViewProps {
 }
 
 const TimelineView: React.FC<TimelineViewProps> = (props) => {
-  const { newRepliesCount, chronologicalPostsSequence } = useThreadContext();
+  const { newRepliesCount, chronologicalPostsSequence, postCommentsMap } =
+    useThreadContext();
   const { timelineViewMode, setTimelineViewMode } = useThreadViewContext();
   const { onNewComment, onNewContribution, onEditContribution } =
     useThreadEditors();
@@ -124,7 +125,7 @@ const TimelineView: React.FC<TimelineViewProps> = (props) => {
                         onNotesClick={onToggleCollapseLevel}
                       />
                     </div>
-                    {post.comments && (
+                    {!!postCommentsMap.get(post.postId)?.total && (
                       <NewThread.Indent
                         id={getCommentThreadId(post.postId)}
                         collapsed={isCollapsed(getCommentThreadId(post.postId))}

@@ -115,11 +115,11 @@ export const useThreadMetadata = ({
       postsDisplaySequence = [],
     } = threadId ? makePostsTree(threadData?.posts, threadId) : {};
     const postCommentsMap = new Map<string, ThreadCommentInfoType>();
-    threadData?.posts?.forEach((post) => {
-      if (post.comments) {
-        postCommentsMap.set(post.postId, makeCommentsTree(post.comments));
-      }
-    });
+    if (threadData?.comments) {
+      Object.entries(threadData?.comments).forEach(([postId, comments]) => {
+        postCommentsMap.set(postId, makeCommentsTree(comments));
+      });
+    }
 
     const chronologicalPostsSequence =
       threadData?.posts.sort((post1, post2) => {

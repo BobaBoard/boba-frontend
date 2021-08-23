@@ -65,8 +65,6 @@ export const setThreadActivityClearedInCache = (
       ...thread,
     };
     newThread.posts[0].isNew = false;
-    newThread.posts[0].newCommentsAmount = 0;
-    newThread.posts[0].newPostsAmount = 0;
     newThread.isNew = false;
     newThread.newCommentsAmount = 0;
     newThread.newPostsAmount = 0;

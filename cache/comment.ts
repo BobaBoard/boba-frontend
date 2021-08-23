@@ -1,7 +1,6 @@
 import { QueryClient } from "react-query";
-import { CommentType, PostType } from "../types/Types";
-import { setPostInCache } from "./post";
-import { setThreadPersonalIdentityInCache } from "./thread";
+import { CommentType, ThreadType } from "../types/Types";
+import { setThreadInCache, setThreadPersonalIdentityInCache } from "./thread";
 
 export const addCommentInCache = (
   queryClient: QueryClient,
@@ -20,18 +19,24 @@ export const addCommentInCache = (
     };
   }
 ) => {
-  setPostInCache(
+  setThreadInCache(
     queryClient,
     {
       threadId,
       slug,
-      postId: replyTo.postId,
     },
-    (post: PostType) => {
+    (thread: ThreadType) => {
       return {
-        ...post,
-        newCommentsAmount: post.newCommentsAmount + 1,
-        comments: [...(post.comments || []), ...newComments],
+        ...thread,
+        newCommentsAmount: thread.newCommentsAmount + newComments.length,
+        totalCommentsAmount: thread.totalCommentsAmount + newComments.length,
+        comments: {
+          ...thread.comments,
+          [replyTo.postId]: [
+            ...(thread.comments[replyTo.postId] || []),
+            ...newComments,
+          ],
+        },
       };
     }
   );

@@ -23,65 +23,6 @@ const error = debug("bobafrontend:hooks:queries:thread-error");
 const log = debug("bobafrontend:hooks:queries:thread-log");
 
 export const THREAD_QUERY_KEY = "threadData";
-export const useThread = ({
-  threadId,
-  slug,
-  fetch,
-}: {
-  threadId: string | null;
-  slug: string | null;
-  fetch?: boolean;
-}) => {
-  const queryClient = useQueryClient();
-  const { data, isLoading, isFetching } = useQuery<
-    ThreadType | null,
-    [
-      string,
-      {
-        threadId: string;
-      }
-    ]
-  >(
-    [THREAD_QUERY_KEY, { threadId }],
-    () => {
-      if (!threadId || !slug) {
-        return null;
-      }
-      return getThreadData({ threadId });
-    },
-    {
-      refetchOnWindowFocus: false,
-      placeholderData: () => {
-        if (!threadId || !slug) {
-          return null;
-        }
-        info(
-          `Searching board activity data for board ${slug} and thread ${threadId}`
-        );
-        const thread = getThreadInCache(queryClient, {
-          slug,
-          threadId,
-        });
-        info(`...${thread ? "found" : "NOT found"}!`);
-        return thread;
-      },
-      staleTime: 30 * 1000,
-      notifyOnChangeProps: ["data", "isLoading", "isFetching"],
-      enabled: !!(fetch ?? true) && !!slug && !!threadId,
-      onSuccess: (data) => {
-        log(`Retrieved thread data for thread with id ${threadId}`);
-        info(data);
-      },
-    }
-  );
-
-  return {
-    data,
-    isLoading,
-    isFetching,
-  };
-};
-
 export const useMuteThread = () => {
   const queryClient = useQueryClient();
   const { mutate: setThreadMuted } = useMutation(
@@ -243,4 +184,63 @@ export const useReadThread = (args?: { activityOnly?: boolean }) => {
   );
 
   return readThread;
+};
+
+export const useThread = ({
+  threadId,
+  slug,
+  fetch,
+}: {
+  threadId: string | null;
+  slug: string | null;
+  fetch?: boolean;
+}) => {
+  const queryClient = useQueryClient();
+  const { isLoggedIn } = useAuth();
+
+  log(`Using thread with null`);
+  //const queryClient = useQueryClient();
+  const { data, isLoading, isFetching } = useQuery<
+    ThreadType | null,
+    [
+      string,
+      {
+        threadId: string;
+      }
+    ]
+  >(
+    [THREAD_QUERY_KEY, { threadId, isLoggedIn }],
+    () => {
+      if (!threadId) {
+        return null;
+      }
+      return getThreadData({ threadId });
+    },
+    {
+      refetchOnWindowFocus: false,
+      placeholderData: () => {
+        if (!threadId || !slug) {
+          return null;
+        }
+        info(
+          `Searching board activity data for board ${slug} and thread ${threadId}`
+        );
+        const thread = getThreadInCache(queryClient, {
+          slug,
+          threadId,
+        });
+        info(`...${thread ? "found" : "NOT found"} in cache!`);
+        return thread;
+      },
+      staleTime: 30 * 1000,
+      refetchOnMount: !!fetch,
+      enabled: !!(fetch ?? true) && !!slug && !!threadId,
+      onSuccess: (data) => {
+        log(`Retrieved thread data for thread with id ${threadId}`);
+        info(data);
+      },
+    }
+  );
+
+  return { data, isLoading, isFetching };
 };
