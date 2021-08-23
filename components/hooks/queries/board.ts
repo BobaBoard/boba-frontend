@@ -23,6 +23,7 @@ import { useRealmBoards } from "contexts/RealmContext";
 import { useAuth } from "components/Auth";
 import { useInvalidateNotifications } from "./notifications";
 import { useRefetchBoardActivity } from "./board-activity";
+import React from "react";
 
 const error = debug("bobafrontend:hooks:queries:board-error");
 const log = debug("bobafrontend:hooks:queries:board-log");
@@ -138,7 +139,10 @@ export const useBoardMetadata = ({ boardId }: { boardId: string }) => {
     }
   );
 
-  return { boardMetadata, isFetched };
+  return React.useMemo(
+    () => ({ boardMetadata, isFetched }),
+    [boardMetadata, isFetched]
+  );
 };
 
 export const useRefetchBoardMetadata = ({ boardId }: { boardId: string }) => {

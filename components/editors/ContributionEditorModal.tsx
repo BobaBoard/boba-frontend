@@ -30,6 +30,7 @@ const error = debug("bobafrontend:postEditor-error");
 
 const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
   const editorRef = React.createRef<{ focus: () => void }>();
+  const hasFocused = React.useRef<boolean>(false);
   const state = useEditorsState();
   if (!isContributionEditorState(state)) {
     throw new Error(
@@ -122,10 +123,14 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
   React.useEffect(() => {
     // TODO: this request animation frame here is a bit hackish, but it won't
     // work without it.
-    requestAnimationFrame(() => {
+    if (hasFocused.current || !editorRef.current) {
+      return;
+    }
+    setTimeout(() => {
       editorRef.current?.focus();
-    });
-  }, [editorRef]);
+      hasFocused.current = true;
+    }, 100);
+  }, [editorRef, hasFocused]);
 
   const allBoards = React.useMemo(
     () =>

@@ -198,7 +198,6 @@ export const getThreadInCache = (
   }
 ) => {
   const activities = getActivitiesInCache(queryClient, { slug });
-  debugger;
   for (const activity of activities) {
     for (const page of activity.pages) {
       const thread = page.activity.find(
