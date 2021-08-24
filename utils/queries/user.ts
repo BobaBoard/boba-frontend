@@ -52,11 +52,11 @@ export const getUserActivityData = async (
   });
   if (response.status == 204) {
     // No data, let's return empty array
-    return { nextPageCursor: null, activity: [] };
+    return { cursor: { next: null }, activity: [] };
   }
   // Transform post to client-side type.
   return {
-    nextPageCursor: response.data.next_page_cursor || null,
+    cursor: response.data.cursor,
     activity: response.data.activity.map(makeClientThread),
   };
 };

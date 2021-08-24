@@ -45,28 +45,36 @@ export interface PostType {
   isNew: boolean;
   isOwn: boolean;
 }
-export interface ThreadType {
-  posts: PostType[];
-  comments: Record<string, CommentType[]>;
-  threadId: string;
-  boardSlug: string;
-  isNew: boolean;
-  newPostsAmount: number;
-  newCommentsAmount: number;
-  totalCommentsAmount: number;
-  totalPostsAmount: number;
-  directThreadsAmount: number;
-  lastActivity?: string;
+
+export interface ThreadSummaryType {
+  id: string;
+  parentBoardSlug: string;
+  starter: PostType;
+  defaultView: "thread" | "gallery" | "timeline";
   muted: boolean;
   hidden: boolean;
-  defaultView: "thread" | "gallery" | "timeline";
+  new: boolean;
+  newPostsAmount: number;
+  newCommentsAmount: number;
+  totalPostsAmount: number;
+  totalCommentsAmount: number;
+  directThreadsAmount: number;
+  lastActivityAt: string;
   personalIdentity?: UserIdentityType;
+}
+export interface ThreadType extends ThreadSummaryType {
+  posts: PostType[];
+  comments: Record<string, CommentType[]>;
+}
+
+export interface Cursor {
+  next: string | null;
 }
 
 export interface BoardActivityResponse {
-  nextPageCursor: string | null;
+  cursor: Cursor;
   // This thread will only have the top post and no comments.
-  activity: ThreadType[];
+  activity: ThreadSummaryType[];
 }
 
 export interface BoardDescription {

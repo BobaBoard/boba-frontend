@@ -1,5 +1,5 @@
 import { QueryClient } from "react-query";
-import { CommentType, ThreadType } from "../types/Types";
+import { CommentType } from "../types/Types";
 import { setThreadInCache, setThreadPersonalIdentityInCache } from "./thread";
 
 export const addCommentInCache = (
@@ -25,19 +25,33 @@ export const addCommentInCache = (
       threadId,
       slug,
     },
-    (thread: ThreadType) => {
-      return {
-        ...thread,
-        newCommentsAmount: thread.newCommentsAmount + newComments.length,
-        totalCommentsAmount: thread.totalCommentsAmount + newComments.length,
-        comments: {
-          ...thread.comments,
-          [replyTo.postId]: [
-            ...(thread.comments[replyTo.postId] || []),
-            ...newComments,
-          ],
-        },
-      };
+    {
+      transformThread: (thread) => {
+        return {
+          ...thread,
+          comments: {
+            ...thread.comments,
+            [replyTo.postId]: [
+              ...(thread.comments[replyTo.postId] || []),
+              ...newComments,
+            ],
+          },
+          newCommentsAmount: thread.newPostsAmount + newComments.length,
+          totalCommentsAmount: thread.totalPostsAmount + newComments.length,
+        };
+      },
+      transformThreadSummary: (thread) => {
+        return {
+          ...thread,
+          newPostsAmount:
+            thread.newPostsAmount +
+            newComments.reduce(
+              (current, comment) => (current += comment.isNew ? 1 : 0),
+              0
+            ),
+          totalCommentsAmount: thread.totalPostsAmount + newComments.length,
+        };
+      },
     }
   );
   if (newComments[0].isOwn) {

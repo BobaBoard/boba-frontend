@@ -1,7 +1,7 @@
 import React from "react";
 import { Post, TagsType, TagType } from "@bobaboard/ui-components";
 import moment from "moment";
-import { ThreadType } from "../types/Types";
+import { ThreadSummaryType } from "../types/Types";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { useCachedLinks } from "./hooks/useCachedLinks";
 import noop from "noop-ts";
@@ -21,18 +21,18 @@ const THREAD_OPTIONS = [
 ];
 
 const HiddenThread: React.FC<{
-  thread: ThreadType;
+  thread: ThreadSummaryType;
 }> = ({ thread }) => {
   const setThreadHidden = useSetThreadHidden();
   return (
-    <div className="post hidden" key={thread.threadId}>
+    <div className="post hidden" key={thread.id}>
       This thread was hidden{" "}
       <a
         href="#"
         onClick={(e) => {
           setThreadHidden({
-            threadId: thread.threadId,
-            slug: thread.boardSlug,
+            threadId: thread.id,
+            slug: thread.parentBoardSlug,
             hide: !thread.hidden,
           });
           e.preventDefault();
@@ -55,7 +55,7 @@ const HiddenThread: React.FC<{
 };
 
 const ThreadPreview: React.FC<{
-  thread: ThreadType;
+  thread: ThreadSummaryType;
   isLoggedIn: boolean;
   originBoard?: {
     slug: string;
@@ -67,16 +67,16 @@ const ThreadPreview: React.FC<{
   const hasReplies =
     thread.totalPostsAmount > 1 || thread.totalCommentsAmount > 0;
   const linkToThread = getLinkToThread({
-    slug: thread.boardSlug,
-    threadId: thread.threadId,
+    slug: thread.parentBoardSlug,
+    threadId: thread.id,
   });
-  const rootPost = thread.posts[0];
+  const rootPost = thread.starter;
   const options = usePostOptions({
     options: THREAD_OPTIONS,
     isLoggedIn,
     data: {
-      slug: thread.boardSlug,
-      threadId: thread.threadId,
+      slug: thread.parentBoardSlug,
+      threadId: thread.id,
       postId: rootPost.postId,
       own: rootPost.isOwn,
       currentView: thread.defaultView,
@@ -115,7 +115,7 @@ const ThreadPreview: React.FC<{
       key={rootPost.postId}
       createdTime={`${moment.utc(rootPost.created).fromNow()}${
         hasReplies
-          ? ` [updated: ${moment.utc(thread.lastActivity).fromNow()}]`
+          ? ` [updated: ${moment.utc(thread.lastActivityAt).fromNow()}]`
           : ""
       }`}
       createdTimeLink={linkToThread}
@@ -125,7 +125,7 @@ const ThreadPreview: React.FC<{
       userIdentity={rootPost.userIdentity}
       onNewContribution={noop}
       onNewComment={noop}
-      newPost={isLoggedIn && !thread.muted && rootPost.isNew}
+      newPost={isLoggedIn && !thread.muted && thread.new}
       newComments={
         isLoggedIn ? (thread.muted ? undefined : thread.newCommentsAmount) : 0
       }
@@ -133,7 +133,7 @@ const ThreadPreview: React.FC<{
         isLoggedIn
           ? thread.muted
             ? undefined
-            : thread.newPostsAmount - (rootPost.isNew ? 1 : 0)
+            : thread.newPostsAmount - (thread.new ? 1 : 0)
           : 0
       }
       totalComments={thread.totalCommentsAmount}

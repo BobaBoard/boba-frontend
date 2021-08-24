@@ -6,6 +6,7 @@ import {
   BoardSummary,
   Permissions,
   Role,
+  ThreadSummaryType,
 } from "../types/Types";
 
 import { DEFAULT_USER_NAME, DEFAULT_USER_AVATAR } from "../components/Auth";
@@ -16,9 +17,9 @@ export const makeClientComment = (
   serverComment: any,
   parentPostId: string
 ): CommentType => ({
-  commentId: serverComment.comment_id,
+  commentId: serverComment.id,
   chainParentId: serverComment.chain_parent_id,
-  parentCommentId: serverComment.parent_comment,
+  parentCommentId: serverComment.parent_comment_id,
   parentPostId,
   secretIdentity: {
     name: serverComment.secret_identity.name,
@@ -32,8 +33,8 @@ export const makeClientComment = (
   },
   created: serverComment.created,
   content: serverComment.content,
-  isNew: serverComment.is_new,
-  isOwn: serverComment.is_own,
+  isNew: serverComment.new,
+  isOwn: serverComment.own,
 });
 
 export const makeClientPost = (serverPost: any): PostType => ({
@@ -65,6 +66,27 @@ export const makeClientPost = (serverPost: any): PostType => ({
   isOwn: serverPost.own,
 });
 
+export const makeClientThreadSummary = (
+  serverThreadSummary: any
+): ThreadSummaryType => {
+  return {
+    id: serverThreadSummary.id,
+    parentBoardSlug: serverThreadSummary.parent_board_slug,
+    starter: makeClientPost(serverThreadSummary.starter),
+    defaultView: serverThreadSummary.default_view,
+    new: serverThreadSummary.new,
+    muted: serverThreadSummary.muted,
+    hidden: serverThreadSummary.hidden,
+    newPostsAmount: serverThreadSummary.new_posts_amount,
+    newCommentsAmount: serverThreadSummary.new_comments_amount,
+    totalPostsAmount: serverThreadSummary.total_posts_amount,
+    totalCommentsAmount: serverThreadSummary.total_comments_amount,
+    directThreadsAmount: serverThreadSummary.direct_threads_amount,
+    lastActivityAt: serverThreadSummary.last_activity_at,
+    personalIdentity: serverThreadSummary.personal_identity,
+  };
+};
+
 export const makeClientThread = (serverThread: any): ThreadType => {
   const clientPosts: PostType[] = serverThread.posts?.map(makeClientPost) || [];
   const clientComments: Record<string, CommentType[]> = {};
@@ -81,21 +103,22 @@ export const makeClientThread = (serverThread: any): ThreadType => {
       .find((comment) => comment?.isOwn)?.secretIdentity;
   }
   return {
+    starter,
     posts: clientPosts.length > 0 ? clientPosts : [starter],
     comments: clientComments,
-    isNew: starter.isNew,
-    threadId: serverThread.id,
-    boardSlug: serverThread.board_slug,
+    new: serverThread.new,
+    id: serverThread.id,
+    parentBoardSlug: serverThread.parent_board_slug,
     newPostsAmount: serverThread.new_posts_amount,
     newCommentsAmount: serverThread.new_comments_amount,
     totalCommentsAmount: serverThread.total_comments_amount,
     totalPostsAmount: serverThread.total_posts_amount,
     directThreadsAmount: serverThread.direct_threads_amount,
-    lastActivity: serverThread.last_activity_at,
+    lastActivityAt: serverThread.last_activity_at,
     muted: serverThread.muted,
     hidden: serverThread.hidden,
     defaultView: serverThread.default_view,
-    personalIdentity: personalIdentity,
+    personalIdentity,
   };
 };
 

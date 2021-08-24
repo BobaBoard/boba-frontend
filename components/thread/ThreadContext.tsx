@@ -96,7 +96,7 @@ export const useThreadMetadata = ({
   postId?: string | null;
   threadData?: ThreadType | null;
 }) => {
-  const threadId = threadData?.threadId;
+  const threadId = threadData?.id;
   const {
     root,
     parentChildrenMap,
@@ -173,7 +173,7 @@ export const useThreadMetadata = ({
     personalIdentity: threadData?.personalIdentity,
     hasNewReplies: !!newRepliesSequence.length,
     newRepliesCount: newRepliesSequence.length,
-    parentBoardSlug: threadData?.boardSlug || null,
+    parentBoardSlug: threadData?.parentBoardSlug || null,
     threadId: threadId,
     muted: threadData?.muted,
     hidden: threadData?.hidden,

@@ -67,7 +67,7 @@ function UserFeedPage() {
     ({ pageParam = undefined }) => getUserActivityData(feedOptions, pageParam),
     {
       getNextPageParam: (lastGroup) => {
-        return lastGroup?.nextPageCursor;
+        return lastGroup?.cursor.next;
       },
       keepPreviousData: true,
       refetchOnWindowFocus: false,
@@ -127,15 +127,12 @@ function UserFeedPage() {
                     .flatMap((activityData) => activityData?.activity)
                     .map((thread: ThreadType) => {
                       return (
-                        <div
-                          className="post"
-                          key={`${thread.threadId}_container`}
-                        >
+                        <div className="post" key={`${thread.id}_container`}>
                           <ThreadPreview
                             thread={thread}
                             isLoggedIn={isLoggedIn}
                             originBoard={realmBoards.find(
-                              (board) => board.slug == thread.boardSlug
+                              (board) => board.slug == thread.parentBoardSlug
                             )}
                           />
                         </div>

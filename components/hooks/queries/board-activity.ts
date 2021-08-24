@@ -22,7 +22,7 @@ export function useBoardActivity(props: {
       ),
     {
       getNextPageParam: (lastGroup) => {
-        return lastGroup?.nextPageCursor;
+        return lastGroup?.cursor.next;
       },
       // Block this query for loggedInOnly boards (unless we're logged in)
       enabled:

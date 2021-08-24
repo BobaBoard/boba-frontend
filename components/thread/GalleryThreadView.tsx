@@ -35,42 +35,49 @@ const ShowCover = ({
   cover: PostType | null;
   showCover: boolean;
   setShowCover: (show: boolean) => void;
-}) => (
-  <>
-    <button
-      // TODO: this button should be an a with an href to the page with the cover on/off.
-      onClick={(e) => {
-        setShowCover(!showCover);
-        e.preventDefault();
-      }}
-    >
-      {showCover ? "Hide" : "Show"} cover (
-      {cover?.commentsAmount || 0 /*TODO: wtf?? why do we need this??*/}{" "}
-      comments, {cover?.newCommentsAmount} new)
-    </button>
-    <style jsx>{`
-      button {
-        display: block;
-        color: white;
-        text-align: center;
-        font-size: small;
-        margin: 10px auto;
-        border: 0;
-        background-color: transparent;
-      }
-      button:hover {
-        cursor: pointer;
-        text-decoration: underline;
-      }
-      button:focus {
-        outline: none;
-      }
-      button:focus-visible {
-        outline: auto;
-      }
-    `}</style>
-  </>
-);
+}) => {
+  const { postCommentsMap } = useThreadContext();
+  const postComments =
+    typeof cover?.postId !== "undefined"
+      ? postCommentsMap.get(cover.postId)
+      : undefined;
+  return (
+    <>
+      <button
+        // TODO: this button should be an a with an href to the page with the cover on/off.
+        onClick={(e) => {
+          setShowCover(!showCover);
+          e.preventDefault();
+        }}
+      >
+        {showCover ? "Hide" : "Show"} cover (
+        {postComments?.total || 0 /*TODO: wtf?? why do we need this??*/}{" "}
+        comments, {postComments?.new || 0} new)
+      </button>
+      <style jsx>{`
+        button {
+          display: block;
+          color: white;
+          text-align: center;
+          font-size: small;
+          margin: 10px auto;
+          border: 0;
+          background-color: transparent;
+        }
+        button:hover {
+          cursor: pointer;
+          text-decoration: underline;
+        }
+        button:focus {
+          outline: none;
+        }
+        button:focus-visible {
+          outline: auto;
+        }
+      `}</style>
+    </>
+  );
+};
 
 interface GalleryThreadViewProps {
   displayManager: DisplayManager;
@@ -83,8 +90,12 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
   const boardData = useBoardSummaryBySlug(boardSlug);
   const { galleryViewMode, setGalleryViewMode } = useThreadViewContext();
-  const { chronologicalPostsSequence, newRepliesCount, threadRoot } =
-    useThreadContext();
+  const {
+    chronologicalPostsSequence,
+    newRepliesCount,
+    threadRoot,
+    postCommentsMap,
+  } = useThreadContext();
   const {
     onCollapseLevel,
     onUncollapseLevel,
@@ -94,7 +105,6 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
     subscribeToCollapseChange,
     unsubscribeFromCollapseChange,
   } = useThreadCollapseManager();
-  const { postCommentsMap } = useThreadContext();
 
   // We reposition more than once because the timing is finnicky.
   const repositionGallery = React.useCallback(() => {
@@ -138,9 +148,9 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
   React.useEffect(() => {
     // Hide comments from all posts with no new comments.
     currentModeDisplayElements
-      .filter((post) => post.newCommentsAmount === 0)
+      .filter((post) => !postCommentsMap.get(post.postId)?.new)
       .forEach((post) => onCollapseLevel(post.postId));
-  }, [currentModeDisplayElements, onCollapseLevel]);
+  }, [currentModeDisplayElements, onCollapseLevel, postCommentsMap]);
 
   React.useEffect(() => {
     if (currentModeLoadedElements.length > 0) {

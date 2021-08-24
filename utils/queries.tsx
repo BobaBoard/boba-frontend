@@ -12,6 +12,7 @@ import {
   makeClientComment,
   makeClientPost,
   makeClientThread,
+  makeClientThreadSummary,
 } from "./server-utils";
 
 const log = debug("bobafrontend:queries-log");
@@ -37,12 +38,12 @@ export const getBoardActivityData = async (
   );
   if (response.status == 204) {
     // No data, let's return empty array
-    return { nextPageCursor: null, activity: [] };
+    return { cursor: { next: null }, activity: [] };
   }
   // Transform post to client-side type.
   return {
-    nextPageCursor: response.data.next_page_cursor || null,
-    activity: response.data.activity.map(makeClientThread),
+    cursor: response.data.cursor,
+    activity: response.data.activity.map(makeClientThreadSummary),
   };
 };
 

@@ -7,11 +7,11 @@ import {
   getThreadData,
 } from "../../../utils/queries";
 import debug from "debug";
-import { ThreadType } from "../../../types/Types";
+import { CommentType, PostType, ThreadType } from "../../../types/Types";
 import { updateThreadView } from "../../../utils/queries/post";
 import { useAuth } from "components/Auth";
 import {
-  getThreadInCache,
+  getThreadSummaryInCache,
   setThreadActivityClearedInCache,
   setThreadDefaultViewInCache,
   setThreadHiddenInCache,
@@ -225,12 +225,19 @@ export const useThread = ({
         info(
           `Searching board activity data for board ${slug} and thread ${threadId}`
         );
-        const thread = getThreadInCache(queryClient, {
+        const thread = getThreadSummaryInCache(queryClient, {
           slug,
           threadId,
         });
         info(`...${thread ? "found" : "NOT found"} in cache!`);
-        return thread;
+        if (!thread) {
+          return null;
+        }
+        return {
+          ...thread,
+          posts: [thread.starter] as PostType[],
+          comments: {} as Record<string, CommentType[]>,
+        };
       },
       staleTime: 30 * 1000,
       refetchOnMount: !!fetch,
