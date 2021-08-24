@@ -14,7 +14,6 @@ import ThreadSidebar from "components/thread/ThreadSidebar";
 import GalleryThreadView from "components/thread/GalleryThreadView";
 import TimelineThreadView from "components/thread/TimelineThreadView";
 import ThreadContextProvider, {
-  useInvalidateThreadData,
   useThreadContext,
 } from "components/thread/ThreadContext";
 import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
