@@ -1,10 +1,6 @@
 import { THREAD_QUERY_KEY } from "components/hooks/queries/thread";
 import { QueryClient } from "react-query";
-import {
-  BoardActivityResponse,
-  ThreadSummaryType,
-  ThreadType,
-} from "../types/Types";
+import { FeedType, ThreadSummaryType, ThreadType } from "../types/Types";
 import { getActivitiesInCache, setActivitiesInCache } from "./activity";
 
 const setThreadInActivityCache = (
@@ -15,7 +11,7 @@ const setThreadInActivityCache = (
   setActivitiesInCache(
     queryClient,
     { slug: key.slug },
-    (activity: BoardActivityResponse) => {
+    (activity: FeedType) => {
       const threads = activity.activity;
       if (!threads) {
         return activity;

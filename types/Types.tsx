@@ -15,9 +15,9 @@ export interface CommentType {
   parentCommentId: string | null;
   parentPostId: string;
   chainParentId: string | null;
+  content: string;
   secretIdentity: SecretIdentityType;
   userIdentity?: UserIdentityType;
-  content: string;
   created: string;
   isNew: boolean;
   isOwn: boolean;
@@ -71,7 +71,7 @@ export interface Cursor {
   next: string | null;
 }
 
-export interface BoardActivityResponse {
+export interface FeedType {
   cursor: Cursor;
   // This thread will only have the top post and no comments.
   activity: ThreadSummaryType[];

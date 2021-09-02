@@ -1,8 +1,7 @@
 import { SettingType } from "@bobaboard/ui-components";
 import axios from "axios";
 import debug from "debug";
-import { BoardActivityResponse } from "types/Types";
-import { getServerBaseUrl, makeClientThread } from "../../utils/server-utils";
+import { getServerBaseUrl } from "../../utils/server-utils";
 
 const log = debug("bobafrontend:queries:user-log");
 
@@ -39,26 +38,6 @@ export const acceptInvite = async (data: {
   log(`Returned data from invite API:`);
   log(response.data);
   return response.data;
-};
-export const getUserActivityData = async (
-  params: {
-    ownOnly?: boolean;
-    updatedOnly?: boolean;
-  },
-  cursor: string
-): Promise<BoardActivityResponse | undefined> => {
-  const response = await axios.get(`users/me/feed`, {
-    params: { ...params, cursor },
-  });
-  if (response.status == 204) {
-    // No data, let's return empty array
-    return { cursor: { next: null }, activity: [] };
-  }
-  // Transform post to client-side type.
-  return {
-    cursor: response.data.cursor,
-    activity: response.data.activity.map(makeClientThread),
-  };
 };
 
 export const getUserSettings = async (): Promise<SettingType> => {

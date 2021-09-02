@@ -136,7 +136,6 @@ function UserPage() {
                                 });
                               });
                             },
-                            next: () => {},
                             error: (e) => {
                               log(e);
                               setEditing(false);

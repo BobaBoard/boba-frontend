@@ -1,9 +1,9 @@
 import { useInfiniteQuery, useQueryClient } from "react-query";
-import { getBoardActivityData } from "../../../utils/queries";
+import { getBoardActivityData } from "../../../utils/queries/feeds";
 import { useBoardSummaryBySlug } from "./board";
 import { useAuth } from "../../Auth";
 
-const BOARD_ACTIVITY_KEY = "boardActivityData";
+export const BOARD_ACTIVITY_KEY = "boardActivityData";
 export function useBoardActivity(props: {
   slug: string | null;
   // TODO: figure out better typing from query params
