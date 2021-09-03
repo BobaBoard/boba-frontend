@@ -13,11 +13,11 @@ import { withEditors } from "./editors/withEditors";
 const THREAD_OPTIONS = [
   PostOptions.COPY_THREAD_LINK,
   PostOptions.MARK_READ,
-  PostOptions.HIDE,
   PostOptions.MUTE,
+  PostOptions.HIDE,
   PostOptions.OPEN_AS,
-  PostOptions.UPDATE_VIEW,
   PostOptions.EDIT_TAGS,
+  PostOptions.UPDATE_VIEW,
 ];
 
 const HiddenThread: React.FC<{

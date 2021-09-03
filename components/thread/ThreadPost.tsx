@@ -42,9 +42,9 @@ interface ThreadPostProps
 const REGULAR_POST_OPTIONS = [
   PostOptions.COPY_LINK,
   PostOptions.COPY_THREAD_LINK,
-  PostOptions.EDIT_TAGS,
   PostOptions.MUTE,
   PostOptions.HIDE,
+  PostOptions.EDIT_TAGS,
 ];
 const TOP_POST_OPTIONS = [
   ...REGULAR_POST_OPTIONS.filter((option) => option != PostOptions.COPY_LINK),

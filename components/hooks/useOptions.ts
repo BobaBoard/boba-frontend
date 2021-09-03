@@ -18,7 +18,7 @@ import {
 import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
 import { useEditorsDispatch } from "components/editors/EditorsContext";
 import { EditorActions } from "components/editors/types";
-import { PostData } from "types/Types";
+import { PostData, PostPermissions } from "types/Types";
 import { useAuth } from "components/Auth";
 import {
   useReadThread,
@@ -40,6 +40,16 @@ export enum PostOptions {
   UPDATE_VIEW = "UPDATE_VIEW",
   OPEN_AS = "OPEN_AS",
 }
+
+const isPostEditPermission = (postPermission: PostPermissions) => {
+  return [
+    PostPermissions.editContent,
+    PostPermissions.editWhisperTags,
+    PostPermissions.editCategoryTags,
+    PostPermissions.editWhisperTags,
+    PostPermissions.editContentNotices,
+  ].includes(postPermission);
+};
 
 const getCopyLinkOption = (href: string, text: string) => ({
   icon: faLink,
@@ -291,7 +301,10 @@ const usePostOptions = ({
         case PostOptions.EDIT_TAGS:
           if (
             !isLoggedIn ||
-            (!data.own && !boardMetadata?.permissions?.postPermissions.length)
+            (!data.own &&
+              !boardMetadata?.permissions?.postPermissions.some(
+                isPostEditPermission
+              ))
           ) {
             return null;
           }

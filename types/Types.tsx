@@ -118,9 +118,9 @@ export enum PostPermissions {
 }
 
 export interface Permissions {
-  boardPermissions: BoardPermissions;
-  postPermissions: PostPermissions;
-  threadPermissions: ThreadPermissions;
+  boardPermissions: BoardPermissions[];
+  postPermissions: PostPermissions[];
+  threadPermissions: ThreadPermissions[];
 }
 
 export interface BoardData {
