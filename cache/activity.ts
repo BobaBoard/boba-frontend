@@ -1,19 +1,20 @@
+import { BOARD_ACTIVITY_KEY } from "components/hooks/queries/board-activity";
+import { USER_FEED_KEY } from "components/hooks/queries/user-feed";
 import { InfiniteData, QueryClient } from "react-query";
-import { BoardActivityResponse } from "../types/Types";
+import { FeedType } from "../types/Types";
 
 export const getActivitiesInCache = (
   queryClient: QueryClient,
   key: { slug: string }
-  // TODO: swap type with generic activity response
-): InfiniteData<BoardActivityResponse>[] => {
-  const boardActivityData: InfiniteData<BoardActivityResponse>[] = queryClient
+): InfiniteData<FeedType>[] => {
+  const boardActivityData: InfiniteData<FeedType>[] = queryClient
     .getQueryCache()
-    .findAll(["boardActivityData", { slug: key.slug }])
-    .map((data) => data.state.data) as InfiniteData<BoardActivityResponse>[];
-  const userActivityData: InfiniteData<BoardActivityResponse>[] = queryClient
+    .findAll([BOARD_ACTIVITY_KEY, { slug: key.slug }])
+    .map((data) => data.state.data) as InfiniteData<FeedType>[];
+  const userActivityData: InfiniteData<FeedType>[] = queryClient
     .getQueryCache()
-    .findAll(["userActivityData"])
-    .map((data) => data.state.data) as InfiniteData<BoardActivityResponse>[];
+    .findAll([USER_FEED_KEY])
+    .map((data) => data.state.data) as InfiniteData<FeedType>[];
 
   return [...boardActivityData, ...userActivityData];
 };
@@ -22,9 +23,9 @@ export const setActivitiesInCache = (
   queryClient: QueryClient,
   key: { slug: string },
   // TODO: swap type with generic activity response
-  transform: (activity: BoardActivityResponse) => BoardActivityResponse
+  transform: (activity: FeedType) => FeedType
 ) => {
-  const activityTransformer = (data: InfiniteData<BoardActivityResponse>) => {
+  const activityTransformer = (data: InfiniteData<FeedType>) => {
     const activityPages = data?.pages;
     if (!activityPages) {
       return undefined;
@@ -48,14 +49,14 @@ export const setActivitiesInCache = (
   };
   queryClient.setQueriesData(
     {
-      queryKey: ["boardActivityData", { slug: key.slug }],
+      queryKey: [BOARD_ACTIVITY_KEY, { slug: key.slug }],
       exact: false,
     },
     activityTransformer
   );
   queryClient.setQueriesData(
     {
-      queryKey: "userActivityData",
+      queryKey: USER_FEED_KEY,
       exact: false,
     },
     activityTransformer

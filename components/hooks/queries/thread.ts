@@ -11,7 +11,7 @@ import { ThreadType } from "../../../types/Types";
 import { updateThreadView } from "../../../utils/queries/post";
 import { useAuth } from "components/Auth";
 import {
-  getThreadInCache,
+  getThreadSummaryInCache,
   setThreadActivityClearedInCache,
   setThreadDefaultViewInCache,
   setThreadHiddenInCache,
@@ -23,73 +23,6 @@ const error = debug("bobafrontend:hooks:queries:thread-error");
 const log = debug("bobafrontend:hooks:queries:thread-log");
 
 export const THREAD_QUERY_KEY = "threadData";
-export const useThread = ({
-  threadId,
-  slug,
-  fetch,
-}: {
-  threadId: string | null;
-  slug: string | null;
-  fetch?: boolean;
-}) => {
-  const queryClient = useQueryClient();
-  const { data, isLoading, isFetching } = useQuery<
-    ThreadType | null,
-    [
-      string,
-      {
-        threadId: string;
-      }
-    ]
-  >(
-    [THREAD_QUERY_KEY, { threadId }],
-    () => {
-      if (!threadId || !slug) {
-        return null;
-      }
-      return getThreadData({ threadId });
-    },
-    {
-      refetchOnWindowFocus: false,
-      // We don't want thread to be automatically refetched on mount because this might
-      // cause the "read" status to change. Instead, we want to wait for them to become
-      // inactive (no one is using them) and then quickly garbage collect them so they get
-      // refetched again next visit.
-      // TODO: better investigate whether to use the fetch variable (or another) for this.
-      // TODO: one blessed day we will simply mark "your thread was updated, click to refresh"
-      // and maybe at that point we can keep refreshing the thread if we wait to load the data.
-      refetchOnMount: false,
-      cacheTime: 5 * 1000,
-      placeholderData: () => {
-        if (!threadId || !slug) {
-          return null;
-        }
-        info(
-          `Searching board activity data for board ${slug} and thread ${threadId}`
-        );
-        const thread = getThreadInCache(queryClient, {
-          slug,
-          threadId,
-        });
-        info(`...${thread ? "found" : "NOT found"}!`);
-        return thread;
-      },
-      staleTime: 30 * 1000,
-      notifyOnChangeProps: ["data", "isLoading", "isFetching"],
-      enabled: !!(fetch ?? true) && !!slug && !!threadId,
-      onSuccess: (data) => {
-        log(`Retrieved thread data for thread with id ${threadId}`);
-        info(data);
-      },
-    }
-  );
-
-  return {
-    data,
-    isLoading,
-    isFetching,
-  };
-};
 
 export const useMuteThread = () => {
   const queryClient = useQueryClient();
@@ -252,4 +185,73 @@ export const useReadThread = (args?: { activityOnly?: boolean }) => {
   );
 
   return readThread;
+};
+
+export const useThread = ({
+  threadId,
+  slug,
+  fetch,
+}: {
+  threadId: string | null;
+  slug: string | null;
+  fetch?: boolean;
+}) => {
+  const queryClient = useQueryClient();
+  const { isLoggedIn } = useAuth();
+
+  log(`Using thread with null`);
+  //const queryClient = useQueryClient();
+  const { data, isLoading, isFetching } = useQuery<
+    ThreadType | null,
+    [
+      string,
+      {
+        threadId: string;
+      }
+    ]
+  >(
+    [THREAD_QUERY_KEY, { threadId, isLoggedIn }],
+    () => {
+      if (!threadId) {
+        return null;
+      }
+      return getThreadData({ threadId });
+    },
+
+    {
+      refetchOnWindowFocus: false,
+      // We don't want thread to be automatically refetched on mount because this might
+      // cause the "read" status to change. Instead, we want to wait for them to become
+      // inactive (no one is using them) and then quickly garbage collect them so they get
+      // refetched again next visit.
+      // TODO: better investigate whether to use the fetch variable (or another) for this.
+      // TODO: one blessed day we will simply mark "your thread was updated, click to refresh"
+      // and maybe at that point we can keep refreshing the thread if we wait to load the data.
+      refetchOnMount: false,
+      cacheTime: 5 * 1000,
+      placeholderData: () => {
+        if (!threadId || !slug) {
+          return null;
+        }
+        info(
+          `Searching board activity data for board ${slug} and thread ${threadId}`
+        );
+        const thread = getThreadSummaryInCache(queryClient, {
+          slug,
+          threadId,
+        });
+        info(`...${thread ? "found" : "NOT found"}!`);
+        return thread ? { ...thread, posts: [], comments: {} } : undefined;
+      },
+      staleTime: 30 * 1000,
+      notifyOnChangeProps: ["data", "isLoading", "isFetching"],
+      enabled: !!(fetch ?? true) && !!slug && !!threadId,
+      onSuccess: (data) => {
+        log(`Retrieved thread data for thread with id ${threadId}`);
+        info(data);
+      },
+    }
+  );
+
+  return { data, isLoading, isFetching };
 };

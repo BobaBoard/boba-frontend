@@ -26,11 +26,6 @@ export const makePost = ({
       categoryTags: [],
       contentWarnings: [],
     },
-    postsAmount: 0,
-    commentsAmount: 0,
-    threadsAmount: 0,
-    newPostsAmount: 0,
-    newCommentsAmount: 0,
     isNew: !!isNew,
     isOwn: false,
   };

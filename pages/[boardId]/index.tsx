@@ -12,7 +12,7 @@ import {
 } from "../../components/hooks/queries/board";
 import axios from "axios";
 import debug from "debug";
-import { ThreadType } from "../../types/Types";
+import { ThreadSummaryType } from "../../types/Types";
 import { BoardPageDetails, usePageDetails } from "utils/router-utils";
 import LoadingSpinner from "components/LoadingSpinner";
 import ThreadPreview from "components/ThreadPreview";
@@ -212,12 +212,9 @@ function BoardPage() {
                   boardActivityData?.pages &&
                   boardActivityData.pages
                     .flatMap((activityData) => activityData?.activity)
-                    .map((thread: ThreadType) => {
+                    .map((thread: ThreadSummaryType) => {
                       return (
-                        <div
-                          className="post"
-                          key={`${thread.threadId}_container`}
-                        >
+                        <div className="post" key={`${thread.id}_container`}>
                           <MemoizedThreadPreview
                             thread={thread}
                             isLoggedIn={isLoggedIn}

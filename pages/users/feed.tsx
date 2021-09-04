@@ -1,21 +1,23 @@
 import React from "react";
 import { FeedWithMenu } from "@bobaboard/ui-components";
 import Layout from "../../components/Layout";
-import { useInfiniteQuery } from "react-query";
 import { useAuth } from "../../components/Auth";
-import { getUserActivityData } from "../../utils/queries/user";
 import debug from "debug";
 import { ThreadType } from "../../types/Types";
 import FeedSidebar from "../../components/feed/FeedSidebar";
+import {
+  FeedOptions,
+  useUserFeed,
+} from "../../components/hooks/queries/user-feed";
 
 import LoadingSpinner from "components/LoadingSpinner";
 import ThreadPreview from "components/ThreadPreview";
 import { withEditors } from "components/editors/withEditors";
-import { isFromBackButton } from "components/hooks/useFromBackButton";
 import { ExistanceParam } from "components/QueryParamNextProvider";
 import { useQueryParams } from "use-query-params";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useRealmBoards } from "contexts/RealmContext";
+import { isFromBackButton } from "components/hooks/useFromBackButton";
 
 const info = debug("bobafrontend:boardPage-info");
 info.log = console.info.bind(console);
@@ -27,34 +29,11 @@ const FeedParams = {
 
 function UserFeedPage() {
   const [isShowingSidebar, setShowSidebar] = React.useState(false);
-  const [{ showRead, ownOnly }, setQuery] = useQueryParams(FeedParams);
+  const [feedOptions, setQuery] = useQueryParams(FeedParams);
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
+
   const realmBoards = useRealmBoards();
   const { linkToHome } = useCachedLinks();
-
-  React.useEffect(() => {
-    if (!isAuthPending && !isLoggedIn) {
-      linkToHome.onClick?.();
-    }
-  }, [isAuthPending, isLoggedIn, linkToHome]);
-
-  const feedOptions = React.useMemo(
-    () => ({
-      ownOnly,
-      updatedOnly: !showRead,
-    }),
-    [showRead, ownOnly]
-  );
-
-  const onOptionsChange = React.useCallback((options) => {
-    setQuery(
-      {
-        ownOnly: options.ownOnly,
-        showRead: !options.updatedOnly,
-      },
-      "replace"
-    );
-  }, []);
 
   const {
     data: userActivityData,
@@ -62,17 +41,22 @@ function UserFeedPage() {
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useInfiniteQuery(
-    ["userActivityData", feedOptions],
-    ({ pageParam = undefined }) => getUserActivityData(feedOptions, pageParam),
-    {
-      getNextPageParam: (lastGroup) => {
-        return lastGroup?.nextPageCursor;
-      },
-      keepPreviousData: true,
-      refetchOnWindowFocus: false,
-      enabled: !isFromBackButton() && !isAuthPending,
+  } = useUserFeed({
+    enabled: !isFromBackButton(),
+    feedOptions,
+  });
+
+  React.useEffect(() => {
+    if (!isAuthPending && !isLoggedIn) {
+      linkToHome.onClick?.();
     }
+  }, [isAuthPending, isLoggedIn, linkToHome]);
+
+  const onOptionsChange = React.useCallback(
+    (options: FeedOptions) => {
+      setQuery(options, "replace");
+    },
+    [setQuery]
   );
 
   const fetchNext = React.useCallback(() => {
@@ -127,15 +111,12 @@ function UserFeedPage() {
                     .flatMap((activityData) => activityData?.activity)
                     .map((thread: ThreadType) => {
                       return (
-                        <div
-                          className="post"
-                          key={`${thread.threadId}_container`}
-                        >
+                        <div className="post" key={`${thread.id}_container`}>
                           <ThreadPreview
                             thread={thread}
                             isLoggedIn={isLoggedIn}
                             originBoard={realmBoards.find(
-                              (board) => board.slug == thread.boardSlug
+                              (board) => board.slug == thread.parentBoardSlug
                             )}
                           />
                         </div>

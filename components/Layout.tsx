@@ -30,6 +30,7 @@ import { useRealmSettings } from "contexts/RealmContext";
 
 import debug from "debug";
 import { useBoardSummaryBySlug } from "./hooks/queries/board";
+import { BOARD_ACTIVITY_KEY } from "./hooks/queries/board-activity";
 // const log = debug("bobafrontend:Layout-log");
 const error = debug("bobafrontend:Layout-error");
 
@@ -138,7 +139,7 @@ function useTitleLink() {
   const { slug, pageType } = usePageDetails();
   const onBoardChange = React.useCallback(
     (slug) => {
-      queryClient.refetchQueries(["boardActivityData", { slug }]);
+      queryClient.refetchQueries([BOARD_ACTIVITY_KEY, { slug }]);
     },
     [queryClient]
   );

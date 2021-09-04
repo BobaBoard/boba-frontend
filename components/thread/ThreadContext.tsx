@@ -96,7 +96,7 @@ export const useThreadMetadata = ({
   postId?: string | null;
   threadData?: ThreadType | null;
 }) => {
-  const threadId = threadData?.threadId;
+  const threadId = threadData?.id;
   const {
     root,
     parentChildrenMap,
@@ -115,11 +115,11 @@ export const useThreadMetadata = ({
       postsDisplaySequence = [],
     } = threadId ? makePostsTree(threadData?.posts, threadId) : {};
     const postCommentsMap = new Map<string, ThreadCommentInfoType>();
-    threadData?.posts?.forEach((post) => {
-      if (post.comments) {
-        postCommentsMap.set(post.postId, makeCommentsTree(post.comments));
-      }
-    });
+    if (threadData?.comments) {
+      Object.entries(threadData?.comments).forEach(([postId, comments]) => {
+        postCommentsMap.set(postId, makeCommentsTree(comments));
+      });
+    }
 
     const chronologicalPostsSequence =
       threadData?.posts.sort((post1, post2) => {
@@ -173,7 +173,7 @@ export const useThreadMetadata = ({
     personalIdentity: threadData?.personalIdentity,
     hasNewReplies: !!newRepliesSequence.length,
     newRepliesCount: newRepliesSequence.length,
-    parentBoardSlug: threadData?.boardSlug || null,
+    parentBoardSlug: threadData?.parentBoardSlug || null,
     threadId: threadId,
     muted: threadData?.muted,
     hidden: threadData?.hidden,

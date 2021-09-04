@@ -1,6 +1,7 @@
 import React from "react";
 import classnames from "classnames";
 import { SegmentedButton } from "@bobaboard/ui-components";
+import { FeedOptions } from "components/hooks/queries/user-feed";
 
 const UPDATED_ONLY_DATA = {
   id: "updated_only",
@@ -32,9 +33,10 @@ const FeedSidebar: React.FC<FeedSidebarProps> = (props) => {
                 label: UPDATED_ONLY_DATA.label,
                 link: {
                   onClick: () => {
+                    console.log(props.currentOptions);
                     props.onOptionsChange({
                       ...props.currentOptions,
-                      updatedOnly: true,
+                      showRead: false,
                     });
                   },
                 },
@@ -46,16 +48,16 @@ const FeedSidebar: React.FC<FeedSidebarProps> = (props) => {
                   onClick: () => {
                     props.onOptionsChange({
                       ...props.currentOptions,
-                      updatedOnly: false,
+                      showRead: true,
                     });
                   },
                 },
               },
             ]}
             selected={
-              props.currentOptions.updatedOnly
-                ? UPDATED_ONLY_DATA.id
-                : ALL_UPDATES_DATA.id
+              props.currentOptions.showRead
+                ? ALL_UPDATES_DATA.id
+                : UPDATED_ONLY_DATA.id
             }
           />
         </div>
@@ -125,10 +127,6 @@ const FeedSidebar: React.FC<FeedSidebarProps> = (props) => {
 
 export default FeedSidebar;
 
-export interface FeedOptions {
-  updatedOnly: boolean;
-  ownOnly: boolean;
-}
 export interface FeedSidebarProps {
   open?: boolean;
   currentOptions: FeedOptions;

@@ -205,6 +205,7 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
     defaultView,
     hasNewReplies,
     threadRoot,
+    postCommentsMap,
     chronologicalPostsSequence,
   } = useThreadContext();
   const setThreadViewMode = React.useCallback(
@@ -278,7 +279,8 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
       mode: hasNewReplies ? GALLERY_VIEW_MODE.NEW : GALLERY_VIEW_MODE.ALL,
       showCover:
         threadRoot?.isNew ||
-        !!threadRoot?.newCommentsAmount ||
+        (!!threadRoot?.postId &&
+          !!postCommentsMap.get(threadRoot.postId)?.new) ||
         chronologicalPostsSequence.length == 0 ||
         threadViewQuery.showCover,
     };

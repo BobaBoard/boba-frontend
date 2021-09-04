@@ -1,19 +1,23 @@
+export interface SecretIdentityType {
+  name: string;
+  avatar: string;
+  accessory?: string;
+  color?: string;
+}
+
+export interface UserIdentityType {
+  name: string;
+  avatar: string;
+}
+
 export interface CommentType {
   commentId: string;
   parentCommentId: string | null;
   parentPostId: string;
   chainParentId: string | null;
-  secretIdentity: {
-    name: string;
-    avatar: string;
-    accessory?: string;
-    color?: string;
-  };
-  userIdentity?: {
-    name: string;
-    avatar: string;
-  };
   content: string;
+  secretIdentity: SecretIdentityType;
+  userIdentity?: UserIdentityType;
   created: string;
   isNew: boolean;
   isOwn: boolean;
@@ -30,55 +34,47 @@ export interface PostType {
   postId: string;
   threadId: string;
   parentPostId: string | null;
-  secretIdentity: {
-    name: string;
-    avatar: string;
-    accessory?: string;
-    color?: string;
-  };
-  userIdentity?: {
-    name: string;
-    avatar: string;
-  };
+  secretIdentity: SecretIdentityType;
+  userIdentity?: UserIdentityType;
   created: string;
   content: string;
   options: {
     wide?: boolean;
   };
   tags: TagsType;
-  comments?: CommentType[];
-  postsAmount: number;
-  commentsAmount: number;
-  threadsAmount: number;
-  newPostsAmount: number;
-  newCommentsAmount: number;
   isNew: boolean;
   isOwn: boolean;
 }
-export interface ThreadType {
-  posts: PostType[];
-  threadId: string;
-  boardSlug: string;
-  isNew: boolean;
-  newPostsAmount: number;
-  newCommentsAmount: number;
-  totalCommentsAmount: number;
-  totalPostsAmount: number;
-  directThreadsAmount: number;
-  lastActivity?: string;
+
+export interface ThreadSummaryType {
+  id: string;
+  parentBoardSlug: string;
+  starter: PostType;
+  defaultView: "thread" | "gallery" | "timeline";
   muted: boolean;
   hidden: boolean;
-  defaultView: "thread" | "gallery" | "timeline";
-  personalIdentity?: {
-    name: string;
-    avatar: string;
-  };
+  new: boolean;
+  newPostsAmount: number;
+  newCommentsAmount: number;
+  totalPostsAmount: number;
+  totalCommentsAmount: number;
+  directThreadsAmount: number;
+  lastActivityAt: string;
+  personalIdentity?: UserIdentityType;
+}
+export interface ThreadType extends ThreadSummaryType {
+  posts: PostType[];
+  comments: Record<string, CommentType[]>;
 }
 
-export interface BoardActivityResponse {
-  nextPageCursor: string | null;
+export interface Cursor {
+  next: string | null;
+}
+
+export interface FeedType {
+  cursor: Cursor;
   // This thread will only have the top post and no comments.
-  activity: ThreadType[];
+  activity: ThreadSummaryType[];
 }
 
 export interface BoardDescription {
@@ -122,9 +118,9 @@ export enum PostPermissions {
 }
 
 export interface Permissions {
-  boardPermissions: BoardPermissions;
-  postPermissions: PostPermissions;
-  threadPermissions: ThreadPermissions;
+  boardPermissions: BoardPermissions[];
+  postPermissions: PostPermissions[];
+  threadPermissions: ThreadPermissions[];
 }
 
 export interface BoardData {
@@ -202,6 +198,8 @@ export interface ThreadCommentInfoType {
   roots: CommentType[];
   parentChainMap: Map<string, CommentType>;
   parentChildrenMap: Map<string, CommentType[]>;
+  total: number;
+  new: number;
 }
 
 export interface SettingsType {
