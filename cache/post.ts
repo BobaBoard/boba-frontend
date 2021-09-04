@@ -1,5 +1,10 @@
 import { QueryClient } from "react-query";
-import { PostType, ThreadType, TagsType } from "../types/Types";
+import {
+  PostType,
+  ThreadType,
+  TagsType,
+  ThreadSummaryType,
+} from "../types/Types";
 import { setThreadInCache, setThreadPersonalIdentityInCache } from "./thread";
 
 export const setPostInCache = (
@@ -15,18 +20,59 @@ export const setPostInCache = (
   },
   transform: (post: PostType) => PostType
 ) => {
-  setThreadInCache(queryClient, { slug, threadId }, (thread: ThreadType) => {
-    const postIndex = thread.posts.findIndex((post) => post.postId == postId);
-    if (postIndex != -1) {
-      const updatedPost = transform(thread.posts[postIndex]);
-      if (updatedPost !== thread.posts[postIndex]) {
+  const transformThreadSummary = (thread: ThreadSummaryType) => {
+    if (thread.starter.postId !== postId) {
+      return thread;
+    }
+    const updatedStarter = transform(thread.starter);
+    if (updatedStarter == thread.starter) {
+      return thread;
+    }
+    const newThread = { ...thread };
+    newThread.new = updatedStarter.isNew;
+    newThread.newPostsAmount =
+      newThread.newPostsAmount +
+      (updatedStarter.isNew !== thread.starter.isNew
+        ? updatedStarter.isNew
+          ? 1
+          : -1
+        : 0);
+    return newThread;
+  };
+  setThreadInCache(
+    queryClient,
+    { slug, threadId },
+    {
+      transformThread: (thread: ThreadType) => {
+        const postIndex = thread.posts.findIndex(
+          (post) => post.postId == postId
+        );
+        if (postIndex == -1) {
+          return thread;
+        }
+        const oldPost = thread.posts[postIndex];
+        const updatedPost = transform(oldPost);
+        if (updatedPost === oldPost) {
+          return thread;
+        }
         const updatedPosts = [...thread.posts];
         updatedPosts[postIndex] = updatedPost;
-        return { ...thread, posts: updatedPosts };
-      }
+        // If the new status of the post changes, then the total amount of new posts
+        // will also have to change for the thread.
+        const shouldUpdateNew = updatedPost.isNew !== oldPost.isNew;
+        const newPostsAmount = !shouldUpdateNew
+          ? thread.newPostsAmount
+          : thread.newPostsAmount + (updatedPost.isNew ? 1 : -1);
+        return {
+          ...transformThreadSummary(thread),
+          comments: thread.comments,
+          posts: updatedPosts,
+          newPostsAmount,
+        };
+      },
+      transformThreadSummary,
     }
-    return thread;
-  });
+  );
 };
 
 export const addPostInCache = (
@@ -41,13 +87,27 @@ export const addPostInCache = (
     post: PostType;
   }
 ) => {
-  setThreadInCache(queryClient, { slug, threadId }, (thread: ThreadType) => {
-    const newThreadData = {
-      ...thread,
-      posts: [...thread.posts, post],
-    };
-    return newThreadData;
-  });
+  setThreadInCache(
+    queryClient,
+    { slug, threadId },
+    {
+      transformThread: (thread) => {
+        return {
+          ...thread,
+          posts: [...thread.posts, post],
+          newPostsAmount: thread.newPostsAmount + (post.isNew ? 1 : 0),
+          totalPostsAmount: thread.totalPostsAmount + 1,
+        };
+      },
+      transformThreadSummary: (thread) => {
+        return {
+          ...thread,
+          newPostsAmount: thread.newPostsAmount + (post.isNew ? 1 : 0),
+          totalPostsAmount: thread.totalPostsAmount + 1,
+        };
+      },
+    }
+  );
   if (post.isOwn) {
     setThreadPersonalIdentityInCache(queryClient, {
       slug,

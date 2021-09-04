@@ -141,7 +141,7 @@ const ThreadLevel: React.FC<{
     useThreadEditors();
   const { isLoggedIn } = useAuth();
   //info(`Rendering subtree starting with post with id ${props.post.postId}`);
-  const { parentChildrenMap } = useThreadContext();
+  const { parentChildrenMap, postCommentsMap } = useThreadContext();
   if (!props.toDisplay.includes(props.post)) {
     return null;
   }
@@ -171,7 +171,7 @@ const ThreadLevel: React.FC<{
     </NewThread.Indent>
   );
 
-  const hasComments = !!props.post.comments?.length;
+  const hasComments = !!postCommentsMap.get(props.post.postId)?.total;
   const children = parentChildrenMap.get(props.post.postId)?.children;
   const childrenDisplay: React.ReactNode[] = [];
   for (let i = 0; i < (children?.length || 0); i++) {

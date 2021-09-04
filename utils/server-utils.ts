@@ -6,6 +6,7 @@ import {
   BoardSummary,
   Permissions,
   Role,
+  ThreadSummaryType,
 } from "../types/Types";
 
 import { DEFAULT_USER_NAME, DEFAULT_USER_AVATAR } from "../components/Auth";
@@ -16,9 +17,9 @@ export const makeClientComment = (
   serverComment: any,
   parentPostId: string
 ): CommentType => ({
-  commentId: serverComment.comment_id,
+  commentId: serverComment.id,
   chainParentId: serverComment.chain_parent_id,
-  parentCommentId: serverComment.parent_comment,
+  parentCommentId: serverComment.parent_comment_id,
   parentPostId,
   secretIdentity: {
     name: serverComment.secret_identity.name,
@@ -32,12 +33,12 @@ export const makeClientComment = (
   },
   created: serverComment.created,
   content: serverComment.content,
-  isNew: serverComment.is_new,
-  isOwn: serverComment.is_own,
+  isNew: serverComment.new,
+  isOwn: serverComment.own,
 });
 
 export const makeClientPost = (serverPost: any): PostType => ({
-  postId: serverPost.post_id,
+  postId: serverPost.id,
   threadId: serverPost.parent_thread_id,
   parentPostId: serverPost.parent_post_id,
   secretIdentity: {
@@ -50,7 +51,7 @@ export const makeClientPost = (serverPost: any): PostType => ({
     name: serverPost.user_identity.name || DEFAULT_USER_NAME,
     avatar: serverPost.user_identity.avatar || DEFAULT_USER_AVATAR,
   },
-  created: serverPost.created,
+  created: serverPost.created_at,
   content: serverPost.content,
   options: {
     wide: serverPost.options?.wide,
@@ -61,42 +62,63 @@ export const makeClientPost = (serverPost: any): PostType => ({
     categoryTags: serverPost.tags.category_tags,
     contentWarnings: serverPost.tags.content_warnings,
   },
-  comments: serverPost.comments?.map((comment: any) =>
-    makeClientComment(comment, serverPost.post_id)
-  ),
-  postsAmount: serverPost.posts_amount,
-  threadsAmount: serverPost.threads_amount,
-  newPostsAmount: serverPost.new_posts_amount,
-  newCommentsAmount: serverPost.new_comments_amount,
-  isNew: serverPost.is_new,
-  isOwn: serverPost.self,
-  commentsAmount: serverPost.comments_amount,
+  isNew: serverPost.new,
+  isOwn: serverPost.own,
 });
 
+export const makeClientThreadSummary = (
+  serverThreadSummary: any
+): ThreadSummaryType => {
+  return {
+    id: serverThreadSummary.id,
+    parentBoardSlug: serverThreadSummary.parent_board_slug,
+    starter: makeClientPost(serverThreadSummary.starter),
+    defaultView: serverThreadSummary.default_view,
+    new: serverThreadSummary.new,
+    muted: serverThreadSummary.muted,
+    hidden: serverThreadSummary.hidden,
+    newPostsAmount: serverThreadSummary.new_posts_amount,
+    newCommentsAmount: serverThreadSummary.new_comments_amount,
+    totalPostsAmount: serverThreadSummary.total_posts_amount,
+    totalCommentsAmount: serverThreadSummary.total_comments_amount,
+    directThreadsAmount: serverThreadSummary.direct_threads_amount,
+    lastActivityAt: serverThreadSummary.last_activity_at,
+    personalIdentity: serverThreadSummary.personal_identity,
+  };
+};
+
 export const makeClientThread = (serverThread: any): ThreadType => {
-  const clientPosts: PostType[] = serverThread.posts.map(makeClientPost);
+  const clientPosts: PostType[] = serverThread.posts?.map(makeClientPost) || [];
+  const clientComments: Record<string, CommentType[]> = {};
+  Object.keys(serverThread.comments).forEach(
+    (key) =>
+      (clientComments[key] = serverThread.comments[key].map(makeClientComment))
+  );
+  const starter: PostType = makeClientPost(serverThread.starter);
   let personalIdentity = clientPosts.find((post) => post.isOwn)?.secretIdentity;
   if (!personalIdentity) {
     // Look for it within comments.
-    personalIdentity = clientPosts
-      .flatMap((post) => post.comments)
+    personalIdentity = Object.values(clientComments)
+      .flat()
       .find((comment) => comment?.isOwn)?.secretIdentity;
   }
   return {
-    posts: clientPosts,
-    isNew: serverThread.posts[0].is_new,
-    threadId: serverThread.thread_id,
-    boardSlug: serverThread.board_slug,
-    newPostsAmount: serverThread.thread_new_posts_amount,
-    newCommentsAmount: serverThread.thread_new_comments_amount,
-    totalCommentsAmount: serverThread.thread_total_comments_amount,
-    totalPostsAmount: serverThread.thread_total_posts_amount,
-    directThreadsAmount: serverThread.thread_direct_threads_amount,
-    lastActivity: serverThread.thread_last_activity,
+    starter,
+    posts: clientPosts.length > 0 ? clientPosts : [starter],
+    comments: clientComments,
+    new: serverThread.new,
+    id: serverThread.id,
+    parentBoardSlug: serverThread.parent_board_slug,
+    newPostsAmount: serverThread.new_posts_amount,
+    newCommentsAmount: serverThread.new_comments_amount,
+    totalCommentsAmount: serverThread.total_comments_amount,
+    totalPostsAmount: serverThread.total_posts_amount,
+    directThreadsAmount: serverThread.direct_threads_amount,
+    lastActivityAt: serverThread.last_activity_at,
     muted: serverThread.muted,
     hidden: serverThread.hidden,
     defaultView: serverThread.default_view,
-    personalIdentity: personalIdentity,
+    personalIdentity,
   };
 };
 

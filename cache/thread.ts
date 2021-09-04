@@ -1,23 +1,23 @@
-import { THREAD_QUERY_KEY } from "components/thread/ThreadContext";
+import { THREAD_QUERY_KEY } from "components/hooks/queries/thread";
 import { QueryClient } from "react-query";
-import { BoardActivityResponse, ThreadType } from "../types/Types";
+import { FeedType, ThreadSummaryType, ThreadType } from "../types/Types";
 import { getActivitiesInCache, setActivitiesInCache } from "./activity";
 
 const setThreadInActivityCache = (
   queryClient: QueryClient,
   key: { slug: string; threadId: string },
-  transform: (thread: ThreadType) => ThreadType
+  transform: (thread: ThreadSummaryType) => ThreadSummaryType
 ) => {
   setActivitiesInCache(
     queryClient,
     { slug: key.slug },
-    (activity: BoardActivityResponse) => {
+    (activity: FeedType) => {
       const threads = activity.activity;
       if (!threads) {
         return activity;
       }
       const threadIndex = threads.findIndex(
-        (thread) => thread.threadId == key.threadId
+        (thread) => thread.id == key.threadId
       );
       if (threadIndex != -1) {
         const updatedThreads = [...threads];
@@ -34,18 +34,29 @@ const setThreadInActivityCache = (
   );
 };
 
+export type ThreadTransformerType = <T extends ThreadSummaryType | ThreadType>(
+  thread: T
+) => T;
+
 export const setThreadInCache = (
   queryClient: QueryClient,
   key: { slug: string; threadId: string },
-  transform: (thread: ThreadType) => ThreadType
+  transformers: {
+    transformThread: (thread: ThreadType) => ThreadType;
+    transformThreadSummary: (thread: ThreadSummaryType) => ThreadSummaryType;
+  }
 ) => {
-  setThreadInActivityCache(queryClient, key, transform);
-  queryClient.setQueriesData(
+  setThreadInActivityCache(
+    queryClient,
+    key,
+    transformers.transformThreadSummary
+  );
+  queryClient.setQueriesData<ThreadType>(
     {
       queryKey: [THREAD_QUERY_KEY, { threadId: key.threadId }],
       exact: false,
     },
-    transform
+    transformers.transformThread
   );
 };
 
@@ -54,20 +65,34 @@ export const setThreadActivityClearedInCache = (
   key: {
     threadId: string;
     slug: string;
+  },
+  options?: {
+    activityOnly?: boolean;
   }
 ) => {
-  setThreadInCache(queryClient, key, (thread) => {
+  const activityOnly = options?.activityOnly ?? false;
+  const transformer: ThreadTransformerType = (thread) => {
     const newThread = {
       ...thread,
     };
-    newThread.posts[0].isNew = false;
-    newThread.posts[0].newCommentsAmount = 0;
-    newThread.posts[0].newPostsAmount = 0;
-    newThread.isNew = false;
+    // For some reasons NextJS typescript compiler doesn't recognize the type inference
+    // so we manually write it. At some point, this might become useless. VSCode behaves
+    // as expected.
+    "posts" in newThread && ((newThread as ThreadType).posts[0].isNew = false);
+    newThread.starter.isNew = false;
+    newThread.new = false;
     newThread.newCommentsAmount = 0;
     newThread.newPostsAmount = 0;
     return newThread;
-  });
+  };
+  if (!activityOnly) {
+    setThreadInCache(queryClient, key, {
+      transformThread: transformer,
+      transformThreadSummary: transformer,
+    });
+  } else {
+    setThreadInActivityCache(queryClient, key, transformer);
+  }
 };
 
 export const setThreadMutedInCache = (
@@ -82,19 +107,23 @@ export const setThreadMutedInCache = (
     mute: boolean;
   }
 ) => {
+  const transformer: ThreadTransformerType = (thread) => {
+    if (thread.muted == mute) {
+      return thread;
+    }
+    const newThread = { ...thread };
+    newThread.muted = mute;
+    return newThread;
+  };
   setThreadInCache(
     queryClient,
     {
       slug,
       threadId,
     },
-    (thread) => {
-      if (thread.muted == mute) {
-        return thread;
-      }
-      const newThread = { ...thread };
-      newThread.muted = mute;
-      return newThread;
+    {
+      transformThread: transformer,
+      transformThreadSummary: transformer,
     }
   );
 };
@@ -112,19 +141,23 @@ export const setThreadDefaultViewInCache = (
     view: ThreadType["defaultView"];
   }
 ) => {
+  const transformer: ThreadTransformerType = (thread) => {
+    if (thread.defaultView == view) {
+      return thread;
+    }
+    const newThread = { ...thread };
+    newThread.defaultView = view;
+    return newThread;
+  };
   setThreadInCache(
     queryClient,
     {
       slug,
       threadId,
     },
-    (thread) => {
-      if (thread.defaultView == view) {
-        return thread;
-      }
-      const newThread = { ...thread };
-      newThread.defaultView = view;
-      return newThread;
+    {
+      transformThread: transformer,
+      transformThreadSummary: transformer,
     }
   );
 };
@@ -141,19 +174,23 @@ export const setThreadHiddenInCache = (
     hide: boolean;
   }
 ) => {
+  const transformer: ThreadTransformerType = (thread) => {
+    if (thread.hidden == hide) {
+      return thread;
+    }
+    const newThread = { ...thread };
+    newThread.hidden = hide;
+    return newThread;
+  };
   setThreadInCache(
     queryClient,
     {
       slug,
       threadId,
     },
-    (thread) => {
-      if (thread.hidden == hide) {
-        return thread;
-      }
-      const newThread = { ...thread };
-      newThread.hidden = hide;
-      return newThread;
+    {
+      transformThread: transformer,
+      transformThreadSummary: transformer,
     }
   );
 };
@@ -175,7 +212,7 @@ export const setThreadPersonalIdentityInCache = (
       | undefined;
   }
 ) => {
-  setThreadInCache(queryClient, { slug, threadId }, (thread: ThreadType) => {
+  const transformer: ThreadTransformerType = (thread) => {
     if (thread.personalIdentity) {
       return thread;
     }
@@ -184,10 +221,18 @@ export const setThreadPersonalIdentityInCache = (
       personalIdentity,
     };
     return newThreadData;
-  });
+  };
+  setThreadInCache(
+    queryClient,
+    { slug, threadId },
+    {
+      transformThread: transformer,
+      transformThreadSummary: transformer,
+    }
+  );
 };
 
-export const getThreadInCache = (
+export const getThreadSummaryInCache = (
   queryClient: QueryClient,
   {
     slug,
@@ -200,9 +245,7 @@ export const getThreadInCache = (
   const activities = getActivitiesInCache(queryClient, { slug });
   for (const activity of activities) {
     for (const page of activity.pages) {
-      const thread = page.activity.find(
-        (thread) => thread.threadId == threadId
-      );
+      const thread = page.activity.find((thread) => thread.id == threadId);
       if (thread) {
         return thread;
       }

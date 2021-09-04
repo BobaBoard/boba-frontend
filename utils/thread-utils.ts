@@ -35,11 +35,15 @@ export const makeCommentsTree = (
     roots: [] as CommentType[],
     parentChainMap: new Map<string, CommentType>(),
     parentChildrenMap: new Map<string, CommentType[]>(),
+    total: 0,
+    new: 0,
   };
   if (!comments) {
     return result;
   }
   comments.forEach((comment) => {
+    result.total++;
+    comment.isNew && result.new++;
     if (!comment.parentCommentId && !comment.chainParentId) {
       result.roots.push(comment);
       return;

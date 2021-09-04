@@ -22,7 +22,7 @@ import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { BoardSummary } from "types/Types";
 import { useBoardSummaryBySlug } from "components/hooks/queries/board";
 import { useRefetchBoardActivity } from "components/hooks/queries/board-activity";
-import { THREAD_QUERY_KEY } from "components/thread/ThreadContext";
+import { THREAD_QUERY_KEY } from "components/hooks/queries/thread";
 const log = debug("bobafrontend:SideMenu-log");
 
 const MAX_UNREAD_BOARDS_DISPLAY = 4;
