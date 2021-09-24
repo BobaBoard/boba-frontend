@@ -1,5 +1,8 @@
 import "../wdyr";
 
+import App, { AppContext } from "next/app";
+import ErrorBoundary from "@stefanprobst/next-error-boundary";
+import { CustomErrorPage } from "./_error";
 import "@bobaboard/ui-components/dist/main.css";
 import "normalize.css";
 import smoothscroll from "smoothscroll-polyfill";
@@ -221,40 +224,43 @@ function MyApp({
         />
         <link rel="manifest" href="/icons/site.webmanifest"></link>
       </Head>
-      <QueryParamProvider router={router}>
-        <QueryClientProvider client={queryClient}>
-          <EditorContext.Provider value={editorContext}>
-            <ImageUploaderContext.Provider value={imageUploader}>
-              <AuthProvider>
-                <AxiosInterceptor />
-                <ToastContainer />
-                <UpdateNotice />
-                <RealmContextProvider initialData={props.realmData}>
-                  {React.useMemo(
-                    () => (
-                      <Component lastUpdate={props.lastUpdate} />
-                    ),
-                    [Component, props.lastUpdate]
-                  )}
-                </RealmContextProvider>
-              </AuthProvider>
-            </ImageUploaderContext.Provider>
-          </EditorContext.Provider>
-          <ReactQueryDevtools initialIsOpen={false} />
-        </QueryClientProvider>
-      </QueryParamProvider>
+      <ToastContainer />
+      <ErrorBoundary fallback={<CustomErrorPage />}>
+        <QueryParamProvider router={router}>
+          <QueryClientProvider client={queryClient}>
+            <EditorContext.Provider value={editorContext}>
+              <ImageUploaderContext.Provider value={imageUploader}>
+                <AuthProvider>
+                  <AxiosInterceptor />
+                  <UpdateNotice />
+                  <RealmContextProvider initialData={props.realmData}>
+                    {React.useMemo(
+                      () => (
+                        <Component {...props} />
+                      ),
+                      [Component, props]
+                    )}
+                  </RealmContextProvider>
+                </AuthProvider>
+              </ImageUploaderContext.Provider>
+            </EditorContext.Provider>
+            <ReactQueryDevtools initialIsOpen={false} />
+          </QueryClientProvider>
+        </QueryParamProvider>
+      </ErrorBoundary>
     </>
   );
 }
 export default MyApp;
 
-MyApp.getInitialProps = async ({ ctx }: { ctx: NextPageContext }) => {
+MyApp.getInitialProps = async (appContext: AppContext) => {
+  const { ctx } = appContext;
   const realmBody = await getRealmData({
     baseUrl: getServerBaseUrl(ctx),
     realmId: `v0`,
   });
+  const appProps = await App.getInitialProps(appContext);
   const lastUpdate = await getLastUpdate(ctx);
-
   const realmData = await realmBody;
 
   if (!isAllowedSandboxLocation(ctx)) {
@@ -277,6 +283,7 @@ MyApp.getInitialProps = async ({ ctx }: { ctx: NextPageContext }) => {
       slug: ctx.query.boardId?.slice(1),
       lastUpdate: lastUpdate,
       currentPath: ctx.asPath,
+      ...appProps.pageProps,
     },
   };
 };
