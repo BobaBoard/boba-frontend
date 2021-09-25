@@ -22,7 +22,6 @@ import {
   ImageUploaderContext,
 } from "@bobaboard/ui-components";
 import { useImageUploader } from "../utils/image-upload";
-import { NextPageContext } from "next";
 import { BoardData, BoardSummary } from "types/Types";
 import { QueryParamProvider } from "../components/QueryParamNextProvider";
 import {
@@ -31,7 +30,6 @@ import {
   isAllowedSandboxLocation,
   getRedirectToSandboxLocation,
   getCurrentHost,
-  isStaging,
 } from "utils/server-utils";
 import debug from "debug";
 import { QueryClient, QueryClientProvider } from "react-query";
@@ -39,7 +37,6 @@ import { ReactQueryDevtools } from "react-query/devtools";
 import embedsCache from "../utils/embeds-cache";
 import { usePageDataListener } from "utils/router-utils";
 import { getRealmData } from "utils/queries/realm";
-const error = debug("bobafrontend:app-error");
 const log = debug("bobafrontend:app-log");
 
 const logRequest = debug("bobafrontend:app:requests-log");
@@ -129,22 +126,6 @@ const getDescription = (
     ? currentBoardData.tagline
     : `BobaBoard is an upcoming commmunity (and platform) aiming to balance the freedom and wonder of the early 00s web with a modern user experience and ethos. Feel free to look around, but remember: what you see is Work in Progress! Read more (and get involved) at www.bobaboard.com.`;
 };
-
-const getLastUpdate = async (ctx: NextPageContext) => {
-  try {
-    const response = await axios.get(
-      `${getServerBaseUrl(ctx)}subscriptions/${
-        isStaging()
-          ? process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID_STAGING
-          : process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID
-      }/latest`
-    );
-    return await response.data[0];
-  } catch (e) {
-    error(`Error retrieving lastUpdate.`);
-  }
-};
-
 const queryClient = new QueryClient();
 
 function MyApp({
@@ -260,7 +241,6 @@ MyApp.getInitialProps = async (appContext: AppContext) => {
     realmId: `v0`,
   });
   const appProps = await App.getInitialProps(appContext);
-  const lastUpdate = await getLastUpdate(ctx);
   const realmData = await realmBody;
 
   if (!isAllowedSandboxLocation(ctx)) {
@@ -281,7 +261,6 @@ MyApp.getInitialProps = async (appContext: AppContext) => {
     props: {
       realmData,
       slug: ctx.query.boardId?.slice(1),
-      lastUpdate: lastUpdate,
       currentPath: ctx.asPath,
       ...appProps.pageProps,
     },

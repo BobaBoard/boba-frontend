@@ -6,9 +6,14 @@ import useBoos from "components/hooks/useBoos";
 import moment from "moment";
 import { THREAD_PATH } from "utils/router-utils";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
-import { isStaging } from "utils/server-utils";
+import { isStaging, getServerBaseUrl } from "utils/server-utils";
 import { useRealmBoards } from "contexts/RealmContext";
 import { useNotifications } from "components/hooks/queries/notifications";
+import { NextPageContext } from "next";
+import axios from "axios";
+
+import debug from "debug";
+const error = debug("bobafrontend:HomePage-error");
 
 const StagingWarning = () => {
   return (
@@ -233,3 +238,20 @@ function HomePage(props: { lastUpdate?: any }) {
 }
 
 export default HomePage;
+
+HomePage.getInitialProps = async (ctx: NextPageContext) => {
+  try {
+    const subscriptionUrl = `${getServerBaseUrl(ctx)}subscriptions/${
+      isStaging(ctx)
+        ? process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID_STAGING
+        : process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID
+    }/latest`;
+    const response = await axios.get(subscriptionUrl);
+    return {
+      lastUpdate: await response.data[0],
+    };
+  } catch (e) {
+    error(`Error retrieving lastUpdate.`);
+    return {};
+  }
+};

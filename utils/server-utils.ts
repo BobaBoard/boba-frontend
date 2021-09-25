@@ -255,59 +255,52 @@ export const getRedirectToSandboxLocation = (
   return ALLOWED_SANDBOX_LOCATIONS[currentHost][0];
 };
 
-export const isStaging = () => {
+export const isLocalhost = (context?: NextPageContext) => {
+  const currentHost = getCurrentHost(context);
+  return !!(
+    currentHost?.startsWith("localhost") || currentHost?.startsWith("192.")
+  );
+};
+
+export const isStaging = (context?: NextPageContext) => {
   if (process.env.NEXT_PUBLIC_ENV == "staging") {
     return true;
   }
-  if (typeof window === "undefined") {
-    return false;
-  }
-  return window.location.hostname.startsWith("staging");
+  const currentHost = getCurrentHost(context);
+  return !!currentHost?.startsWith("staging");
 };
 
 export const getServerBaseUrl = (context?: NextPageContext) => {
-  let location = "";
-  let isStaging = false;
-  let isLocalhost = false;
+  const staging = isStaging(context);
+  if (process.env.NODE_ENV == "production") {
+    return staging
+      ? "https://staging-dot-backend-dot-bobaboard.uc.r.appspot.com/"
+      : "https://backend-dot-bobaboard.uc.r.appspot.com/";
+  }
 
-  const currentHost =
-    typeof window !== "undefined"
-      ? window.location.hostname
-      : context?.req?.headers.host;
-  if (currentHost?.startsWith("localhost") || currentHost?.startsWith("192.")) {
-    location = currentHost;
-    isLocalhost = true;
-  } else if (currentHost?.startsWith("staging")) {
-    location = `staging-dot-backend-dot-bobaboard.uc.r.appspot.com`;
-    isStaging = true;
+  if (process.env.NEXT_PUBLIC_DEFAULT_BACKEND) {
+    return process.env.NEXT_PUBLIC_DEFAULT_BACKEND;
+  }
+
+  let backendLocation = "";
+  const localhost = isLocalhost(context);
+  if (localhost) {
+    backendLocation = getCurrentHost(context) || "localhost";
+  } else if (staging) {
+    backendLocation = `staging-dot-backend-dot-bobaboard.uc.r.appspot.com`;
   } else {
-    location = "backend-dot-bobaboard.uc.r.appspot.com";
+    backendLocation = "backend-dot-bobaboard.uc.r.appspot.com";
   }
 
   // Remove the port if there is currently one
-  if (location.indexOf(":") != -1) {
-    location = location.substring(0, location.indexOf(":"));
+  if (backendLocation.indexOf(":") != -1) {
+    backendLocation = backendLocation.substring(
+      0,
+      backendLocation.indexOf(":")
+    );
   }
 
-  const DEV_SERVER_KEY = "devServer";
-  let devServer = isLocalhost
-    ? `http://${location}:4200/`
-    : `https://${location}/`;
-  // TODO: this might cause problems with SSR now. A better way of doing this
-  // would be to set it as a cookie so that it can be sent to the server as a
-  // setting.
-  if (typeof localStorage !== "undefined") {
-    const data = localStorage.getItem(DEV_SERVER_KEY);
-    if (data) {
-      devServer = data;
-    }
-  }
-  if (process.env.NEXT_PUBLIC_DEFAULT_BACKEND) {
-    devServer = process.env.NEXT_PUBLIC_DEFAULT_BACKEND;
-  }
-  return process.env.NODE_ENV == "production"
-    ? isStaging
-      ? "https://staging-dot-backend-dot-bobaboard.uc.r.appspot.com/"
-      : "https://backend-dot-bobaboard.uc.r.appspot.com/"
-    : devServer;
+  return localhost
+    ? `http://${backendLocation}:4200/`
+    : `https://${backendLocation}/`;
 };
