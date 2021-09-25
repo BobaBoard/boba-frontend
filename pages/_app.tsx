@@ -29,6 +29,7 @@ import {
   isAllowedSandboxLocation,
   getRedirectToSandboxLocation,
   getCurrentHost,
+  getCurrentRealmSlug,
 } from "utils/location-utils";
 import { makeClientBoardData } from "utils/client-data";
 import debug from "debug";
@@ -235,10 +236,14 @@ function MyApp({
 export default MyApp;
 
 MyApp.getInitialProps = async (appContext: AppContext) => {
+  // TODO[realms]: figure out why it fetches /undefined sometimes
+  // September 2021: it does it when you first load the main page on localhost.
   const { ctx } = appContext;
+  const realmSlug = getCurrentRealmSlug(ctx);
+  log(`Fetching data for realm ${realmSlug}`);
   const realmBody = await getRealmData({
     baseUrl: getServerBaseUrl(ctx),
-    realmId: `v0`,
+    realmSlug,
   });
   const appProps = await App.getInitialProps(appContext);
   const realmData = await realmBody;
@@ -260,6 +265,7 @@ MyApp.getInitialProps = async (appContext: AppContext) => {
   return {
     props: {
       realmData,
+      realmSlug,
       slug: ctx.query.boardId?.slice(1),
       currentPath: ctx.asPath,
       ...appProps.pageProps,

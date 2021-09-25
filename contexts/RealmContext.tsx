@@ -5,6 +5,7 @@ import { useAuth } from "../components/Auth";
 import debug from "debug";
 import { getRealmData } from "../utils/queries/realm";
 import { RealmType } from "types/Types";
+import { getCurrentRealmSlug } from "utils/location-utils";
 //const log = debug("bobafrontend:contexts:RealmContext-log");
 const info = debug("bobafrontend:contexts:RealmContext-info");
 
@@ -70,15 +71,15 @@ const RealmContextProvider: React.FC<{
   initialData: RealmType;
   children: React.ReactNode;
 }> = ({ initialData, children }) => {
-  const realmId = "v0";
+  const realmSlug = getCurrentRealmSlug();
   const { isLoggedIn } = useAuth();
   const { data: realmData, dataUpdatedAt } = useQuery<RealmType>(
-    ["realmData", { isLoggedIn, realmId }],
+    ["realmData", { isLoggedIn, realmSlug }],
     () => {
       info(
         `Fetching realm data for user ${isLoggedIn ? "" : "NOT "}logged in.`
       );
-      return getRealmData({ realmId });
+      return getRealmData({ realmSlug });
     },
     {
       initialData: initialData,

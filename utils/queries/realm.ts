@@ -3,19 +3,19 @@ import { RealmType } from "types/Types";
 import { makeClientBoardSummary } from "utils/client-data";
 
 export const getRealmData = async ({
-  realmId,
+  realmSlug,
   baseUrl,
 }: {
-  realmId: string;
+  realmSlug: string;
   baseUrl?: string;
 }): Promise<RealmType> => {
   let url: URL | null = null;
   if (baseUrl) {
     url = new URL(baseUrl);
-    url.pathname = `/realms/slug/${realmId}`;
+    url.pathname = `/realms/slug/${realmSlug}`;
   }
   const response = await axios.get(
-    url ? url.toString() : `/realms/slug/${realmId}`
+    url ? url.toString() : `/realms/slug/${realmSlug}`
   );
 
   const data = response.data;

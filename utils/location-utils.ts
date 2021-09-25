@@ -15,6 +15,30 @@ export const getCurrentHost = (
       );
 };
 
+const REALM_SLUG_PARAM_NAME = "realm";
+export const getCurrentRealmSlug = (context?: NextPageContext) => {
+  if (isStaging(context) || isLocalhost(context)) {
+    // On localhost and staging, we take the Realm slug from the query params.
+    // This is because staging is already on a subdomain (so the Realm cannot be specified that way),
+    // and subdomains on localhost would complicate configuration too much.
+    if (context?.query.realm) {
+      return context.query[REALM_SLUG_PARAM_NAME] as string;
+    } else if (typeof window !== "undefined") {
+      return (
+        new URLSearchParams(window.location.search).get(
+          REALM_SLUG_PARAM_NAME
+        ) || "v0"
+      );
+    } else {
+      // TODO[realms]: figure out what to do if no realm is specified.
+      return "v0";
+    }
+  }
+  const currentHost = getCurrentHost(context);
+  // TODO[realms]: this should throw some kind of exception rather than defaulting to v0
+  return currentHost?.substring(0, currentHost.indexOf(".")) || "v0";
+};
+
 const SANDBOX_LOCATIONS = ["tys-sandbox.boba.social"];
 export const isSandbox = (context: NextPageContext | undefined) => {
   if (process.env.NEXT_PUBLIC_TEST_SANDBOX === "true") {
