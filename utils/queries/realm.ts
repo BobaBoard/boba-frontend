@@ -1,6 +1,6 @@
 import axios from "axios";
 import { RealmType } from "types/Types";
-import { makeClientBoardSummary } from "utils/server-utils";
+import { makeClientBoardSummary } from "utils/client-data";
 
 export const getRealmData = async ({
   realmId,

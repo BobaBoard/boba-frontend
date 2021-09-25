@@ -25,12 +25,12 @@ import { useImageUploader } from "../utils/image-upload";
 import { BoardData, BoardSummary } from "types/Types";
 import { QueryParamProvider } from "../components/QueryParamNextProvider";
 import {
-  makeClientBoardData,
   getServerBaseUrl,
   isAllowedSandboxLocation,
   getRedirectToSandboxLocation,
   getCurrentHost,
-} from "utils/server-utils";
+} from "utils/location-utils";
+import { makeClientBoardData } from "utils/client-data";
 import debug from "debug";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";

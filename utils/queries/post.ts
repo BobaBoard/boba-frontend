@@ -1,6 +1,6 @@
 import axios from "axios";
 import { PostType, ThreadType, TagsType } from "../../types/Types";
-import { makeClientPost } from "../server-utils";
+import { makeClientPost } from "../client-data";
 
 export const editPost = async ({
   postId,

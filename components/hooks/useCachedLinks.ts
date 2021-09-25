@@ -9,7 +9,7 @@ import {
   PERSONAL_SETTINGS_PATH,
   THREAD_PATH,
 } from "utils/router-utils";
-import { isSandbox } from "utils/server-utils";
+import { isSandbox } from "utils/location-utils";
 
 interface LinkWithNotNullAction {
   href: string;

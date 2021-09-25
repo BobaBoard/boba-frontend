@@ -6,7 +6,7 @@ import useBoos from "components/hooks/useBoos";
 import moment from "moment";
 import { THREAD_PATH } from "utils/router-utils";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
-import { isStaging, getServerBaseUrl } from "utils/server-utils";
+import { isStaging, getServerBaseUrl } from "utils/location-utils";
 import { useRealmBoards } from "contexts/RealmContext";
 import { useNotifications } from "components/hooks/queries/notifications";
 import { NextPageContext } from "next";

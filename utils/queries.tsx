@@ -10,7 +10,7 @@ import {
   makeClientComment,
   makeClientPost,
   makeClientThread,
-} from "./server-utils";
+} from "./client-data";
 
 import debug from "debug";
 const log = debug("bobafrontend:queries-log");

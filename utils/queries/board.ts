@@ -5,7 +5,7 @@ import {
   makeClientBoardSummary,
   makeClientPermissions,
   makeClientRole,
-} from "../server-utils";
+} from "../client-data";
 
 import { BoardData, BoardDescription, BoardMetadata } from "../../types/Types";
 
