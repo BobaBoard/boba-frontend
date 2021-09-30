@@ -192,3 +192,26 @@ export const makeClientRole = (serverRoleData: any): Role => {
     avatarUrl: serverRoleData.avatar,
   };
 };
+
+const toCamelCaseString = (snakeCaseString: string) => {
+  return snakeCaseString.replace(/([-_][a-z])/gi, ($1) => {
+    return $1.toUpperCase().replace("-", "").replace("_", "");
+  });
+};
+
+export const makeClientData = (serverData: any): unknown => {
+  if (serverData === null) {
+    return null;
+  }
+  if (Array.isArray(serverData)) {
+    return serverData.map(makeClientData);
+  }
+  if (typeof serverData === "object") {
+    const newObject = {};
+    Object.entries(serverData).forEach(([key, value]) => {
+      newObject[toCamelCaseString(key)] = makeClientData(value);
+    });
+    return newObject;
+  }
+  return serverData;
+};

@@ -210,6 +210,14 @@ export interface SettingsType {
   }[];
 }
 
+export interface BobadexSeasonType {
+  id: string;
+  name: string;
+  realmId: string;
+  identitiesCount: number;
+  caughtIdentities: SecretIdentityType[];
+}
+
 export const isPost = (object: PostType | CommentType): object is PostType => {
   return (object as PostType).postId !== undefined;
 };

@@ -19,7 +19,7 @@ export const updateUserData = async (data: {
 };
 
 export const getBobadex = async (): Promise<any> => {
-  const response = await axios.get(`/users/me/bobadex`);
+  const response = await axios.get(`/users/@me/bobadex`);
   log(`Updated user data on server:`);
   log(response.data);
   return response.data;

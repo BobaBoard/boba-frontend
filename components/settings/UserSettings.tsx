@@ -8,8 +8,35 @@ import debug from "debug";
 import { useAuth } from "components/Auth";
 import { useRouter } from "next/router";
 import { SettingPageIds } from "pages/users/settings/[[...settingId]]";
+import { BobadexSeasonType, SecretIdentityType } from "types/Types";
+import { makeClientData } from "utils/client-data";
 
 const log = debug("bobafrontend:settings:UserSettings-log");
+
+const SeasonDisplay = (props: {
+  name: string;
+  totalIdentities: number;
+  revealedIdentities: SecretIdentityType[];
+}) => {
+  return (
+    <>
+      <h3>{props.name}</h3>
+      <BobaDex
+        totalIdentities={props.totalIdentities}
+        revealedIdentities={props.revealedIdentities}
+      />
+      <style jsx>{`
+        h3 {
+          margin-top: 2rem;
+          margin-bottom: 2.5rem;
+          text-transform: uppercase;
+          letter-spacing: 0.15rem;
+          font-size: var(--font-size-small);
+        }
+      `}</style>
+    </>
+  );
+};
 
 const UserSettings = () => {
   const {
@@ -40,7 +67,11 @@ const UserSettings = () => {
     }
   );
 
-  const { data } = useQuery(["bobadex"], getBobadex);
+  const { data } = useQuery(["bobadex"], async () => {
+    return makeClientData(await getBobadex()) as {
+      seasons: BobadexSeasonType[];
+    };
+  });
 
   useEffect(() => {
     if (!isUserPending && isLoggedIn) {
@@ -122,12 +153,15 @@ const UserSettings = () => {
         on BobaBoard. Collect them all!
       </div>
       <div>
-        {data && (
-          <BobaDex
-            totalIdentities={data.identities_count}
-            revealedIdentities={data.user_identities || []}
-          />
-        )}
+        {data &&
+          data.seasons.map((season: BobadexSeasonType) => (
+            <SeasonDisplay
+              key={season.id}
+              name={season.name}
+              totalIdentities={season.identitiesCount}
+              revealedIdentities={season.caughtIdentities}
+            />
+          ))}
       </div>
       <style jsx>{`
         .page {
@@ -148,8 +182,8 @@ const UserSettings = () => {
         }
 
         .description {
-          margin-bottom: 30px;
-          font-size: large;
+          margin-bottom: 3.5rem;
+          font-size: var(--font-size-regular);
         }
       `}</style>
     </>
