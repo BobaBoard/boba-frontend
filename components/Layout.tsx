@@ -220,12 +220,12 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
         loggedInMenuOptions={loggedInMenuOptions}
         user={user}
         title={props.title}
-        forceHideTitle={props.forceHideTitle}
+        hideTitleOnDesktop={props.forceHideTitle}
         forceHideIdentity={forceHideIdentity}
         loading={props.loading || isUserPending || isChangingRoute}
         userLoading={isUserPending}
-        updates={hasNotifications}
-        outdated={notificationsOutdated}
+        hasNotifications={hasNotifications}
+        hasOutdatedNotifications={notificationsOutdated}
         onSideMenuButtonClick={() => {
           refetchNotifications();
         }}
