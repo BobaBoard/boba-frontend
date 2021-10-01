@@ -10,7 +10,7 @@ const BOUNDARY = 60;
 const { className, styles } = css.resolve`
   div {
     position: absolute;
-    z-index: 10;
+    z-index: 100;
     left: 0;
     top: 0;
     opacity: 0;
@@ -156,14 +156,14 @@ const newGhost = (callback: () => void) => {
     }, 300);
     e.stopPropagation();
   });
-  requestAnimationFrame(() => {
+  setTimeout(() => {
     // Add transform here after you have set the starting position so it
     // won't just gradually move there
     newGhost.style.transition = `transform 2.5s linear, opacity 2.5s linear`;
     newGhost.style.opacity = "1";
     newGhost.dataset.index = "" + currentGhosts;
     moveGhost(newGhost);
-  });
+  }, 200);
 
   return newGhost;
 };
@@ -179,6 +179,14 @@ const useBoos = () => {
     GHOST_INTERVAL = 500;
     setActive(true);
   });
+
+  React.useEffect(() => {
+    GHOST_CHANCE = 5;
+    MAX_GHOSTS = 15;
+    GHOST_INTERVAL = 1500;
+    setActive(true);
+  }, []);
+
   React.useEffect(() => {
     if (!active) {
       timeout.current && clearTimeout(timeout.current);
