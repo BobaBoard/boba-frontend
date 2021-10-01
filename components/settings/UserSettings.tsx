@@ -173,7 +173,7 @@ const UserSettings = () => {
         }
 
         h2 {
-          font-size: var(--font-size-large);
+          font-size: var(--font-size-x-large);
           margin-top: 50px;
         }
 

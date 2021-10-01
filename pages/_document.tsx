@@ -44,7 +44,8 @@ class MyDocument extends Document {
               font-size: 62.5%;
               --font-size-regular: 1.6rem;
               --font-size-small: 1.3rem;
-              --font-size-large: 2.5rem;
+              --font-size-large: 1.8rem;
+              --font-size-x-large: 2.5rem;
             }
             body {
               font-family: Inter, sans-serif;
