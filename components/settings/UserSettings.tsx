@@ -8,7 +8,7 @@ import debug from "debug";
 import { useAuth } from "components/Auth";
 import { useRouter } from "next/router";
 import { SettingPageIds } from "pages/users/settings/[[...settingId]]";
-import { BobadexSeasonType, SecretIdentityType } from "types/Types";
+import { BobadexSeasonType } from "types/Types";
 import { makeClientData } from "utils/client-data";
 
 const log = debug("bobafrontend:settings:UserSettings-log");
@@ -16,7 +16,7 @@ const log = debug("bobafrontend:settings:UserSettings-log");
 const SeasonDisplay = (props: {
   name: string;
   totalIdentities: number;
-  revealedIdentities: SecretIdentityType[];
+  revealedIdentities: BobadexSeasonType["caughtIdentities"];
 }) => {
   return (
     <>

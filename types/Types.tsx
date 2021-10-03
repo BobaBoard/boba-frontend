@@ -215,7 +215,7 @@ export interface BobadexSeasonType {
   name: string;
   realmId: string;
   identitiesCount: number;
-  caughtIdentities: SecretIdentityType[];
+  caughtIdentities: (SecretIdentityType & { index: number })[];
 }
 
 export const isPost = (object: PostType | CommentType): object is PostType => {
