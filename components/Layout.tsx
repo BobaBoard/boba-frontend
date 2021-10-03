@@ -226,9 +226,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
         userLoading={isUserPending}
         hasNotifications={hasNotifications}
         hasOutdatedNotifications={notificationsOutdated}
-        onSideMenuButtonClick={() => {
-          refetchNotifications();
-        }}
+        onSideMenuButtonClick={refetchNotifications}
         logoLink={linkToHome}
         menuOptions={menuOptions}
         selectedMenuOption={pageType}
