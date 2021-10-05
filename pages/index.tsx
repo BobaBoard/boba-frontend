@@ -1,8 +1,7 @@
 import React from "react";
 import Layout from "../components/layout/Layout";
-import { BoardsDisplay, PostQuote } from "@bobaboard/ui-components";
+import { BoardsDisplay, PostQuote, useBoos } from "@bobaboard/ui-components";
 import Link from "next/link";
-import useBoos from "components/hooks/useBoos";
 import moment from "moment";
 import { THREAD_PATH } from "utils/router-utils";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
@@ -94,7 +93,7 @@ const UpdatesDisplay = (props: { lastUpdate: any }) => {
 };
 
 function HomePage(props: { lastUpdate?: any }) {
-  const { styles } = useBoos();
+  const { styles } = useBoos({ startActive: true });
   const { getLinkToBoard } = useCachedLinks();
   const boards = useRealmBoards();
   const { realmBoardsNotifications } = useNotifications();

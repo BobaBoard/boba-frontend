@@ -20,7 +20,6 @@ export const useKonamiCode = (onSuccess: () => void) => {
       if (e.code == KEYS[currentIndex]) {
         currentIndex++;
         if (currentIndex == KEYS.length) {
-          console.log("IT'S DONE");
           onSuccess();
           currentIndex = 0;
         }
@@ -32,5 +31,5 @@ export const useKonamiCode = (onSuccess: () => void) => {
     return () => {
       window.removeEventListener("keydown", listener);
     };
-  }, []);
+  }, [onSuccess]);
 };
