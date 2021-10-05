@@ -4,7 +4,7 @@ import {
   CycleNewButton,
   PostingActionButton,
 } from "@bobaboard/ui-components";
-import Layout from "components/Layout";
+import Layout from "components/layout/Layout";
 import LoadingSpinner from "components/LoadingSpinner";
 import { useAuth } from "components/Auth";
 import classnames from "classnames";

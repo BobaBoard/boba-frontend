@@ -1,4 +1,4 @@
-import { PinnedBoardsMenu } from "@bobaboard/ui-components";
+import { PinnedMenu as LibraryPinnedMenu } from "@bobaboard/ui-components";
 import { usePinnedBoards } from "../hooks/queries/pinned-boards";
 import {
   useInvalidateNotifications,
@@ -9,16 +9,17 @@ import debug from "debug";
 import React from "react";
 const log = debug("bobafrontend:PinnedMenu-log");
 import { useCachedLinks } from "../hooks/useCachedLinks";
-import { usePageDetails } from "utils/router-utils";
+import { PageTypes, usePageDetails } from "utils/router-utils";
 import { useRefetchBoardActivity } from "components/hooks/queries/board-activity";
+import { faInbox, faRss, faThumbtack } from "@fortawesome/free-solid-svg-icons";
 
 const PinnedMenu = () => {
-  const { getLinkToBoard } = useCachedLinks();
+  const { getLinkToBoard, linkToFeed } = useCachedLinks();
   const { data: pinnedBoards } = usePinnedBoards();
   const refetchNotifications = useInvalidateNotifications();
   const { pinnedBoardsNotifications } = useNotifications();
   const refetchBoardActivity = useRefetchBoardActivity();
-  const { slug } = usePageDetails();
+  const { slug, pageType } = usePageDetails();
   const onBoardChange = React.useCallback(
     (nextSlug) => {
       if (nextSlug == slug) {
@@ -54,7 +55,32 @@ const PinnedMenu = () => {
       .sort((b1, b2) => (b1.pinnedOrder || 0) - (b2.pinnedOrder || 0));
   }, [pinnedBoards, pinnedBoardsNotifications, getLinkToBoard, onBoardChange]);
   return (
-    <PinnedBoardsMenu boards={processedPinnedBoards} currentBoardSlug={slug} />
+    <LibraryPinnedMenu>
+      <LibraryPinnedMenu.Section
+        icon={faRss}
+        items={[
+          // {
+          //   id: "star",
+          //   icon: faStar,
+          //   link: linkToFeed,
+          //   accentColor: "#f96680",
+          //   withNotification: true,
+          // },
+          {
+            id: PageTypes.FEED,
+            icon: faInbox,
+            link: linkToFeed,
+            accentColor: "#f96680",
+          },
+        ]}
+        currentItemId={pageType}
+      />
+      <LibraryPinnedMenu.Section
+        icon={faThumbtack}
+        items={processedPinnedBoards}
+        currentItemId={slug}
+      />
+    </LibraryPinnedMenu>
   );
 };
 

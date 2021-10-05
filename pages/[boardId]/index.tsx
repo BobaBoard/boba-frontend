@@ -4,7 +4,7 @@ import {
   BoardSidebar,
   PostingActionButton,
 } from "@bobaboard/ui-components";
-import Layout from "../../components/Layout";
+import Layout from "../../components/layout/Layout";
 import { useAuth } from "../../components/Auth";
 import {
   useBoardMetadata,

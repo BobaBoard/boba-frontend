@@ -1,24 +1,26 @@
 import React from "react";
-import { Layout as InnerLayout, CustomCursor } from "@bobaboard/ui-components";
-import Sidemenu from "./layout/SideMenu";
-import PinnedMenu from "./layout/PinnedMenu";
-import LoginModal from "./LoginModal";
-import { useAuth } from "./Auth";
+import {
+  Layout as LibraryLayout,
+  CustomCursor,
+} from "@bobaboard/ui-components";
+import Sidemenu from "./SideMenu";
+import PinnedMenu from "./PinnedMenu";
+import LoginModal from "../LoginModal";
+import { useAuth } from "../Auth";
 import { useQueryClient } from "react-query";
-import { useCachedLinks } from "./hooks/useCachedLinks";
-import { useServerCssVariables } from "./hooks/useServerCssVariables";
-import { useForceHideIdentity } from "./hooks/useForceHideIdentity";
-import { useIsChangingRoute } from "./hooks/useIsChangingRoute";
+import { useCachedLinks } from "../hooks/useCachedLinks";
+import { useServerCssVariables } from "../hooks/useServerCssVariables";
+import { useForceHideIdentity } from "../hooks/useForceHideIdentity";
+import { useIsChangingRoute } from "../hooks/useIsChangingRoute";
 import {
   useInvalidateNotifications,
   useNotifications,
-} from "./hooks/queries/notifications";
+} from "../hooks/queries/notifications";
 import {
   faArchive,
   faBook,
   faCogs,
   faComments,
-  faInbox,
   faSignOutAlt,
   faLock,
   faLockOpen,
@@ -29,28 +31,11 @@ import { PageTypes, usePageDetails } from "utils/router-utils";
 import { useRealmSettings } from "contexts/RealmContext";
 
 import debug from "debug";
-import { useBoardSummaryBySlug } from "./hooks/queries/board";
-import { BOARD_ACTIVITY_KEY } from "./hooks/queries/board-activity";
+import { useBoardSummaryBySlug } from "../hooks/queries/board";
+import { BOARD_ACTIVITY_KEY } from "../hooks/queries/board-activity";
 // const log = debug("bobafrontend:Layout-log");
 const error = debug("bobafrontend:Layout-error");
 
-const useMenuBarOptions = () => {
-  const { isLoggedIn } = useAuth();
-  const { linkToFeed } = useCachedLinks();
-  return React.useMemo(
-    () =>
-      isLoggedIn
-        ? [
-            {
-              id: PageTypes.FEED,
-              icon: faInbox,
-              link: linkToFeed,
-            },
-          ]
-        : [],
-    [isLoggedIn, linkToFeed]
-  );
-};
 const useLoggedInDropdownOptions = (openLogin: () => void) => {
   const { forceHideIdentity, toggleForceHideIdentity } = useForceHideIdentity();
   const { linkToPersonalSettings, linkToLogs } = useCachedLinks();
@@ -168,7 +153,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const { isPending: isUserPending, user, isLoggedIn } = useAuth();
   const [loginOpen, setLoginOpen] = React.useState(false);
   const layoutRef = React.useRef<{ closeSideMenu: () => void }>(null);
-  const { slug, pageType } = usePageDetails();
+  const { slug } = usePageDetails();
   const titleLink = useTitleLink();
   const { root: rootSettings } = useRealmSettings();
   const currentBoardSummary = useBoardSummaryBySlug(slug);
@@ -180,7 +165,6 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const loggedInMenuOptions = useLoggedInDropdownOptions(
     React.useCallback(() => setLoginOpen(true), [])
   );
-  const menuOptions = useMenuBarOptions();
   const { hasNotifications, notificationsOutdated } = useNotifications();
 
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -210,7 +194,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
           color={currentBoardSummary?.accentColor || "#f96680"}
         />
       )}
-      <InnerLayout
+      <LibraryLayout
         ref={layoutRef}
         headerAccent={currentBoardSummary?.accentColor || "#f96680"}
         onUserBarClick={React.useCallback(
@@ -228,20 +212,18 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
         hasOutdatedNotifications={notificationsOutdated}
         onSideMenuButtonClick={refetchNotifications}
         logoLink={linkToHome}
-        menuOptions={menuOptions}
-        selectedMenuOption={pageType}
         titleLink={titleLink}
         onCompassClick={props.onCompassClick}
       >
-        <InnerLayout.SideMenuContent>
+        <LibraryLayout.SideMenuContent>
           <Sidemenu />
-        </InnerLayout.SideMenuContent>
-        <InnerLayout.PinnedMenuContent>
+        </LibraryLayout.SideMenuContent>
+        <LibraryLayout.PinnedMenuContent>
           <PinnedMenu />
-        </InnerLayout.PinnedMenuContent>
-        <InnerLayout.MainContent>{mainContent}</InnerLayout.MainContent>
-        <InnerLayout.ActionButton>{actionButton}</InnerLayout.ActionButton>
-      </InnerLayout>
+        </LibraryLayout.PinnedMenuContent>
+        <LibraryLayout.MainContent>{mainContent}</LibraryLayout.MainContent>
+        <LibraryLayout.ActionButton>{actionButton}</LibraryLayout.ActionButton>
+      </LibraryLayout>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from "react";
-import Layout from "../components/Layout";
+import Layout from "../components/layout/Layout";
 import { BoardsDisplay, PostQuote } from "@bobaboard/ui-components";
 import Link from "next/link";
 import useBoos from "components/hooks/useBoos";

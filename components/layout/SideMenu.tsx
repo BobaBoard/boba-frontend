@@ -113,6 +113,9 @@ const SideMenu = () => {
   ]);
 
   return (
+    // Note: we don't need to add PinnedMenu in SideMenu cause Layout injects it directly
+    // at smaller resolutions.
+    // TODO: at some point it might be worth completely removing it from sidemenu.
     <LibrarySideMenu
       menuOptions={React.useMemo(
         () =>
@@ -146,7 +149,7 @@ const SideMenu = () => {
           )}
           emptyTitle="Congratulations!"
           emptyDescription="You read 'em all."
-          placeholdersHeight={
+          placeholdersCount={
             isUserPending || notificationsFetched
               ? MAX_UNREAD_BOARDS_DISPLAY
               : 0
