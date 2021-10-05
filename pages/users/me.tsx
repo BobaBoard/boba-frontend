@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import Layout from "components/Layout";
+import Layout from "components/layout/Layout";
 import { updateUserData, getBobadex } from "utils/queries/user";
 import { useQuery, useMutation } from "react-query";
 import { UserDetails, BobaDex, TabsGroup } from "@bobaboard/ui-components";
@@ -59,7 +59,7 @@ function UserPage() {
     if (!isUserPending && !isLoggedIn) {
       router.push("/").then(() => window.scrollTo(0, 0));
     }
-  }, [isLoggedIn, isUserPending]);
+  }, [isLoggedIn, isUserPending, user, router]);
 
   return (
     <div className="main">

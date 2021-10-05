@@ -23,6 +23,10 @@ const EVERYONE_DATA = {
 const FeedSidebar: React.FC<FeedSidebarProps> = (props) => {
   return (
     <div className={classnames("feed-sidebar", { open: !!props.open })}>
+      <div>
+        <h2>Personal Feed</h2>
+        <p>A feed of all the threads you joined on BobaBoard.</p>
+      </div>
       <div className="options">
         <h3>Show Threads</h3>
         <div className="button">
@@ -98,10 +102,16 @@ const FeedSidebar: React.FC<FeedSidebarProps> = (props) => {
       <style jsx>{`
         .feed-sidebar {
           padding: 10px 20px;
+          color: white;
         }
         .options {
-          color: white;
+          margin-top: 40px;
           margin-bottom: 10px;
+        }
+        .options h3 {
+          text-transform: uppercase;
+          font-size: var(--font-size-small);
+          letter-spacing: 1px;
         }
         .views .buttons {
           display: flex;

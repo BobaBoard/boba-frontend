@@ -1,5 +1,5 @@
 import React from "react";
-import Layout from "components/Layout";
+import Layout from "components/layout/Layout";
 import { TabsGroup, DefaultTheme } from "@bobaboard/ui-components";
 import { useAuth } from "components/Auth";
 import { useRouter } from "next/router";
