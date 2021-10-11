@@ -1,10 +1,10 @@
+import { expect, test } from "@jest/globals";
 // TODO: figure out absolute import paths
 import {
   extractNewRepliesSequence,
   extractRepliesSequence,
 } from "../../utils/thread-utils";
-import { test, expect } from "@jest/globals";
-import { makePost, makeComment } from "./utils";
+import { makeComment, makePost } from "./utils";
 
 // #######################################################
 // #####
@@ -60,6 +60,8 @@ test("extract new replies sequence (posts with comments)", () => {
           roots: [makeComment({ commentId: "c1", isNew: true })],
           parentChainMap: new Map(),
           parentChildrenMap: new Map(),
+          total: 1,
+          new: 1,
         },
       ],
     ])
@@ -80,6 +82,8 @@ test("extract new replies sequence (old post with new comments)", () => {
           roots: [makeComment({ commentId: "c1", isNew: true })],
           parentChainMap: new Map(),
           parentChildrenMap: new Map(),
+          total: 1,
+          new: 1,
         },
       ],
     ])
@@ -104,6 +108,8 @@ test("extract new replies sequence (old post with staggered comment replies)", (
           parentChildrenMap: new Map([
             ["c1", [makeComment({ commentId: "c3", isNew: true })]],
           ]),
+          total: 3,
+          new: 3,
         },
       ],
     ])
@@ -133,6 +139,8 @@ test("extract new replies sequence (multiple poss with staggered comment replies
           parentChildrenMap: new Map([
             ["c2", [makeComment({ commentId: "c3", isNew: true })]],
           ]),
+          total: 3,
+          new: 3,
         },
       ],
       [
@@ -141,6 +149,8 @@ test("extract new replies sequence (multiple poss with staggered comment replies
           roots: [makeComment({ commentId: "c4", isNew: true })],
           parentChainMap: new Map(),
           parentChildrenMap: new Map(),
+          total: 1,
+          new: 1,
         },
       ],
     ])
@@ -172,6 +182,8 @@ test("extract new replies sequence (chained comments)", () => {
           parentChildrenMap: new Map([
             ["c4", [makeComment({ commentId: "c5", isNew: true })]],
           ]),
+          total: 5,
+          new: 2,
         },
       ],
     ])
@@ -242,6 +254,8 @@ test("extract replies sequence (posts with comments)", () => {
           roots: [makeComment({ commentId: "c1", isNew: true })],
           parentChainMap: new Map(),
           parentChildrenMap: new Map(),
+          total: 1,
+          new: 1,
         },
       ],
     ])
@@ -262,6 +276,8 @@ test("extract replies sequence (old post with new comments)", () => {
           roots: [makeComment({ commentId: "c1", isNew: true })],
           parentChainMap: new Map(),
           parentChildrenMap: new Map(),
+          total: 1,
+          new: 1,
         },
       ],
     ])
@@ -287,6 +303,8 @@ test("extract replies sequence (old post with staggered comment replies)", () =>
           parentChildrenMap: new Map([
             ["c1", [makeComment({ commentId: "c3", isNew: true })]],
           ]),
+          total: 3,
+          new: 3,
         },
       ],
     ])
@@ -317,6 +335,8 @@ test("extract replies sequence (multiple poss with staggered comment replies)", 
           parentChildrenMap: new Map([
             ["c2", [makeComment({ commentId: "c3", isNew: true })]],
           ]),
+          total: 3,
+          new: 2,
         },
       ],
       [
@@ -325,6 +345,8 @@ test("extract replies sequence (multiple poss with staggered comment replies)", 
           roots: [makeComment({ commentId: "c4", isNew: false })],
           parentChainMap: new Map(),
           parentChildrenMap: new Map(),
+          total: 1,
+          new: 0,
         },
       ],
     ])
@@ -356,6 +378,8 @@ test("extract replies sequence (chained comments)", () => {
           parentChildrenMap: new Map([
             ["c4", [makeComment({ commentId: "c5", isNew: true })]],
           ]),
+          total: 5,
+          new: 2,
         },
       ],
     ])

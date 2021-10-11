@@ -1,7 +1,8 @@
 import { useQuery, useQueryClient } from "react-query";
+
 import axios from "axios";
-import { useAuth } from "../../Auth";
 import moment from "moment";
+import { useAuth } from "../../Auth";
 
 // import debug from "debug";
 // const error = debug("bobafrontend:hooks:queries:notifications-error");
@@ -10,7 +11,7 @@ import moment from "moment";
 interface NotificationType {
   hasNotifications: boolean;
   notificationsOutdated: boolean;
-  lastUpdateFromOthersAt: Date;
+  lastUpdateFromOthersAt: Date | null;
 }
 
 export interface NotificationsType {
