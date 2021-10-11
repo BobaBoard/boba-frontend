@@ -1,6 +1,6 @@
 import { expect, test } from "@jest/globals";
 
-import { makeComment } from "./utils";
+import { makeComment } from "../utils";
 // TODO: figure out absolute import paths
 import { makeCommentsTree } from "../../utils/thread-utils";
 

@@ -1,6 +1,6 @@
 import { expect, test } from "@jest/globals";
 
-import { BoardSummary } from "types/Types";
+import { BoardSummary } from "../../types/Types";
 import { processBoardsUpdates } from "../../utils/boards-utils";
 
 const BOARDS_INITIAL_DATA: BoardSummary[] = [

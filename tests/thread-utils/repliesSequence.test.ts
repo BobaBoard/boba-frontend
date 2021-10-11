@@ -4,7 +4,7 @@ import {
   extractNewRepliesSequence,
   extractRepliesSequence,
 } from "../../utils/thread-utils";
-import { makeComment, makePost } from "./utils";
+import { makeComment, makePost } from "../utils";
 
 // #######################################################
 // #####

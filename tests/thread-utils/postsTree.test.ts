@@ -1,8 +1,8 @@
+import { expect, test } from "@jest/globals";
+
+import { makePost } from "../utils";
 // TODO: figure out absolute import paths
 import { makePostsTree } from "../../utils/thread-utils";
-import { test, expect } from "@jest/globals";
-
-import { makePost } from "./utils";
 
 test("makes posts tree (empty array)", () => {
   const postsTree = makePostsTree([], "test");

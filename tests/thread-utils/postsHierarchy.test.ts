@@ -1,11 +1,11 @@
+import { expect, test } from "@jest/globals";
 import {
   findFirstLevelParent,
   findNextSibling,
   findPreviousSibling,
 } from "../../utils/thread-utils";
-import { test, expect } from "@jest/globals";
 
-import { makePost } from "./utils";
+import { makePost } from "../utils";
 
 /**
  * TEST STRUCTURE
