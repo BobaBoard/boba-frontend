@@ -1,11 +1,12 @@
-import { QueryClient } from "react-query";
-import { BoardSummary, RealmType, BoardMetadata } from "../types/Types";
+import { BoardMetadata, BoardSummary, RealmType } from "../types/Types";
+import {
+  PINNED_BOARDS_QUERY_KEY,
+  PinnedBoardType,
+} from "../components/hooks/queries/pinned-boards";
 
 import { BOARD_METADATA_KEY } from "../components/hooks/queries/board";
-import {
-  PinnedBoardType,
-  PINNED_BOARDS_QUERY_KEY,
-} from "../components/hooks/queries/pinned-boards";
+import { QueryClient } from "react-query";
+import { REALM_QUERY_KEY } from "contexts/RealmContext";
 
 // import debug from "debug";
 // const error = debug("bobafrontend:cache:board-error");
@@ -16,7 +17,7 @@ export const getBoardSummaryInCache = (
   { boardId }: { boardId: string }
 ) => {
   const boardsData = queryClient.getQueryData<{ boards: BoardSummary[] }>(
-    ["realmData"],
+    REALM_QUERY_KEY,
     {
       exact: false,
     }
@@ -34,7 +35,7 @@ export const setBoardSummaryInCache = (
 ) => {
   queryClient.setQueriesData(
     {
-      queryKey: "realmData",
+      queryKey: REALM_QUERY_KEY,
       exact: false,
     },
     (data: RealmType) => {
@@ -53,6 +54,33 @@ export const setBoardSummaryInCache = (
           return transform({ ...realmBoard });
         }),
       };
+    }
+  );
+};
+
+export const addBoardSummaryInCache = (
+  queryClient: QueryClient,
+  { realmSlug, summary }: { realmSlug: string; summary: BoardSummary }
+) => {
+  queryClient.setQueriesData(
+    {
+      queryKey: [REALM_QUERY_KEY, { realmSlug }],
+      exact: false,
+    },
+    (data: RealmType) => {
+      const newData = {
+        ...data,
+        boards: [...data.boards],
+      };
+      const boardIndex = data.boards.findIndex(
+        (board) => board.id === summary.id
+      );
+      if (boardIndex !== -1) {
+        newData.boards[boardIndex] = summary;
+      } else {
+        newData.boards.push(summary);
+      }
+      return newData;
     }
   );
 };

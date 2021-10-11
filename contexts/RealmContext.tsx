@@ -1,11 +1,11 @@
 import React from "react";
-import { useQuery } from "react-query";
-import { useAuth } from "../components/Auth";
-
-import debug from "debug";
-import { getRealmData } from "../utils/queries/realm";
 import { RealmType } from "types/Types";
+import debug from "debug";
 import { getCurrentRealmSlug } from "utils/location-utils";
+import { getRealmData } from "../utils/queries/realm";
+import { useAuth } from "../components/Auth";
+import { useQuery } from "react-query";
+
 //const log = debug("bobafrontend:contexts:RealmContext-log");
 const info = debug("bobafrontend:contexts:RealmContext-info");
 
@@ -67,6 +67,7 @@ const useBoardSummary = ({ boardId }: { boardId: string }) => {
   return context.realmData.boards.find((summary) => (summary.id = boardId));
 };
 
+export const REALM_QUERY_KEY = "realmData";
 const RealmContextProvider: React.FC<{
   initialData: RealmType;
   children: React.ReactNode;
@@ -74,7 +75,7 @@ const RealmContextProvider: React.FC<{
   const realmSlug = getCurrentRealmSlug();
   const { isLoggedIn } = useAuth();
   const { data: realmData, dataUpdatedAt } = useQuery<RealmType>(
-    ["realmData", { isLoggedIn, realmSlug }],
+    [REALM_QUERY_KEY, { isLoggedIn, realmSlug }],
     () => {
       info(
         `Fetching realm data for user ${isLoggedIn ? "" : "NOT "}logged in.`
