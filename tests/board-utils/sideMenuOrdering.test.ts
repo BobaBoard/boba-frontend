@@ -712,14 +712,6 @@ test("Check recent boards recent order", () => {
   ]);
 });
 
-// test("Check pinned boards order", () => {
-//   const { pinnedBoards } = processBoardsUpdates(BOARDS_INITIAL_DATA, "", true);
-
-//   expect(
-//     pinnedBoards.map((board: { slug: string }) => board.slug)
-//   ).toStrictEqual(["crack", "kpop", "bobaland", "steamy", "askboba"]);
-// });
-
 test("Check boards with filter", () => {
   const { recentBoards, allBoards } = processBoardsUpdates({
     boardsData: BOARDS_INITIAL_DATA,
