@@ -16,7 +16,6 @@ import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
 import { useThreadEditors, withEditors } from "components/editors/withEditors";
 
 import GalleryThreadView from "components/thread/GalleryThreadView";
-import Head from "next/head";
 import Layout from "components/layout/Layout";
 import LoadingSpinner from "components/LoadingSpinner";
 import { NextPageContext } from "next";

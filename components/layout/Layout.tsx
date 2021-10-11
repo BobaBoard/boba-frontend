@@ -1,38 +1,37 @@
-import React from "react";
 import {
-  Layout as LibraryLayout,
   CustomCursor,
+  Layout as LibraryLayout,
 } from "@bobaboard/ui-components";
-import Sidemenu from "./SideMenu";
-import PinnedMenu from "./PinnedMenu";
-import LoginModal from "../LoginModal";
-import { useAuth } from "../Auth";
-import { useQueryClient } from "react-query";
-import { useCachedLinks } from "../hooks/useCachedLinks";
-import { useServerCssVariables } from "../hooks/useServerCssVariables";
-import { useForceHideIdentity } from "../hooks/useForceHideIdentity";
-import { useIsChangingRoute } from "../hooks/useIsChangingRoute";
-import {
-  useInvalidateNotifications,
-  useNotifications,
-} from "../hooks/queries/notifications";
+import { PageTypes, usePageDetails } from "utils/router-utils";
 import {
   faArchive,
   faBook,
   faCogs,
   faComments,
-  faSignOutAlt,
   faLock,
   faLockOpen,
+  faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
-import Head from "next/head";
-import { getTitle } from "pages/_app";
-import { PageTypes, usePageDetails } from "utils/router-utils";
-import { useRealmSettings } from "contexts/RealmContext";
+import {
+  useInvalidateNotifications,
+  useNotifications,
+} from "../hooks/queries/notifications";
 
-import debug from "debug";
-import { useBoardSummaryBySlug } from "../hooks/queries/board";
 import { BOARD_ACTIVITY_KEY } from "../hooks/queries/board-activity";
+import LoginModal from "../LoginModal";
+import PinnedMenu from "./PinnedMenu";
+import React from "react";
+import Sidemenu from "./SideMenu";
+import debug from "debug";
+import { useAuth } from "../Auth";
+import { useBoardSummaryBySlug } from "../hooks/queries/board";
+import { useCachedLinks } from "../hooks/useCachedLinks";
+import { useForceHideIdentity } from "../hooks/useForceHideIdentity";
+import { useIsChangingRoute } from "../hooks/useIsChangingRoute";
+import { useQueryClient } from "react-query";
+import { useRealmSettings } from "contexts/RealmContext";
+import { useServerCssVariables } from "../hooks/useServerCssVariables";
+
 // const log = debug("bobafrontend:Layout-log");
 const error = debug("bobafrontend:Layout-error");
 
@@ -179,9 +178,6 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
 
   return (
     <div ref={containerRef}>
-      <Head>
-        <title>{getTitle(currentBoardSummary)}</title>
-      </Head>
       <CustomCursor
         cursorImage={rootSettings.cursor?.image}
         cursorTrail={rootSettings.cursor?.trail}

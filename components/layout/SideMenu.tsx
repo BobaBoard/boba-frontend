@@ -1,28 +1,29 @@
-import React from "react";
-import { SideMenu as LibrarySideMenu } from "@bobaboard/ui-components";
-import {
-  faCommentSlash,
-  faTh,
-  faClock,
-} from "@fortawesome/free-solid-svg-icons";
-import { dismissAllNotifications } from "../../utils/queries";
-import { useMutation, useQueryClient } from "react-query";
-import { usePageDetails } from "utils/router-utils";
-import { useAuth } from "components/Auth";
 import {
   NotificationsType,
   useInvalidateNotifications,
   useNotifications,
 } from "components/hooks/queries/notifications";
-import { useRealmBoards } from "contexts/RealmContext";
-import { processBoardsUpdates } from "utils/boards-utils";
+import {
+  faClock,
+  faCommentSlash,
+  faTh,
+} from "@fortawesome/free-solid-svg-icons";
+import { useMutation, useQueryClient } from "react-query";
 
-import debug from "debug";
-import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { BoardSummary } from "types/Types";
-import { useBoardSummaryBySlug } from "components/hooks/queries/board";
-import { useRefetchBoardActivity } from "components/hooks/queries/board-activity";
+import { SideMenu as LibrarySideMenu } from "@bobaboard/ui-components";
+import React from "react";
 import { THREAD_QUERY_KEY } from "components/hooks/queries/thread";
+import debug from "debug";
+import { dismissAllNotifications } from "../../utils/queries";
+import { processBoardsUpdates } from "utils/boards-utils";
+import { useAuth } from "components/Auth";
+import { useBoardSummaryBySlug } from "components/hooks/queries/board";
+import { useCachedLinks } from "components/hooks/useCachedLinks";
+import { usePageDetails } from "utils/router-utils";
+import { useRealmBoards } from "contexts/RealmContext";
+import { useRefetchBoardActivity } from "components/hooks/queries/board-activity";
+
 const log = debug("bobafrontend:SideMenu-log");
 
 const MAX_UNREAD_BOARDS_DISPLAY = 4;
@@ -124,7 +125,7 @@ const SideMenu = () => {
                 {
                   icon: faCommentSlash,
                   name: "Dismiss notifications",
-                  link: { onClick: dismissNotifications },
+                  link: { onClick: () => dismissNotifications() },
                 },
               ]
             : [],
