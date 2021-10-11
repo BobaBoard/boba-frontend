@@ -266,8 +266,10 @@ export default ThreadWithEditors;
 // @ts-expect-error
 ThreadWithEditors.getInitialProps = async (ctx: NextPageContext) => {
   try {
+    if (!ctx.query.threadId?.length) {
+      return {};
+    }
     const response = await axios.get(
-      // @ts-expect-error
       getServerBaseUrl(ctx) + `threads/${ctx.query.threadId[0]}/`
     );
     const thread = makeClientThread(await response.data);

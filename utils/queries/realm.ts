@@ -1,5 +1,5 @@
-import axios from "axios";
 import { RealmType } from "types/Types";
+import axios from "axios";
 import { makeClientBoardSummary } from "utils/client-data";
 
 export const getRealmData = async ({
@@ -10,7 +10,7 @@ export const getRealmData = async ({
   baseUrl?: string;
 }): Promise<RealmType> => {
   let url: URL | null = null;
-  if (baseUrl) {
+  if (baseUrl && realmSlug) {
     url = new URL(baseUrl);
     url.pathname = `/realms/slug/${realmSlug}`;
   }
