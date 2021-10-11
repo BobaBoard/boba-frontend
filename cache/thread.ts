@@ -244,8 +244,12 @@ export const getThreadSummaryInCache = (
 ) => {
   const activities = getActivitiesInCache(queryClient, { slug });
   for (const activity of activities) {
+    if (!activity) {
+      console.log(activities);
+      return null;
+    }
     // TODO: figure out why pages isn't here sometimes
-    for (const page of activity?.pages) {
+    for (const page of activity.pages) {
       const thread = page.activity.find((thread) => thread.id == threadId);
       if (thread) {
         return thread;

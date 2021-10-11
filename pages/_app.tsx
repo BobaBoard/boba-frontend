@@ -1,43 +1,46 @@
 import "../wdyr";
-
-import App, { AppContext } from "next/app";
-import ErrorBoundary from "@stefanprobst/next-error-boundary";
-import { CustomErrorPage } from "./_error";
 import "@bobaboard/ui-components/dist/main.css";
 import "normalize.css";
-import smoothscroll from "smoothscroll-polyfill";
-import React from "react";
-import axios from "axios";
-import Head from "next/head";
+
+import App, { AppContext } from "next/app";
 import { AuthProvider, useAuth } from "../components/Auth";
-import { RealmContextProvider } from "../contexts/RealmContext";
-import useFromBackButton from "../components/hooks/useFromBackButton";
-import { useScrollRestoration } from "../components/hooks/useScrollRestoration";
-import { UpdateNotice } from "../components/UpdateNotice";
-import type { AppProps } from "next/app";
+import { BoardData, BoardSummary } from "types/Types";
 import {
-  ToastContainer,
-  toast,
   EditorContext,
   ImageUploaderContext,
+  ToastContainer,
+  getDeltaSummary,
+  toast,
 } from "@bobaboard/ui-components";
-import { useImageUploader } from "../utils/image-upload";
-import { BoardData, BoardSummary } from "types/Types";
-import { QueryParamProvider } from "../components/QueryParamNextProvider";
+import { QueryClient, QueryClientProvider } from "react-query";
 import {
-  getServerBaseUrl,
-  isAllowedSandboxLocation,
-  getRedirectToSandboxLocation,
   getCurrentHost,
   getCurrentRealmSlug,
+  getRedirectToSandboxLocation,
+  getServerBaseUrl,
+  isAllowedSandboxLocation,
 } from "utils/location-utils";
-import { makeClientBoardData } from "utils/client-data";
-import debug from "debug";
-import { QueryClient, QueryClientProvider } from "react-query";
+
+import type { AppProps } from "next/app";
+import { CustomErrorPage } from "./_error";
+import ErrorBoundary from "@stefanprobst/next-error-boundary";
+import Head from "next/head";
+import { QueryParamProvider } from "../components/QueryParamNextProvider";
+import React from "react";
 import { ReactQueryDevtools } from "react-query/devtools";
+import { RealmContextProvider } from "../contexts/RealmContext";
+import { UpdateNotice } from "../components/UpdateNotice";
+import axios from "axios";
+import debug from "debug";
 import embedsCache from "../utils/embeds-cache";
-import { usePageDataListener } from "utils/router-utils";
 import { getRealmData } from "utils/queries/realm";
+import { makeClientBoardData } from "utils/client-data";
+import smoothscroll from "smoothscroll-polyfill";
+import useFromBackButton from "../components/hooks/useFromBackButton";
+import { useImageUploader } from "../utils/image-upload";
+import { usePageDataListener } from "utils/router-utils";
+import { useScrollRestoration } from "../components/hooks/useScrollRestoration";
+
 const log = debug("bobafrontend:app-log");
 
 const logRequest = debug("bobafrontend:app:requests-log");
@@ -107,22 +110,40 @@ const editorContext = {
 };
 
 export const getTitle = (
-  currentBoardData: BoardSummary | BoardData | undefined | null
+  currentBoardData: BoardSummary | BoardData | undefined | null,
+  threadSummary: ReturnType<typeof getDeltaSummary> | undefined
 ) => {
+  if (threadSummary?.title) {
+    return `BobaBoard v0 — ${threadSummary.title}`;
+  }
   return currentBoardData
     ? `BobaBoard v0 — !${currentBoardData.slug} — Where the bugs are funny and the people are cool!`
     : "BobaBoard v0 — Where the bugs are funny and the people are cool!";
 };
 
-const getImage = (currentBoardData: BoardData | BoardData | undefined) => {
+const getImage = (
+  currentBoardData: BoardData | BoardData | undefined,
+  threadSummary: ReturnType<typeof getDeltaSummary> | undefined
+) => {
+  if (threadSummary?.images?.length) {
+    return threadSummary.images[0];
+  }
   return currentBoardData
     ? currentBoardData.avatarUrl
     : "https://v0.boba.social/bobatan.png";
 };
 
 const getDescription = (
-  currentBoardData: BoardData | BoardData | undefined
+  currentBoardData: BoardData | BoardData | undefined,
+  threadSummary: ReturnType<typeof getDeltaSummary> | undefined
 ) => {
+  if (threadSummary?.text) {
+    let summaryText = threadSummary.text;
+    if (summaryText.startsWith(threadSummary.title + "\n")) {
+      summaryText = summaryText.substring(summaryText.indexOf("\n") + 1);
+    }
+    return summaryText;
+  }
   return currentBoardData
     ? currentBoardData.tagline
     : `BobaBoard is an upcoming commmunity (and platform) aiming to balance the freedom and wonder of the early 00s web with a modern user experience and ethos. Feel free to look around, but remember: what you see is Work in Progress! Read more (and get involved) at www.bobaboard.com.`;
@@ -162,30 +183,41 @@ function MyApp({
       "font-size: 16px; color: #ff4284;"
     );
   }, []);
-
   return (
     <>
       <Head>
-        <title>{getTitle(currentBoardData)}</title>
+        <title>{getTitle(currentBoardData, props.summary)}</title>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, user-scalable=1.0"
         ></meta>
-        <meta property="og:title" content={getTitle(currentBoardData)} />
+        <meta
+          property="og:title"
+          content={getTitle(currentBoardData, props.summary)}
+        />
         <meta property="og:type" content="website" />
         <meta
           property="og:description"
-          content={getDescription(currentBoardData)}
+          content={getDescription(currentBoardData, props.summary)}
         />
-        <meta property="og:image" content={getImage(currentBoardData)} />
+        <meta
+          property="og:image"
+          content={getImage(currentBoardData, props.summary)}
+        />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@BobaBoard" />
-        <meta name="twitter:title" content={getTitle(currentBoardData)} />
+        <meta
+          name="twitter:title"
+          content={getTitle(currentBoardData, props.summary)}
+        />
         <meta
           name="twitter:description"
-          content={getDescription(currentBoardData)}
+          content={getDescription(currentBoardData, props.summary)}
         />
-        <meta name="twitter:image" content={getImage(currentBoardData)} />
+        <meta
+          name="twitter:image"
+          content={getImage(currentBoardData, props.summary)}
+        />
         <link rel="icon" type="image/svg+xml" href="/icons/logo-compact.svg" />
         <link
           rel="apple-touch-icon"

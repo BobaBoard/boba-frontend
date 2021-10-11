@@ -1,35 +1,42 @@
-import React from "react";
 import {
-  FeedWithMenu,
   CycleNewButton,
+  FeedWithMenu,
   PostingActionButton,
+  getDeltaSummary,
 } from "@bobaboard/ui-components";
-import Layout from "components/layout/Layout";
-import LoadingSpinner from "components/LoadingSpinner";
-import { useAuth } from "components/Auth";
-import classnames from "classnames";
-//import { useHotkeys } from "react-hotkeys-hook";
-import ThreadView from "components/thread/ThreadView";
-import ThreadSidebar from "components/thread/ThreadSidebar";
-import GalleryThreadView from "components/thread/GalleryThreadView";
-import TimelineThreadView from "components/thread/TimelineThreadView";
+import {
+  THREAD_VIEW_MODES,
+  ThreadViewContextProvider,
+  useThreadViewContext,
+} from "components/thread/ThreadViewContext";
 import ThreadContextProvider, {
   useThreadContext,
 } from "components/thread/ThreadContext";
 import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
-import {
-  ThreadViewContextProvider,
-  THREAD_VIEW_MODES,
-  useThreadViewContext,
-} from "components/thread/ThreadViewContext";
-import { useCachedLinks } from "components/hooks/useCachedLinks";
-import { useBeamToNew } from "components/hooks/useBeamToNew";
-import { useDisplayManager } from "components/hooks/useDisplayMananger";
 import { useThreadEditors, withEditors } from "components/editors/withEditors";
+
+import GalleryThreadView from "components/thread/GalleryThreadView";
+import Head from "next/head";
+import Layout from "components/layout/Layout";
+import LoadingSpinner from "components/LoadingSpinner";
+import { NextPageContext } from "next";
+import React from "react";
+import ThreadSidebar from "components/thread/ThreadSidebar";
+//import { useHotkeys } from "react-hotkeys-hook";
+import ThreadView from "components/thread/ThreadView";
+import TimelineThreadView from "components/thread/TimelineThreadView";
+import axios from "axios";
+import classnames from "classnames";
+import { getServerBaseUrl } from "utils/location-utils";
+import { makeClientThread } from "utils/client-data";
+import { useAuth } from "components/Auth";
+import { useBeamToNew } from "components/hooks/useBeamToNew";
+import { useBoardSummary } from "contexts/RealmContext";
+import { useCachedLinks } from "components/hooks/useCachedLinks";
+import { useDisplayManager } from "components/hooks/useDisplayMananger";
+import { useInvalidateNotifications } from "components/hooks/queries/notifications";
 import { useReadThread } from "components/hooks/queries/thread";
 import { useThreadCollapseManager } from "components/thread/useCollapseManager";
-import { useInvalidateNotifications } from "components/hooks/queries/notifications";
-import { useBoardSummary } from "contexts/RealmContext";
 
 // import debug from "debug";
 // const error = debug("bobafrontend:ThreadPage-error");
@@ -82,7 +89,7 @@ function ThreadPage() {
         markAsRead({ slug, threadId });
         hasMarkedAsRead.current = true;
         refetchNotifications();
-      }, 1500);
+      }, 1000);
     }
     return () => {
       if (timeout) {
@@ -239,8 +246,11 @@ function ThreadPage() {
   );
 }
 
-const ThreadPageWithContext: React.FC<Record<string, never>> = () => {
+const ThreadPageWithContext: React.FC<{
+  summary?: ReturnType<typeof getDeltaSummary>;
+}> = (props) => {
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
+  console.log(props);
   return (
     <ThreadContextProvider postId={postId} slug={slug} threadId={threadId}>
       <ThreadViewContextProvider>
@@ -250,4 +260,26 @@ const ThreadPageWithContext: React.FC<Record<string, never>> = () => {
   );
 };
 
-export default withEditors(ThreadPageWithContext);
+const ThreadWithEditors = withEditors(ThreadPageWithContext);
+export default ThreadWithEditors;
+
+// @ts-expect-error
+ThreadWithEditors.getInitialProps = async (ctx: NextPageContext) => {
+  try {
+    const response = await axios.get(
+      // @ts-expect-error
+      getServerBaseUrl(ctx) + `threads/${ctx.query.threadId[0]}/`
+    );
+    const thread = makeClientThread(await response.data);
+
+    if (!thread) {
+      return {};
+    }
+    const summary = getDeltaSummary(JSON.parse(thread.starter.content));
+    return {
+      summary,
+    };
+  } catch (e) {
+    return {};
+  }
+};
