@@ -1,8 +1,10 @@
-import { BOARD_ACTIVITY_KEY } from "components/hooks/queries/board-activity";
-import { USER_FEED_KEY } from "components/hooks/queries/user-feed";
 import { InfiniteData, QueryClient } from "react-query";
-import { FeedType } from "../types/Types";
 
+import { BOARD_ACTIVITY_KEY } from "components/hooks/queries/board-activity";
+import { FeedType } from "../types/Types";
+import { USER_FEED_KEY } from "components/hooks/queries/user-feed";
+
+// TODO: rename this (and the rest) to "getFeedsInCache"
 export const getActivitiesInCache = (
   queryClient: QueryClient,
   key: { slug: string }
@@ -22,7 +24,6 @@ export const getActivitiesInCache = (
 export const setActivitiesInCache = (
   queryClient: QueryClient,
   key: { slug: string },
-  // TODO: swap type with generic activity response
   transform: (activity: FeedType) => FeedType
 ) => {
   const activityTransformer = (data: InfiniteData<FeedType>) => {
