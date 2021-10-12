@@ -15,15 +15,15 @@ import {
 import { BOARD_ACTIVITY_KEY } from "../../components/hooks/queries/board-activity";
 import { USER_FEED_KEY } from "../../components/hooks/queries/user-feed";
 
-const getBoardQueryKey = (data: { slug: string }) => {
+export const getBoardQueryKey = (data: { slug: string }) => {
   return [BOARD_ACTIVITY_KEY, { slug: data.slug }];
 };
 
-const getUserFeedKey = () => {
+export const getUserFeedKey = () => {
   return [USER_FEED_KEY];
 };
 
-const getBoardActivityDataFromCache = (
+export const getBoardActivityDataFromCache = (
   queryClient: QueryClient,
   data: { slug: string }
 ) => {
@@ -31,7 +31,7 @@ const getBoardActivityDataFromCache = (
     getBoardQueryKey(data)
   ).data;
 };
-const getUserFeedDataFromCache = (queryClient: QueryClient) => {
+export const getUserFeedDataFromCache = (queryClient: QueryClient) => {
   return queryClient.getQueryState<InfiniteData<FeedType>>(getUserFeedKey())
     .data;
 };

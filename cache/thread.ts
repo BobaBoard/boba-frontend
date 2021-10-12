@@ -1,9 +1,10 @@
-import { THREAD_QUERY_KEY } from "components/hooks/queries/thread";
-import { QueryClient } from "react-query";
 import { FeedType, ThreadSummaryType, ThreadType } from "../types/Types";
 import { getActivitiesInCache, setActivitiesInCache } from "./activity";
 
-const setThreadInActivityCache = (
+import { QueryClient } from "react-query";
+import { THREAD_QUERY_KEY } from "components/hooks/queries/thread";
+
+const setThreadSummaryInActivityCache = (
   queryClient: QueryClient,
   key: { slug: string; threadId: string },
   transform: (thread: ThreadSummaryType) => ThreadSummaryType
@@ -46,7 +47,7 @@ export const setThreadInCache = (
     transformThreadSummary: (thread: ThreadSummaryType) => ThreadSummaryType;
   }
 ) => {
-  setThreadInActivityCache(
+  setThreadSummaryInActivityCache(
     queryClient,
     key,
     transformers.transformThreadSummary
@@ -91,7 +92,7 @@ export const setThreadActivityClearedInCache = (
       transformThreadSummary: transformer,
     });
   } else {
-    setThreadInActivityCache(queryClient, key, transformer);
+    setThreadSummaryInActivityCache(queryClient, key, transformer);
   }
 };
 
