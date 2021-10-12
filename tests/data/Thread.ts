@@ -108,3 +108,73 @@ export const REMEMBER_TO_BE_EXCELLENT_GORE_THREAD: ThreadType = {
   hidden: false,
   defaultView: "thread",
 };
+
+export const FAVORITE_CHARACTER_GORE_EMPTY_THREAD = {
+  starter: {
+    postId: "11b85dac-e122-40e0-b09a-8829c5e0250e",
+    threadId: "29d1b2da-3289-454a-9089-2ed47db4967b",
+    parentPostId: null,
+    secretIdentity: {
+      name: "DragonFucker",
+      avatar:
+        "https://pbs.twimg.com/profile_images/473496567366705152/JyHRKG7g.jpeg",
+      accessory:
+        "https://firebasestorage.googleapis.com/v0/b/bobaboard-fb.appspot.com/o/images%2Fbobaland%2Fundefined%2F989f4b40-c1b8-4793-93dd-57e93df3e7ec.png?alt=media&token=cabdd8d5-b6a9-4914-bb59-eda4629f151b",
+      color: null,
+    },
+    userIdentity: { name: "oncest5evah", avatar: "/greedler.jpg" },
+    created: "2020-04-30T03:23:00.00Z",
+    content: '[{"insert":"Favorite character to maim?"}]',
+    options: {},
+    tags: {
+      whisperTags: [],
+      indexTags: ["evil", "bobapost"],
+      categoryTags: ["bruises"],
+      contentWarnings: [],
+    },
+    isNew: false,
+    isOwn: false,
+  },
+  posts: [
+    {
+      postId: "11b85dac-e122-40e0-b09a-8829c5e0250e",
+      threadId: "29d1b2da-3289-454a-9089-2ed47db4967b",
+      parentPostId: null,
+      secretIdentity: {
+        name: "DragonFucker",
+        avatar:
+          "https://pbs.twimg.com/profile_images/473496567366705152/JyHRKG7g.jpeg",
+        accessory:
+          "https://firebasestorage.googleapis.com/v0/b/bobaboard-fb.appspot.com/o/images%2Fbobaland%2Fundefined%2F989f4b40-c1b8-4793-93dd-57e93df3e7ec.png?alt=media&token=cabdd8d5-b6a9-4914-bb59-eda4629f151b",
+        color: null,
+      },
+      userIdentity: { name: "oncest5evah", avatar: "/greedler.jpg" },
+      created: "2020-04-30T03:23:00.00Z",
+      content: '[{"insert":"Favorite character to maim?"}]',
+      options: {},
+      tags: {
+        whisperTags: [],
+        indexTags: ["evil", "bobapost"],
+        categoryTags: ["bruises"],
+        contentWarnings: [],
+      },
+      isNew: false,
+      isOwn: false,
+    },
+  ],
+  comments: {
+    "11b85dac-e122-40e0-b09a-8829c5e0250e": [],
+  },
+  new: false,
+  id: "29d1b2da-3289-454a-9089-2ed47db4967b",
+  parentBoardSlug: "gore",
+  newPostsAmount: 0,
+  newCommentsAmount: 0,
+  totalCommentsAmount: 0,
+  totalPostsAmount: 1,
+  directThreadsAmount: 0,
+  lastActivityAt: "2020-04-30T03:23:00.00Z",
+  muted: false,
+  hidden: false,
+  defaultView: "thread",
+};

@@ -1,6 +1,6 @@
 import { ThreadSummaryType } from "../../types/Types";
 
-export const REMEMBER_TO_BE_EXCELLENT_GORE: ThreadSummaryType = {
+export const REMEMBER_TO_BE_EXCELLENT_GORE_THREAD_SUMMARY: ThreadSummaryType = {
   id: "8b2646af-2778-487e-8e44-7ae530c2549c",
   parentBoardSlug: "gore",
   starter: {
@@ -40,7 +40,7 @@ export const REMEMBER_TO_BE_EXCELLENT_GORE: ThreadSummaryType = {
   lastActivityAt: "2020-10-04T05:44:00.00Z",
 };
 
-export const FAVORITE_CHARACTER_GORE: ThreadSummaryType = {
+export const FAVORITE_CHARACTER_GORE_THREAD_SUMMARY: ThreadSummaryType = {
   id: "29d1b2da-3289-454a-9089-2ed47db4967b",
   parentBoardSlug: "gore",
   starter: {

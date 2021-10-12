@@ -1,7 +1,7 @@
 import {
-  FAVORITE_CHARACTER_GORE,
+  FAVORITE_CHARACTER_GORE_THREAD_SUMMARY,
   FAVORITE_MURDER_GORE,
-  REMEMBER_TO_BE_EXCELLENT_GORE,
+  REMEMBER_TO_BE_EXCELLENT_GORE_THREAD_SUMMARY,
   STUFF_WILL_BE_INSERTED_ANIME,
 } from "../data/ThreadSummary";
 import { FeedType, ThreadSummaryType } from "../../types/Types";
@@ -42,8 +42,8 @@ const GORE_BOARD_ACTIVITY_SINGLE_PAGE: InfiniteData<FeedType> = {
     {
       cursor: null,
       activity: [
-        REMEMBER_TO_BE_EXCELLENT_GORE,
-        FAVORITE_CHARACTER_GORE,
+        REMEMBER_TO_BE_EXCELLENT_GORE_THREAD_SUMMARY,
+        FAVORITE_CHARACTER_GORE_THREAD_SUMMARY,
         FAVORITE_MURDER_GORE,
       ],
     },
@@ -54,7 +54,10 @@ const USER_FEED_ACTIVITY_SINGLE_PAGE: InfiniteData<FeedType> = {
   pages: [
     {
       cursor: null,
-      activity: [STUFF_WILL_BE_INSERTED_ANIME, FAVORITE_CHARACTER_GORE],
+      activity: [
+        STUFF_WILL_BE_INSERTED_ANIME,
+        FAVORITE_CHARACTER_GORE_THREAD_SUMMARY,
+      ],
     },
   ],
 };

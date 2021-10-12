@@ -1,13 +1,14 @@
-import { QueryClient } from "react-query";
 import {
   PostType,
-  ThreadType,
   TagsType,
   ThreadSummaryType,
+  ThreadType,
 } from "../types/Types";
 import { setThreadInCache, setThreadPersonalIdentityInCache } from "./thread";
 
-export const setPostInCache = (
+import { QueryClient } from "react-query";
+
+const setPostInCache = (
   queryClient: QueryClient,
   {
     threadId,
@@ -97,6 +98,9 @@ export const addPostInCache = (
           posts: [...thread.posts, post],
           newPostsAmount: thread.newPostsAmount + (post.isNew ? 1 : 0),
           totalPostsAmount: thread.totalPostsAmount + 1,
+          directThreadsAmount:
+            thread.directThreadsAmount +
+            (post.parentPostId == thread.starter.postId ? 1 : 0),
         };
       },
       transformThreadSummary: (thread) => {
@@ -104,6 +108,9 @@ export const addPostInCache = (
           ...thread,
           newPostsAmount: thread.newPostsAmount + (post.isNew ? 1 : 0),
           totalPostsAmount: thread.totalPostsAmount + 1,
+          directThreadsAmount:
+            thread.directThreadsAmount +
+            (post.parentPostId == thread.starter.postId ? 1 : 0),
         };
       },
     }

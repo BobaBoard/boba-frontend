@@ -1,7 +1,7 @@
 import {
-  FAVORITE_CHARACTER_GORE,
+  FAVORITE_CHARACTER_GORE_THREAD_SUMMARY,
   FAVORITE_MURDER_GORE,
-  REMEMBER_TO_BE_EXCELLENT_GORE,
+  REMEMBER_TO_BE_EXCELLENT_GORE_THREAD_SUMMARY,
   STUFF_WILL_BE_INSERTED_ANIME,
 } from "../data/ThreadSummary";
 import { FeedType, ThreadSummaryType, ThreadType } from "../../types/Types";
@@ -24,8 +24,8 @@ const GORE_BOARD_FEED_SINGLE_PAGE: InfiniteData<FeedType> = {
     {
       cursor: null,
       activity: [
-        REMEMBER_TO_BE_EXCELLENT_GORE,
-        FAVORITE_CHARACTER_GORE,
+        REMEMBER_TO_BE_EXCELLENT_GORE_THREAD_SUMMARY,
+        FAVORITE_CHARACTER_GORE_THREAD_SUMMARY,
         FAVORITE_MURDER_GORE,
       ],
     },
@@ -36,12 +36,15 @@ const USER_FEED_SINGLE_PAGE: InfiniteData<FeedType> = {
   pages: [
     {
       cursor: null,
-      activity: [STUFF_WILL_BE_INSERTED_ANIME, FAVORITE_CHARACTER_GORE],
+      activity: [
+        STUFF_WILL_BE_INSERTED_ANIME,
+        FAVORITE_CHARACTER_GORE_THREAD_SUMMARY,
+      ],
     },
   ],
 };
 
-const getThreadKey = (data: { threadId: string }) => {
+export const getThreadKey = (data: { threadId: string }) => {
   return [THREAD_QUERY_KEY, data];
 };
 
@@ -66,8 +69,8 @@ describe("Tests for setThreadInCache", () => {
     setThreadInCache(
       queryClient,
       {
-        slug: REMEMBER_TO_BE_EXCELLENT_GORE.parentBoardSlug,
-        threadId: REMEMBER_TO_BE_EXCELLENT_GORE.id,
+        slug: REMEMBER_TO_BE_EXCELLENT_GORE_THREAD_SUMMARY.parentBoardSlug,
+        threadId: REMEMBER_TO_BE_EXCELLENT_GORE_THREAD_SUMMARY.id,
       },
       {
         transformThread: (thread) => thread,
@@ -81,7 +84,7 @@ describe("Tests for setThreadInCache", () => {
     // TODO: why is it not the same instance of the object?
     expect(newData.pages[0].activity).toContainEqual(newThreadSummary);
     expect(newData.pages[0].activity).not.toContain(
-      REMEMBER_TO_BE_EXCELLENT_GORE
+      REMEMBER_TO_BE_EXCELLENT_GORE_THREAD_SUMMARY
     );
     // Check that all the data chain has been updated correctly to be different objects.
     expect(newData.pages).not.toBe(GORE_BOARD_FEED_SINGLE_PAGE.pages);
