@@ -1,4 +1,3 @@
-import React from "react";
 import {
   CommentChain,
   CommentHandler,
@@ -6,15 +5,16 @@ import {
   NewCommentsThread,
 } from "@bobaboard/ui-components";
 import { CommentType, ThreadCommentInfoType } from "../../types/Types";
-import { useThreadContext } from "./ThreadContext";
-import { faComment } from "@fortawesome/free-regular-svg-icons";
 
+import React from "react";
+import debug from "debug";
+import { faComment } from "@fortawesome/free-regular-svg-icons";
 import moment from "moment";
 import { useAuth } from "components/Auth";
-import { useThreadEditors } from "components/editors/withEditors";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
+import { useThreadContext } from "./ThreadContext";
+import { useThreadEditors } from "components/editors/withEditors";
 
-import debug from "debug";
 const log = debug("bobafrontend:CommentsThread-log");
 // const info = debug("bobafrontend:CommentsThread-info");
 
@@ -73,7 +73,7 @@ const ThreadComment: React.FC<{
   const { isLoggedIn } = useAuth();
   const { forceHideIdentity } = useForceHideIdentity();
   const { onNewComment } = useThreadEditors();
-  const { postCommentsMap } = useThreadContext();
+  const { postCommentsMap, opIdentity } = useThreadContext();
   const { parentChainMap } = postCommentsMap.get(parentPostId)!;
   const chainInfo = React.useMemo(
     () =>
@@ -125,6 +125,7 @@ const ThreadComment: React.FC<{
       createdTime={moment.utc(rootComment.created).fromNow()}
       comments={chainInfo}
       new={isLoggedIn && rootComment.isNew}
+      op={rootComment.secretIdentity.name == opIdentity?.name}
       onExtraAction={isLoggedIn ? replyToLast : undefined}
       options={options}
       forceHideIdentity={forceHideIdentity}
@@ -139,14 +140,13 @@ const CommentsThreadLevel: React.FC<{
   disableMotionEffect?: boolean;
 }> = ({ parentPostId, comment, disableMotionEffect }) => {
   const { postCommentsMap } = useThreadContext();
-  const { parentChainMap, parentChildrenMap } = postCommentsMap.get(
-    parentPostId
-  )!;
+  const { parentChainMap, parentChildrenMap } =
+    postCommentsMap.get(parentPostId)!;
 
-  const chain = React.useMemo(() => getCommentsChain(comment, parentChainMap), [
-    comment,
-    parentChainMap,
-  ]);
+  const chain = React.useMemo(
+    () => getCommentsChain(comment, parentChainMap),
+    [comment, parentChainMap]
+  );
 
   const children = parentChildrenMap.get(chain[chain.length - 1].commentId);
   return (

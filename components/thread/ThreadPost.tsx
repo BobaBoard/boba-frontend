@@ -1,26 +1,27 @@
 import {
   CompactPostThread,
+  DefaultTheme,
   Post,
   PostHandler,
-  DefaultTheme,
-  TagsType,
   TagType,
+  TagsType,
 } from "@bobaboard/ui-components";
-import { PostProps } from "@bobaboard/ui-components/dist/post/Post";
-import moment from "moment";
-import React from "react";
-import { PostType } from "../../types/Types";
+import { PostOptions, usePostOptions } from "../hooks/useOptions";
 import { ThreadPageDetails, usePageDetails } from "../../utils/router-utils";
-import { useThreadContext } from "./ThreadContext";
 import {
   getTotalContributions,
   getTotalNewContributions,
 } from "../../utils/thread-utils";
-import { usePostOptions, PostOptions } from "../hooks/useOptions";
-import { useCachedLinks } from "components/hooks/useCachedLinks";
-import { log } from "debug";
-import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
+
+import { PostProps } from "@bobaboard/ui-components/dist/post/Post";
+import { PostType } from "../../types/Types";
+import React from "react";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
+import { log } from "debug";
+import moment from "moment";
+import { useCachedLinks } from "components/hooks/useCachedLinks";
+import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
+import { useThreadContext } from "./ThreadContext";
 import { useThreadViewContext } from "./ThreadViewContext";
 
 interface ThreadPostProps
@@ -128,6 +129,7 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
     threadRoot,
     muted,
     hidden,
+    opIdentity,
   } = useThreadContext();
 
   const tagOptions = React.useCallback(
@@ -249,6 +251,7 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
         tags: post.tags,
         answerable: isLoggedIn,
         menuOptions: options,
+        op: post.secretIdentity.name == opIdentity?.name,
         getOptionsForTag: tagOptions,
         ...extraProps,
       };

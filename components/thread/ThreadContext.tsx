@@ -1,25 +1,25 @@
-import React from "react";
-
-import { useQueryClient } from "react-query";
 import {
-  PostType,
-  ThreadType,
-  ThreadPostInfoType,
-  ThreadCommentInfoType,
   CommentType,
+  PostType,
+  ThreadCommentInfoType,
+  ThreadPostInfoType,
+  ThreadType,
 } from "types/Types";
+import { THREAD_QUERY_KEY, useThread } from "components/hooks/queries/thread";
 import {
-  makePostsTree,
   extractCategories,
   extractContentNotices,
-  makeCommentsTree,
   extractNewRepliesSequence,
   extractRepliesSequence,
+  makeCommentsTree,
+  makePostsTree,
 } from "utils/thread-utils";
-import moment from "moment";
 
+import React from "react";
 import debug from "debug";
-import { THREAD_QUERY_KEY, useThread } from "components/hooks/queries/thread";
+import moment from "moment";
+import { useQueryClient } from "react-query";
+
 const log = debug("bobafrontend:ThreadContext-log");
 const info = debug("bobafrontend:ThreadContext-info");
 
@@ -42,6 +42,10 @@ export interface ThreadContextType {
   contentNotices: string[];
   hasNewReplies: boolean;
   newRepliesCount: number;
+  opIdentity?: {
+    name: string;
+    avatar: string;
+  };
   personalIdentity?: {
     name: string;
     avatar: string;
@@ -171,6 +175,7 @@ export const useThreadMetadata = ({
     chronologicalPostsSequence,
     defaultView: threadData?.defaultView || null,
     personalIdentity: threadData?.personalIdentity,
+    opIdentity: threadData?.starter?.secretIdentity,
     hasNewReplies: !!newRepliesSequence.length,
     newRepliesCount: newRepliesSequence.length,
     parentBoardSlug: threadData?.parentBoardSlug || null,
