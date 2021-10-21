@@ -10,6 +10,7 @@ import {
   useThreadViewContext,
 } from "components/thread/ThreadViewContext";
 import ThreadContextProvider, {
+  useInvalidateThreadData,
   useThreadContext,
 } from "components/thread/ThreadContext";
 import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
@@ -26,6 +27,7 @@ import ThreadView from "components/thread/ThreadView";
 import TimelineThreadView from "components/thread/TimelineThreadView";
 import axios from "axios";
 import classnames from "classnames";
+import debug from "debug";
 import { getServerBaseUrl } from "utils/location-utils";
 import { makeClientThread } from "utils/client-data";
 import { useAuth } from "components/Auth";
@@ -34,13 +36,13 @@ import { useBoardSummary } from "contexts/RealmContext";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
 import { useInvalidateNotifications } from "components/hooks/queries/notifications";
+import { useOnPageExit } from "components/hooks/useOnPageExit";
 import { useReadThread } from "components/hooks/queries/thread";
 import { useThreadCollapseManager } from "components/thread/useCollapseManager";
 
-// import debug from "debug";
 // const error = debug("bobafrontend:ThreadPage-error");
 // const log = debug("bobafrontend:ThreadPage-log");
-// const info = debug("bobafrontend:ThreadPage-info");
+const info = debug("bobafrontend:ThreadPage-info");
 
 const MemoizedThreadSidebar = React.memo(ThreadSidebar);
 const MemoizedThreadView = React.memo(ThreadView);
@@ -61,6 +63,8 @@ function ThreadPage() {
   );
   const markAsRead = useReadThread({ activityOnly: true });
   const hasMarkedAsRead = React.useRef(false);
+  const markReadTimeout = React.useRef<NodeJS.Timeout | null>(null);
+  const invalidateThread = useInvalidateThreadData();
   const { currentThreadViewMode, setThreadViewMode } = useThreadViewContext();
   const collapseManager = useThreadCollapseManager();
   const {
@@ -75,26 +79,42 @@ function ThreadPage() {
     currentBoardData?.accentColor
   );
   const { onNewContribution } = useThreadEditors();
+  useOnPageExit(
+    React.useCallback(() => {
+      info(
+        "Exiting current thread, invalidating it and restoring mark as read."
+      );
+      if (!threadId || !hasMarkedAsRead.current) {
+        return;
+      }
+      hasMarkedAsRead.current = false;
+      markReadTimeout.current = null;
+      invalidateThread({ threadId });
+    }, [threadId, invalidateThread])
+  );
 
   React.useEffect(() => {
-    let timeout: NodeJS.Timeout;
     if (
       !isFetchingThread &&
       !isRefetchingThread &&
       isLoggedIn &&
-      !hasMarkedAsRead.current
+      !hasMarkedAsRead.current &&
+      !markReadTimeout.current
     ) {
-      timeout = setTimeout(() => {
-        markAsRead({ slug, threadId });
-        hasMarkedAsRead.current = true;
-        refetchNotifications();
+      markReadTimeout.current = setTimeout(() => {
+        info("Marking thread as read.");
+        markAsRead(
+          { slug, threadId },
+          {
+            onSuccess: () => {
+              info("Thread marked as read. Refetching notifications.");
+              hasMarkedAsRead.current = true;
+              refetchNotifications();
+            },
+          }
+        );
       }, 1000);
     }
-    return () => {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-    };
   }, [
     markAsRead,
     refetchNotifications,
@@ -104,16 +124,6 @@ function ThreadPage() {
     slug,
     threadId,
   ]);
-
-  // Make sure that the thread is marked as read again if the page changes.
-  React.useEffect(() => {
-    return () => {
-      if (!threadId || !slug || !hasMarkedAsRead.current) {
-        return;
-      }
-      hasMarkedAsRead.current = false;
-    };
-  }, [slug, threadId]);
 
   // TODO: disable this while post editing and readd
   // const currentPostIndex = React.useRef<number>(-1);
@@ -244,7 +254,7 @@ function ThreadPage() {
     </div>
   );
 }
-
+ThreadPage.whyDidYouRender = true;
 const ThreadPageWithContext: React.FC<{
   summary?: ReturnType<typeof getDeltaSummary>;
 }> = (props) => {
