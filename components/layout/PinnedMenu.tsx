@@ -1,17 +1,19 @@
-import { PinnedMenu as LibraryPinnedMenu } from "@bobaboard/ui-components";
-import { usePinnedBoards } from "../hooks/queries/pinned-boards";
+import { PageTypes, usePageDetails } from "utils/router-utils";
+import { faInbox, faRss, faThumbtack } from "@fortawesome/free-solid-svg-icons";
 import {
   useInvalidateNotifications,
   useNotifications,
 } from "../hooks/queries/notifications";
 
-import debug from "debug";
+import { PinnedMenu as LibraryPinnedMenu } from "@bobaboard/ui-components";
 import React from "react";
-const log = debug("bobafrontend:PinnedMenu-log");
+import debug from "debug";
+import { useAuth } from "components/Auth";
 import { useCachedLinks } from "../hooks/useCachedLinks";
-import { PageTypes, usePageDetails } from "utils/router-utils";
+import { usePinnedBoards } from "../hooks/queries/pinned-boards";
 import { useRefetchBoardActivity } from "components/hooks/queries/board-activity";
-import { faInbox, faRss, faThumbtack } from "@fortawesome/free-solid-svg-icons";
+
+const log = debug("bobafrontend:PinnedMenu-log");
 
 const PinnedMenu = () => {
   const { getLinkToBoard, linkToFeed } = useCachedLinks();
@@ -20,6 +22,7 @@ const PinnedMenu = () => {
   const { pinnedBoardsNotifications } = useNotifications();
   const refetchBoardActivity = useRefetchBoardActivity();
   const { slug, pageType } = usePageDetails();
+  const { isLoggedIn } = useAuth();
   const onBoardChange = React.useCallback(
     (nextSlug) => {
       if (nextSlug == slug) {
@@ -56,30 +59,34 @@ const PinnedMenu = () => {
   }, [pinnedBoards, pinnedBoardsNotifications, getLinkToBoard, onBoardChange]);
   return (
     <LibraryPinnedMenu>
-      <LibraryPinnedMenu.Section
-        icon={faRss}
-        items={[
-          // {
-          //   id: "star",
-          //   icon: faStar,
-          //   link: linkToFeed,
-          //   accentColor: "#f96680",
-          //   withNotification: true,
-          // },
-          {
-            id: PageTypes.FEED,
-            icon: faInbox,
-            link: linkToFeed,
-            accentColor: "#f96680",
-          },
-        ]}
-        currentItemId={pageType}
-      />
-      <LibraryPinnedMenu.Section
-        icon={faThumbtack}
-        items={processedPinnedBoards}
-        currentItemId={slug}
-      />
+      {isLoggedIn && (
+        <LibraryPinnedMenu.Section
+          icon={faRss}
+          items={[
+            // {
+            //   id: "star",
+            //   icon: faStar,
+            //   link: linkToFeed,
+            //   accentColor: "#f96680",
+            //   withNotification: true,
+            // },
+            {
+              id: PageTypes.FEED,
+              icon: faInbox,
+              link: linkToFeed,
+              accentColor: "#f96680",
+            },
+          ]}
+          currentItemId={pageType}
+        />
+      )}
+      {processedPinnedBoards.length && (
+        <LibraryPinnedMenu.Section
+          icon={faThumbtack}
+          items={processedPinnedBoards}
+          currentItemId={slug}
+        />
+      )}
     </LibraryPinnedMenu>
   );
 };
