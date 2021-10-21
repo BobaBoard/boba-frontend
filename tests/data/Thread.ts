@@ -9,7 +9,7 @@ export const REMEMBER_TO_BE_EXCELLENT_GORE_THREAD: ThreadType = {
       name: "GoreMaster5000",
       avatar:
         "https://firebasestorage.googleapis.com/v0/b/bobaboard-fb.appspot.com/o/images%2Fbobaland%2Fc26e8ce9-a547-4ff4-9486-7a2faca4d873%2F6518df53-2031-4ac5-8d75-57a0051ed924?alt=media&token=23df54b7-297c-42ff-a0ea-b9862c9814f8",
-      accessory: null,
+      accessory: undefined,
       color: "red",
     },
     userIdentity: { name: "bobatan", avatar: "/bobatan.png" },
@@ -35,7 +35,7 @@ export const REMEMBER_TO_BE_EXCELLENT_GORE_THREAD: ThreadType = {
         name: "GoreMaster5000",
         avatar:
           "https://firebasestorage.googleapis.com/v0/b/bobaboard-fb.appspot.com/o/images%2Fbobaland%2Fc26e8ce9-a547-4ff4-9486-7a2faca4d873%2F6518df53-2031-4ac5-8d75-57a0051ed924?alt=media&token=23df54b7-297c-42ff-a0ea-b9862c9814f8",
-        accessory: null,
+        accessory: undefined,
         color: "red",
       },
       userIdentity: { name: "bobatan", avatar: "/bobatan.png" },
@@ -66,8 +66,8 @@ export const REMEMBER_TO_BE_EXCELLENT_GORE_THREAD: ThreadType = {
           name: "DragonFucker",
           avatar:
             "https://pbs.twimg.com/profile_images/473496567366705152/JyHRKG7g.jpeg",
-          color: null,
-          accessory: null,
+          color: undefined,
+          accessory: undefined,
         },
         content: '[{"insert":"But can we be mean to you?"}]',
         isNew: false,
@@ -85,7 +85,7 @@ export const REMEMBER_TO_BE_EXCELLENT_GORE_THREAD: ThreadType = {
           avatar:
             "https://firebasestorage.googleapis.com/v0/b/bobaboard-fb.appspot.com/o/images%2Fbobaland%2Fc26e8ce9-a547-4ff4-9486-7a2faca4d873%2F6518df53-2031-4ac5-8d75-57a0051ed924?alt=media&token=23df54b7-297c-42ff-a0ea-b9862c9814f8",
           color: "red",
-          accessory: null,
+          accessory: undefined,
         },
         userIdentity: { name: "bobatan", avatar: "/bobatan.png" },
         content:

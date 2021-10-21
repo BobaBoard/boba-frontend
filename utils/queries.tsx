@@ -1,9 +1,8 @@
-import axios from "axios";
 import {
-  PostType,
-  CommentType,
   CommentData,
+  CommentType,
   PostData,
+  PostType,
   ThreadType,
 } from "../types/Types";
 import {
@@ -12,7 +11,9 @@ import {
   makeClientThread,
 } from "./client-data";
 
+import axios from "axios";
 import debug from "debug";
+
 const log = debug("bobafrontend:queries-log");
 
 export const getThreadData = async ({
@@ -128,6 +129,7 @@ export const createCommentChain = async ({
   const comments = response.data.comments.map((comment: any) =>
     makeClientComment(comment, replyToPostId!)
   );
+  console.log(comments);
   log(`Received comment from server:`);
   log(comments);
   return comments;

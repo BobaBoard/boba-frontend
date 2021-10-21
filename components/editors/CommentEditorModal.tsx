@@ -1,12 +1,13 @@
-import React from "react";
 import { CommentChainEditor, toast } from "@bobaboard/ui-components";
-import { useAuth } from "../Auth";
-import { useMutation } from "react-query";
-import { CommentType, CommentData } from "../../types/Types";
+import { CommentData, CommentType } from "../../types/Types";
+
+import React from "react";
 import { createCommentChain } from "../../utils/queries";
 import debug from "debug";
-import { useEditorsState } from "./EditorsContext";
 import { isCommentEditorState } from "./types";
+import { useAuth } from "../Auth";
+import { useEditorsState } from "./EditorsContext";
+import { useMutation } from "react-query";
 import { useThreadDetails } from "./utils";
 
 const log = debug("bobafrontend:commentEditor-log");

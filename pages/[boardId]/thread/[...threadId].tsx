@@ -44,7 +44,6 @@ import { useThreadCollapseManager } from "components/thread/useCollapseManager";
 // const log = debug("bobafrontend:ThreadPage-log");
 const info = debug("bobafrontend:ThreadPage-info");
 
-const MemoizedThreadSidebar = React.memo(ThreadSidebar);
 const MemoizedThreadView = React.memo(ThreadView);
 const MemoizedGalleryThreadView = React.memo(GalleryThreadView);
 const MemoizedTimelineThreadView = React.memo(TimelineThreadView);
@@ -175,7 +174,7 @@ function ThreadPage() {
             )}
           >
             <FeedWithMenu.Sidebar>
-              <MemoizedThreadSidebar
+              <ThreadSidebar
                 viewMode={currentThreadViewMode}
                 open={showSidebar}
                 onViewChange={setThreadViewMode}
@@ -254,12 +253,11 @@ function ThreadPage() {
     </div>
   );
 }
-ThreadPage.whyDidYouRender = true;
+
 const ThreadPageWithContext: React.FC<{
   summary?: ReturnType<typeof getDeltaSummary>;
-}> = (props) => {
+}> = () => {
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
-  console.log(props);
   return (
     <ThreadContextProvider postId={postId} slug={slug} threadId={threadId}>
       <ThreadViewContextProvider>

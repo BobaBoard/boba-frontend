@@ -1,15 +1,15 @@
 import {
-  PostType,
-  CommentType,
-  ThreadType,
   BoardData,
   BoardSummary,
+  CommentType,
   Permissions,
+  PostType,
   Role,
   ThreadSummaryType,
+  ThreadType,
 } from "../types/Types";
+import { DEFAULT_USER_AVATAR, DEFAULT_USER_NAME } from "../components/Auth";
 
-import { DEFAULT_USER_NAME, DEFAULT_USER_AVATAR } from "../components/Auth";
 import moment from "moment";
 
 export const makeClientComment = (
@@ -152,8 +152,8 @@ export const makeClientBoardData = (serverBoardData: any): BoardData => {
     pinnedOrder: serverBoardData.pinned_order
       ? parseInt(serverBoardData.pinned_order)
       : null,
-    postingIdentities: serverBoardData.postingIdentities,
-    permissions: serverBoardData.permissions,
+    postingIdentities: serverBoardData.postingIdentities?.map(makeClientRole),
+    permissions: serverBoardData.permissions?.map(makeClientPermissions),
     accessories: serverBoardData.accessories,
   };
 };
@@ -189,7 +189,8 @@ export const makeClientRole = (serverRoleData: any): Role => {
     name: serverRoleData.name,
     color: serverRoleData.color,
     accessory: serverRoleData.accessory,
-    avatarUrl: serverRoleData.avatar,
+    // TODO: stabilize this when the server types are also stable
+    avatarUrl: serverRoleData.avatar || serverRoleData.avatar_url,
   };
 };
 
