@@ -29,18 +29,20 @@ export const getBoardActivityDataFromCache = (
 ) => {
   return queryClient.getQueryState<InfiniteData<FeedType>>(
     getBoardQueryKey(data)
-  ).data;
+  )?.data;
 };
 export const getUserFeedDataFromCache = (queryClient: QueryClient) => {
   return queryClient.getQueryState<InfiniteData<FeedType>>(getUserFeedKey())
-    .data;
+    ?.data;
 };
 
 const GORE_BOARD_ACTIVITY_SINGLE_PAGE: InfiniteData<FeedType> = {
   pageParams: [],
   pages: [
     {
-      cursor: null,
+      cursor: {
+        next: null,
+      },
       activity: [
         REMEMBER_TO_BE_EXCELLENT_GORE_THREAD_SUMMARY,
         FAVORITE_CHARACTER_GORE_THREAD_SUMMARY,
@@ -53,7 +55,9 @@ const USER_FEED_ACTIVITY_SINGLE_PAGE: InfiniteData<FeedType> = {
   pageParams: [],
   pages: [
     {
-      cursor: null,
+      cursor: {
+        next: null,
+      },
       activity: [
         STUFF_WILL_BE_INSERTED_ANIME,
         FAVORITE_CHARACTER_GORE_THREAD_SUMMARY,
@@ -122,11 +126,13 @@ describe("Tests for setActivitiesInCache", () => {
       slug: "gore",
     });
 
-    expect(newData.pages[0].activity).toContain(newThread);
+    expect(newData?.pages[0].activity).toContain(newThread);
     // Check that all the data chain has been updated correctly to be different objects.
-    expect(newData.pages).not.toBe(GORE_BOARD_ACTIVITY_SINGLE_PAGE.pages);
-    expect(newData.pages[0]).not.toBe(GORE_BOARD_ACTIVITY_SINGLE_PAGE.pages[0]);
-    expect(newData.pages[0].activity).not.toBe(
+    expect(newData?.pages).not.toBe(GORE_BOARD_ACTIVITY_SINGLE_PAGE.pages);
+    expect(newData?.pages[0]).not.toBe(
+      GORE_BOARD_ACTIVITY_SINGLE_PAGE.pages[0]
+    );
+    expect(newData?.pages[0].activity).not.toBe(
       GORE_BOARD_ACTIVITY_SINGLE_PAGE.pages[0].activity
     );
   });
@@ -147,9 +153,9 @@ describe("Tests for setActivitiesInCache", () => {
     });
 
     // Check that all the data chain has been updated correctly to be different objects.
-    expect(newData.pages).toBe(GORE_BOARD_ACTIVITY_SINGLE_PAGE.pages);
-    expect(newData.pages[0]).toBe(GORE_BOARD_ACTIVITY_SINGLE_PAGE.pages[0]);
-    expect(newData.pages[0].activity).toBe(
+    expect(newData?.pages).toBe(GORE_BOARD_ACTIVITY_SINGLE_PAGE.pages);
+    expect(newData?.pages[0]).toBe(GORE_BOARD_ACTIVITY_SINGLE_PAGE.pages[0]);
+    expect(newData?.pages[0].activity).toBe(
       GORE_BOARD_ACTIVITY_SINGLE_PAGE.pages[0].activity
     );
   });
@@ -168,12 +174,12 @@ describe("Tests for setActivitiesInCache", () => {
     });
 
     const newData = getUserFeedDataFromCache(queryClient);
-    expect(newData.pages[0].activity).toContain(newThread);
+    expect(newData?.pages[0].activity).toContain(newThread);
 
     // Check that all the data chain has been updated correctly to be different objects.
-    expect(newData.pages).not.toBe(USER_FEED_ACTIVITY_SINGLE_PAGE.pages);
-    expect(newData.pages[0]).not.toBe(USER_FEED_ACTIVITY_SINGLE_PAGE.pages[0]);
-    expect(newData.pages[0].activity).not.toBe(
+    expect(newData?.pages).not.toBe(USER_FEED_ACTIVITY_SINGLE_PAGE.pages);
+    expect(newData?.pages[0]).not.toBe(USER_FEED_ACTIVITY_SINGLE_PAGE.pages[0]);
+    expect(newData?.pages[0].activity).not.toBe(
       USER_FEED_ACTIVITY_SINGLE_PAGE.pages[0].activity
     );
   });
@@ -189,9 +195,9 @@ describe("Tests for setActivitiesInCache", () => {
     const newData = getUserFeedDataFromCache(queryClient);
 
     // Check that all the data chain has been updated correctly to be different objects.
-    expect(newData.pages).toBe(USER_FEED_ACTIVITY_SINGLE_PAGE.pages);
-    expect(newData.pages[0]).toBe(USER_FEED_ACTIVITY_SINGLE_PAGE.pages[0]);
-    expect(newData.pages[0].activity).toBe(
+    expect(newData?.pages).toBe(USER_FEED_ACTIVITY_SINGLE_PAGE.pages);
+    expect(newData?.pages[0]).toBe(USER_FEED_ACTIVITY_SINGLE_PAGE.pages[0]);
+    expect(newData?.pages[0].activity).toBe(
       USER_FEED_ACTIVITY_SINGLE_PAGE.pages[0].activity
     );
   });

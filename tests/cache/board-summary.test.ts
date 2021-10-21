@@ -19,7 +19,7 @@ const getV0QueryKey = () => {
 };
 
 const getRealmDataFromCache = (queryClient: QueryClient) => {
-  return queryClient.getQueryState<RealmType>(getV0QueryKey()).data;
+  return queryClient.getQueryState<RealmType>(getV0QueryKey())?.data;
 };
 
 describe("Tests for addBoardSummaryInCache", () => {
@@ -37,10 +37,10 @@ describe("Tests for addBoardSummaryInCache", () => {
     });
 
     const newData = getRealmDataFromCache(queryClient);
-    expect(newData.boards).toContainEqual(GORE_SUMMARY);
+    expect(newData?.boards).toContainEqual(GORE_SUMMARY);
     // Check that the objects have also been correctly updated
     expect(newData).not.toBe(originalData);
-    expect(newData.boards).not.toBe(originalData.boards);
+    expect(newData?.boards).not.toBe(originalData.boards);
   });
 
   test("BoardSummary is correctly updated in cache", () => {
@@ -58,7 +58,7 @@ describe("Tests for addBoardSummaryInCache", () => {
       realmSlug: "v0",
       summary: newKpopSummary,
     });
-    expect(getRealmDataFromCache(queryClient).boards).toContainEqual(
+    expect(getRealmDataFromCache(queryClient)?.boards).toContainEqual(
       newKpopSummary
     );
   });
@@ -124,11 +124,11 @@ describe("Tests for setBoardSummaryInCache", () => {
     );
 
     const newData = getRealmDataFromCache(queryClient);
-    expect(newData.boards).toContainEqual(newSummary);
-    expect(newData.boards).not.toContainEqual(GORE_SUMMARY);
+    expect(newData?.boards).toContainEqual(newSummary);
+    expect(newData?.boards).not.toContainEqual(GORE_SUMMARY);
     // Check that the objects have also been correctly updated
     expect(newData).not.toBe(originalData);
-    expect(newData.boards).not.toBe(originalData.boards);
+    expect(newData?.boards).not.toBe(originalData.boards);
   });
 
   test("BoardSummary is correctly not updated in cache when same entity is passed", () => {
@@ -150,9 +150,9 @@ describe("Tests for setBoardSummaryInCache", () => {
     );
 
     const newData = getRealmDataFromCache(queryClient);
-    expect(newData.boards).toContainEqual(GORE_SUMMARY);
+    expect(newData?.boards).toContainEqual(GORE_SUMMARY);
     // Check that the objects to not have changed references
     expect(newData).toBe(originalData);
-    expect(newData.boards).toBe(originalData.boards);
+    expect(newData?.boards).toBe(originalData.boards);
   });
 });
