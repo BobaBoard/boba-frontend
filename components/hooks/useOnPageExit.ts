@@ -7,18 +7,33 @@ import { useRouter } from "next/router";
  * */
 export const useOnPageExit = (callback: () => void) => {
   const router = useRouter();
-  // Make sure that the thread is marked as read/fetched again if the page changes.
+  // We use these because, under certain conditions I'm still unsure of,
+  // the route change effects will trigger twice BUT we want to make sure
+  // we call the callback only once.
+  const triggerCallback = React.useRef<boolean>(false);
+
   React.useEffect(() => {
     const saveCurrentPage = (nextRoute: string) => {
       const newPath = new URL(window.location.origin + nextRoute);
       const currentPath = new URL(window.location.origin + router.asPath);
       if (currentPath.pathname !== newPath.pathname) {
+        triggerCallback.current = true;
+      }
+    };
+    const maybeTriggerCallback = () => {
+      if (triggerCallback.current) {
+        triggerCallback.current = false;
+        router.events.off("routeChangeComplete", maybeTriggerCallback);
         callback();
       }
     };
     router.events.on("routeChangeStart", saveCurrentPage);
+    router.events.on("routeChangeComplete", maybeTriggerCallback);
     return () => {
       router.events.off("routeChangeStart", saveCurrentPage);
+      if (!triggerCallback.current) {
+        router.events.off("routeChangeComplete", maybeTriggerCallback);
+      }
     };
   }, [router.events, router.asPath, callback]);
 };

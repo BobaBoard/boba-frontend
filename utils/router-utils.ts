@@ -1,7 +1,8 @@
 import Router, { NextRouter } from "next/router";
-import React from "react";
 
+import React from "react";
 import debug from "debug";
+
 const log = debug("bobafrontend:router-utils-log");
 
 interface PageDetails {

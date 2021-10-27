@@ -48,6 +48,8 @@ const MemoizedThreadView = React.memo(ThreadView);
 const MemoizedGalleryThreadView = React.memo(GalleryThreadView);
 const MemoizedTimelineThreadView = React.memo(TimelineThreadView);
 
+const MARK_THREAD_READ_DELAY = 1000;
+
 function ThreadPage() {
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
@@ -112,8 +114,14 @@ function ThreadPage() {
             },
           }
         );
-      }, 1000);
+      }, MARK_THREAD_READ_DELAY);
     }
+    return () => {
+      if (markReadTimeout.current) {
+        clearTimeout(markReadTimeout.current);
+        markReadTimeout.current = null;
+      }
+    };
   }, [
     markAsRead,
     refetchNotifications,
