@@ -21,6 +21,7 @@ import { log } from "debug";
 import moment from "moment";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
+import { useRealmBoardId } from "contexts/RealmContext";
 import { useThreadContext } from "./ThreadContext";
 import { useThreadViewContext } from "./ThreadViewContext";
 
@@ -131,6 +132,10 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
     hidden,
     opIdentity,
   } = useThreadContext();
+  const boardId = useRealmBoardId({
+    boardSlug: slug,
+    realmSlug: "v0",
+  });
 
   const tagOptions = React.useCallback(
     (tag: TagsType) => {
@@ -157,7 +162,7 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
       post.parentPostId == null ? TOP_POST_OPTIONS : REGULAR_POST_OPTIONS,
     isLoggedIn,
     data: {
-      slug,
+      boardId,
       threadId,
       postId: post.postId,
       own: post.isOwn,

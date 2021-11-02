@@ -1,49 +1,55 @@
-import React from "react";
+import { ArrayParam, useQueryParams } from "use-query-params";
 import {
-  FeedWithMenu,
+  BoardOptions,
+  useBoardOptions,
+} from "components/hooks/useBoardOptions";
+import { BoardPageDetails, usePageDetails } from "utils/router-utils";
+import {
   BoardSidebar,
+  FeedWithMenu,
   PostingActionButton,
 } from "@bobaboard/ui-components";
-import Layout from "../../components/layout/Layout";
-import { useAuth } from "../../components/Auth";
-import {
-  useBoardMetadata,
-  useUpdateBoardMetadata,
-} from "../../components/hooks/queries/board";
-import axios from "axios";
-import debug from "debug";
-import { ThreadSummaryType } from "../../types/Types";
-import { BoardPageDetails, usePageDetails } from "utils/router-utils";
-import LoadingSpinner from "components/LoadingSpinner";
-import ThreadPreview from "components/ThreadPreview";
 import {
   EditorActions,
   useEditorsDispatch,
 } from "components/editors/EditorsContext";
-import { withEditors } from "components/editors/withEditors";
 import {
-  useBoardOptions,
-  BoardOptions,
-} from "components/hooks/useBoardOptions";
+  useBoardMetadata,
+  useUpdateBoardMetadata,
+} from "../../components/hooks/queries/board";
+
+import Layout from "../../components/layout/Layout";
+import LoadingSpinner from "components/LoadingSpinner";
+import React from "react";
+import ThreadPreview from "components/ThreadPreview";
+import { ThreadSummaryType } from "../../types/Types";
+import axios from "axios";
+import debug from "debug";
+import { useAuth } from "../../components/Auth";
 import { useBoardActivity } from "components/hooks/queries/board-activity";
-import { ArrayParam, useQueryParams } from "use-query-params";
+import { useRealmBoardId } from "contexts/RealmContext";
+import { withEditors } from "components/editors/withEditors";
 
 const log = debug("bobafrontend:BoardPage-log");
 const info = debug("bobafrontend:BoardPage-info");
 info.log = console.info.bind(console);
 
-const NewThreadButton = withEditors<{ slug: string }>((props) => {
-  const { boardMetadata } = useBoardMetadata({ boardId: props.slug });
+const NewThreadButton = withEditors<{ boardId: string | null }>((props) => {
+  const { boardMetadata } = useBoardMetadata({ boardId: props.boardId });
   const editorDispatch = useEditorsDispatch();
+
+  if (!boardMetadata) {
+    return null;
+  }
   return (
     <MemoizedActionButton
       accentColor={boardMetadata?.accentColor || "#f96680"}
       onNewPost={React.useCallback(() => {
         editorDispatch({
           type: EditorActions.NEW_THREAD,
-          payload: { boardSlug: props.slug },
+          payload: { boardId: boardMetadata.id },
         });
-      }, [editorDispatch, props.slug])}
+      }, [editorDispatch, boardMetadata])}
     />
   );
 });
@@ -60,8 +66,9 @@ function BoardPage() {
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
   const { slug } = usePageDetails<BoardPageDetails>();
   const { isPending: isAuthPending, isLoggedIn } = useAuth();
+  const boardId = useRealmBoardId({ boardSlug: slug, realmSlug: "v0" });
   const { boardMetadata, isFetched: isBoardMetadataFetched } = useBoardMetadata(
-    { boardId: slug }
+    { boardId }
   );
   const onCompassClick = React.useCallback(
     () => setShowSidebar(!showSidebar),
@@ -77,7 +84,7 @@ function BoardPage() {
       BoardOptions.DISMISS_NOTIFICATIONS,
       BoardOptions.EDIT,
     ],
-    slug,
+    boardId,
     callbacks: {
       editSidebar: setEditingSidebar,
     },
@@ -113,11 +120,11 @@ function BoardPage() {
   });
 
   React.useEffect(() => {
-    if (!isAuthPending && isLoggedIn && boardActivityFetched) {
-      log(`Marking board ${slug} as visited`);
-      axios.post(`boards/${slug}/visits`);
+    if (!isAuthPending && isLoggedIn && boardActivityFetched && boardId) {
+      log(`Marking board ${boardId} as visited`);
+      axios.post(`boards/${boardId}/visits`);
     }
-  }, [isAuthPending, isLoggedIn, slug, boardActivityFetched]);
+  }, [isAuthPending, isLoggedIn, boardId, boardActivityFetched]);
 
   const onCategoriesStateChange = React.useCallback(
     (categories: { name: string; active: boolean }[]) => {
@@ -238,7 +245,7 @@ function BoardPage() {
         </Layout.MainContent>
         {isLoggedIn && (
           <Layout.ActionButton>
-            <NewThreadButton slug={slug} />
+            <NewThreadButton boardId={boardId} />
           </Layout.ActionButton>
         )}
       </Layout>

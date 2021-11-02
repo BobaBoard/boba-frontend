@@ -1,28 +1,29 @@
-import React from "react";
-
-import ContributionEditorModal from "./ContributionEditorModal";
-import CommentEditorModal from "./CommentEditorModal";
-import { useAuth } from "../Auth";
 import { CommentType, PostType } from "../../types/Types";
-import { useCachedLinks } from "../hooks/useCachedLinks";
-import { Modal, ModalWithButtons } from "@bobaboard/ui-components";
-import { addPostInCache, setPostTagsInCache } from "../../cache/post";
-import { addCommentInCache } from "../../cache/comment";
-import { useQueryClient } from "react-query";
 import {
   EditorActions,
   EditorsProvider,
   useEditorsDispatch,
   useEditorsState,
 } from "./EditorsContext";
-import { usePreventPageChange } from "components/hooks/usePreventPageChange";
+import { Modal, ModalWithButtons } from "@bobaboard/ui-components";
+import { addPostInCache, setPostTagsInCache } from "../../cache/post";
 import {
   isCommentEditorState,
   isContributionEditorState,
   isEditContribution,
   isNewThread,
 } from "./types";
+import { useRealmBoardId, useRealmBoards } from "contexts/RealmContext";
+
+import CommentEditorModal from "./CommentEditorModal";
+import ContributionEditorModal from "./ContributionEditorModal";
+import React from "react";
+import { addCommentInCache } from "../../cache/comment";
+import { useAuth } from "../Auth";
+import { useCachedLinks } from "../hooks/useCachedLinks";
 import { usePageDetails } from "utils/router-utils";
+import { usePreventPageChange } from "components/hooks/usePreventPageChange";
+import { useQueryClient } from "react-query";
 import { useRefetchBoardActivity } from "components/hooks/queries/board-activity";
 
 const Editors = () => {
@@ -47,6 +48,7 @@ const Editors = () => {
   }, [onClose]);
   const refetchBoardActivity = useRefetchBoardActivity();
   const [isRefetching, setRefetching] = React.useState(false);
+  const boards = useRealmBoards();
   if (!isLoggedIn || isAuthPending || !state.isOpen) {
     return null;
   }
@@ -64,7 +66,10 @@ const Editors = () => {
                 // which random identity will have been assigned by the server.
                 refetchBoardActivity({ slug: postedSlug }).then(() => {
                   onClose();
-                  if (postedSlug != state.boardSlug) {
+                  if (
+                    postedSlug !=
+                    boards.find((board) => board.id == state.boardId)?.slug
+                  ) {
                     getLinkToBoard(postedSlug).onClick?.();
                   }
                   setRefetching(false);
@@ -96,7 +101,7 @@ const Editors = () => {
               addCommentInCache(queryClient, {
                 threadId: state.threadId,
                 newComments: comments,
-                slug: state.boardSlug,
+                slug: boards.find((board) => board.id == state.boardId)!.slug,
                 replyTo: {
                   postId: state.newComment.replyToContributionId,
                   commentId: state.newComment.replyToCommentId,
@@ -138,6 +143,7 @@ export const withEditors = function <T>(WrappedComponent: React.FC<T>) {
 export const useThreadEditors = () => {
   const { slug, threadId } = usePageDetails();
   const dispatch = useEditorsDispatch();
+  const boardId = useRealmBoardId({ boardSlug: slug, realmSlug: "v0" });
 
   if (!slug || !threadId) {
     throw new Error("Thread editors can only be used on thread pages.");
@@ -146,45 +152,54 @@ export const useThreadEditors = () => {
   // TODO: use object argument instead of simple arguments
   const onNewComment = React.useCallback(
     (replyToContributionId: string, replyToCommentId: string | null) => {
+      if (!boardId) {
+        return;
+      }
       dispatch({
         type: EditorActions.NEW_COMMENT,
         payload: {
-          boardSlug: slug,
+          boardId,
           threadId,
           replyToContributionId,
           replyToCommentId,
         },
       });
     },
-    [slug, threadId, dispatch]
+    [boardId, threadId, dispatch]
   );
 
   const onNewContribution = React.useCallback(
     (replyToContributionId: string) => {
+      if (!boardId) {
+        return;
+      }
       dispatch({
         type: EditorActions.NEW_CONTRIBUTION,
         payload: {
-          boardSlug: slug,
+          boardId,
           threadId,
           replyToContributionId,
         },
       });
     },
-    [slug, threadId, dispatch]
+    [boardId, threadId, dispatch]
   );
 
   const onEditContribution = React.useCallback(
     (editContribution: PostType) => {
+      if (!boardId) {
+        return;
+      }
       dispatch({
         type: EditorActions.EDIT_TAGS,
         payload: {
-          boardSlug: slug,
+          boardId,
           threadId,
           contributionId: editContribution.postId,
         },
       });
     },
-    [slug, threadId, dispatch]
+    [boardId, threadId, dispatch]
   );
 
   return {

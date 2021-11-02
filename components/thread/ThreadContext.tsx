@@ -69,7 +69,7 @@ export const useThreadContext = () => {
 };
 
 const ThreadContextProvider: React.FC<{
-  slug: string;
+  boardId: string | null;
   threadId: string;
   postId: string | null;
   children?: React.ReactNode;
@@ -78,7 +78,7 @@ const ThreadContextProvider: React.FC<{
     `Rendering thread context for thread ${props.threadId} and post ${props.postId}`
   );
   const value = useThreadWithNull({
-    slug: props.slug,
+    boardId: props.boardId,
     threadId: props.threadId,
     postId: props.postId,
     fetch: true,
@@ -188,12 +188,12 @@ export const useThreadMetadata = ({
 export const useThreadWithNull = ({
   threadId,
   postId,
-  slug,
+  boardId,
   fetch,
 }: {
   threadId: string | null;
   postId: string | null;
-  slug: string | null;
+  boardId: string | null;
   fetch?: boolean;
 }): ThreadContextType => {
   log(`Using thread with null`);
@@ -203,7 +203,7 @@ export const useThreadWithNull = ({
     isFetching: isRefetching,
   } = useThread({
     threadId,
-    slug,
+    boardId,
     fetch,
   });
   const threadMetadata = useThreadMetadata({ threadData, postId });

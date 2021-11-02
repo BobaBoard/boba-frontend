@@ -10,13 +10,13 @@ export type EditorActionsDispatch =
   | {
       type: EditorActions.NEW_THREAD;
       payload: {
-        boardSlug: string;
+        boardId: string;
       };
     }
   | {
       type: EditorActions.NEW_CONTRIBUTION;
       payload: {
-        boardSlug: string;
+        boardId: string;
         threadId: string;
         replyToContributionId: string;
       };
@@ -24,7 +24,7 @@ export type EditorActionsDispatch =
   | {
       type: EditorActions.NEW_COMMENT;
       payload: {
-        boardSlug: string;
+        boardId: string;
         threadId: string;
         replyToContributionId: string;
         replyToCommentId: string | null;
@@ -33,14 +33,14 @@ export type EditorActionsDispatch =
   | {
       type: EditorActions.EDIT_TAGS;
       payload: {
-        boardSlug: string;
+        boardId: string;
         threadId: string;
         contributionId: string;
       };
     }
   | {
       type: EditorActions.CLOSE;
-      payload: {};
+      payload: Record<string, never>;
     };
 
 export interface ClosedEditorState {
@@ -49,13 +49,13 @@ export interface ClosedEditorState {
 
 export interface NewThreadState {
   isOpen: true;
-  boardSlug: string;
+  boardId: string;
   threadId: null;
 }
 
 export interface NewContributionState {
   isOpen: true;
-  boardSlug: string;
+  boardId: string;
   threadId: string;
   newContribution: {
     replyToContributionId: string;
@@ -64,14 +64,14 @@ export interface NewContributionState {
 
 export interface EditContributionState {
   isOpen: true;
-  boardSlug: string;
+  boardId: string;
   threadId: string;
   editContributionId: string;
 }
 
 export interface NewCommentState {
   isOpen: true;
-  boardSlug: string;
+  boardId: string;
   threadId: string;
   newComment: {
     replyToContributionId: string;

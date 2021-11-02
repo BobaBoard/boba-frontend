@@ -1,29 +1,30 @@
-import { toast } from "@bobaboard/ui-components";
-import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
-  updateBoardSettings,
-  muteBoard,
+  BoardData,
+  BoardDescription,
+  BoardMetadata,
+} from "../../../types/Types";
+import {
   dismissBoardNotifications,
-  pinBoard,
   getBoardMetadata,
+  muteBoard,
+  pinBoard,
+  updateBoardSettings,
 } from "../../../utils/queries/board";
 import {
   getBoardSummaryInCache,
   setBoardMutedInCache,
   setBoardPinnedInCache,
 } from "../../../cache/board";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+
+import React from "react";
 import debug from "debug";
-import {
-  BoardData,
-  BoardDescription,
-  BoardMetadata,
-} from "../../../types/Types";
-import { useRefetchPinnedBoards } from "./pinned-boards";
-import { useRealmBoards } from "contexts/RealmContext";
+import { toast } from "@bobaboard/ui-components";
 import { useAuth } from "components/Auth";
 import { useInvalidateNotifications } from "./notifications";
+import { useRealmBoards } from "contexts/RealmContext";
 import { useRefetchBoardActivity } from "./board-activity";
-import React from "react";
+import { useRefetchPinnedBoards } from "./pinned-boards";
 
 const error = debug("bobafrontend:hooks:queries:board-error");
 const log = debug("bobafrontend:hooks:queries:board-log");
@@ -115,15 +116,18 @@ export const useDismissBoardNotifications = () => {
 };
 
 export const BOARD_METADATA_KEY = "boardMetadata";
-export const useBoardMetadata = ({ boardId }: { boardId: string }) => {
+export const useBoardMetadata = ({ boardId }: { boardId: string | null }) => {
   const { isLoggedIn } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: boardMetadata, isFetched } = useQuery<BoardMetadata>(
+  const { data: boardMetadata, isFetched } = useQuery<BoardMetadata | null>(
     [BOARD_METADATA_KEY, { boardId, isLoggedIn }],
-    async () => await getBoardMetadata({ boardId }),
+    async () => (boardId ? await getBoardMetadata({ boardId }) : null),
     {
       placeholderData: () => {
+        if (!boardId) {
+          return;
+        }
         const boardSummary = getBoardSummaryInCache(queryClient, { boardId });
         if (!boardSummary) {
           return undefined;

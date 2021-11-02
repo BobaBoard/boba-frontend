@@ -14,6 +14,7 @@ import ThreadContextProvider, {
   useThreadContext,
 } from "components/thread/ThreadContext";
 import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
+import { useBoardSummary, useRealmBoardId } from "contexts/RealmContext";
 import { useThreadEditors, withEditors } from "components/editors/withEditors";
 
 import GalleryThreadView from "components/thread/GalleryThreadView";
@@ -32,7 +33,6 @@ import { getServerBaseUrl } from "utils/location-utils";
 import { makeClientThread } from "utils/client-data";
 import { useAuth } from "components/Auth";
 import { useBeamToNew } from "components/hooks/useBeamToNew";
-import { useBoardSummary } from "contexts/RealmContext";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
 import { useInvalidateNotifications } from "components/hooks/queries/notifications";
@@ -266,8 +266,13 @@ const ThreadPageWithContext: React.FC<{
   summary?: ReturnType<typeof getDeltaSummary>;
 }> = () => {
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
+  const boardId = useRealmBoardId({ boardSlug: slug, realmSlug: "v0" });
   return (
-    <ThreadContextProvider postId={postId} slug={slug} threadId={threadId}>
+    <ThreadContextProvider
+      postId={postId}
+      boardId={boardId}
+      threadId={threadId}
+    >
       <ThreadViewContextProvider>
         <ThreadPage />
       </ThreadViewContextProvider>

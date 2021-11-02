@@ -1,5 +1,4 @@
-import axios from "axios";
-import debug from "debug";
+import { BoardData, BoardDescription, BoardMetadata } from "../../types/Types";
 import {
   makeClientBoardData,
   makeClientBoardSummary,
@@ -7,8 +6,10 @@ import {
   makeClientRole,
 } from "../client-data";
 
-import { BoardData, BoardDescription, BoardMetadata } from "../../types/Types";
+import axios from "axios";
+import debug from "debug";
 
+const error = debug("bobafrontend:queries:board-error");
 const log = debug("bobafrontend:queries:board-log");
 const info = debug("bobafrontend:queries:board-info");
 
@@ -65,24 +66,16 @@ export const updateBoardSettings = async (data: {
   return response.data;
 };
 
-export const getBoardData = async ({ slug }: { slug: string | null }) => {
-  log(`Fetching board data for board with slug ${slug}.`);
-  if (!slug) {
-    log(`...can't fetch board data for board with no slug.`);
-    return null;
-  }
-  const response = await axios.get(`boards/${slug}`);
-  log(`Got response for board data with slug ${slug}.`);
-  info(response.data);
-  return makeClientBoardData(response.data);
-};
-
 export const getBoardMetadata = async ({
   boardId,
 }: {
   boardId: string;
-}): Promise<BoardMetadata> => {
+}): Promise<BoardMetadata | null> => {
   const data = (await axios.get(`/boards/${boardId}`))?.data;
+  if (!data) {
+    error(`Board with id ${boardId} was not found`);
+    return null;
+  }
   const summary = makeClientBoardSummary(data);
   return {
     ...summary,

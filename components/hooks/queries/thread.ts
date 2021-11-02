@@ -1,15 +1,9 @@
-import { toast } from "@bobaboard/ui-components";
-import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
+  getThreadData,
+  hideThread,
   markThreadAsRead,
   muteThread,
-  hideThread,
-  getThreadData,
 } from "../../../utils/queries";
-import debug from "debug";
-import { ThreadType } from "../../../types/Types";
-import { updateThreadView } from "../../../utils/queries/post";
-import { useAuth } from "components/Auth";
 import {
   getThreadSummaryInCache,
   setThreadActivityClearedInCache,
@@ -17,6 +11,14 @@ import {
   setThreadHiddenInCache,
   setThreadMutedInCache,
 } from "cache/thread";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+
+import { ThreadType } from "../../../types/Types";
+import debug from "debug";
+import { toast } from "@bobaboard/ui-components";
+import { updateThreadView } from "../../../utils/queries/post";
+import { useAuth } from "components/Auth";
+import { useBoardSummary } from "contexts/RealmContext";
 
 const info = debug("bobafrontend:hooks:queries:thread-info");
 const error = debug("bobafrontend:hooks:queries:thread-error");
@@ -189,15 +191,18 @@ export const useReadThread = (args?: { activityOnly?: boolean }) => {
 
 export const useThread = ({
   threadId,
-  slug,
+  boardId,
   fetch,
 }: {
   threadId: string | null;
-  slug: string | null;
+  boardId: string | null;
   fetch?: boolean;
 }) => {
   const queryClient = useQueryClient();
   const { isLoggedIn } = useAuth();
+  // TODO[realms]: get rid of the need for slug here and also
+  // figure out a better default for boardId.
+  const { slug } = useBoardSummary({ boardId: boardId || "" }) || {};
 
   log(`Using thread with null`);
   //const queryClient = useQueryClient();
@@ -230,11 +235,11 @@ export const useThread = ({
       refetchOnMount: false,
       cacheTime: 5 * 1000,
       placeholderData: () => {
-        if (!threadId || !slug) {
+        if (!threadId || !boardId || !slug) {
           return null;
         }
         info(
-          `Searching board activity data for board ${slug} and thread ${threadId}`
+          `Searching board activity data for board ${boardId} and thread ${threadId}`
         );
         const thread = getThreadSummaryInCache(queryClient, {
           slug,

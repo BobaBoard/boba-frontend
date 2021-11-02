@@ -1,7 +1,4 @@
-import React from "react";
-
-import { toast } from "@bobaboard/ui-components";
-import { useCachedLinks } from "./useCachedLinks";
+import { PostData, PostPermissions } from "types/Types";
 import {
   faBookOpen,
   faCodeBranch,
@@ -15,19 +12,22 @@ import {
   faVolumeMute,
   faVolumeUp,
 } from "@fortawesome/free-solid-svg-icons";
-import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
-import { useEditorsDispatch } from "components/editors/EditorsContext";
-import { EditorActions } from "components/editors/types";
-import { PostData, PostPermissions } from "types/Types";
-import { useAuth } from "components/Auth";
 import {
-  useReadThread,
   useMuteThread,
+  useReadThread,
   useSetThreadHidden,
   useSetThreadView,
 } from "./queries/thread";
+
+import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
+import { EditorActions } from "components/editors/types";
 import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
+import React from "react";
+import { toast } from "@bobaboard/ui-components";
+import { useAuth } from "components/Auth";
 import { useBoardMetadata } from "./queries/board";
+import { useCachedLinks } from "./useCachedLinks";
+import { useEditorsDispatch } from "components/editors/EditorsContext";
 import { useInvalidateNotifications } from "./queries/notifications";
 
 export enum PostOptions {
@@ -162,12 +162,12 @@ const getOpenAsOptions = (
 
 const usePostOptions = ({
   options,
-  data: { threadId, slug, postId, ...data },
+  data: { threadId, boardId, postId, ...data },
 }: {
   options: PostOptions[];
   isLoggedIn: boolean;
   data: {
-    slug: string;
+    boardId: string | null;
     threadId: string;
     postId: string;
     own: boolean;
@@ -183,25 +183,31 @@ const usePostOptions = ({
   const hideThread = useSetThreadHidden();
   const muteThread = useMuteThread();
   const setThreadView = useSetThreadView();
-  const { boardMetadata } = useBoardMetadata({ boardId: slug });
+  const { boardMetadata } = useBoardMetadata({ boardId });
   const refetchNotifications = useInvalidateNotifications();
 
   const editTagsCallback = React.useCallback(() => {
+    if (!boardMetadata) {
+      return;
+    }
     editorDispatch({
       type: EditorActions.EDIT_TAGS,
       payload: {
-        boardSlug: slug,
+        boardId: boardMetadata.id,
         contributionId: postId,
         threadId: threadId,
       },
     });
-  }, [slug, postId, threadId, editorDispatch]);
+  }, [boardMetadata, postId, threadId, editorDispatch]);
 
   const markReadCallback = React.useCallback(() => {
+    if (!boardMetadata) {
+      return;
+    }
     readThread(
       {
         threadId,
-        slug,
+        slug: boardMetadata.slug,
       },
       {
         onSuccess: () => {
@@ -209,14 +215,17 @@ const usePostOptions = ({
         },
       }
     );
-  }, [threadId, slug, readThread, refetchNotifications]);
+  }, [threadId, boardMetadata, readThread, refetchNotifications]);
 
   const hideThreadCallback = React.useCallback(
     (hide: boolean) => {
+      if (!boardMetadata) {
+        return;
+      }
       hideThread(
         {
           threadId,
-          slug,
+          slug: boardMetadata.slug,
           hide,
         },
         {
@@ -226,15 +235,18 @@ const usePostOptions = ({
         }
       );
     },
-    [threadId, slug, hideThread, refetchNotifications]
+    [threadId, boardMetadata, hideThread, refetchNotifications]
   );
 
   const muteThreadCallback = React.useCallback(
     (mute: boolean) => {
+      if (!boardMetadata) {
+        return;
+      }
       muteThread(
         {
           threadId,
-          slug,
+          slug: boardMetadata.slug,
           mute,
         },
         {
@@ -244,27 +256,33 @@ const usePostOptions = ({
         }
       );
     },
-    [threadId, slug, muteThread, refetchNotifications]
+    [threadId, boardMetadata, muteThread, refetchNotifications]
   );
 
   const setThreadViewCallback = React.useCallback(
     (view: PostData["defaultView"]) => {
+      if (!boardMetadata) {
+        return;
+      }
       setThreadView({
         threadId,
-        slug,
+        slug: boardMetadata.slug,
         view,
       });
     },
-    [setThreadView, threadId, slug]
+    [setThreadView, threadId, boardMetadata]
   );
 
   const getOption = React.useCallback(
     (option: PostOptions) => {
+      if (!boardMetadata) {
+        return;
+      }
       switch (option) {
         case PostOptions.COPY_LINK:
           return getCopyLinkOption(
             getLinkToPost({
-              slug: slug,
+              slug: boardMetadata.slug,
               postId: postId,
               threadId: threadId,
             })?.href as string,
@@ -273,7 +291,7 @@ const usePostOptions = ({
         case PostOptions.COPY_THREAD_LINK:
           return getCopyLinkOption(
             getLinkToThread({
-              slug: slug,
+              slug: boardMetadata.slug,
               threadId: threadId,
             })?.href as string,
             "Copy thread link"
@@ -312,7 +330,7 @@ const usePostOptions = ({
         case PostOptions.OPEN_AS:
           return getOpenAsOptions((view) =>
             getLinkToThread({
-              slug: slug,
+              slug: boardMetadata.slug,
               threadId: threadId,
               view,
             })
@@ -321,7 +339,6 @@ const usePostOptions = ({
     },
     [
       isLoggedIn,
-      slug,
       postId,
       threadId,
       boardMetadata,

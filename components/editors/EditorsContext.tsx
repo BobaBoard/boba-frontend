@@ -1,5 +1,6 @@
-import React from "react";
 import { EditorActions, EditorActionsDispatch, EditorState } from "./types";
+
+import React from "react";
 const editorsReducer = (
   state: EditorState,
   action: EditorActionsDispatch
@@ -17,13 +18,13 @@ const editorsReducer = (
     case EditorActions.NEW_THREAD:
       return {
         isOpen: true,
-        boardSlug: action.payload.boardSlug,
+        boardId: action.payload.boardId,
         threadId: null,
       };
     case EditorActions.NEW_CONTRIBUTION:
       return {
         isOpen: true,
-        boardSlug: action.payload.boardSlug,
+        boardId: action.payload.boardId,
         threadId: action.payload.threadId,
         newContribution: {
           replyToContributionId: action.payload.replyToContributionId,
@@ -32,7 +33,7 @@ const editorsReducer = (
     case EditorActions.NEW_COMMENT:
       return {
         isOpen: true,
-        boardSlug: action.payload.boardSlug,
+        boardId: action.payload.boardId,
         threadId: action.payload.threadId,
         newComment: {
           replyToContributionId: action.payload.replyToContributionId,
@@ -42,7 +43,7 @@ const editorsReducer = (
     case EditorActions.EDIT_TAGS:
       return {
         isOpen: true,
-        boardSlug: action.payload.boardSlug,
+        boardId: action.payload.boardId,
         threadId: action.payload.threadId,
         editContributionId: action.payload.contributionId,
       };

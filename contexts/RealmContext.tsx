@@ -64,7 +64,22 @@ const useBoardSummary = ({ boardId }: { boardId: string }) => {
       "useRealmSettings must be used within a RealmContextProvider"
     );
   }
-  return context.realmData.boards.find((summary) => (summary.id = boardId));
+  return context.realmData.boards.find((summary) => summary.id == boardId);
+};
+
+export const useRealmBoardId = ({
+  boardSlug,
+}: {
+  boardSlug: string | null;
+  realmSlug: string;
+}) => {
+  // TODO: for now we have one realm, update this to actually pass the right realm.
+  const boards = useRealmBoards();
+
+  if (!boardSlug) {
+    return null;
+  }
+  return boards.find((board) => board.slug == boardSlug)?.id || null;
 };
 
 export const REALM_QUERY_KEY = "realmData";

@@ -1,14 +1,15 @@
-import { TagsType as ServerTagsType } from "../../types/Types";
-import { TagsType } from "@bobaboard/ui-components/dist/types";
 import {
   ClosedEditorState,
   EditorState,
   isEditContribution,
   isNewThread,
 } from "./types";
-import { useThreadWithNull } from "components/thread/ThreadContext";
+
+import { TagsType as ServerTagsType } from "../../types/Types";
+import { TagsType } from "@bobaboard/ui-components/dist/types";
 import { useAuth } from "components/Auth";
 import { useBoardMetadata } from "components/hooks/queries/board";
+import { useThreadWithNull } from "components/thread/ThreadContext";
 
 export const THREAD_VIEW_OPTIONS = [
   { name: "Thread", id: "thread" },
@@ -47,9 +48,9 @@ export const processTags = (tags: TagsType[]): ServerTagsType => {
 export const useThreadDetails = (
   state: Exclude<EditorState, ClosedEditorState>
 ) => {
-  const { boardSlug, threadId } = state;
+  const { boardId, threadId } = state;
   const threadData = useThreadWithNull({
-    slug: boardSlug,
+    boardId,
     threadId: threadId || null,
     postId: isEditContribution(state)
       ? state.editContributionId
@@ -57,7 +58,7 @@ export const useThreadDetails = (
           ?.replyToContributionId || null,
   });
   const { boardMetadata: currentBoardMetadata } = useBoardMetadata({
-    boardId: boardSlug,
+    boardId,
   });
   const { user } = useAuth();
 

@@ -1,5 +1,3 @@
-import React from "react";
-
 import {
   faCommentSlash,
   faEdit,
@@ -7,15 +5,17 @@ import {
   faVolumeMute,
   faVolumeUp,
 } from "@fortawesome/free-solid-svg-icons";
-import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
-import { useAuth } from "../../components/Auth";
 import {
   useBoardMetadata,
   useDismissBoardNotifications,
   useMuteBoard,
   usePinBoard,
 } from "../../components/hooks/queries/board";
+
 import { BoardPermissions } from "types/Types";
+import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
+import React from "react";
+import { useAuth } from "../../components/Auth";
 import { useInvalidateNotifications } from "./queries/notifications";
 
 export enum BoardOptions {
@@ -25,7 +25,6 @@ export enum BoardOptions {
   MUTE = "MUTE",
 }
 
-// TODO: figure out why link is typed as "any" here
 type OptionType = NonNullable<DropdownProps["options"]>[number];
 const getMuteBoardOptions = (
   muted: boolean,
@@ -67,16 +66,16 @@ const getEditOption = (callback: () => void): OptionType => ({
 
 const useBoardOptions = ({
   options,
-  slug,
+  boardId,
   callbacks,
 }: {
   options: BoardOptions[];
-  slug: string;
+  boardId: string | null;
   callbacks?: {
     editSidebar?: (edit: boolean) => void;
   };
 }): DropdownProps["options"] | undefined => {
-  const { boardMetadata } = useBoardMetadata({ boardId: slug });
+  const { boardMetadata } = useBoardMetadata({ boardId });
   const { isLoggedIn } = useAuth();
 
   const setBoardPinned = usePinBoard();
@@ -93,7 +92,7 @@ const useBoardOptions = ({
           }
           return getDismissNotificationsOption(() =>
             dismissNotifications(
-              { slug },
+              { slug: boardMetadata?.slug },
               {
                 onSuccess: () => {
                   refetchNotifications();
@@ -107,7 +106,7 @@ const useBoardOptions = ({
           }
           return getMuteBoardOptions(!!boardMetadata.muted, (mute) =>
             setBoardMuted(
-              { slug, mute },
+              { slug: boardMetadata?.slug, mute },
               {
                 onSuccess: () => {
                   refetchNotifications();
@@ -121,7 +120,7 @@ const useBoardOptions = ({
           }
           return getPinBoardOption(!!boardMetadata.pinned, (pin) =>
             setBoardPinned({
-              slug,
+              slug: boardMetadata?.slug,
               pin,
             })
           );
@@ -141,7 +140,6 @@ const useBoardOptions = ({
     return options.map(getOption).filter((option) => option != null);
   }, [
     options,
-    slug,
     boardMetadata,
     callbacks,
     dismissNotifications,

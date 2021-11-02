@@ -1,30 +1,31 @@
-import React from "react";
-import { PostEditor, toast } from "@bobaboard/ui-components";
-import { useAuth } from "../Auth";
-import { useMutation } from "react-query";
-import { createPost, createThread } from "../../utils/queries";
-import { editPost } from "../../utils/queries/post";
 import {
+  PostData,
+  PostType,
+  TagsType as ServerTagsType,
+  ThreadType,
+} from "../../types/Types";
+import { PostEditor, toast } from "@bobaboard/ui-components";
+import {
+  THREAD_VIEW_OPTIONS,
   getViewIdFromName,
   processTags,
-  THREAD_VIEW_OPTIONS,
   useThreadDetails,
 } from "./utils";
+import { createPost, createThread } from "../../utils/queries";
 import {
   isContributionEditorState,
   isEditContribution,
   isNewThread,
 } from "./types";
-import { useEditorsState } from "./EditorsContext";
-import {
-  PostData,
-  PostType,
-  ThreadType,
-  TagsType as ServerTagsType,
-} from "../../types/Types";
 
+import React from "react";
 import debug from "debug";
+import { editPost } from "../../utils/queries/post";
+import { useAuth } from "../Auth";
+import { useEditorsState } from "./EditorsContext";
+import { useMutation } from "react-query";
 import { useRealmBoards } from "contexts/RealmContext";
+
 const log = debug("bobafrontend:postEditor-log");
 const error = debug("bobafrontend:postEditor-error");
 
@@ -49,6 +50,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
   const [isPostLoading, setPostLoading] = React.useState(false);
   const { isLoggedIn } = useAuth();
   const boards = useRealmBoards();
+  const currentSlug = boards.find((board) => state.boardId == board.id)?.slug;
 
   const { mutate: postContribution } = useMutation<
     PostType | ThreadType,
@@ -181,6 +183,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
               identityId,
               accessoryId,
               viewOptionName,
+              // TODO[realms]: this needs to be changed to be a board id.
               boardSlug: postedBoardSlug,
             }) => {
               const processedTags = processTags(tags);
@@ -194,7 +197,10 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
               }
               log(identityId);
               postContribution({
-                slug: postedBoardSlug ? postedBoardSlug : state.boardSlug,
+                slug: postedBoardSlug
+                  ? postedBoardSlug
+                  : // TODO[realms]: remove this forced non-null
+                    boards.find((board) => board.id == state.boardId)!.slug,
                 replyToPostId: parentContribution?.postId || null,
                 postData: {
                   content: text,
@@ -209,7 +215,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
           );
         }}
         onCancel={props.onCancel}
-        initialBoard={state.boardSlug}
+        initialBoard={currentSlug}
         availableBoards={isNewThread(state) ? allBoards : undefined}
       />
       <style jsx>{`

@@ -1,13 +1,15 @@
+import { Post, TagType, TagsType } from "@bobaboard/ui-components";
+import { PostOptions, usePostOptions } from "./hooks/useOptions";
+
 import React from "react";
-import { Post, TagsType, TagType } from "@bobaboard/ui-components";
-import moment from "moment";
 import { ThreadSummaryType } from "../types/Types";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
-import { useCachedLinks } from "./hooks/useCachedLinks";
+import moment from "moment";
 import noop from "noop-ts";
-import { usePostOptions, PostOptions } from "./hooks/useOptions";
-import { useSetThreadHidden } from "./hooks/queries/thread";
+import { useCachedLinks } from "./hooks/useCachedLinks";
 import { useForceHideIdentity } from "./hooks/useForceHideIdentity";
+import { useRealmBoardId } from "contexts/RealmContext";
+import { useSetThreadHidden } from "./hooks/queries/thread";
 import { withEditors } from "./editors/withEditors";
 
 const THREAD_OPTIONS = [
@@ -71,11 +73,15 @@ const ThreadPreview: React.FC<{
     threadId: thread.id,
   });
   const rootPost = thread.starter;
+  const boardId = useRealmBoardId({
+    boardSlug: thread.parentBoardSlug,
+    realmSlug: "v0",
+  });
   const options = usePostOptions({
     options: THREAD_OPTIONS,
     isLoggedIn,
     data: {
-      slug: thread.parentBoardSlug,
+      boardId,
       threadId: thread.id,
       postId: rootPost.postId,
       own: rootPost.isOwn,
