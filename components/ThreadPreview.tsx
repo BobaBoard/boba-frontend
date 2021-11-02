@@ -20,6 +20,7 @@ const THREAD_OPTIONS = [
   PostOptions.OPEN_AS,
   PostOptions.EDIT_TAGS,
   PostOptions.UPDATE_VIEW,
+  PostOptions.DEBUG,
 ];
 
 const HiddenThread: React.FC<{
@@ -83,8 +84,7 @@ const ThreadPreview: React.FC<{
     data: {
       boardId,
       threadId: thread.id,
-      postId: rootPost.postId,
-      own: rootPost.isOwn,
+      post: rootPost,
       currentView: thread.defaultView,
       muted: thread.muted,
       hidden: thread.hidden,

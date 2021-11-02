@@ -1,6 +1,7 @@
-import { PostData, PostPermissions } from "types/Types";
+import { PostData, PostPermissions, PostType } from "types/Types";
 import {
   faBookOpen,
+  faBug,
   faCodeBranch,
   faEdit,
   faEye,
@@ -23,6 +24,7 @@ import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownList
 import { EditorActions } from "components/editors/types";
 import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
 import React from "react";
+import { faCopy } from "@fortawesome/free-regular-svg-icons";
 import { toast } from "@bobaboard/ui-components";
 import { useAuth } from "components/Auth";
 import { useBoardMetadata } from "./queries/board";
@@ -39,6 +41,7 @@ export enum PostOptions {
   HIDE = "HIDE",
   UPDATE_VIEW = "UPDATE_VIEW",
   OPEN_AS = "OPEN_AS",
+  DEBUG = "DEBUG",
 }
 
 const isPostEditPermission = (postPermission: PostPermissions) => {
@@ -51,17 +54,22 @@ const isPostEditPermission = (postPermission: PostPermissions) => {
   ].includes(postPermission);
 };
 
+const copyText = (text: string) => {
+  const tempInput = document.createElement("input");
+  tempInput.value = text;
+  document.body.appendChild(tempInput);
+  tempInput.select();
+  document.execCommand("copy");
+  document.body.removeChild(tempInput);
+};
+
 const getCopyLinkOption = (href: string, text: string) => ({
   icon: faLink,
   name: text,
   link: {
     onClick: () => {
-      const tempInput = document.createElement("input");
-      tempInput.value = new URL(href, window.location.origin).toString();
-      document.body.appendChild(tempInput);
-      tempInput.select();
-      document.execCommand("copy");
-      document.body.removeChild(tempInput);
+      copyText(new URL(href, window.location.origin).toString());
+
       toast.success("Link copied!");
     },
   },
@@ -136,6 +144,20 @@ const getUpdateViewOption = (
   ].filter((option) => option.name.toLowerCase() != currentView),
 });
 
+const getDebugOption = (callback: () => void) => ({
+  icon: faBug,
+  name: "Debug",
+  options: [
+    {
+      icon: faCopy,
+      name: "Copy content data",
+      link: {
+        onClick: () => callback(),
+      },
+    },
+  ],
+});
+
 const getOpenAsOptions = (
   getLink: (view: PostData["defaultView"]) => LinkWithAction
 ) => ({
@@ -162,15 +184,14 @@ const getOpenAsOptions = (
 
 const usePostOptions = ({
   options,
-  data: { threadId, boardId, postId, ...data },
+  data: { threadId, boardId, post, ...data },
 }: {
   options: PostOptions[];
   isLoggedIn: boolean;
   data: {
     boardId: string | null;
     threadId: string;
-    postId: string;
-    own: boolean;
+    post: PostType | undefined;
     currentView: PostData["defaultView"];
     hidden?: boolean;
     muted?: boolean;
@@ -187,18 +208,18 @@ const usePostOptions = ({
   const refetchNotifications = useInvalidateNotifications();
 
   const editTagsCallback = React.useCallback(() => {
-    if (!boardMetadata) {
+    if (!boardMetadata || !post?.postId) {
       return;
     }
     editorDispatch({
       type: EditorActions.EDIT_TAGS,
       payload: {
         boardId: boardMetadata.id,
-        contributionId: postId,
+        contributionId: post.postId,
         threadId: threadId,
       },
     });
-  }, [boardMetadata, postId, threadId, editorDispatch]);
+  }, [boardMetadata, post?.postId, threadId, editorDispatch]);
 
   const markReadCallback = React.useCallback(() => {
     if (!boardMetadata) {
@@ -275,7 +296,7 @@ const usePostOptions = ({
 
   const getOption = React.useCallback(
     (option: PostOptions) => {
-      if (!boardMetadata) {
+      if (!boardMetadata || !post) {
         return;
       }
       switch (option) {
@@ -283,7 +304,7 @@ const usePostOptions = ({
           return getCopyLinkOption(
             getLinkToPost({
               slug: boardMetadata.slug,
-              postId: postId,
+              postId: post.postId,
               threadId: threadId,
             })?.href as string,
             "Copy link"
@@ -312,14 +333,14 @@ const usePostOptions = ({
           }
           return getMarkReadOption(markReadCallback);
         case PostOptions.UPDATE_VIEW:
-          if (!isLoggedIn || !data.own) {
+          if (!isLoggedIn || !post.isOwn) {
             return null;
           }
           return getUpdateViewOption(data.currentView, setThreadViewCallback);
         case PostOptions.EDIT_TAGS:
           if (
             !isLoggedIn ||
-            (!data.own &&
+            (!post.isOwn &&
               !boardMetadata?.permissions?.postPermissions.some(
                 isPostEditPermission
               ))
@@ -335,11 +356,16 @@ const usePostOptions = ({
               view,
             })
           );
+        case PostOptions.DEBUG:
+          return getDebugOption(() => {
+            copyText(post.content);
+            toast.success("Copied post details");
+          });
       }
     },
     [
       isLoggedIn,
-      postId,
+      post,
       threadId,
       boardMetadata,
       editTagsCallback,
@@ -351,7 +377,6 @@ const usePostOptions = ({
       setThreadViewCallback,
       data.hidden,
       data.muted,
-      data.own,
       data.currentView,
     ]
   );

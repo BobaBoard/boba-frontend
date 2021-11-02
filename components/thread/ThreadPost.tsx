@@ -47,10 +47,15 @@ const REGULAR_POST_OPTIONS = [
   PostOptions.MUTE,
   PostOptions.HIDE,
   PostOptions.EDIT_TAGS,
+  PostOptions.DEBUG,
 ];
 const TOP_POST_OPTIONS = [
-  ...REGULAR_POST_OPTIONS.filter((option) => option != PostOptions.COPY_LINK),
+  ...REGULAR_POST_OPTIONS.filter(
+    (option) => option != PostOptions.COPY_LINK && option != PostOptions.DEBUG
+  ),
   PostOptions.UPDATE_VIEW,
+  // make sure this is always at the end
+  PostOptions.DEBUG,
 ];
 
 const postHandlers = new Map<string, PostHandler>();
@@ -164,8 +169,7 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
     data: {
       boardId,
       threadId,
-      postId: post.postId,
-      own: post.isOwn,
+      post,
       currentView: defaultView!,
       muted,
       hidden,
