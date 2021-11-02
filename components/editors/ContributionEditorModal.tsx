@@ -152,17 +152,26 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
     return <div />;
   }
 
+  const ownerSecretIdentity = isEditContribution(state)
+    ? editingContribution?.secretIdentity
+    : secretIdentity;
+  const ownerPersonalIdentity = isEditContribution(state)
+    ? editingContribution?.userIdentity
+    : userIdentity;
   return (
     <div className="editor">
       <PostEditor
         ref={editorRef}
         initialText={editingContribution?.content}
         initialTags={editingContribution?.tags}
-        secretIdentity={secretIdentity}
-        userIdentity={userIdentity}
+        secretIdentity={ownerSecretIdentity}
+        // TODO: the user identity will be null if the identity of the OP isn't
+        // known to the person editing.
+        // @ts-expect-error
+        userIdentity={ownerPersonalIdentity}
         additionalIdentities={additionalIdentities}
         accessories={
-          secretIdentity || !accessories?.length ? undefined : accessories
+          ownerSecretIdentity || !accessories?.length ? undefined : accessories
         }
         viewOptions={isNewThread(state) ? THREAD_VIEW_OPTIONS : undefined}
         loading={isPostLoading || props.loading}

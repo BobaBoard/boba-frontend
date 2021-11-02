@@ -246,7 +246,9 @@ export const useThread = ({
           threadId,
         });
         info(`...${thread ? "found" : "NOT found"}!`);
-        return thread ? { ...thread, posts: [], comments: {} } : undefined;
+        return thread
+          ? { ...thread, posts: [thread?.starter], comments: {} }
+          : undefined;
       },
       staleTime: 30 * 1000,
       notifyOnChangeProps: ["data", "isLoading", "isFetching"],
