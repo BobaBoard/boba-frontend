@@ -6,12 +6,17 @@
   "scripts": {
     "v": "next -v",
     "dev": "cross-env DEBUG=bobafrontend:*-log next",
+    "dev:mock": "cross-env NEXT_PUBLIC_MSW=true DEBUG=bobafrontend:* next",
     "dev:stage": "cross-env NEXT_PUBLIC_DEFAULT_BACKEND=https://staging-dot-backend-dot-bobaboard.uc.r.appspot.com/ NEXT_PUBLIC_ENV=staging DEBUG=bobafrontend:* next",
     "dev:debug": "cross-env NODE_OPTIONS='--inspect' DEBUG=bobafrontend:* next dev",
     "build": "rm -rf .next && next build",
     "start": "next start -p 8080 ",
     "test": "jest",
     "test:watch": "jest --watch",
+    "cypress": "cypress open",
+    "cypress:headless": "cypress run --browser chrome --headless",
+    "test:e2e": "start-server-and-test 'yarn dev:mock' 3000 'yarn cypress'",
+    "test:e2e:ci": "start-server-and-test 'yarn dev:mock' 3000 'yarn cypress:headless'",
     "deploy": "rm -rf .next/ && rm -rf build/ && yarn run build && gcloud config set project bobaboard && gcloud app deploy --version live",
     "stage": "rm -rf .next/ && rm -rf build/ && yarn run build && gcloud config set project bobaboard && gcloud app deploy --quiet --version staging --no-promote"
   },
@@ -56,6 +61,7 @@
     "use-query-params": "^1.1.9"
   },
   "devDependencies": {
+    "@testing-library/cypress": "^8.0.1",
     "@types/blueimp-load-image": "^5.14.2",
     "@types/jest": "^27.0.2",
     "@types/node": "^14.0.3",
@@ -63,9 +69,12 @@
     "@types/react-dom": "^16.9.8",
     "@types/smoothscroll-polyfill": "^0.3.1",
     "@types/styled-jsx": "^2.2.8",
+    "cypress": "^8.7.0",
     "jest": "^26.4.2",
+    "msw": "^0.35.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "start-server-and-test": "^1.14.0",
     "ts-jest": "^26.3.0",
     "typescript": "^3.9.2"
   },
@@ -73,5 +82,8 @@
     "@bobaboard/ui-components": "^0.0.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
+  },
+  "msw": {
+    "workerDirectory": "public"
   }
 }

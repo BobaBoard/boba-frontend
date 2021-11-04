@@ -41,6 +41,11 @@ import { useImageUploader } from "../utils/image-upload";
 import { usePageDataListener } from "utils/router-utils";
 import { useScrollRestoration } from "../components/hooks/useScrollRestoration";
 
+if (process.env.NEXT_PUBLIC_MSW) {
+  require("../e2e/mocks");
+}
+
+
 const log = debug("bobafrontend:app-log");
 
 const logRequest = debug("bobafrontend:app:requests-log");
