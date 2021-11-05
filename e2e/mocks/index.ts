@@ -1,12 +1,12 @@
-import boards from "./boards";
+import handlers from "./generated";
 import { setupServer } from "msw/node";
 import { setupWorker } from "msw";
 
 if (typeof window !== "undefined") {
-  const worker = setupWorker(...boards);
+  const worker = setupWorker(...handlers);
   worker.start();
 } else {
-  const server = setupServer(...boards);
+  const server = setupServer(...handlers);
   server.listen();
 }
 export default {};

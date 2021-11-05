@@ -15,6 +15,7 @@
     "test:watch": "jest --watch",
     "cypress": "cypress open",
     "cypress:headless": "cypress run --browser chrome --headless",
+    "test:e2e:generate": "tsc -p e2e/tsconfig.json && mv e2e/dist/generate-examples.js e2e/dist/generate-examples.mjs && node --experimental-modules --loader ts-node/esm.mjs e2e/dist/generate-examples.mjs && prettier --write e2e/mocks/generated.ts",
     "test:e2e": "start-server-and-test 'yarn dev:mock' 3000 'yarn cypress'",
     "test:e2e:ci": "start-server-and-test 'yarn dev:mock' 3000 'yarn cypress:headless'",
     "deploy": "rm -rf .next/ && rm -rf build/ && yarn run build && gcloud config set project bobaboard && gcloud app deploy --version live",
@@ -72,10 +73,12 @@
     "cypress": "^8.7.0",
     "jest": "^26.4.2",
     "msw": "^0.35.0",
+    "prettier": "^2.4.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "start-server-and-test": "^1.14.0",
     "ts-jest": "^26.3.0",
+    "ts-node": "^10.4.0",
     "typescript": "^3.9.2"
   },
   "peerDependencies": {
