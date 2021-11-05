@@ -1,58 +1,10 @@
-import { readFile, writeFile } from "fs/promises";
-
-import util from "util";
-
-enum HttpMethods {
-  get = "get",
-  post = "post",
-  patch = "patch",
-  delete = "delete",
-}
-
-interface Path {
-  [url: string]: Methods;
-}
-
-// interface ExampleEntry {
-//   [exampleName: string]: { value: unknown };
-// }
-
-interface ParamExampleEntry {
-  [exampleName: string]: { value: string };
-}
-
-interface ParamsObject {
-  name: string;
-  examples?: ParamExampleEntry;
-}
-
-interface ResponseObject {
-  [code: string]: {
-    content?: {
-      "application/json": {
-        examples?: {
-          [exampleName: string]: { value: Record<string, unknown> };
-        };
-      };
-    };
-  };
-}
-
-interface EndpointDetails {
-  parameters?: ParamsObject[];
-  responses?: ResponseObject;
-}
-
-type Methods = {
-  [key in HttpMethods]: EndpointDetails;
-};
-
-interface OpenApi {
-  paths: Path;
-  components: {
-    examples: { [name: string]: { value: unknown } };
-  };
-}
+import {
+  EndpointDetails,
+  GeneratedPaths,
+  OpenApi,
+  ParamsObject,
+  ResponseObject,
+} from "./types";
 
 const generatePath = (
   [method, spec]: [string, EndpointDetails],
@@ -149,81 +101,4 @@ const generatePaths = (spec: OpenApi): GeneratedPaths[] => {
   });
 };
 
-const logDetails = (toLog: unknown) => {
-  console.log(util.inspect(toLog, { depth: null }));
-};
-
-const getExamplePath = (path: string, example: GeneratedExample) => {
-  let url = `http://localhost:4200${path}`;
-  Object.entries(example.params).forEach(([paramName, paramValue]) => {
-    url = url.replace(`{${paramName}}`, paramValue);
-  });
-  return url;
-};
-
-interface GeneratedExample {
-  name: string;
-  params: {
-    [paramName: string]: string;
-  };
-  response: {
-    status: number;
-    value: unknown;
-  };
-}
-
-interface GeneratedPaths {
-  path: string;
-  methods: {
-    method: string;
-    examples: GeneratedExample[];
-  }[];
-}
-
-const toMswHandlers = (results: ReturnType<typeof generatePaths>) => {
-  return results
-    .flatMap((result) => {
-      return result.methods.flatMap((method) => {
-        return method.examples.flatMap((example) => {
-          if (!example.response.status) {
-            return null;
-          }
-          const path = getExamplePath(result.path, example);
-          return `rest.${method.method}("${path}", (_, res, ctx) => {
-          return res(
-            ctx.status(${example.response.status}),
-            ctx.json(${JSON.stringify(example.response.value)})
-          );
-        })`;
-        });
-      });
-    })
-    .filter((result): result is string => !!result);
-};
-
-const writeHandlers = (handlers: string[]) => {
-  writeFile(
-    process.cwd() + "/e2e/mocks/generated.ts",
-    `
-import { rest } from "msw";
-
-export default [
-${handlers.join(",")}
-] 
-`
-  );
-};
-
-const parseSpec = async () => {
-  const spec = await readFile(
-    process.cwd() + "/e2e/mocks/open-api-spec.json",
-    "utf8"
-  );
-  return JSON.parse(spec);
-};
-
-parseSpec().then((spec: OpenApi) => {
-  const result = generatePaths(spec);
-  writeHandlers(toMswHandlers(result));
-  logDetails("done");
-});
+export default generatePaths;
