@@ -4,3 +4,4 @@ next-env.d.ts
 coverage
 .vscode/
 .DS_Store
+cypress.env.json

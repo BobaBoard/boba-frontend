@@ -23,3 +23,15 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+// cypress/support/index.ts
+Cypress.Commands.add("login", (page, email, password) => {
+  cy.visit(page);
+  cy.get(".layout-body [aria-label=login]").click();
+  cy.get("#email").type(email);
+  cy.get("#password").type(password);
+  cy.get(".ReactModalPortal :nth-child(2) > .button > button").click();
+  cy.get(".layout-body [aria-label=user-menu] img[src*='bobatan']");
+});
+
+export {};
