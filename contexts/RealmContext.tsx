@@ -57,7 +57,7 @@ const useRealmBoards = () => {
   return context.realmData.boards;
 };
 
-const useBoardSummary = ({ boardId }: { boardId: string }) => {
+const useBoardSummary = ({ boardId }: { boardId?: string | null }) => {
   const context = React.useContext(RealmContext);
   if (context === undefined) {
     throw new Error(

@@ -175,22 +175,22 @@ export const removePinnedBoardInCache = (
 export const setBoardMutedInCache = (
   queryClient: QueryClient,
   {
-    slug,
+    boardId,
     mute,
   }: {
-    slug: string;
+    boardId: string;
     mute: boolean;
   }
 ) => {
-  setBoardMetadataInCache(queryClient, { boardId: slug }, (boardMetadata) => {
+  setBoardMetadataInCache(queryClient, { boardId }, (boardMetadata) => {
     boardMetadata.muted = mute;
     return boardMetadata;
   });
-  setPinnedBoardInCache(queryClient, { boardId: slug }, (board) => {
+  setPinnedBoardInCache(queryClient, { boardId }, (board) => {
     board.muted = mute;
     return board;
   });
-  setBoardSummaryInCache(queryClient, { boardId: slug }, (board) => {
+  setBoardSummaryInCache(queryClient, { boardId }, (board) => {
     board.muted = mute;
     return board;
   });

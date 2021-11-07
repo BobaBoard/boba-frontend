@@ -52,9 +52,10 @@ const MARK_THREAD_READ_DELAY = 1000;
 
 function ThreadPage() {
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
+  const boardId = useRealmBoardId({ realmSlug: "v0", boardSlug: slug });
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const { getLinkToBoard } = useCachedLinks();
-  const currentBoardData = useBoardSummary({ boardId: slug });
+  const currentBoardData = useBoardSummary({ boardId });
   const refetchNotifications = useInvalidateNotifications();
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);

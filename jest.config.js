@@ -9,4 +9,5 @@ module.exports = {
     "^utils(.*)$": "<rootDir>/utils$1",
     "^contexts(.*)$": "<rootDir>/contexts$1",
   },
+  testPathIgnorePatterns: ["<rootDir>/e2e/"],
 };

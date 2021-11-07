@@ -249,3 +249,19 @@ export interface RealmType {
   };
   boards: BoardSummary[];
 }
+
+export interface BoardNotifications {
+  id: string;
+  hasUpdates: boolean;
+  isOutdated: boolean;
+  lastActivityAt: Date | null;
+  lastActivityFromOthersAt: Date | null;
+  lastVisitedAt: Date | null;
+}
+
+export interface UserNotifications {
+  hasNotifications: boolean;
+  isOutdatedNotifications: boolean;
+  realmBoards: Record<string, BoardNotifications>;
+  pinnedBoards: Record<string, BoardNotifications>;
+}

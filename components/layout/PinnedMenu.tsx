@@ -48,11 +48,8 @@ const PinnedMenu = () => {
           muted: board.muted,
           link: getLinkToBoard(board.slug, onBoardChange),
           pinnedOrder: board.pinnedIndex,
-          updates:
-            pinnedBoardsNotifications[board.slug]?.hasNotifications || false,
-          outdated:
-            pinnedBoardsNotifications[board.slug]?.notificationsOutdated ||
-            false,
+          updates: pinnedBoardsNotifications[board.id]?.hasUpdates || false,
+          outdated: pinnedBoardsNotifications[board.id]?.isOutdated || false,
         };
       })
       .sort((b1, b2) => (b1.pinnedOrder || 0) - (b2.pinnedOrder || 0));
