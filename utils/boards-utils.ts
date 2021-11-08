@@ -28,15 +28,15 @@ export const processBoardsUpdates = ({
   const recentBoards = allBoards
     .filter(
       (board) =>
-        boardsNotifications[board.slug]?.lastActivityFromOthersAt &&
-        (!isLoggedIn || boardsNotifications[board.slug].hasUpdates)
+        boardsNotifications[board.id]?.lastActivityFromOthersAt &&
+        (!isLoggedIn || boardsNotifications[board.id].hasUpdates)
     )
     .sort((b1, b2) => {
       const lastUpdateB1 = moment.utc(
-        boardsNotifications[b1.slug].lastActivityFromOthersAt
+        boardsNotifications[b1.id].lastActivityFromOthersAt
       );
       const lastUpdateB2 = moment.utc(
-        boardsNotifications[b2.slug].lastActivityFromOthersAt
+        boardsNotifications[b2.id].lastActivityFromOthersAt
       );
       if (lastUpdateB1.isBefore(lastUpdateB2)) {
         return 1;

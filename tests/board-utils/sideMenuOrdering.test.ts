@@ -5,7 +5,7 @@ import { processBoardsUpdates } from "../../utils/boards-utils";
 
 const BOARDS_INITIAL_DATA: BoardSummary[] = [
   {
-    id: "gore",
+    id: "gore-uuid",
     realmId: "v0",
     slug: "gore",
     avatarUrl:
@@ -16,7 +16,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     delisted: false,
   },
   {
-    id: "recnrave",
+    id: "recnrave-uuid",
     realmId: "v0",
     slug: "recnrave",
     avatarUrl:
@@ -27,7 +27,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     delisted: false,
   },
   {
-    id: "kpop",
+    id: "kpop-uuid",
     realmId: "v0",
     slug: "kpop",
     avatarUrl:
@@ -39,7 +39,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     delisted: false,
   },
   {
-    id: "animanga",
+    id: "animanga-uuid",
     realmId: "v0",
     slug: "animanga",
     avatarUrl:
@@ -52,7 +52,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "drawn",
+    id: "drawn-uuid",
     realmId: "v0",
     slug: "drawn",
     avatarUrl:
@@ -65,7 +65,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "kinkmeme",
+    id: "kinkmeme-uuid",
     realmId: "v0",
     slug: "kinkmeme",
     avatarUrl:
@@ -77,7 +77,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "literature",
+    id: "literature-uuid",
     realmId: "v0",
     slug: "literature",
     avatarUrl:
@@ -90,7 +90,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "liveaction",
+    id: "liveaction-uuid",
     realmId: "v0",
     slug: "liveaction",
     avatarUrl:
@@ -103,7 +103,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "askboba",
+    id: "askboba-uuid",
     realmId: "v0",
     slug: "askboba",
     avatarUrl:
@@ -116,7 +116,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "steamy",
+    id: "steamy-uuid",
     realmId: "v0",
     slug: "steamy",
     avatarUrl:
@@ -129,7 +129,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "gaming",
+    id: "gaming-uuid",
     realmId: "v0",
     slug: "gaming",
     avatarUrl:
@@ -142,7 +142,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "monsterfucking",
+    id: "monsterfucking-uuid",
     realmId: "v0",
     slug: "monsterfucking",
     avatarUrl:
@@ -154,7 +154,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "nightblogging",
+    id: "nightblogging-uuid",
     realmId: "v0",
     slug: "nightblogging",
     avatarUrl:
@@ -167,7 +167,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "miscellaneous",
+    id: "miscellaneous-uuid",
     realmId: "v0",
     slug: "miscellaneous",
     avatarUrl:
@@ -179,7 +179,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "crack",
+    id: "crack-uuid",
     realmId: "v0",
     slug: "crack",
     avatarUrl:
@@ -192,7 +192,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "thirst",
+    id: "thirst-uuid",
     realmId: "v0",
     slug: "thirst",
     avatarUrl:
@@ -204,7 +204,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "salt",
+    id: "salt-uuid",
     realmId: "v0",
     slug: "salt",
     avatarUrl:
@@ -217,7 +217,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "bobaland",
+    id: "bobaland-uuid",
     realmId: "v0",
     slug: "bobaland",
     avatarUrl:
@@ -230,7 +230,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "aww",
+    id: "aww-uuid",
     realmId: "v0",
     slug: "aww",
     avatarUrl:
@@ -242,7 +242,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "matrix",
+    id: "matrix-uuid",
     realmId: "v0",
     slug: "matrix",
     avatarUrl:
@@ -255,7 +255,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "outerweb",
+    id: "outerweb-uuid",
     realmId: "v0",
     slug: "outerweb",
     avatarUrl:
@@ -268,7 +268,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "aesthetic",
+    id: "aesthetic-uuid",
     realmId: "v0",
     slug: "aesthetic",
     avatarUrl:
@@ -281,7 +281,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "furry",
+    id: "furry-uuid",
     realmId: "v0",
     slug: "furry",
     avatarUrl:
@@ -293,7 +293,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "liveblogging",
+    id: "liveblogging-uuid",
     realmId: "v0",
     slug: "liveblogging",
     avatarUrl:
@@ -306,7 +306,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "cons",
+    id: "cons-uuid",
     realmId: "v0",
     slug: "cons",
     avatarUrl:
@@ -319,7 +319,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "spoopy",
+    id: "spoopy-uuid",
     realmId: "v0",
     slug: "spoopy",
     avatarUrl:
@@ -331,7 +331,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "brains",
+    id: "brains-uuid",
     realmId: "v0",
     slug: "brains",
     avatarUrl:
@@ -344,7 +344,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "deaddove",
+    id: "deaddove-uuid",
     realmId: "v0",
     slug: "deaddove",
     avatarUrl:
@@ -356,7 +356,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "musicals",
+    id: "musicals-uuid",
     realmId: "v0",
     slug: "musicals",
     avatarUrl:
@@ -368,7 +368,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "oldschool",
+    id: "oldschool-uuid",
     realmId: "v0",
     slug: "oldschool",
     avatarUrl:
@@ -381,7 +381,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "original",
+    id: "original-uuid",
     realmId: "v0",
     slug: "original",
     avatarUrl:
@@ -393,7 +393,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "wips",
+    id: "wips-uuid",
     realmId: "v0",
     slug: "wips",
     avatarUrl:
@@ -406,7 +406,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "wishlist",
+    id: "wishlist-uuid",
     realmId: "v0",
     slug: "wishlist",
     avatarUrl:
@@ -418,7 +418,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "challenge",
+    id: "challenge-uuid",
     realmId: "v0",
     slug: "challenge",
     avatarUrl:
@@ -431,7 +431,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "bookclub",
+    id: "bookclub-uuid",
     realmId: "v0",
     slug: "bookclub",
     avatarUrl:
@@ -444,7 +444,7 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
     muted: false,
   },
   {
-    id: "h4x0rz",
+    id: "h4x0rz-uuid",
     realmId: "v0",
     slug: "h4x0rz",
     avatarUrl:
@@ -458,190 +458,375 @@ const BOARDS_INITIAL_DATA: BoardSummary[] = [
 ];
 
 const notifications = {
-  aesthetic: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-10-29T01:17:26.096Z"),
+  "aesthetic-uuid": {
+    id: "aesthetic-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-10-29T01:17:26.096Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  animanga: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-10-30T04:56:56.608Z"),
+  "animanga-uuid": {
+    id: "animanga-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-10-30T04:56:56.608Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  askboba: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-10-16T15:31:17.992Z"),
+  "askboba-uuid": {
+    id: "askboba-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-10-16T15:31:17.992Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  aww: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-02T20:14:25.893Z"),
+  "aww-uuid": {
+    id: "aww-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-02T20:14:25.893Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  bobaland: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-02T05:51:19.936Z"),
+  "bobaland-uuid": {
+    id: "bobaland-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-02T05:51:19.936Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  bookclub: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-02T20:10:30.535Z"),
+  "bookclub-uuid": {
+    id: "bookclub-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-02T20:10:30.535Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  brains: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-01T19:22:35.275Z"),
+  "brains-uuid": {
+    id: "brains-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-01T19:22:35.275Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  challenge: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-02T07:36:17.724Z"),
+  "challenge-uuid": {
+    id: "challenge-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-02T07:36:17.724Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  cons: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-02T22:00:42.755Z"),
+  "cons-uuid": {
+    id: "cons-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-02T22:00:42.755Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  crack: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-01T20:11:19.543Z"),
+  "crack-uuid": {
+    id: "crack-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-01T20:11:19.543Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  deaddove: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-01T18:20:06.315Z"),
+  "deaddove-uuid": {
+    id: "deaddove-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-01T18:20:06.315Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  drawn: {
-    hasNotifications: true,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-02T05:51:19.936Z"),
+  "drawn-uuid": {
+    id: "drawn-uuid",
+    hasUpdates: true,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-02T05:51:19.936Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  furry: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-02T19:16:35.902Z"),
+  "furry-uuid": {
+    id: "furry-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-02T19:16:35.902Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  gaming: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-02T20:20:04.168Z"),
+  "gaming-uuid": {
+    id: "gaming-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-02T20:20:04.168Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  gore: {
-    hasNotifications: true,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-10-29T01:17:26.096Z"),
+  "gore-uuid": {
+    id: "gore-uuid",
+    hasUpdates: true,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-10-29T01:17:26.096Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  h4x0rz: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-02T01:36:09.164Z"),
+  "h4x0rz-uuid": {
+    id: "h4x0rz-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-02T01:36:09.164Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  kinkmeme: {
-    hasNotifications: true,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-02T20:10:30.535Z"),
+  "kinkmeme-uuid": {
+    id: "kinkmeme-uuid",
+    hasUpdates: true,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-02T20:10:30.535Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  kpop: {
-    hasNotifications: true,
-    notificationsOutdated: true,
-    lastUpdateFromOthersAt: new Date("2020-10-16T15:31:17.992Z"),
+  "kpop-uuid": {
+    id: "kpop-uuid",
+    hasUpdates: true,
+    isOutdated: true,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-10-16T15:31:17.992Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  literature: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-02T08:43:38.776Z"),
+  "literature-uuid": {
+    id: "literature-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-02T08:43:38.776Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  liveaction: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-01T14:52:22.313Z"),
+  "liveaction-uuid": {
+    id: "liveaction-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-01T14:52:22.313Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  liveblogging: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-10-31T15:03:58.767Z"),
+  "liveblogging-uuid": {
+    id: "liveblogging-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-10-31T15:03:58.767Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  matrix: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-02T19:49:32.835Z"),
+  "matrix-uuid": {
+    id: "matrix-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-02T19:49:32.835Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  miscellaneous: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-01T15:59:19.662Z"),
+  "miscellaneous-uuid": {
+    id: "miscellaneous-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-01T15:59:19.662Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  monsterfucking: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-01T10:25:32.700Z"),
+  "monsterfucking-uuid": {
+    id: "monsterfucking-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-01T10:25:32.700Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  musicals: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-10-29T21:22:39.958Z"),
+  "musicals-uuid": {
+    id: "musicals-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-10-29T21:22:39.958Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  nightblogging: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-02T01:08:30.838Z"),
+  "nightblogging-uuid": {
+    id: "nightblogging-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-02T01:08:30.838Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  oldschool: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-02T20:07:35.970Z"),
+  "oldschool-uuid": {
+    id: "oldschool-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-02T20:07:35.970Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  original: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-02T07:38:33.489Z"),
+  "original-uuid": {
+    id: "original-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-02T07:38:33.489Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  outerweb: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-10-29T02:22:53.099Z"),
+  "outerweb-uuid": {
+    id: "outerweb-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-10-29T02:22:53.099Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  recnrave: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-01T05:57:46.156Z"),
+  "recnrave-uuid": {
+    id: "recnrave-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-01T05:57:46.156Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  salt: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-02T19:25:06.216Z"),
+  "salt-uuid": {
+    id: "salt-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-02T19:25:06.216Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  spoopy: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-10-30T23:27:52.757Z"),
+  "spoopy-uuid": {
+    id: "spoopy-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-10-30T23:27:52.757Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  steamy: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-10-31T08:02:54.697Z"),
+  "steamy-uuid": {
+    id: "steamy-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-10-31T08:02:54.697Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  thirst: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-02T18:08:20.783Z"),
+  "thirst-uuid": {
+    id: "thirst-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-02T18:08:20.783Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  wips: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-02T20:18:05.760Z"),
+  "wips-uuid": {
+    id: "wips-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-02T20:18:05.760Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  wishlist: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: new Date("2020-11-02T07:22:36.122Z"),
+  "wishlist-uuid": {
+    id: "wishlist-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: new Date("2020-11-02T07:22:36.122Z"),
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
-  main_street: {
-    hasNotifications: false,
-    notificationsOutdated: false,
-    lastUpdateFromOthersAt: null,
+  "main_street-uuid": {
+    id: "main_street-uuid",
+    hasUpdates: false,
+    isOutdated: false,
+    // NOTE: this is not important for this test
+    lastActivityAt: null,
+    lastActivityFromOthersAt: null,
+    // NOTE: this is not important for this test
+    lastVisitedAt: null,
   },
 };
 
