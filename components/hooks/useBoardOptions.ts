@@ -15,7 +15,6 @@ import {
 import { BoardPermissions } from "types/Types";
 import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
 import React from "react";
-import { toast } from "@bobaboard/ui-components";
 import { useAuth } from "../../components/Auth";
 import { useInvalidateNotifications } from "./queries/notifications";
 

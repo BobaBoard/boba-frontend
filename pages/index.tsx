@@ -1,17 +1,18 @@
-import React from "react";
-import Layout from "../components/layout/Layout";
 import { BoardsDisplay, PostQuote, useBoos } from "@bobaboard/ui-components";
-import Link from "next/link";
-import moment from "moment";
-import { THREAD_PATH } from "utils/router-utils";
-import { useCachedLinks } from "components/hooks/useCachedLinks";
-import { isStaging, getServerBaseUrl } from "utils/location-utils";
-import { useRealmBoards } from "contexts/RealmContext";
-import { useNotifications } from "components/hooks/queries/notifications";
-import { NextPageContext } from "next";
-import axios from "axios";
+import { getServerBaseUrl, isStaging } from "utils/location-utils";
 
+import Layout from "../components/layout/Layout";
+import Link from "next/link";
+import { NextPageContext } from "next";
+import React from "react";
+import { THREAD_PATH } from "utils/router-utils";
+import axios from "axios";
 import debug from "debug";
+import moment from "moment";
+import { useCachedLinks } from "components/hooks/useCachedLinks";
+import { useNotifications } from "components/hooks/queries/notifications";
+import { useRealmBoards } from "contexts/RealmContext";
+
 const error = debug("bobafrontend:HomePage-error");
 
 const StagingWarning = () => {
@@ -106,7 +107,7 @@ function HomePage(props: { lastUpdate?: any }) {
         avatar: board.avatarUrl,
         description: board.tagline,
         color: board.accentColor,
-        updates: !!realmBoardsNotifications[board.id]?.hasNotifications,
+        updates: !!realmBoardsNotifications[board.id]?.hasUpdates,
         muted: board.muted,
         link: getLinkToBoard(board.slug),
       }));
