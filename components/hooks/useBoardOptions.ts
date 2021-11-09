@@ -87,12 +87,12 @@ const useBoardOptions = ({
     const getOption = (option: BoardOptions) => {
       switch (option) {
         case BoardOptions.DISMISS_NOTIFICATIONS:
-          if (!isLoggedIn || !boardMetadata) {
+          if (!isLoggedIn || !boardMetadata || !boardId) {
             return null;
           }
           return getDismissNotificationsOption(() =>
             dismissNotifications(
-              { slug: boardMetadata?.slug },
+              { boardId },
               {
                 onSuccess: () => {
                   refetchNotifications();
@@ -101,12 +101,12 @@ const useBoardOptions = ({
             )
           );
         case BoardOptions.MUTE:
-          if (!isLoggedIn || !boardMetadata) {
+          if (!isLoggedIn || !boardMetadata || !boardId) {
             return null;
           }
           return getMuteBoardOptions(!!boardMetadata.muted, (mute) =>
             setBoardMuted(
-              { slug: boardMetadata?.slug, mute },
+              { boardId, mute },
               {
                 onSuccess: () => {
                   refetchNotifications();
@@ -115,12 +115,12 @@ const useBoardOptions = ({
             )
           );
         case BoardOptions.PIN:
-          if (!isLoggedIn || !boardMetadata) {
+          if (!isLoggedIn || !boardMetadata || !boardId) {
             return null;
           }
           return getPinBoardOption(!!boardMetadata.pinned, (pin) =>
             setBoardPinned({
-              slug: boardMetadata?.slug,
+              boardId,
               pin,
             })
           );
@@ -141,6 +141,7 @@ const useBoardOptions = ({
   }, [
     options,
     boardMetadata,
+    boardId,
     callbacks,
     dismissNotifications,
     refetchNotifications,

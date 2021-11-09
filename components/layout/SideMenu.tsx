@@ -1,16 +1,15 @@
-import {
-  NotificationsType,
-  useInvalidateNotifications,
-  useNotifications,
-} from "components/hooks/queries/notifications";
+import { BoardSummary, UserNotifications } from "types/Types";
 import {
   faClock,
   faCommentSlash,
   faTh,
 } from "@fortawesome/free-solid-svg-icons";
+import {
+  useInvalidateNotifications,
+  useNotifications,
+} from "components/hooks/queries/notifications";
 import { useMutation, useQueryClient } from "react-query";
 
-import { BoardSummary } from "types/Types";
 import { SideMenu as LibrarySideMenu } from "@bobaboard/ui-components";
 import React from "react";
 import { THREAD_QUERY_KEY } from "components/hooks/queries/thread";
@@ -34,7 +33,7 @@ const makeUiBoard = ({
   notifications,
 }: {
   board: BoardSummary;
-  notifications: NotificationsType["realmBoards"];
+  notifications: UserNotifications["realmBoards"];
   link: {
     onClick: () => void;
     href: string;
@@ -44,9 +43,9 @@ const makeUiBoard = ({
   avatar: board.avatarUrl,
   description: board.tagline,
   color: board.accentColor,
-  lastUpdate: notifications[board.slug]?.lastUpdateFromOthersAt,
-  updates: !!notifications[board.slug]?.hasNotifications,
-  outdated: !!notifications[board.slug]?.notificationsOutdated,
+  lastUpdate: notifications[board.id]?.lastActivityAt,
+  updates: !!notifications[board.id]?.hasUpdates,
+  outdated: !!notifications[board.id]?.isOutdated,
   muted: board.muted,
   link,
 });

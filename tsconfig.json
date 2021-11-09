@@ -22,7 +22,15 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
-    "types": ["react", "react-dom", "styled-jsx", "node", "jest"],
+    "types": [
+      "react",
+      "react-dom",
+      "styled-jsx",
+      "node",
+      "jest",
+      "cypress",
+      "@testing-library/cypress"
+    ],
     "skipLibCheck": true,
     "strict": false,
     "noEmit": true,

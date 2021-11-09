@@ -193,8 +193,10 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
       <LibraryLayout
         ref={layoutRef}
         headerAccent={currentBoardSummary?.accentColor || "#f96680"}
-        onUserBarClick={React.useCallback(
-          () => setLoginOpen(!isUserPending && !isLoggedIn),
+        onUserBarClick={React.useMemo(
+          () => ({
+            onClick: () => setLoginOpen(!isUserPending && !isLoggedIn),
+          }),
           [isUserPending, isLoggedIn]
         )}
         loggedInMenuOptions={loggedInMenuOptions}

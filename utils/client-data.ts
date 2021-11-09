@@ -1,5 +1,6 @@
 import {
   BoardData,
+  BoardNotifications,
   BoardSummary,
   CommentType,
   Permissions,
@@ -7,6 +8,7 @@ import {
   Role,
   ThreadSummaryType,
   ThreadType,
+  UserNotifications,
 } from "../types/Types";
 import { DEFAULT_USER_AVATAR, DEFAULT_USER_NAME } from "../components/Auth";
 
@@ -200,7 +202,39 @@ const toCamelCaseString = (snakeCaseString: string) => {
   });
 };
 
-export const makeClientData = (serverData: any): unknown => {
+const makeBoardNotifications = (boardNotification: any): BoardNotifications => {
+  return {
+    id: boardNotification.id,
+    hasUpdates: boardNotification.has_updates,
+    isOutdated: boardNotification.is_outdated,
+    lastActivityAt: moment.utc(boardNotification.last_activity_at).toDate(),
+    lastActivityFromOthersAt: moment
+      .utc(boardNotification.last_activity_from_others_at)
+      .toDate(),
+    lastVisitedAt: moment.utc(boardNotification.last_visited_at).toDate(),
+  };
+};
+
+export const makeClientNotifications = (
+  userNotifications: any
+): UserNotifications => ({
+  hasNotifications: userNotifications.has_notifications,
+  isOutdatedNotifications: userNotifications.is_outdated_notifications,
+  realmBoards: Object.values(userNotifications.realm_boards).reduce<
+    Record<string, BoardNotifications>
+  >((agg, curr: any) => {
+    agg[curr.id] = makeBoardNotifications(curr);
+    return agg;
+  }, {}),
+  pinnedBoards: Object.values(userNotifications.pinned_boards).reduce<
+    Record<string, BoardNotifications>
+  >((agg, curr: any) => {
+    agg[curr.id] = makeBoardNotifications(curr);
+    return agg;
+  }, {}),
+});
+
+export const makeClientData = <T>(serverData: any): T | unknown => {
   if (serverData === null) {
     return null;
   }

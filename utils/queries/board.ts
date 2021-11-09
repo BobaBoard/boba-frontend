@@ -14,39 +14,47 @@ const log = debug("bobafrontend:queries:board-log");
 const info = debug("bobafrontend:queries:board-info");
 
 export const muteBoard = async ({
-  slug,
+  boardId,
   mute,
 }: {
-  slug: string;
+  boardId: string;
   mute: boolean;
 }) => {
-  log(`Updating board ${slug} muted state to ${mute ? "muted" : "unmuted"}.`);
+  log(
+    `Updating board ${boardId} muted state to ${mute ? "muted" : "unmuted"}.`
+  );
   if (mute) {
-    await axios.post(`boards/${slug}/mute`);
+    await axios.post(`boards/${boardId}/mute`);
   } else {
-    await axios.delete(`boards/${slug}/mute`);
+    await axios.delete(`boards/${boardId}/mute`);
   }
   return true;
 };
 
 export const pinBoard = async ({
-  slug,
+  boardId,
   pin,
 }: {
-  slug: string;
+  boardId: string;
   pin: boolean;
 }) => {
-  log(`Updating board ${slug} pinned state to ${pin ? "pinned" : "unpinned"}.`);
+  log(
+    `Updating board ${boardId} pinned state to ${pin ? "pinned" : "unpinned"}.`
+  );
   if (pin) {
-    await axios.post(`boards/${slug}/pin`);
+    await axios.post(`boards/${boardId}/pin`);
   } else {
-    await axios.delete(`boards/${slug}/pin`);
+    await axios.delete(`boards/${boardId}/pin`);
   }
   return true;
 };
 
-export const dismissBoardNotifications = async ({ slug }: { slug: string }) => {
-  await axios.post(`boards/${slug}/notifications/dismiss`);
+export const dismissBoardNotifications = async ({
+  boardId,
+}: {
+  boardId: string;
+}) => {
+  await axios.post(`boards/${boardId}/notifications/dismiss`);
   return true;
 };
 

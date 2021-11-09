@@ -33,27 +33,29 @@ export const useMuteBoard = () => {
   const queryClient = useQueryClient();
   const refetchNotifications = useInvalidateNotifications();
   const { mutate: setBoardMuted } = useMutation(
-    ({ slug, mute }: { slug: string; mute: boolean }) =>
-      muteBoard({ slug, mute }),
+    ({ boardId, mute }: { boardId: string; mute: boolean }) =>
+      muteBoard({ boardId, mute }),
     {
-      onMutate: ({ slug, mute }) => {
+      onMutate: ({ boardId, mute }) => {
         log(
-          `Optimistically marking board ${slug} as ${
+          `Optimistically marking board ${boardId} as ${
             mute ? "muted" : "unmuted"
           }.`
         );
-        setBoardMutedInCache(queryClient, { slug, mute });
+        setBoardMutedInCache(queryClient, { boardId, mute });
       },
-      onError: (error: Error, { slug, mute }) => {
+      onError: (error: Error, { boardId, mute }) => {
         toast.error(
           `Error while marking board as ${mute ? "muted" : "unmuted"}`
         );
-        log(`Error while marking board ${slug} as muted:`);
+        log(`Error while marking board ${boardId} as muted:`);
         log(error);
       },
-      onSuccess: (data: boolean, { slug, mute }) => {
+      onSuccess: (data: boolean, { boardId, mute }) => {
         log(
-          `Successfully marked board ${slug} as  ${mute ? "muted" : "unmuted"}.`
+          `Successfully marked board ${boardId} as  ${
+            mute ? "muted" : "unmuted"
+          }.`
         );
         refetchNotifications();
       },
@@ -67,29 +69,35 @@ export const usePinBoard = () => {
   const queryClient = useQueryClient();
   const refetchPinnedBoards = useRefetchPinnedBoards();
   const { mutate: setBoardPinned } = useMutation(
-    ({ slug, pin }: { slug: string; pin: boolean }) => pinBoard({ slug, pin }),
+    ({ boardId, pin }: { boardId: string; pin: boolean }) =>
+      pinBoard({ boardId, pin }),
     {
-      onMutate: ({ slug, pin }) => {
+      onMutate: ({ boardId, pin }) => {
         log(
-          `Optimistically marking board ${slug} as ${
+          `Optimistically marking board ${boardId} as ${
             pin ? "pinned" : "unpinned"
           }.`
         );
-        setBoardPinnedInCache(queryClient, { boardId: slug, pin });
+        setBoardPinnedInCache(queryClient, { boardId, pin });
       },
-      onError: (error: Error, { slug, pin }) => {
+      onError: (error: Error, { boardId, pin }) => {
         toast.error(
           `Error while marking board as ${pin ? "pinned" : "unpinned"}`
         );
         log(
-          `Error while marking board ${slug} as ${pin ? "pinned" : "unpinned"}:`
+          `Error while marking board ${boardId} as ${
+            pin ? "pinned" : "unpinned"
+          }:`
         );
         log(error);
       },
-      onSuccess: (data: boolean, { slug, pin }) => {
+      onSuccess: (data: boolean, { boardId, pin }) => {
         log(
-          `Successfully marked board ${slug} as ${pin ? "pinned" : "unpinned"}.`
+          `Successfully marked board ${boardId} as ${
+            pin ? "pinned" : "unpinned"
+          }.`
         );
+        toast.success("Board pinned!");
         refetchPinnedBoards();
       },
     }
@@ -101,13 +109,23 @@ export const usePinBoard = () => {
 export const useDismissBoardNotifications = () => {
   const refetchNotifications = useInvalidateNotifications();
   const refetchBoardActivity = useRefetchBoardActivity();
+  const boards = useRealmBoards();
   const { mutate: dismissNotifications } = useMutation(
-    ({ slug }: { slug: string }) => dismissBoardNotifications({ slug }),
+    ({ boardId }: { boardId: string }) =>
+      dismissBoardNotifications({ boardId }),
     {
-      onSuccess: (_, { slug }) => {
+      onSuccess: (_, { boardId }) => {
+        const boardSlug = boards.find(
+          (realmBoard) => realmBoard.id == boardId
+        )?.slug;
+        if (!boardSlug) {
+          return;
+        }
         log(`Successfully dismissed board notifications. Refetching...`);
         refetchNotifications();
-        refetchBoardActivity({ slug });
+        refetchBoardActivity({
+          slug: boardSlug,
+        });
       },
     }
   );

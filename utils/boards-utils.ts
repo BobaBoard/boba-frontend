@@ -1,8 +1,8 @@
-import moment from "moment";
+import { BoardSummary, UserNotifications } from "types/Types";
 
 import debug from "debug";
-import { BoardSummary } from "types/Types";
-import { NotificationsType } from "components/hooks/queries/notifications";
+import moment from "moment";
+
 const info = debug("bobafrontend:board-utils-info");
 
 const maybeApplyBoardsFilter = ({ slug }: BoardSummary, filter: string) => {
@@ -16,7 +16,7 @@ export const processBoardsUpdates = ({
   isLoggedIn,
 }: {
   boardsData: BoardSummary[];
-  boardsNotifications: NotificationsType["realmBoards"];
+  boardsNotifications: UserNotifications["realmBoards"];
   boardsFilter: string;
   isLoggedIn: boolean;
 }) => {
@@ -28,15 +28,15 @@ export const processBoardsUpdates = ({
   const recentBoards = allBoards
     .filter(
       (board) =>
-        boardsNotifications[board.slug]?.lastUpdateFromOthersAt &&
-        (!isLoggedIn || boardsNotifications[board.slug].hasNotifications)
+        boardsNotifications[board.id]?.lastActivityFromOthersAt &&
+        (!isLoggedIn || boardsNotifications[board.id].hasUpdates)
     )
     .sort((b1, b2) => {
       const lastUpdateB1 = moment.utc(
-        boardsNotifications[b1.slug].lastUpdateFromOthersAt
+        boardsNotifications[b1.id].lastActivityFromOthersAt
       );
       const lastUpdateB2 = moment.utc(
-        boardsNotifications[b2.slug].lastUpdateFromOthersAt
+        boardsNotifications[b2.id].lastActivityFromOthersAt
       );
       if (lastUpdateB1.isBefore(lastUpdateB2)) {
         return 1;

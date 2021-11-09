@@ -57,7 +57,7 @@ const useRealmBoards = () => {
   return context.realmData.boards;
 };
 
-const useBoardSummary = ({ boardId }: { boardId: string }) => {
+const useBoardSummary = ({ boardId }: { boardId?: string | null }) => {
   const context = React.useContext(RealmContext);
   if (context === undefined) {
     throw new Error(
@@ -89,6 +89,7 @@ const RealmContextProvider: React.FC<{
 }> = ({ initialData, children }) => {
   const realmSlug = getCurrentRealmSlug();
   const { isLoggedIn } = useAuth();
+
   const { data: realmData, dataUpdatedAt } = useQuery<RealmType>(
     [REALM_QUERY_KEY, { isLoggedIn, realmSlug }],
     () => {
