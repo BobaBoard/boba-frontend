@@ -1,10 +1,10 @@
-import React from "react";
-
-import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/storage";
+
+import React from "react";
 import axios from "axios";
 import debug from "debug";
+import firebase from "firebase/app";
 
 if (!firebase.apps.length) {
   const firebaseConfig = {
@@ -216,4 +216,4 @@ const AuthProvider: React.FC<{
   );
 };
 
-export { AuthProvider, useAuth };
+export { AuthProvider, useAuth, AuthContext };

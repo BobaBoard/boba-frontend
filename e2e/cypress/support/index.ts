@@ -33,7 +33,3 @@ declare global {
     }
   }
 }
-
-beforeEach(() => {
-  indexedDB.deleteDatabase("firebaseLocalStorageDb");
-});

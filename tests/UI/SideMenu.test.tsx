@@ -1,23 +1,37 @@
 import { QueryClient, QueryClientProvider } from "react-query";
-import { act, renderHook } from "@testing-library/react-hooks";
 import { render, screen, waitFor } from "@testing-library/react";
 
-import { BOARDS_INITIAL_DATA } from "../board-utils/sideMenuOrdering.test";
+import { AuthContext } from "../../components/Auth";
 import React from "react";
 import { RealmContextProvider } from "../../contexts/RealmContext";
-import Router from "next-router-mock";
 import SideMenu from "../../components/layout/SideMenu";
+import { V0_DATA } from "../data/Realm";
+import { server } from "../mocks/index";
 import { usePageDataListener } from "../../utils/router-utils";
 
-jest.mock("next/router", () => require("next-router-mock"));
+// jest.mock("../../components/Auth", () => require("next-router-mock"));
 
-beforeEach((done) => {
-  renderHook(() => usePageDataListener(Router));
-  act(() => done());
-});
+beforeAll(() =>
+  server.listen({
+    onUnhandledRequest: ({ method, url }) => {
+      server.printHandlers();
+    },
+  })
+);
+afterAll(() => server.close());
 
-const renderWithClient = (element: React.ReactElement) => {
-  // From: https://github.com/tannerlinsley/react-query/blob/ead2e5dd5237f3d004b66316b5f36af718286d2d/src/react/tests/utils.tsx#L6-L17
+const Client = ({ children }: any) => {
+  usePageDataListener({
+    query: {
+      boardId: "test",
+    },
+    push: () => {
+      console.log("push");
+    },
+    prefetch: () => {
+      console.log("prefetch");
+    },
+  } as any);
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -26,37 +40,33 @@ const renderWithClient = (element: React.ReactElement) => {
     },
   });
 
-  const { rerender, ...result } = render(
+  return (
     <QueryClientProvider client={queryClient}>
-      <RealmContextProvider
-        initialData={{
-          boards: BOARDS_INITIAL_DATA,
+      <AuthContext.Provider
+        // @ts-expect-error
+        value={{
+          isLoggedIn: true,
+          isPending: false,
         }}
       >
-        {element}
-      </RealmContextProvider>
+        <RealmContextProvider initialData={V0_DATA}>
+          {children}
+        </RealmContextProvider>
+      </AuthContext.Provider>
     </QueryClientProvider>
   );
-  return {
-    ...result,
-    rerender: (rerenderUi: React.ReactElement) =>
-      rerender(
-        <QueryClientProvider client={queryClient}>
-          {rerenderUi}
-        </QueryClientProvider>
-      ),
-  };
 };
 
-describe("Home", () => {
+describe("SideMenu", () => {
   it("renders a heading", async () => {
-    renderWithClient(<SideMenu />);
+    render(
+      <Client>
+        <SideMenu />
+      </Client>
+    );
 
     await waitFor(() => {
-      const heading = screen.getByRole("heading", {
-        name: /welcome to next\.js!/i,
-      });
-      expect(heading).toBeInTheDocument();
+      expect(screen.getByText("recent unreads")).toBeInTheDocument();
     });
   });
 });

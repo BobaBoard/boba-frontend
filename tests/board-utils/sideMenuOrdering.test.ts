@@ -3,7 +3,7 @@ import { expect, test } from "@jest/globals";
 import { BoardSummary } from "../../types/Types";
 import { processBoardsUpdates } from "../../utils/boards-utils";
 
-const BOARDS_INITIAL_DATA: BoardSummary[] = [
+export const BOARDS_INITIAL_DATA: BoardSummary[] = [
   {
     id: "gore-uuid",
     realmId: "v0",

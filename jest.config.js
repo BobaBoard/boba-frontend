@@ -17,6 +17,8 @@ module.exports = {
     "^cache(.*)$": "<rootDir>/cache$1",
     "^utils(.*)$": "<rootDir>/utils$1",
     "^contexts(.*)$": "<rootDir>/contexts$1",
+    "^react$": "<rootDir>/node_modules/react",
+    "^react-dom$": "<rootDir>/node_modules/react-dom",
   },
   testPathIgnorePatterns: [
     "<rootDir>/node_modules/",
