@@ -76,15 +76,23 @@ export interface FeedType {
   // This thread will only have the top post and no comments.
   activity: ThreadSummaryType[];
 }
-
-export interface BoardDescription {
-  id?: number;
+export interface BoardTextDescription {
+  id: string;
   index: number;
   title: string;
-  type: "text" | "category_filter";
-  description?: string;
-  categories?: string[];
+  type: "text";
+  description: string;
 }
+
+export interface BoardCategoryDescription {
+  id: string;
+  index: number;
+  title: string;
+  type: "category_filter";
+  categories: string[];
+}
+
+export type BoardDescription = BoardCategoryDescription | BoardTextDescription;
 
 export interface Role {
   id: string;

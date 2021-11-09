@@ -181,26 +181,26 @@ export const useUpdateBoardMetadata = (callbacks: {
   const queryClient = useQueryClient();
   const { mutate: updateBoardMetadata } = useMutation(
     ({
-      slug,
+      boardId,
       descriptions,
       accentColor,
       tagline,
     }: {
+      boardId: string;
       slug: string;
       descriptions: BoardDescription[];
       accentColor: string;
       tagline: string;
-    }) => updateBoardSettings({ slug, descriptions, accentColor, tagline }),
+    }) => updateBoardSettings({ boardId, descriptions, accentColor, tagline }),
     {
       onError: (serverError: Error) => {
         toast.error("Error while updating the board sidebar.");
         error(serverError);
       },
-      onSuccess: (data: BoardData, { slug }) => {
+      onSuccess: (data: BoardData, { boardId }) => {
         log(`Received comment data after save:`);
         log(data);
         callbacks.onSuccess();
-        queryClient.setQueryData(["boardThemeData", { slug }], data);
         queryClient.invalidateQueries("allBoardsData");
       },
     }

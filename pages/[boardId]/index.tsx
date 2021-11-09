@@ -1,23 +1,12 @@
 import { ArrayParam, useQueryParams } from "use-query-params";
-import {
-  BoardOptions,
-  useBoardOptions,
-} from "components/hooks/useBoardOptions";
 import { BoardPageDetails, usePageDetails } from "utils/router-utils";
-import {
-  BoardSidebar,
-  FeedWithMenu,
-  PostingActionButton,
-} from "@bobaboard/ui-components";
 import {
   EditorActions,
   useEditorsDispatch,
 } from "components/editors/EditorsContext";
-import {
-  useBoardMetadata,
-  useUpdateBoardMetadata,
-} from "../../components/hooks/queries/board";
+import { FeedWithMenu, PostingActionButton } from "@bobaboard/ui-components";
 
+import { BoardSidebar } from "components/boards/Sidebar";
 import Layout from "../../components/layout/Layout";
 import LoadingSpinner from "components/LoadingSpinner";
 import React from "react";
@@ -27,6 +16,7 @@ import axios from "axios";
 import debug from "debug";
 import { useAuth } from "../../components/Auth";
 import { useBoardActivity } from "components/hooks/queries/board-activity";
+import { useBoardMetadata } from "../../components/hooks/queries/board";
 import { useRealmBoardId } from "contexts/RealmContext";
 import { withEditors } from "components/editors/withEditors";
 
@@ -60,7 +50,6 @@ const BoardParams = {
 
 const MemoizedThreadPreview = React.memo(ThreadPreview);
 const MemoizedActionButton = React.memo(PostingActionButton);
-const MemoizedBoardSidebar = React.memo(BoardSidebar);
 function BoardPage() {
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
@@ -74,26 +63,7 @@ function BoardPage() {
     () => setShowSidebar(!showSidebar),
     [showSidebar]
   );
-  const [editingSidebar, setEditingSidebar] = React.useState(false);
-  const stopEditing = React.useCallback(() => setEditingSidebar(false), []);
   const [{ filter: categoryFilter }, setQuery] = useQueryParams(BoardParams);
-  const boardOptions = useBoardOptions({
-    options: [
-      BoardOptions.MUTE,
-      BoardOptions.PIN,
-      BoardOptions.DISMISS_NOTIFICATIONS,
-      BoardOptions.EDIT,
-    ],
-    boardId,
-    callbacks: {
-      editSidebar: setEditingSidebar,
-    },
-  });
-  const updateBoardMetadata = useUpdateBoardMetadata({
-    onSuccess: () => {
-      setEditingSidebar(false);
-    },
-  });
 
   React.useEffect(() => {
     setQuery({
@@ -176,33 +146,13 @@ function BoardPage() {
             }, [hasNextPage, isFetchingNextPage, fetchNextPage])}
           >
             <FeedWithMenu.Sidebar>
-              <div style={{ position: "relative" }}>
-                <MemoizedBoardSidebar
-                  slug={boardMetadata?.slug || slug}
-                  avatarUrl={boardMetadata?.avatarUrl || "/"}
-                  tagline={boardMetadata?.tagline || "loading..."}
-                  accentColor={boardMetadata?.accentColor || "#f96680"}
-                  muted={boardMetadata?.muted}
-                  previewOptions={boardOptions}
-                  descriptions={boardMetadata?.descriptions || []}
-                  editing={editingSidebar}
-                  onCancelEditing={stopEditing}
-                  onUpdateMetadata={updateBoardMetadata}
-                  activeCategory={categoryFilter?.[0]}
-                  onCategoriesStateChange={onCategoriesStateChange}
-                />
-                {isBoardMetadataFetched &&
-                  !boardMetadata?.descriptions.length &&
-                  !editingSidebar && (
-                    <img
-                      className="under-construction"
-                      src="/under_construction_icon.png"
-                    />
-                  )}
-                {!isBoardMetadataFetched && (
-                  <LoadingSpinner loading={!isBoardMetadataFetched} />
-                )}
-              </div>
+              <BoardSidebar
+                loading={!isBoardMetadataFetched}
+                boardMetadata={boardMetadata}
+                pageSlug={slug}
+                activeCategory={categoryFilter?.[0] || null}
+                onCategoriesStateChange={onCategoriesStateChange}
+              />
             </FeedWithMenu.Sidebar>
             <FeedWithMenu.FeedContent>
               <div className="main">
@@ -254,14 +204,6 @@ function BoardPage() {
           width: 100%;
           box-sizing: border-box;
         }
-        .post.hidden {
-          max-width: 500px;
-          width: calc(100% - 40px);
-          background-color: gray;
-          padding: 20px;
-          border: 1px dashed black;
-          border-radius: 15px;
-        }
         .post {
           margin: 20px auto;
           width: 100%;
@@ -290,23 +232,6 @@ function BoardPage() {
         .locked p {
           color: white;
           text-align: center;
-        }
-        .loading {
-          text-align: center;
-          margin-bottom: 20px;
-          color: white;
-        }
-        .under-construction {
-          width: 50px;
-          margin: 0 auto;
-          display: block;
-          opacity: 0.5;
-          filter: grayscale(0.4);
-        }
-        @media only screen and (max-width: 950px) {
-          .garland {
-            display: none;
-          }
         }
       `}</style>
     </div>
