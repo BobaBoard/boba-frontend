@@ -45,11 +45,7 @@ export const BoardSidebar: React.FC<BoardSidebarProps> = ({
       editSidebar: setEditingSidebar,
     },
   });
-  const updateBoardMetadata = useUpdateBoardMetadata({
-    onSuccess: () => {
-      setEditingSidebar(false);
-    },
-  });
+  const updateBoardMetadata = useUpdateBoardMetadata();
   const stopEditing = React.useCallback(() => setEditingSidebar(false), []);
   return (
     <div style={{ position: "relative" }}>
@@ -68,6 +64,7 @@ export const BoardSidebar: React.FC<BoardSidebarProps> = ({
             ...metadata,
             boardId: boardMetadata!.id,
           });
+          setEditingSidebar(false);
         }}
         activeCategory={activeCategory}
         onCategoriesStateChange={onCategoriesStateChange}

@@ -1,15 +1,18 @@
-import { BoardData, BoardDescription, BoardMetadata } from "types/Types";
+import { BoardDescription, BoardMetadata } from "types/Types";
 import {
   dismissBoardNotifications,
   getBoardMetadata,
   muteBoard,
   pinBoard,
-  updateBoardSettings,
+  updateBoardMetadata,
 } from "utils/queries/board";
 import {
   getBoardSummaryInCache,
+  setBoardMetadataInCache,
   setBoardMutedInCache,
   setBoardPinnedInCache,
+  setBoardSummaryInCache,
+  setPinnedBoardInCache,
 } from "cache/board";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
@@ -171,11 +174,9 @@ export const useRefetchBoardMetadata = ({ boardId }: { boardId: string }) => {
     });
 };
 
-export const useUpdateBoardMetadata = (callbacks: {
-  onSuccess: () => void;
-}) => {
+export const useUpdateBoardMetadata = () => {
   const queryClient = useQueryClient();
-  const { mutate: updateBoardMetadata } = useMutation(
+  const { mutate } = useMutation(
     ({
       boardId,
       descriptions,
@@ -187,22 +188,43 @@ export const useUpdateBoardMetadata = (callbacks: {
       descriptions: BoardDescription[];
       accentColor: string;
       tagline: string;
-    }) => updateBoardSettings({ boardId, descriptions, accentColor, tagline }),
+    }) => updateBoardMetadata({ boardId, descriptions, accentColor, tagline }),
     {
+      onMutate: ({ boardId, descriptions, accentColor, tagline }) => {
+        log(`Optimistically updating the metadata of board ${boardId}`);
+        const transform = (boardMetadata: BoardMetadata) => {
+          const newMetdata: BoardMetadata = {
+            ...boardMetadata,
+            accentColor,
+            tagline,
+            descriptions,
+          };
+          return newMetdata;
+        };
+        setBoardMetadataInCache(queryClient, { boardId }, transform);
+        setBoardSummaryInCache(queryClient, { boardId }, transform);
+        setPinnedBoardInCache(queryClient, { boardId }, (pinnedBoard) => {
+          return {
+            ...transform({
+              ...pinnedBoard,
+              descriptions: [],
+            }),
+            pinnedIndex: pinnedBoard.pinnedIndex,
+          };
+        });
+      },
       onError: (serverError: Error) => {
         toast.error("Error while updating the board sidebar.");
         error(serverError);
       },
-      onSuccess: (data: BoardData, { boardId }) => {
-        log(`Received comment data after save:`);
+      onSuccess: (data: BoardMetadata) => {
+        log(`Received new board metadata.`);
         log(data);
-        callbacks.onSuccess();
-        queryClient.invalidateQueries("allBoardsData");
       },
     }
   );
 
-  return updateBoardMetadata;
+  return mutate;
 };
 
 export const useBoardSummaryBySlug = (slug: string | null) => {

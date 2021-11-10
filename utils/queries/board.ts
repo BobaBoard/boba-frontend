@@ -1,10 +1,5 @@
 import { BoardData, BoardDescription, BoardMetadata } from "types/Types";
-import {
-  makeClientBoardData,
-  makeClientBoardSummary,
-  makeClientPermissions,
-  makeClientRole,
-} from "../client-data";
+import { makeClientBoardData, makeClientBoardMetadata } from "../client-data";
 
 import axios from "axios";
 import debug from "debug";
@@ -58,12 +53,12 @@ export const dismissBoardNotifications = async ({
   return true;
 };
 
-export const updateBoardSettings = async (data: {
+export const updateBoardMetadata = async (data: {
   boardId: string;
   descriptions: BoardDescription[];
   accentColor: string;
   tagline: string;
-}): Promise<BoardData> => {
+}): Promise<BoardMetadata> => {
   const response = await axios.patch(`/boards/${data.boardId}`, {
     descriptions: data.descriptions,
     accentColor: data.accentColor,
@@ -71,7 +66,7 @@ export const updateBoardSettings = async (data: {
   });
   log(`Updated board settings on server:`);
   log(response.data);
-  return response.data;
+  return makeClientBoardMetadata(response.data);
 };
 
 export const getBoardMetadata = async ({
@@ -84,17 +79,7 @@ export const getBoardMetadata = async ({
     error(`Board with id ${boardId} was not found`);
     return null;
   }
-  const summary = makeClientBoardSummary(data);
-  return {
-    ...summary,
-    descriptions: data.descriptions,
-    permissions: data.permissions
-      ? makeClientPermissions(data.permissions)
-      : undefined,
-    postingIdentities:
-      data.posting_identities?.map(makeClientRole) || undefined,
-    accessories: data.accessories,
-  };
+  return makeClientBoardMetadata(data);
 };
 
 export const getAllBoardsData = async (): Promise<BoardData[]> => {

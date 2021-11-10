@@ -1,5 +1,6 @@
 import {
   BoardData,
+  BoardMetadata,
   BoardNotifications,
   BoardSummary,
   CommentType,
@@ -172,6 +173,22 @@ export const makeClientBoardSummary = (serverBoardData: any): BoardSummary => {
     delisted: serverBoardData.delisted,
     muted: serverBoardData.muted,
     pinned: serverBoardData.pinned,
+  };
+};
+
+export const makeClientBoardMetadata = (
+  serverBoardData: any
+): BoardMetadata => {
+  const summary = makeClientBoardSummary(serverBoardData);
+  return {
+    ...summary,
+    descriptions: serverBoardData.descriptions,
+    permissions: serverBoardData.permissions
+      ? makeClientPermissions(serverBoardData.permissions)
+      : undefined,
+    postingIdentities:
+      serverBoardData.posting_identities?.map(makeClientRole) || undefined,
+    accessories: serverBoardData.accessories,
   };
 };
 
