@@ -22,7 +22,9 @@ const GORE_BOARD_FEED_SINGLE_PAGE: InfiniteData<FeedType> = {
   pageParams: [],
   pages: [
     {
-      cursor: null,
+      cursor: {
+        next: null,
+      },
       activity: [
         REMEMBER_TO_BE_EXCELLENT_GORE_THREAD_SUMMARY,
         FAVORITE_CHARACTER_GORE_THREAD_SUMMARY,
@@ -35,7 +37,9 @@ const USER_FEED_SINGLE_PAGE: InfiniteData<FeedType> = {
   pageParams: [],
   pages: [
     {
-      cursor: null,
+      cursor: {
+        next: null,
+      },
       activity: [
         STUFF_WILL_BE_INSERTED_ANIME,
         FAVORITE_CHARACTER_GORE_THREAD_SUMMARY,
@@ -52,7 +56,7 @@ export const getThreadDataFromCache = (
   queryClient: QueryClient,
   data: { threadId: string }
 ) => {
-  return queryClient.getQueryState<ThreadType>(getThreadKey(data)).data;
+  return queryClient.getQueryState<ThreadType>(getThreadKey(data))!.data;
 };
 
 describe("Tests for setThreadInCache", () => {
@@ -80,7 +84,7 @@ describe("Tests for setThreadInCache", () => {
 
     const newData = getBoardActivityDataFromCache(queryClient, {
       slug: "gore",
-    });
+    })!;
     // TODO: why is it not the same instance of the object?
     expect(newData.pages[0].activity).toContainEqual(newThreadSummary);
     expect(newData.pages[0].activity).not.toContain(
@@ -113,7 +117,7 @@ describe("Tests for setThreadInCache", () => {
       }
     );
 
-    const newData = getUserFeedDataFromCache(queryClient);
+    const newData = getUserFeedDataFromCache(queryClient)!;
     // TODO: why is it not the same instance of the object?
     expect(newData.pages[0].activity).toContainEqual(newThreadSummary);
     expect(newData.pages[0].activity).not.toContain(
