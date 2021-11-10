@@ -1,4 +1,4 @@
-import { PostType } from "../../types/Types";
+import { PostType } from "types/Types";
 
 export const REVOLVER_OCELOT_CONTRIBUTION: PostType = {
   postId: "619adf62-833f-4bea-b591-03e807338a8e",

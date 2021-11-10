@@ -5,10 +5,10 @@ import {
   isNewThread,
 } from "./types";
 
-import { TagsType as ServerTagsType } from "../../types/Types";
+import { TagsType as ServerTagsType } from "types/Types";
 import { TagsType } from "@bobaboard/ui-components/dist/types";
 import { useAuth } from "components/Auth";
-import { useBoardMetadata } from "components/hooks/queries/board";
+import { useBoardMetadata } from "queries/board";
 import { useThreadWithNull } from "components/thread/ThreadContext";
 
 export const THREAD_VIEW_OPTIONS = [
@@ -80,7 +80,7 @@ export const useThreadDetails = (
       : undefined,
     suggestedCategories: isNewThread(state)
       ? currentBoardMetadata?.descriptions.flatMap(
-          (description) => description.categories || []
+          (description) => description["categories"] || []
         )
       : threadData.categories,
     userIdentity: user

@@ -4,7 +4,7 @@ import {
   DefaultTheme,
   NewCommentsThread,
 } from "@bobaboard/ui-components";
-import { CommentType, ThreadCommentInfoType } from "../../types/Types";
+import { CommentType, ThreadCommentInfoType } from "types/Types";
 
 import React from "react";
 import debug from "debug";

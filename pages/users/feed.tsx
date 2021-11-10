@@ -1,23 +1,20 @@
-import React from "react";
-import { FeedWithMenu } from "@bobaboard/ui-components";
-import Layout from "../../components/layout/Layout";
-import { useAuth } from "../../components/Auth";
-import debug from "debug";
-import { ThreadType } from "../../types/Types";
-import FeedSidebar from "../../components/feed/FeedSidebar";
-import {
-  FeedOptions,
-  useUserFeed,
-} from "../../components/hooks/queries/user-feed";
+import { FeedOptions, useUserFeed } from "queries/user-feed";
 
-import LoadingSpinner from "components/LoadingSpinner";
-import ThreadPreview from "components/ThreadPreview";
-import { withEditors } from "components/editors/withEditors";
 import { ExistanceParam } from "components/QueryParamNextProvider";
-import { useQueryParams } from "use-query-params";
-import { useCachedLinks } from "components/hooks/useCachedLinks";
-import { useRealmBoards } from "contexts/RealmContext";
+import FeedSidebar from "components/feed/FeedSidebar";
+import { FeedWithMenu } from "@bobaboard/ui-components";
+import Layout from "components/layout/Layout";
+import LoadingSpinner from "components/LoadingSpinner";
+import React from "react";
+import ThreadPreview from "components/ThreadPreview";
+import { ThreadType } from "types/Types";
+import debug from "debug";
 import { isFromBackButton } from "components/hooks/useFromBackButton";
+import { useAuth } from "components/Auth";
+import { useCachedLinks } from "components/hooks/useCachedLinks";
+import { useQueryParams } from "use-query-params";
+import { useRealmBoards } from "contexts/RealmContext";
+import { withEditors } from "components/editors/withEditors";
 
 const info = debug("bobafrontend:boardPage-info");
 info.log = console.info.bind(console);

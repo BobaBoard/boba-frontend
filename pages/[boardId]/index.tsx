@@ -7,16 +7,16 @@ import {
 import { FeedWithMenu, PostingActionButton } from "@bobaboard/ui-components";
 
 import { BoardSidebar } from "components/boards/Sidebar";
-import Layout from "../../components/layout/Layout";
+import Layout from "components/layout/Layout";
 import LoadingSpinner from "components/LoadingSpinner";
 import React from "react";
 import ThreadPreview from "components/ThreadPreview";
-import { ThreadSummaryType } from "../../types/Types";
+import { ThreadSummaryType } from "types/Types";
 import axios from "axios";
 import debug from "debug";
-import { useAuth } from "../../components/Auth";
-import { useBoardActivity } from "components/hooks/queries/board-activity";
-import { useBoardMetadata } from "../../components/hooks/queries/board";
+import { useAuth } from "components/Auth";
+import { useBoardActivity } from "queries/board-activity";
+import { useBoardMetadata } from "queries/board";
 import { useRealmBoardId } from "contexts/RealmContext";
 import { withEditors } from "components/editors/withEditors";
 

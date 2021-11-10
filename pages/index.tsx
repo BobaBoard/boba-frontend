@@ -1,7 +1,7 @@
 import { BoardsDisplay, PostQuote, useBoos } from "@bobaboard/ui-components";
 import { getServerBaseUrl, isStaging } from "utils/location-utils";
 
-import Layout from "../components/layout/Layout";
+import Layout from "components/layout/Layout";
 import Link from "next/link";
 import { NextPageContext } from "next";
 import React from "react";
@@ -10,7 +10,7 @@ import axios from "axios";
 import debug from "debug";
 import moment from "moment";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
-import { useNotifications } from "components/hooks/queries/notifications";
+import { useNotifications } from "queries/notifications";
 import { useRealmBoards } from "contexts/RealmContext";
 
 const error = debug("bobafrontend:HomePage-error");

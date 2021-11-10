@@ -1,19 +1,19 @@
-import React, { useEffect } from "react";
-import Layout from "../../components/layout/Layout";
 import {
-  Input,
   Button,
   ButtonStyle,
+  Input,
   InputStyle,
-  // @ts-ignore
 } from "@bobaboard/ui-components";
-import { useAuth } from "../../components/Auth";
-import { useMutation } from "react-query";
-import debug from "debug";
-import { useRouter } from "next/router";
-import classnames from "classnames";
-import { acceptInvite } from "../../utils/queries/user";
+import React, { useEffect } from "react";
+
+import Layout from "components/layout/Layout";
 import { PERSONAL_SETTINGS_PATH } from "utils/router-utils";
+import { acceptInvite } from "utils/queries/user";
+import classnames from "classnames";
+import debug from "debug";
+import { useAuth } from "components/Auth";
+import { useMutation } from "react-query";
+import { useRouter } from "next/router";
 
 const log = debug("bobafrontend:index-log");
 

@@ -31,6 +31,13 @@
       "cypress",
       "@testing-library/cypress"
     ],
+    "paths": {
+      "queries/*": ["queries/*"],
+      "cache/*": ["cache/*"],
+      "components/*": ["components/*"],
+      "utils/*": ["utils/*"],
+      "types/*": ["types/*"]
+    },
     "skipLibCheck": true,
     "strict": false,
     "noEmit": true,

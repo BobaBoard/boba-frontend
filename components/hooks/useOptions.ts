@@ -18,7 +18,7 @@ import {
   useReadThread,
   useSetThreadHidden,
   useSetThreadView,
-} from "./queries/thread";
+} from "queries/thread";
 
 import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
 import { EditorActions } from "components/editors/types";
@@ -27,10 +27,10 @@ import React from "react";
 import { faCopy } from "@fortawesome/free-regular-svg-icons";
 import { toast } from "@bobaboard/ui-components";
 import { useAuth } from "components/Auth";
-import { useBoardMetadata } from "./queries/board";
+import { useBoardMetadata } from "queries/board";
 import { useCachedLinks } from "./useCachedLinks";
 import { useEditorsDispatch } from "components/editors/EditorsContext";
-import { useInvalidateNotifications } from "./queries/notifications";
+import { useInvalidateNotifications } from "queries/notifications";
 
 export enum PostOptions {
   COPY_LINK = "COPY_LINK",

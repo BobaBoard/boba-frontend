@@ -3,7 +3,7 @@ import { expect, test } from "@jest/globals";
 import {
   extractNewRepliesSequence,
   extractRepliesSequence,
-} from "../../utils/thread-utils";
+} from "utils/thread-utils";
 import { makeComment, makePost } from "../utils";
 
 // #######################################################

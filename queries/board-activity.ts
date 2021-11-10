@@ -1,7 +1,8 @@
 import { useInfiniteQuery, useQueryClient } from "react-query";
-import { getBoardActivityData } from "../../../utils/queries/feeds";
+
+import { getBoardActivityData } from "utils/queries/feeds";
+import { useAuth } from "components/Auth";
 import { useBoardSummaryBySlug } from "./board";
-import { useAuth } from "../../Auth";
 
 export const BOARD_ACTIVITY_KEY = "boardActivityData";
 export function useBoardActivity(props: {

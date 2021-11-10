@@ -7,21 +7,21 @@ import {
 import {
   useInvalidateNotifications,
   useNotifications,
-} from "components/hooks/queries/notifications";
+} from "queries/notifications";
 import { useMutation, useQueryClient } from "react-query";
 
 import { SideMenu as LibrarySideMenu } from "@bobaboard/ui-components";
 import React from "react";
-import { THREAD_QUERY_KEY } from "components/hooks/queries/thread";
+import { THREAD_QUERY_KEY } from "queries/thread";
 import debug from "debug";
-import { dismissAllNotifications } from "../../utils/queries";
+import { dismissAllNotifications } from "utils/queries";
 import { processBoardsUpdates } from "utils/boards-utils";
 import { useAuth } from "components/Auth";
-import { useBoardSummaryBySlug } from "components/hooks/queries/board";
+import { useBoardSummaryBySlug } from "queries/board";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { usePageDetails } from "utils/router-utils";
 import { useRealmBoards } from "contexts/RealmContext";
-import { useRefetchBoardActivity } from "components/hooks/queries/board-activity";
+import { useRefetchBoardActivity } from "queries/board-activity";
 
 const log = debug("bobafrontend:SideMenu-log");
 

@@ -1,6 +1,6 @@
+import { getUserActivityData } from "utils/queries/feeds";
+import { useAuth } from "components/Auth";
 import { useInfiniteQuery } from "react-query";
-import { getUserActivityData } from "../../../utils/queries/feeds";
-import { useAuth } from "../../Auth";
 
 export interface FeedOptions {
   showRead: boolean;

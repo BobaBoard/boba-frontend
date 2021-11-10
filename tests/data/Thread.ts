@@ -1,4 +1,4 @@
-import { ThreadType } from "../../types/Types";
+import { ThreadType } from "types/Types";
 
 export const REMEMBER_TO_BE_EXCELLENT_GORE_THREAD: ThreadType = {
   starter: {

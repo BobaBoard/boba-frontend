@@ -1,7 +1,7 @@
+import { FeedOptions } from "queries/user-feed";
 import React from "react";
-import classnames from "classnames";
 import { SegmentedButton } from "@bobaboard/ui-components";
-import { FeedOptions } from "components/hooks/queries/user-feed";
+import classnames from "classnames";
 
 const UPDATED_ONLY_DATA = {
   id: "updated_only",

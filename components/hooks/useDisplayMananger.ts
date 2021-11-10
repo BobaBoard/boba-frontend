@@ -1,34 +1,32 @@
-import React from "react";
-
-import { useThreadContext } from "components/thread/ThreadContext";
-import { useStateWithCallback } from "components/hooks/useStateWithCallback";
-
 import {
-  GalleryViewMode,
+  CommentType,
+  PostType,
+  ThreadCommentInfoType,
+  ThreadPostInfoType,
+  isPost,
+} from "types/Types";
+import {
   GALLERY_VIEW_MODE,
+  GalleryViewMode,
   THREAD_VIEW_MODES,
   TIMELINE_VIEW_MODE,
   useThreadViewContext,
 } from "../thread/ThreadViewContext";
+import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import {
+  UNCATEGORIZED_LABEL,
   findFirstLevelParent,
   findNextSibling,
   findPreviousSibling,
-  UNCATEGORIZED_LABEL,
-} from "../../utils/thread-utils";
+} from "utils/thread-utils";
 
-import {
-  CommentType,
-  isPost,
-  PostType,
-  ThreadCommentInfoType,
-  ThreadPostInfoType,
-} from "types/Types";
-import { getElementId } from "utils/thread-utils";
-
-import debug from "debug";
 import { CollapseManager } from "components/thread/useCollapseManager";
-import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
+import React from "react";
+import debug from "debug";
+import { getElementId } from "utils/thread-utils";
+import { useStateWithCallback } from "components/hooks/useStateWithCallback";
+import { useThreadContext } from "components/thread/ThreadContext";
+
 const error = debug("bobafrontend:useDisplayManager-error");
 const log = debug("bobafrontend:useDisplayManager-log");
 const info = debug("bobafrontend:useDisplayManager-info");

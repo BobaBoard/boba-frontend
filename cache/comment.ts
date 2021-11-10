@@ -1,6 +1,6 @@
 import { setThreadInCache, setThreadPersonalIdentityInCache } from "./thread";
 
-import { CommentType } from "../types/Types";
+import { CommentType } from "types/Types";
 import { QueryClient } from "react-query";
 
 export const addCommentInCache = (

@@ -1,15 +1,15 @@
 import { QueryClient, QueryClientProvider } from "react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 
-import { AuthContext } from "../../components/Auth";
+import { AuthContext } from "components/Auth";
 import React from "react";
 import { RealmContextProvider } from "../../contexts/RealmContext";
-import SideMenu from "../../components/layout/SideMenu";
+import SideMenu from "components/layout/SideMenu";
 import { V0_DATA } from "../data/Realm";
 import { server } from "../mocks/index";
-import { usePageDataListener } from "../../utils/router-utils";
+import { usePageDataListener } from "utils/router-utils";
 
-// jest.mock("../../components/Auth", () => require("next-router-mock"));
+// jest.mock("components/Auth", () => require("next-router-mock"));
 
 beforeAll(() =>
   server.listen({

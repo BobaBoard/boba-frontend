@@ -2,14 +2,14 @@ import { Post, TagType, TagsType } from "@bobaboard/ui-components";
 import { PostOptions, usePostOptions } from "./hooks/useOptions";
 
 import React from "react";
-import { ThreadSummaryType } from "../types/Types";
+import { ThreadSummaryType } from "types/Types";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import noop from "noop-ts";
 import { useCachedLinks } from "./hooks/useCachedLinks";
 import { useForceHideIdentity } from "./hooks/useForceHideIdentity";
 import { useRealmBoardId } from "contexts/RealmContext";
-import { useSetThreadHidden } from "./hooks/queries/thread";
+import { useSetThreadHidden } from "queries/thread";
 import { withEditors } from "./editors/withEditors";
 
 const THREAD_OPTIONS = [

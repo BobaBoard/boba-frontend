@@ -1,9 +1,9 @@
 import { useQuery, useQueryClient } from "react-query";
 
-import { BoardSummary } from "../../../types/Types";
+import { BoardSummary } from "types/Types";
 import axios from "axios";
 import { makeClientBoardSummary } from "utils/client-data";
-import { useAuth } from "../../Auth";
+import { useAuth } from "components/Auth";
 
 // import debug from "debug";
 // const error = debug("bobafrontend:hooks:queries:PinnedBoards-error");

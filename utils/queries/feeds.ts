@@ -1,8 +1,8 @@
+import { FeedType } from "types/Types";
 import axios from "axios";
-import { FeedType } from "../../types/Types";
+import debug from "debug";
 import { makeClientThreadSummary } from "../client-data";
 
-import debug from "debug";
 const log = debug("bobafrontend:queries:feeds-log");
 
 export const getBoardActivityData = async (

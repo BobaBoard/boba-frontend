@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "react-query";
 import { UserNotifications } from "types/Types";
 import axios from "axios";
 import { makeClientNotifications } from "utils/client-data";
-import { useAuth } from "../../Auth";
+import { useAuth } from "components/Auth";
 
 // import debug from "debug";
 // const error = debug("bobafrontend:hooks:queries:notifications-error");

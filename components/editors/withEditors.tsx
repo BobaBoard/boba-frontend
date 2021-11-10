@@ -1,4 +1,4 @@
-import { CommentType, PostType } from "../../types/Types";
+import { CommentType, PostType } from "types/Types";
 import {
   EditorActions,
   EditorsProvider,
@@ -6,7 +6,7 @@ import {
   useEditorsState,
 } from "./EditorsContext";
 import { Modal, ModalWithButtons } from "@bobaboard/ui-components";
-import { addPostInCache, setPostTagsInCache } from "../../cache/post";
+import { addPostInCache, setPostTagsInCache } from "cache/post";
 import {
   isCommentEditorState,
   isContributionEditorState,
@@ -18,13 +18,13 @@ import { useRealmBoardId, useRealmBoards } from "contexts/RealmContext";
 import CommentEditorModal from "./CommentEditorModal";
 import ContributionEditorModal from "./ContributionEditorModal";
 import React from "react";
-import { addCommentInCache } from "../../cache/comment";
-import { useAuth } from "../Auth";
+import { addCommentInCache } from "cache/comment";
+import { useAuth } from "components/Auth";
 import { useCachedLinks } from "../hooks/useCachedLinks";
 import { usePageDetails } from "utils/router-utils";
 import { usePreventPageChange } from "components/hooks/usePreventPageChange";
 import { useQueryClient } from "react-query";
-import { useRefetchBoardActivity } from "components/hooks/queries/board-activity";
+import { useRefetchBoardActivity } from "queries/board-activity";
 
 const Editors = () => {
   const { isLoggedIn, isPending: isAuthPending } = useAuth();

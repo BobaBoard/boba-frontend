@@ -1,20 +1,21 @@
-import React from "react";
 import {
-  TagsFilterSection,
   PostQuote,
   SegmentedButton,
   TagType,
+  TagsFilterSection,
 } from "@bobaboard/ui-components";
-import { useThreadContext } from "components/thread/ThreadContext";
 import {
   THREAD_VIEW_MODES,
   useThreadViewContext,
 } from "components/thread/ThreadViewContext";
-import moment from "moment";
-import classnames from "classnames";
-import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
+
 import { DisplayManager } from "components/hooks/useDisplayMananger";
+import React from "react";
 import { UNCATEGORIZED_LABEL } from "utils/thread-utils";
+import classnames from "classnames";
+import moment from "moment";
+import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
+import { useThreadContext } from "components/thread/ThreadContext";
 
 export interface ThreadSidebarProps {
   viewMode: THREAD_VIEW_MODES;
@@ -84,12 +85,14 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
       </div>
       {contentNotices.length >= 1 && (
         <div className="category-filters">
+          <h3>Content Notices</h3>
           <TagsFilterSection
-            title={"Content Notices"}
             tags={contentNotices.map((notice) => ({
               name: notice,
-              active:
-                excludedNotices == null || !excludedNotices.includes(notice),
+              state:
+                excludedNotices == null || !excludedNotices.includes(notice)
+                  ? TagsFilterSection.FilteredTagsState.ACTIVE
+                  : TagsFilterSection.FilteredTagsState.DISABLED,
             }))}
             onTagsStateChangeRequest={(notice) => {
               if (excludedNotices?.includes(notice)) {
@@ -112,11 +115,14 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
       )}
       {categories.length >= 1 && (
         <div className="category-filters">
+          <h3>Category Filters</h3>
           <TagsFilterSection
-            title={"Category Filters"}
             tags={categories.map((category) => ({
               name: category,
-              active: activeFilters == null || activeFilters.includes(category),
+              state:
+                activeFilters == null || activeFilters.includes(category)
+                  ? TagsFilterSection.FilteredTagsState.ACTIVE
+                  : TagsFilterSection.FilteredTagsState.DISABLED,
             }))}
             onTagsStateChangeRequest={(name) => {
               setActiveFilter(name);
@@ -127,6 +133,8 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
             uncategorized={
               activeFilters == null ||
               activeFilters.includes(UNCATEGORIZED_LABEL)
+                ? TagsFilterSection.FilteredTagsState.ACTIVE
+                : TagsFilterSection.FilteredTagsState.DISABLED
             }
             onUncategorizedStateChangeRequest={() => {
               setActiveFilter(UNCATEGORIZED_LABEL);

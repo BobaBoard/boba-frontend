@@ -4,10 +4,10 @@ import {
   TagType,
 } from "@bobaboard/ui-components";
 
-import { BoardMetadata } from "../../types/Types";
+import { BoardMetadata } from "types/Types";
 import LoadingSpinner from "../LoadingSpinner";
 import React from "react";
-import { useUpdateBoardMetadata } from "../hooks/queries/board";
+import { useUpdateBoardMetadata } from "queries/board";
 
 interface BoardSidebarProps {
   boardMetadata: BoardMetadata | null | undefined;

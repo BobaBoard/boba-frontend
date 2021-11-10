@@ -3,15 +3,15 @@ import { faInbox, faRss, faThumbtack } from "@fortawesome/free-solid-svg-icons";
 import {
   useInvalidateNotifications,
   useNotifications,
-} from "../hooks/queries/notifications";
+} from "queries/notifications";
 
 import { PinnedMenu as LibraryPinnedMenu } from "@bobaboard/ui-components";
 import React from "react";
 import debug from "debug";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "../hooks/useCachedLinks";
-import { usePinnedBoards } from "../hooks/queries/pinned-boards";
-import { useRefetchBoardActivity } from "components/hooks/queries/board-activity";
+import { usePinnedBoards } from "queries/pinned-boards";
+import { useRefetchBoardActivity } from "queries/board-activity";
 
 const log = debug("bobafrontend:PinnedMenu-log");
 

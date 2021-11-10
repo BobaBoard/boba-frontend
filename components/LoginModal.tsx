@@ -1,21 +1,16 @@
-import React from "react";
 import {
   Input,
-  ModalWithButtons,
-  // @ts-ignore
+  ModalWithButtons
 } from "@bobaboard/ui-components";
-import { useAuth } from "./Auth";
+
+import React from "react";
 import classnames from "classnames";
+import { useAuth } from "components/Auth";
 import { useHotkeys } from "react-hotkeys-hook";
 
 const LoginModal: React.FC<LoginModalProps> = (props) => {
-  const {
-    isPending,
-    isLoggedIn,
-    attemptLogin,
-    attemptLogout,
-    authError,
-  } = useAuth();
+  const { isPending, isLoggedIn, attemptLogin, attemptLogout, authError } =
+    useAuth();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const onSubmit = () => {

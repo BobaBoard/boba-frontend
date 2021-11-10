@@ -1,4 +1,4 @@
-import { BoardData, BoardDescription, BoardMetadata } from "../../types/Types";
+import { BoardData, BoardDescription, BoardMetadata } from "types/Types";
 import {
   makeClientBoardData,
   makeClientBoardSummary,

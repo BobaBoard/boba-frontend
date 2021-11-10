@@ -13,7 +13,7 @@ import ThreadContextProvider, {
   useInvalidateThreadData,
   useThreadContext,
 } from "components/thread/ThreadContext";
-import { ThreadPageDetails, usePageDetails } from "../../../utils/router-utils";
+import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import { useBoardSummary, useRealmBoardId } from "contexts/RealmContext";
 import { useThreadEditors, withEditors } from "components/editors/withEditors";
 
@@ -35,9 +35,9 @@ import { useAuth } from "components/Auth";
 import { useBeamToNew } from "components/hooks/useBeamToNew";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
-import { useInvalidateNotifications } from "components/hooks/queries/notifications";
+import { useInvalidateNotifications } from "queries/notifications";
 import { useOnPageExit } from "components/hooks/useOnPageExit";
-import { useReadThread } from "components/hooks/queries/thread";
+import { useReadThread } from "queries/thread";
 import { useThreadCollapseManager } from "components/thread/useCollapseManager";
 
 // const error = debug("bobafrontend:ThreadPage-error");

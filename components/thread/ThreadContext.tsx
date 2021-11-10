@@ -5,7 +5,7 @@ import {
   ThreadPostInfoType,
   ThreadType,
 } from "types/Types";
-import { THREAD_QUERY_KEY, useThread } from "components/hooks/queries/thread";
+import { THREAD_QUERY_KEY, useThread } from "queries/thread";
 import {
   extractCategories,
   extractContentNotices,

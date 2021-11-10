@@ -1,4 +1,4 @@
-import { BoardSummary, RealmType } from "../../types/Types";
+import { BoardSummary, RealmType } from "types/Types";
 import {
   DRAWN_SUMMARY,
   GORE_SUMMARY,
@@ -8,7 +8,7 @@ import {
   addBoardSummaryInCache,
   getBoardSummaryInCache,
   setBoardSummaryInCache,
-} from "../../cache/board";
+} from "cache/board";
 import { expect, test } from "@jest/globals";
 
 import { QueryClient } from "react-query";

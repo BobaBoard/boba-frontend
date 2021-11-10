@@ -1,20 +1,16 @@
-import {
-  BoardData,
-  BoardDescription,
-  BoardMetadata,
-} from "../../../types/Types";
+import { BoardData, BoardDescription, BoardMetadata } from "types/Types";
 import {
   dismissBoardNotifications,
   getBoardMetadata,
   muteBoard,
   pinBoard,
   updateBoardSettings,
-} from "../../../utils/queries/board";
+} from "utils/queries/board";
 import {
   getBoardSummaryInCache,
   setBoardMutedInCache,
   setBoardPinnedInCache,
-} from "../../../cache/board";
+} from "cache/board";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import React from "react";

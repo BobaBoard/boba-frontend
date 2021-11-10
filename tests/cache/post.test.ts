@@ -1,4 +1,4 @@
-import { FeedType, PostType, SecretIdentityType } from "../../types/Types";
+import { FeedType, PostType, SecretIdentityType } from "types/Types";
 import { InfiniteData, QueryClient } from "react-query";
 import { expect, test } from "@jest/globals";
 import {
@@ -10,7 +10,7 @@ import { getThreadDataFromCache, getThreadKey } from "./thread.test";
 import { FAVORITE_CHARACTER_GORE_EMPTY_THREAD } from "../data/Thread";
 import { FAVORITE_CHARACTER_GORE_THREAD_SUMMARY } from "../data/ThreadSummary";
 import { REVOLVER_OCELOT_CONTRIBUTION } from "../data/Contribution";
-import { addPostInCache } from "../../cache/post";
+import { addPostInCache } from "cache/post";
 
 const GORE_BOARD_FEED_SINGLE_PAGE: InfiniteData<FeedType> = {
   pageParams: [],

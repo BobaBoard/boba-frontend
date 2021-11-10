@@ -1,29 +1,30 @@
-import React from "react";
-import { DefaultTheme, LoadingBar, NewThread } from "@bobaboard/ui-components";
-import ThreadPost, { scrollToPost } from "./ThreadPost";
-import { useThreadContext } from "components/thread/ThreadContext";
-import { CommentType, PostType } from "../../types/Types";
-import Link from "next/link";
-import classnames from "classnames";
-import CommentsThread from "./CommentsThread";
-import { usePageDetails, ThreadPageDetails } from "utils/router-utils";
-import { useAuth } from "components/Auth";
-import { useStemOptions } from "components/hooks/useStemOptions";
-import { useThreadEditors } from "components/editors/withEditors";
 import {
   CollapseManager,
   extractPostId,
   getCommentThreadId,
   useThreadCollapseManager,
 } from "./useCollapseManager";
+import { CommentType, PostType } from "types/Types";
+import { DefaultTheme, LoadingBar, NewThread } from "@bobaboard/ui-components";
 import {
   DisplayManager,
   READ_MORE_STEP,
 } from "components/hooks/useDisplayMananger";
-import css from "styled-jsx/css";
+import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
+import ThreadPost, { scrollToPost } from "./ThreadPost";
 
+import CommentsThread from "./CommentsThread";
+import Link from "next/link";
+import React from "react";
+import classnames from "classnames";
+import css from "styled-jsx/css";
 import debug from "debug";
-import { useBoardSummaryBySlug } from "components/hooks/queries/board";
+import { useAuth } from "components/Auth";
+import { useBoardSummaryBySlug } from "queries/board";
+import { useStemOptions } from "components/hooks/useStemOptions";
+import { useThreadContext } from "components/thread/ThreadContext";
+import { useThreadEditors } from "components/editors/withEditors";
+
 const error = debug("bobafrontend:ThreadLevel-log");
 const log = debug("bobafrontend:ThreadLevel-log");
 const info = debug("bobafrontend:ThreadLevel-info");

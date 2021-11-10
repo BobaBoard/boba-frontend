@@ -1,27 +1,27 @@
-import React from "react";
+import { GALLERY_VIEW_MODE, useThreadViewContext } from "./ThreadViewContext";
 import {
   MasonryView,
   NewThread,
   SegmentedButton,
 } from "@bobaboard/ui-components";
-import { useThreadContext } from "components/thread/ThreadContext";
-import CommentsThread from "./CommentsThread";
-import EmptyView from "./EmptyView";
-import { PostType } from "types/Types";
-import ThreadPost, { scrollToPost } from "./ThreadPost";
-import { useAuth } from "components/Auth";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
-import { useStemOptions } from "components/hooks/useStemOptions";
-
-import { GALLERY_VIEW_MODE, useThreadViewContext } from "./ThreadViewContext";
-import { useThreadEditors } from "components/editors/withEditors";
+import ThreadPost, { scrollToPost } from "./ThreadPost";
 import {
   extractPostId,
   getCommentThreadId,
   useThreadCollapseManager,
 } from "./useCollapseManager";
+
+import CommentsThread from "./CommentsThread";
 import { DisplayManager } from "components/hooks/useDisplayMananger";
-import { useBoardSummaryBySlug } from "components/hooks/queries/board";
+import EmptyView from "./EmptyView";
+import { PostType } from "types/Types";
+import React from "react";
+import { useAuth } from "components/Auth";
+import { useBoardSummaryBySlug } from "queries/board";
+import { useStemOptions } from "components/hooks/useStemOptions";
+import { useThreadContext } from "components/thread/ThreadContext";
+import { useThreadEditors } from "components/editors/withEditors";
 
 // import debug from "debug";
 // const log = debug("bobafrontend:threadPage:GalleryView-log");

@@ -1,10 +1,10 @@
-import { BoardMetadata, BoardSummary, RealmType } from "../types/Types";
+import { BoardMetadata, BoardSummary, RealmType } from "types/Types";
 import {
   PINNED_BOARDS_QUERY_KEY,
   PinnedBoardType,
-} from "../components/hooks/queries/pinned-boards";
+} from "queries/pinned-boards";
 
-import { BOARD_METADATA_KEY } from "../components/hooks/queries/board";
+import { BOARD_METADATA_KEY } from "queries/board";
 import { QueryClient } from "react-query";
 import { REALM_QUERY_KEY } from "contexts/RealmContext";
 

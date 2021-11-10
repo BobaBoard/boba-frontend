@@ -15,16 +15,16 @@ import {
 import {
   useInvalidateNotifications,
   useNotifications,
-} from "../hooks/queries/notifications";
+} from "queries/notifications";
 
-import { BOARD_ACTIVITY_KEY } from "../hooks/queries/board-activity";
+import { BOARD_ACTIVITY_KEY } from "queries/board-activity";
 import LoginModal from "../LoginModal";
 import PinnedMenu from "./PinnedMenu";
 import React from "react";
 import Sidemenu from "./SideMenu";
 import debug from "debug";
-import { useAuth } from "../Auth";
-import { useBoardSummaryBySlug } from "../hooks/queries/board";
+import { useAuth } from "components/Auth";
+import { useBoardSummaryBySlug } from "queries/board";
 import { useCachedLinks } from "../hooks/useCachedLinks";
 import { useForceHideIdentity } from "../hooks/useForceHideIdentity";
 import { useIsChangingRoute } from "../hooks/useIsChangingRoute";

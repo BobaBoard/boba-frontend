@@ -1,8 +1,8 @@
-import { FeedType, ThreadSummaryType, ThreadType } from "../types/Types";
+import { FeedType, ThreadSummaryType, ThreadType } from "types/Types";
 import { getActivitiesInCache, setActivitiesInCache } from "./activity";
 
 import { QueryClient } from "react-query";
-import { THREAD_QUERY_KEY } from "components/hooks/queries/thread";
+import { THREAD_QUERY_KEY } from "queries/thread";
 
 const setThreadSummaryInActivityCache = (
   queryClient: QueryClient,

@@ -7,14 +7,14 @@ import {
   TagsType,
 } from "@bobaboard/ui-components";
 import { PostOptions, usePostOptions } from "../hooks/useOptions";
-import { ThreadPageDetails, usePageDetails } from "../../utils/router-utils";
+import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import {
   getTotalContributions,
   getTotalNewContributions,
-} from "../../utils/thread-utils";
+} from "utils/thread-utils";
 
 import { PostProps } from "@bobaboard/ui-components/dist/post/Post";
-import { PostType } from "../../types/Types";
+import { PostType } from "types/Types";
 import React from "react";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { log } from "debug";

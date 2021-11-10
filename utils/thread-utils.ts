@@ -1,12 +1,14 @@
-import debug from "debug";
 import {
-  PostType,
   CommentType,
-  ThreadPostInfoType,
+  PostType,
   ThreadCommentInfoType,
-  isPost,
+  ThreadPostInfoType,
   isComment,
-} from "../types/Types";
+  isPost,
+} from "types/Types";
+
+import debug from "debug";
+
 const error = debug("bobafrontend:thread-utils-error");
 const log = debug("bobafrontend:thread-utils-log");
 const info = debug("bobafrontend:thread-utils-info");

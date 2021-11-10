@@ -4,7 +4,7 @@ import {
   PostData,
   PostType,
   ThreadType,
-} from "../types/Types";
+} from "types/Types";
 import {
   makeClientComment,
   makeClientPost,

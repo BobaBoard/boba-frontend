@@ -1,10 +1,11 @@
-import React from "react";
-import { useAuth } from "../Auth";
 import {
   faAngleDoubleUp,
   faCompressArrowsAlt,
   faPlusSquare,
 } from "@fortawesome/free-solid-svg-icons";
+
+import React from "react";
+import { useAuth } from "components/Auth";
 
 export const useStemOptions = ({
   onCollapse,

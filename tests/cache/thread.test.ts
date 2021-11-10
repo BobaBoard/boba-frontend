@@ -4,7 +4,7 @@ import {
   REMEMBER_TO_BE_EXCELLENT_GORE_THREAD_SUMMARY,
   STUFF_WILL_BE_INSERTED_ANIME,
 } from "../data/ThreadSummary";
-import { FeedType, ThreadSummaryType, ThreadType } from "../../types/Types";
+import { FeedType, ThreadSummaryType, ThreadType } from "types/Types";
 import { InfiniteData, QueryClient } from "react-query";
 import { expect, test } from "@jest/globals";
 import {
@@ -15,8 +15,8 @@ import {
 } from "./activity.test";
 
 import { REMEMBER_TO_BE_EXCELLENT_GORE_THREAD } from "../data/Thread";
-import { THREAD_QUERY_KEY } from "../../components/hooks/queries/thread";
-import { setThreadInCache } from "../../cache/thread";
+import { THREAD_QUERY_KEY } from "queries/thread";
+import { setThreadInCache } from "cache/thread";
 
 const GORE_BOARD_FEED_SINGLE_PAGE: InfiniteData<FeedType> = {
   pageParams: [],

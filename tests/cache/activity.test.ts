@@ -4,16 +4,13 @@ import {
   REMEMBER_TO_BE_EXCELLENT_GORE_THREAD_SUMMARY,
   STUFF_WILL_BE_INSERTED_ANIME,
 } from "../data/ThreadSummary";
-import { FeedType, ThreadSummaryType } from "../../types/Types";
+import { FeedType, ThreadSummaryType } from "types/Types";
 import { InfiniteData, QueryClient } from "react-query";
 import { expect, test } from "@jest/globals";
-import {
-  getActivitiesInCache,
-  setActivitiesInCache,
-} from "../../cache/activity";
+import { getActivitiesInCache, setActivitiesInCache } from "cache/activity";
 
-import { BOARD_ACTIVITY_KEY } from "../../components/hooks/queries/board-activity";
-import { USER_FEED_KEY } from "../../components/hooks/queries/user-feed";
+import { BOARD_ACTIVITY_KEY } from "queries/board-activity";
+import { USER_FEED_KEY } from "queries/user-feed";
 
 export const getBoardQueryKey = (data: { slug: string }) => {
   return [BOARD_ACTIVITY_KEY, { slug: data.slug }];

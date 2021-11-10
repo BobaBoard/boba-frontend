@@ -1,8 +1,8 @@
 import { InfiniteData, QueryClient } from "react-query";
 
-import { BOARD_ACTIVITY_KEY } from "components/hooks/queries/board-activity";
-import { FeedType } from "../types/Types";
-import { USER_FEED_KEY } from "components/hooks/queries/user-feed";
+import { BOARD_ACTIVITY_KEY } from "queries/board-activity";
+import { FeedType } from "types/Types";
+import { USER_FEED_KEY } from "queries/user-feed";
 
 // TODO: rename this (and the rest) to "getFeedsInCache"
 export const getActivitiesInCache = (

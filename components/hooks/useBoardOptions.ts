@@ -10,13 +10,13 @@ import {
   useDismissBoardNotifications,
   useMuteBoard,
   usePinBoard,
-} from "../../components/hooks/queries/board";
+} from "queries/board";
 
 import { BoardPermissions } from "types/Types";
 import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
 import React from "react";
-import { useAuth } from "../../components/Auth";
-import { useInvalidateNotifications } from "./queries/notifications";
+import { useAuth } from "components/Auth";
+import { useInvalidateNotifications } from "queries/notifications";
 
 export enum BoardOptions {
   DISMISS_NOTIFICATIONS = "DISMISS_NOTIFICATIONS",

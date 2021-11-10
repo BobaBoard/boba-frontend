@@ -1,9 +1,4 @@
-import {
-  PostType,
-  TagsType,
-  ThreadSummaryType,
-  ThreadType,
-} from "../types/Types";
+import { PostType, TagsType, ThreadSummaryType, ThreadType } from "types/Types";
 import { setThreadInCache, setThreadPersonalIdentityInCache } from "./thread";
 
 import { QueryClient } from "react-query";

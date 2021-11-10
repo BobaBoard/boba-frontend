@@ -1,4 +1,4 @@
-import { ThreadSummaryType } from "../../types/Types";
+import { ThreadSummaryType } from "types/Types";
 
 export const REMEMBER_TO_BE_EXCELLENT_GORE_THREAD_SUMMARY: ThreadSummaryType = {
   id: "8b2646af-2778-487e-8e44-7ae530c2549c",

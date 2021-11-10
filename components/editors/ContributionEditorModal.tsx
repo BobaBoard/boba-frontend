@@ -3,7 +3,7 @@ import {
   PostType,
   TagsType as ServerTagsType,
   ThreadType,
-} from "../../types/Types";
+} from "types/Types";
 import { PostEditor, toast } from "@bobaboard/ui-components";
 import {
   THREAD_VIEW_OPTIONS,
@@ -11,7 +11,7 @@ import {
   processTags,
   useThreadDetails,
 } from "./utils";
-import { createPost, createThread } from "../../utils/queries";
+import { createPost, createThread } from "utils/queries";
 import {
   isContributionEditorState,
   isEditContribution,
@@ -20,8 +20,8 @@ import {
 
 import React from "react";
 import debug from "debug";
-import { editPost } from "../../utils/queries/post";
-import { useAuth } from "../Auth";
+import { editPost } from "utils/queries/post";
+import { useAuth } from "components/Auth";
 import { useEditorsState } from "./EditorsContext";
 import { useMutation } from "react-query";
 import { useRealmBoards } from "contexts/RealmContext";

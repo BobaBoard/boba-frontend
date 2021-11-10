@@ -9,8 +9,8 @@ import {
   ThreadSummaryType,
   ThreadType,
   UserNotifications,
-} from "../types/Types";
-import { DEFAULT_USER_AVATAR, DEFAULT_USER_NAME } from "../components/Auth";
+} from "types/Types";
+import { DEFAULT_USER_AVATAR, DEFAULT_USER_NAME } from "components/Auth";
 
 import moment from "moment";
 

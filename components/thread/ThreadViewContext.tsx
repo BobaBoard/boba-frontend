@@ -1,8 +1,8 @@
-import React from "react";
+import { ArrayParam, DecodedValueMap, useQueryParams } from "use-query-params";
 
 import { ExistanceParam } from "../QueryParamNextProvider";
-import { ArrayParam, DecodedValueMap, useQueryParams } from "use-query-params";
-import { ThreadType } from "../../types/Types";
+import React from "react";
+import { ThreadType } from "types/Types";
 import { useThreadContext } from "components/thread/ThreadContext";
 
 export enum THREAD_VIEW_MODES {

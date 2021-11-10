@@ -1,22 +1,23 @@
-import React from "react";
 import { NewThread, SegmentedButton } from "@bobaboard/ui-components";
-import { useThreadContext } from "components/thread/ThreadContext";
-import classnames from "classnames";
-import CommentsThread from "./CommentsThread";
-import ThreadPost, { scrollToPost } from "./ThreadPost";
-import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
-import { useAuth } from "components/Auth";
-import { useStemOptions } from "components/hooks/useStemOptions";
 import { TIMELINE_VIEW_MODE, useThreadViewContext } from "./ThreadViewContext";
-import { useThreadEditors } from "components/editors/withEditors";
+import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
+import ThreadPost, { scrollToPost } from "./ThreadPost";
 import {
   extractPostId,
   getCommentThreadId,
   useThreadCollapseManager,
 } from "./useCollapseManager";
+
+import CommentsThread from "./CommentsThread";
 import { DisplayManager } from "components/hooks/useDisplayMananger";
 import EmptyView from "./EmptyView";
-import { useBoardSummaryBySlug } from "components/hooks/queries/board";
+import React from "react";
+import classnames from "classnames";
+import { useAuth } from "components/Auth";
+import { useBoardSummaryBySlug } from "queries/board";
+import { useStemOptions } from "components/hooks/useStemOptions";
+import { useThreadContext } from "components/thread/ThreadContext";
+import { useThreadEditors } from "components/editors/withEditors";
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // import debug from "debug";

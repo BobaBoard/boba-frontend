@@ -3,7 +3,7 @@ import {
   hideThread,
   markThreadAsRead,
   muteThread,
-} from "../../../utils/queries";
+} from "utils/queries";
 import {
   getThreadSummaryInCache,
   setThreadActivityClearedInCache,
@@ -13,10 +13,10 @@ import {
 } from "cache/thread";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
-import { ThreadType } from "../../../types/Types";
+import { ThreadType } from "types/Types";
 import debug from "debug";
 import { toast } from "@bobaboard/ui-components";
-import { updateThreadView } from "../../../utils/queries/post";
+import { updateThreadView } from "utils/queries/post";
 import { useAuth } from "components/Auth";
 import { useBoardSummary } from "contexts/RealmContext";
 

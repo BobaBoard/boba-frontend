@@ -3,7 +3,7 @@ import "@bobaboard/ui-components/dist/main.css";
 import "normalize.css";
 
 import App, { AppContext } from "next/app";
-import { AuthProvider, useAuth } from "../components/Auth";
+import { AuthProvider, useAuth } from "components/Auth";
 import { BoardData, BoardSummary } from "types/Types";
 import {
   EditorContext,
@@ -25,21 +25,21 @@ import type { AppProps } from "next/app";
 import { CustomErrorPage } from "./_error";
 import ErrorBoundary from "@stefanprobst/next-error-boundary";
 import Head from "next/head";
-import { QueryParamProvider } from "../components/QueryParamNextProvider";
+import { QueryParamProvider } from "components/QueryParamNextProvider";
 import React from "react";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { RealmContextProvider } from "../contexts/RealmContext";
-import { UpdateNotice } from "../components/UpdateNotice";
+import { UpdateNotice } from "components/UpdateNotice";
 import axios from "axios";
 import debug from "debug";
-import embedsCache from "../utils/embeds-cache";
+import embedsCache from "utils/embeds-cache";
 import { getRealmData } from "utils/queries/realm";
 import { makeClientBoardData } from "utils/client-data";
 import smoothscroll from "smoothscroll-polyfill";
-import useFromBackButton from "../components/hooks/useFromBackButton";
-import { useImageUploader } from "../utils/image-upload";
+import useFromBackButton from "components/hooks/useFromBackButton";
+import { useImageUploader } from "utils/image-upload";
 import { usePageDataListener } from "utils/router-utils";
-import { useScrollRestoration } from "../components/hooks/useScrollRestoration";
+import { useScrollRestoration } from "components/hooks/useScrollRestoration";
 
 const log = debug("bobafrontend:app-log");
 

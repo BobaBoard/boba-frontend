@@ -2,8 +2,8 @@ import React from "react";
 import { RealmType } from "types/Types";
 import debug from "debug";
 import { getCurrentRealmSlug } from "utils/location-utils";
-import { getRealmData } from "../utils/queries/realm";
-import { useAuth } from "../components/Auth";
+import { getRealmData } from "utils/queries/realm";
+import { useAuth } from "components/Auth";
 import { useQuery } from "react-query";
 
 //const log = debug("bobafrontend:contexts:RealmContext-log");

@@ -1,13 +1,13 @@
-import React from "react";
-
+import { CommentType, PostType, isComment, isPost } from "types/Types";
 import { isCommentLoaded, scrollToComment } from "../thread/CommentsThread";
 import { isPostLoaded, scrollToPost } from "../thread/ThreadPost";
-import { CommentType, isComment, isPost, PostType } from "../../types/Types";
-import { useThreadContext } from "../thread/ThreadContext";
-import { useStateWithCallback } from "./useStateWithCallback";
 
-import debug from "debug";
 import { DisplayManager } from "./useDisplayMananger";
+import React from "react";
+import debug from "debug";
+import { useStateWithCallback } from "./useStateWithCallback";
+import { useThreadContext } from "../thread/ThreadContext";
+
 // const error = debug("bobafrontend:useBeamToNew-error");
 const log = debug("bobafrontend:useBeamToNew-log");
 const info = debug("bobafrontend:useBeamToNew-info");
