@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/extend-expect";
 
 import { NextRouter } from "next/router";
-import { server } from "../mocks/index";
+import { server } from "../server-mocks/index";
 
 const router: NextRouter = {
   asPath: "/!gore",
