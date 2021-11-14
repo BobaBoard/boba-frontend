@@ -21,7 +21,7 @@ import { useBoardSummaryBySlug } from "queries/board";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { usePageDetails } from "utils/router-utils";
 import { useRealmBoards } from "contexts/RealmContext";
-import { useRefetchBoardActivity } from "queries/board-activity";
+import { useRefetchBoardActivity } from "queries/board-feed";
 
 const log = debug("bobafrontend:SideMenu-log");
 

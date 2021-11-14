@@ -18,6 +18,7 @@ module.exports = {
     "^utils(.*)$": "<rootDir>/utils$1",
     "^contexts(.*)$": "<rootDir>/contexts$1",
     "^types(.*)$": "<rootDir>/types$1",
+    "^pages(.*)$": "<rootDir>/pages$1",
     "^queries(.*)$": "<rootDir>/queries$1",
     "^react$": "<rootDir>/node_modules/react",
     "^react-dom$": "<rootDir>/node_modules/react-dom",
@@ -31,5 +32,5 @@ module.exports = {
     "/node_modules/",
     "^.+\\.module\\.(css|sass|scss)$",
   ],
-  setupFilesAfterEnv: ["<rootDir>/tests/UI/jest.setup.js"],
+  setupFilesAfterEnv: ["<rootDir>/tests/UI/jest.setup.ts"],
 };

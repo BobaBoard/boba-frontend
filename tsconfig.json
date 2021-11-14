@@ -29,13 +29,15 @@
       "node",
       "jest",
       "cypress",
-      "@testing-library/cypress"
+      "@testing-library/cypress",
+      "@testing-library/jest-dom"
     ],
     "paths": {
       "queries/*": ["queries/*"],
       "cache/*": ["cache/*"],
       "components/*": ["components/*"],
       "utils/*": ["utils/*"],
+      "pages/*": ["pages/*"],
       "types/*": ["types/*"]
     },
     "skipLibCheck": true,

@@ -15,7 +15,7 @@ import { ThreadSummaryType } from "types/Types";
 import axios from "axios";
 import debug from "debug";
 import { useAuth } from "components/Auth";
-import { useBoardActivity } from "queries/board-activity";
+import { useBoardActivity } from "queries/board-feed";
 import { useBoardMetadata } from "queries/board";
 import { useRealmBoardId } from "contexts/RealmContext";
 import { withEditors } from "components/editors/withEditors";
@@ -27,6 +27,15 @@ info.log = console.info.bind(console);
 const NewThreadButton = withEditors<{ boardId: string | null }>((props) => {
   const { boardMetadata } = useBoardMetadata({ boardId: props.boardId });
   const editorDispatch = useEditorsDispatch();
+  const onNewPost = React.useCallback(() => {
+    if (!boardMetadata) {
+      return;
+    }
+    editorDispatch({
+      type: EditorActions.NEW_THREAD,
+      payload: { boardId: boardMetadata.id },
+    });
+  }, [editorDispatch, boardMetadata]);
 
   if (!boardMetadata) {
     return null;
@@ -34,12 +43,7 @@ const NewThreadButton = withEditors<{ boardId: string | null }>((props) => {
   return (
     <MemoizedActionButton
       accentColor={boardMetadata?.accentColor || "#f96680"}
-      onNewPost={React.useCallback(() => {
-        editorDispatch({
-          type: EditorActions.NEW_THREAD,
-          payload: { boardId: boardMetadata.id },
-        });
-      }, [editorDispatch, boardMetadata])}
+      onNewPost={onNewPost}
     />
   );
 });
@@ -85,7 +89,7 @@ function BoardPage() {
     fetchNextPage,
     hasNextPage,
   } = useBoardActivity({
-    slug,
+    boardId,
     categoryFilter,
   });
 

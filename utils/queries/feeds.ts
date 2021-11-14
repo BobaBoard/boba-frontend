@@ -7,23 +7,24 @@ const log = debug("bobafrontend:queries:feeds-log");
 
 export const getBoardActivityData = async (
   {
-    slug,
+    boardId,
     categoryFilter,
-  }: { slug: string | null; categoryFilter: string | null },
+  }: { boardId: string | null; categoryFilter: string | null },
   cursor?: string
 ): Promise<FeedType | undefined> => {
-  log(`Fetching board activity for board with slug ${slug}.`);
-  if (!slug) {
-    log(`...can't fetch board activity for board with no slug.`);
+  log(`Fetching board activity for board with id ${boardId}.`);
+  if (!boardId) {
+    log(`...can't fetch board activity for board with no id.`);
     // TODO: don't request activity when there's no slug.
-    throw new Error("Attempted to fetch board activity with no slug");
+    throw new Error("Attempted to fetch board activity with no id");
   }
-  const response = await axios.get(`feeds/boards/${slug}/`, {
+  const response = await axios.get(`feeds/boards/${boardId}`, {
     params: { cursor, categoryFilter },
   });
   log(
-    `Got response for board activity with slug ${slug}. Status: ${response.status}`
+    `Got response for board activity with id ${boardId}. Status: ${response.status}`
   );
+
   if (response.status == 204) {
     // No data, let's return empty array
     return { cursor: { next: null }, activity: [] };

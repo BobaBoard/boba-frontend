@@ -6,6 +6,7 @@ import React from "react";
 import { RealmContextProvider } from "../../contexts/RealmContext";
 import SideMenu from "components/layout/SideMenu";
 import { V0_DATA } from "../data/Realm";
+import { makeRealmData } from "utils/client-data";
 import { server } from "../mocks/index";
 import { usePageDataListener } from "utils/router-utils";
 
@@ -49,7 +50,7 @@ const Client = ({ children }: any) => {
           isPending: false,
         }}
       >
-        <RealmContextProvider initialData={V0_DATA}>
+        <RealmContextProvider initialData={makeRealmData(V0_DATA)}>
           {children}
         </RealmContextProvider>
       </AuthContext.Provider>

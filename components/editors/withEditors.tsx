@@ -24,7 +24,7 @@ import { useCachedLinks } from "../hooks/useCachedLinks";
 import { usePageDetails } from "utils/router-utils";
 import { usePreventPageChange } from "components/hooks/usePreventPageChange";
 import { useQueryClient } from "react-query";
-import { useRefetchBoardActivity } from "queries/board-activity";
+import { useRefetchBoardActivity } from "queries/board-feed";
 
 const Editors = () => {
   const { isLoggedIn, isPending: isAuthPending } = useAuth();

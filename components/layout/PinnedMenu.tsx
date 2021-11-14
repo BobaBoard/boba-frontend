@@ -11,7 +11,7 @@ import debug from "debug";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "../hooks/useCachedLinks";
 import { usePinnedBoards } from "queries/pinned-boards";
-import { useRefetchBoardActivity } from "queries/board-activity";
+import { useRefetchBoardActivity } from "queries/board-feed";
 
 const log = debug("bobafrontend:PinnedMenu-log");
 

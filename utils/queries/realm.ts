@@ -1,6 +1,6 @@
 import { RealmType } from "types/Types";
 import axios from "axios";
-import { makeClientBoardSummary } from "utils/client-data";
+import { makeRealmData } from "utils/client-data";
 
 export const getRealmData = async ({
   realmSlug,
@@ -18,15 +18,5 @@ export const getRealmData = async ({
     url ? url.toString() : `/realms/slug/${realmSlug}`
   );
 
-  const data = response.data;
-  return {
-    slug: data.slug,
-    settings: {
-      root: data.settings.root,
-      indexPage: data.settings.index_page,
-      boardPage: data.settings.board_page,
-      threadPage: data.settings.thread_page,
-    },
-    boards: data.boards.map(makeClientBoardSummary),
-  };
+  return makeRealmData(response.data);
 };

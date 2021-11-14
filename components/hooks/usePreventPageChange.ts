@@ -1,11 +1,12 @@
-import React from "react";
 import Router, { useRouter } from "next/router";
 
+import React from "react";
 import debug from "debug";
+
 // @ts-expect-error
 const info = debug("bobafrontend:hooks:preventPageChange-info");
 
-let POP_STATE_CALLBACKS = [] as ((state: any) => boolean)[];
+const POP_STATE_CALLBACKS = [] as ((state: any) => boolean)[];
 export const usePreventPageChange = (
   shouldPrevent: () => boolean,
   onPageChange: () => void,

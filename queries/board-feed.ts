@@ -2,23 +2,23 @@ import { useInfiniteQuery, useQueryClient } from "react-query";
 
 import { getBoardActivityData } from "utils/queries/feeds";
 import { useAuth } from "components/Auth";
-import { useBoardSummaryBySlug } from "./board";
+import { useBoardSummary } from "contexts/RealmContext";
 
 export const BOARD_ACTIVITY_KEY = "boardActivityData";
 export function useBoardActivity(props: {
-  slug: string | null;
+  boardId: string | null;
   // TODO: figure out better typing from query params
   categoryFilter: (string | null)[] | null | undefined;
 }) {
-  const { slug, categoryFilter } = props;
-  const boardSummary = useBoardSummaryBySlug(slug);
+  const { boardId, categoryFilter } = props;
+  const boardSummary = useBoardSummary({ boardId });
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
 
   return useInfiniteQuery(
-    [BOARD_ACTIVITY_KEY, { slug, categoryFilter }],
+    [BOARD_ACTIVITY_KEY, { boardId, categoryFilter }],
     ({ pageParam = undefined }) =>
       getBoardActivityData(
-        { slug, categoryFilter: categoryFilter?.[0] || null },
+        { boardId, categoryFilter: categoryFilter?.[0] || null },
         pageParam
       ),
     {
@@ -27,8 +27,8 @@ export function useBoardActivity(props: {
       },
       // Block this query for loggedInOnly boards (unless we're logged in)
       enabled:
-        (slug && boardSummary && !boardSummary.loggedInOnly) ||
-        (!isAuthPending && isLoggedIn),
+        (boardId && boardSummary && !boardSummary.loggedInOnly) ||
+        (!!boardId && !isAuthPending && isLoggedIn),
       refetchOnWindowFocus: false,
     }
   );

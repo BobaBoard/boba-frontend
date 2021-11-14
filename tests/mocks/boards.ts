@@ -1,9 +1,16 @@
-import { V0_DATA } from "../data/Realm";
+import { BOBATAN_GORE_METADATA } from "../data/BoardMetadata";
 import { rest } from "msw";
 
 export default [
-  rest.get(/\/realms\/slug\/v0/, (req, res, ctx) => {
-    console.log("fetching data for v0 realm");
-    return res(ctx.status(200), ctx.json(V0_DATA));
+  rest.get("/boards/c6d3d10e-8e49-4d73-b28a-9d652b41beec", (req, res, ctx) => {
+    console.log("fetching data for gore board");
+    return res(ctx.status(200), ctx.json(BOBATAN_GORE_METADATA));
   }),
+  rest.post(
+    "/boards/c6d3d10e-8e49-4d73-b28a-9d652b41beec/visits",
+    (req, res, ctx) => {
+      console.log("marking gore board as visited");
+      return res(ctx.status(204));
+    }
+  ),
 ];

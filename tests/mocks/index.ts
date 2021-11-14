@@ -1,4 +1,6 @@
-import boardsHandlers from "./boards";
+import boardHandlers from "./boards";
+import feedHandlers from "./feeds";
+import realmHandlers from "./realms";
 import { setupServer } from "msw/node";
 import usersHandlers from "./users";
 
@@ -12,4 +14,9 @@ import usersHandlers from "./users";
 //   server.listen();
 // }
 // export default { worker, server };
-export const server = setupServer(...boardsHandlers, ...usersHandlers);
+export const server = setupServer(
+  ...boardHandlers,
+  ...usersHandlers,
+  ...realmHandlers,
+  ...feedHandlers
+);

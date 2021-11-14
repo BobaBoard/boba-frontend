@@ -22,7 +22,7 @@ import { toast } from "@bobaboard/ui-components";
 import { useAuth } from "components/Auth";
 import { useInvalidateNotifications } from "./notifications";
 import { useRealmBoards } from "contexts/RealmContext";
-import { useRefetchBoardActivity } from "./board-activity";
+import { useRefetchBoardActivity } from "./board-feed";
 import { useRefetchPinnedBoards } from "./pinned-boards";
 
 const error = debug("bobafrontend:hooks:queries:board-error");

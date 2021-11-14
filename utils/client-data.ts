@@ -33,7 +33,7 @@ export const makeClientComment = (
     name: serverComment.user_identity.name || DEFAULT_USER_NAME,
     avatar: serverComment.user_identity.avatar || DEFAULT_USER_AVATAR,
   },
-  created: serverComment.created,
+  created: serverComment.created_at,
   content: serverComment.content,
   isNew: serverComment.new,
   isOwn: serverComment.own,
@@ -250,6 +250,19 @@ export const makeClientNotifications = (
     return agg;
   }, {}),
 });
+
+export const makeRealmData = (realmData: any) => {
+  return {
+    slug: realmData.slug,
+    settings: {
+      root: realmData.settings.root,
+      indexPage: realmData.settings.index_page,
+      boardPage: realmData.settings.board_page,
+      threadPage: realmData.settings.thread_page,
+    },
+    boards: realmData.boards.map(makeClientBoardSummary),
+  };
+};
 
 export const makeClientData = <T>(serverData: any): T | unknown => {
   if (serverData === null) {

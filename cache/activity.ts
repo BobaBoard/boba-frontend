@@ -1,6 +1,6 @@
 import { InfiniteData, QueryClient } from "react-query";
 
-import { BOARD_ACTIVITY_KEY } from "queries/board-activity";
+import { BOARD_ACTIVITY_KEY } from "queries/board-feed";
 import { FeedType } from "types/Types";
 import { USER_FEED_KEY } from "queries/user-feed";
 

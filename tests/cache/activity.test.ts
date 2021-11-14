@@ -9,7 +9,7 @@ import { InfiniteData, QueryClient } from "react-query";
 import { expect, test } from "@jest/globals";
 import { getActivitiesInCache, setActivitiesInCache } from "cache/activity";
 
-import { BOARD_ACTIVITY_KEY } from "queries/board-activity";
+import { BOARD_ACTIVITY_KEY } from "queries/board-feed";
 import { USER_FEED_KEY } from "queries/user-feed";
 
 export const getBoardQueryKey = (data: { slug: string }) => {

@@ -71,6 +71,7 @@ export const V0_DATA = {
       logged_in_only: false,
     },
     {
+      id: "76ebaab0-6c3e-4d7b-900f-f450625a5ed3",
       realm_id: "v0-fake-id",
       slug: "restricted",
       tagline: "A board to test for logged-in only view",
