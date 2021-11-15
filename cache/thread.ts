@@ -6,12 +6,12 @@ import { THREAD_QUERY_KEY } from "queries/thread";
 
 const setThreadSummaryInActivityCache = (
   queryClient: QueryClient,
-  key: { slug: string; threadId: string },
+  key: { boardId: string; threadId: string },
   transform: (thread: ThreadSummaryType) => ThreadSummaryType
 ) => {
   setActivitiesInCache(
     queryClient,
-    { slug: key.slug },
+    { boardId: key.boardId },
     (activity: FeedType) => {
       const threads = activity.activity;
       if (!threads) {
@@ -41,7 +41,7 @@ export type ThreadTransformerType = <T extends ThreadSummaryType | ThreadType>(
 
 export const setThreadInCache = (
   queryClient: QueryClient,
-  key: { slug: string; threadId: string },
+  key: { boardId: string; threadId: string },
   transformers: {
     transformThread: (thread: ThreadType) => ThreadType;
     transformThreadSummary: (thread: ThreadSummaryType) => ThreadSummaryType;
@@ -65,7 +65,7 @@ export const setThreadActivityClearedInCache = (
   queryClient: QueryClient,
   key: {
     threadId: string;
-    slug: string;
+    boardId: string;
   },
   options?: {
     activityOnly?: boolean;
@@ -99,11 +99,11 @@ export const setThreadActivityClearedInCache = (
 export const setThreadMutedInCache = (
   queryClient: QueryClient,
   {
-    slug,
+    boardId,
     threadId,
     mute,
   }: {
-    slug: string;
+    boardId: string;
     threadId: string;
     mute: boolean;
   }
@@ -119,7 +119,7 @@ export const setThreadMutedInCache = (
   setThreadInCache(
     queryClient,
     {
-      slug,
+      boardId,
       threadId,
     },
     {
@@ -132,11 +132,11 @@ export const setThreadMutedInCache = (
 export const setThreadDefaultViewInCache = (
   queryClient: QueryClient,
   {
-    slug,
+    boardId,
     threadId,
     view,
   }: {
-    slug: string;
+    boardId: string;
     categoryFilter: string | null;
     threadId: string;
     view: ThreadType["defaultView"];
@@ -153,7 +153,7 @@ export const setThreadDefaultViewInCache = (
   setThreadInCache(
     queryClient,
     {
-      slug,
+      boardId,
       threadId,
     },
     {
@@ -166,11 +166,11 @@ export const setThreadDefaultViewInCache = (
 export const setThreadHiddenInCache = (
   queryClient: QueryClient,
   {
-    slug,
+    boardId,
     threadId,
     hide,
   }: {
-    slug: string;
+    boardId: string;
     threadId: string;
     hide: boolean;
   }
@@ -186,7 +186,7 @@ export const setThreadHiddenInCache = (
   setThreadInCache(
     queryClient,
     {
-      slug,
+      boardId,
       threadId,
     },
     {
@@ -199,11 +199,11 @@ export const setThreadHiddenInCache = (
 export const setThreadPersonalIdentityInCache = (
   queryClient: QueryClient,
   {
-    slug,
+    boardId,
     threadId,
     personalIdentity,
   }: {
-    slug: string;
+    boardId: string;
     threadId: string;
     personalIdentity:
       | {
@@ -225,7 +225,7 @@ export const setThreadPersonalIdentityInCache = (
   };
   setThreadInCache(
     queryClient,
-    { slug, threadId },
+    { boardId, threadId },
     {
       transformThread: transformer,
       transformThreadSummary: transformer,
@@ -236,17 +236,16 @@ export const setThreadPersonalIdentityInCache = (
 export const getThreadSummaryInCache = (
   queryClient: QueryClient,
   {
-    slug,
+    boardId,
     threadId,
   }: {
-    slug: string;
+    boardId: string;
     threadId: string;
   }
 ) => {
-  const activities = getActivitiesInCache(queryClient, { slug });
+  const activities = getActivitiesInCache(queryClient, { boardId });
   for (const activity of activities) {
     if (!activity) {
-      console.log(activities);
       return null;
     }
     // TODO: figure out why pages isn't here sometimes

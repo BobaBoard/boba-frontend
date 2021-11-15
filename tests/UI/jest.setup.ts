@@ -1,8 +1,10 @@
 import "@testing-library/jest-dom/extend-expect";
 
 import { NextRouter } from "next/router";
+import { debug } from "debug";
 import { server } from "../server-mocks/index";
 
+const routerInfo = debug("bobatest:router");
 const router: NextRouter = {
   asPath: "/!gore",
   basePath: "",
@@ -12,34 +14,34 @@ const router: NextRouter = {
     boardId: "!gore",
   },
   push: async (...args) => {
-    console.log("push", args);
+    routerInfo("push", args);
     return true;
   },
   prefetch: async () => {
-    console.log("prefetch");
+    routerInfo("prefetch");
   },
   replace: async () => {
-    console.log("replace");
+    routerInfo("replace");
     return true;
   },
   reload: async () => {
-    console.log("reload");
+    routerInfo("reload");
   },
   back: async () => {
-    console.log("back");
+    routerInfo("back");
   },
   beforePopState: async () => {
-    console.log("beforePopState");
+    routerInfo("beforePopState");
   },
   events: {
     on: () => {
-      console.log("on");
+      routerInfo("on");
     },
     off: () => {
-      console.log("off");
+      routerInfo("off");
     },
     emit: () => {
-      console.log("emit");
+      routerInfo("emit");
     },
   },
   isFallback: false,
@@ -94,3 +96,7 @@ beforeAll(() =>
   })
 );
 afterAll(() => server.close());
+
+beforeEach(() => {
+  server.resetHandlers();
+});

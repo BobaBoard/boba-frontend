@@ -1,5 +1,20 @@
-export const GORE_SUMMARY = {
-  id: "gore",
+import { BoardSummary } from "types/Types";
+
+// These exist on the server
+export const GORE_BOARD_ID = "c6d3d10e-8e49-4d73-b28a-9d652b41beec";
+export const ANIME_BOARD_ID = "4b30fb7c-2aca-4333-aa56-ae8623a92b65";
+export const MAIN_STREET_BOARD_ID = "2fb151eb-c600-4fe4-a542-4662487e5496";
+export const MUTED_BOARD_ID = "2bdce2fa-12e0-461b-b0fb-1a2e67227434";
+export const RESTRICTED_BOARD_ID = "76ebaab0-6c3e-4d7b-900f-f450625a5ed3";
+export const LONG_BOARD_ID = "db8dc5b3-5b4a-4bfe-a303-e176c9b00b83";
+
+// These are just for these tests
+export const RECNRAVE_BOARD_ID = "69cbb4f1-3297-4874-9f72-600d210e17ef";
+export const KPOP_BOARD_ID = "4d98f676-4532-41c9-9f6c-1b12f40cb854";
+export const DRAWN_BOARD_ID = "a98b7beb-157d-4952-8e75-b1d790999997";
+
+export const GORE_SUMMARY: BoardSummary = {
+  id: GORE_BOARD_ID,
   realmId: "v0",
   slug: "gore",
   avatarUrl:
@@ -9,8 +24,8 @@ export const GORE_SUMMARY = {
   loggedInOnly: false,
   delisted: false,
 };
-export const RECNRAVE_SUMMARY = {
-  id: "recnrave",
+export const RECNRAVE_SUMMARY: BoardSummary = {
+  id: RECNRAVE_BOARD_ID,
   realmId: "v0",
   slug: "recnrave",
   avatarUrl:
@@ -20,8 +35,8 @@ export const RECNRAVE_SUMMARY = {
   loggedInOnly: false,
   delisted: false,
 };
-export const KPOP_SUMMARY = {
-  id: "kpop",
+export const KPOP_SUMMARY: BoardSummary = {
+  id: KPOP_BOARD_ID,
   realmId: "v0",
   slug: "kpop",
   avatarUrl:
@@ -32,8 +47,8 @@ export const KPOP_SUMMARY = {
   loggedInOnly: false,
   delisted: false,
 };
-export const ANIMANGA_SUMMARY = {
-  id: "animanga",
+export const ANIMANGA_SUMMARY: BoardSummary = {
+  id: ANIME_BOARD_ID,
   realmId: "v0",
   slug: "animanga",
   avatarUrl:
@@ -45,8 +60,8 @@ export const ANIMANGA_SUMMARY = {
   delisted: false,
   muted: false,
 };
-export const DRAWN_SUMMARY = {
-  id: "drawn",
+export const DRAWN_SUMMARY: BoardSummary = {
+  id: DRAWN_BOARD_ID,
   realmId: "v0",
   slug: "drawn",
   avatarUrl:

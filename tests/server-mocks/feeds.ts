@@ -1,4 +1,4 @@
-import { GORE_FEED } from "../data/BoardFeed";
+import { GORE_FEED } from "./data/feed-board";
 import { rest } from "msw";
 
 export default [

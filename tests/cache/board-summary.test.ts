@@ -1,6 +1,7 @@
 import { BoardSummary, RealmType } from "types/Types";
 import {
   DRAWN_SUMMARY,
+  GORE_BOARD_ID,
   GORE_SUMMARY,
   KPOP_SUMMARY,
 } from "../data/BoardSummary";
@@ -68,7 +69,7 @@ describe("Tests for getBoardSummaryInCache", () => {
   test("BoardSummary is correctly not found in empty cache", () => {
     const queryClient = new QueryClient();
     const boardSummary = getBoardSummaryInCache(queryClient, {
-      boardId: "gore",
+      boardId: GORE_BOARD_ID,
     });
     expect(boardSummary).toBeNull();
   });
@@ -81,7 +82,7 @@ describe("Tests for getBoardSummaryInCache", () => {
     });
 
     const boardSummary = getBoardSummaryInCache(queryClient, {
-      boardId: "gore",
+      boardId: GORE_BOARD_ID,
     });
     expect(boardSummary).toBeNull();
   });
@@ -94,7 +95,7 @@ describe("Tests for getBoardSummaryInCache", () => {
     });
 
     const boardSummary = getBoardSummaryInCache(queryClient, {
-      boardId: "gore",
+      boardId: GORE_BOARD_ID,
     });
     expect(boardSummary).toBe(GORE_SUMMARY);
   });
@@ -116,7 +117,7 @@ describe("Tests for setBoardSummaryInCache", () => {
     setBoardSummaryInCache(
       queryClient,
       {
-        boardId: "gore",
+        boardId: GORE_BOARD_ID,
       },
       () => {
         return newSummary;
@@ -142,7 +143,7 @@ describe("Tests for setBoardSummaryInCache", () => {
     setBoardSummaryInCache(
       queryClient,
       {
-        boardId: "gore",
+        boardId: GORE_BOARD_ID,
       },
       () => {
         return GORE_SUMMARY;

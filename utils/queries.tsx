@@ -129,7 +129,6 @@ export const createCommentChain = async ({
   const comments = response.data.comments.map((comment: any) =>
     makeClientComment(comment, replyToPostId!)
   );
-  console.log(comments);
   log(`Received comment from server:`);
   log(comments);
   return comments;

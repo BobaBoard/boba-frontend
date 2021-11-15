@@ -35,7 +35,7 @@ const HiddenThread: React.FC<{
         onClick={(e) => {
           setThreadHidden({
             threadId: thread.id,
-            slug: thread.parentBoardSlug,
+            boardId: thread.parentBoardId,
             hide: !thread.hidden,
           });
           e.preventDefault();

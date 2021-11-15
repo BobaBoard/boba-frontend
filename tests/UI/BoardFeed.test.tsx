@@ -34,8 +34,10 @@ describe("BoardFeed", () => {
     );
 
     await waitFor(() => {
+      const mainContainer =
+        document.querySelector<HTMLElement>(".content .main");
       expect(
-        screen.getByText(
+        within(mainContainer!).getByText(
           "Remember to be excellent to each other and only be mean to fictional characters!"
         )
       ).toBeInTheDocument();

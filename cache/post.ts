@@ -7,11 +7,11 @@ const setPostInCache = (
   queryClient: QueryClient,
   {
     threadId,
-    slug,
+    boardId,
     postId,
   }: {
     threadId: string;
-    slug: string;
+    boardId: string;
     postId: string;
   },
   transform: (post: PostType) => PostType
@@ -37,7 +37,7 @@ const setPostInCache = (
   };
   setThreadInCache(
     queryClient,
-    { slug, threadId },
+    { boardId, threadId },
     {
       transformThread: (thread: ThreadType) => {
         const postIndex = thread.posts.findIndex(
@@ -75,17 +75,17 @@ export const addPostInCache = (
   queryClient: QueryClient,
   {
     threadId,
-    slug,
+    boardId,
     post,
   }: {
     threadId: string;
-    slug: string;
+    boardId: string;
     post: PostType;
   }
 ) => {
   setThreadInCache(
     queryClient,
-    { slug, threadId },
+    { boardId, threadId },
     {
       transformThread: (thread) => {
         return {
@@ -112,7 +112,7 @@ export const addPostInCache = (
   );
   if (post.isOwn) {
     setThreadPersonalIdentityInCache(queryClient, {
-      slug,
+      boardId,
       threadId,
       personalIdentity: post.secretIdentity,
     });
@@ -123,17 +123,17 @@ export const setPostTagsInCache = (
   queryClient: QueryClient,
   {
     threadId,
-    slug,
+    boardId,
     postId,
     tags,
   }: {
     threadId: string;
-    slug: string;
+    boardId: string;
     postId: string;
     tags: TagsType;
   }
 ) => {
-  setPostInCache(queryClient, { slug, threadId, postId }, (post) => {
+  setPostInCache(queryClient, { boardId, threadId, postId }, (post) => {
     return {
       ...post,
       tags,

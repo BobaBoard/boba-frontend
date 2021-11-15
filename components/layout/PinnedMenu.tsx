@@ -1,3 +1,7 @@
+import {
+  PinnedMenu as LibraryPinnedMenu,
+  toast,
+} from "@bobaboard/ui-components";
 import { PageTypes, usePageDetails } from "utils/router-utils";
 import { faInbox, faRss, faThumbtack } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -5,12 +9,12 @@ import {
   useNotifications,
 } from "queries/notifications";
 
-import { PinnedMenu as LibraryPinnedMenu } from "@bobaboard/ui-components";
 import React from "react";
 import debug from "debug";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "../hooks/useCachedLinks";
 import { usePinnedBoards } from "queries/pinned-boards";
+import { useRealmBoards } from "contexts/RealmContext";
 import { useRefetchBoardActivity } from "queries/board-feed";
 
 const log = debug("bobafrontend:PinnedMenu-log");
@@ -21,17 +25,24 @@ const PinnedMenu = () => {
   const refetchNotifications = useInvalidateNotifications();
   const { pinnedBoardsNotifications } = useNotifications();
   const refetchBoardActivity = useRefetchBoardActivity();
+  // TODO: see if we can add board id to page details
   const { slug, pageType } = usePageDetails();
   const { isLoggedIn } = useAuth();
+  const boards = useRealmBoards();
   const onBoardChange = React.useCallback(
     (nextSlug) => {
+      const nextBoardId = boards.find((board) => board.slug == slug)?.id;
+      if (!nextBoardId) {
+        toast.error(`Couldn't find id for board ${slug}`);
+        return;
+      }
       if (nextSlug == slug) {
         log("Detected switch to same board. Refetching activity data.");
-        refetchBoardActivity({ slug: nextSlug });
+        refetchBoardActivity({ boardId: nextBoardId });
       }
       refetchNotifications();
     },
-    [slug, refetchNotifications, refetchBoardActivity]
+    [slug, refetchNotifications, refetchBoardActivity, boards]
   );
 
   const processedPinnedBoards = React.useMemo(() => {

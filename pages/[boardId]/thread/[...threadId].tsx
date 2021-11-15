@@ -106,7 +106,7 @@ function ThreadPage() {
       markReadTimeout.current = setTimeout(() => {
         info("Marking thread as read.");
         markAsRead(
-          { slug, threadId },
+          { boardId: boardId!, threadId },
           {
             onSuccess: () => {
               info("Thread marked as read. Refetching notifications.");
@@ -129,7 +129,7 @@ function ThreadPage() {
     isFetchingThread,
     isRefetchingThread,
     isLoggedIn,
-    slug,
+    boardId,
     threadId,
   ]);
 

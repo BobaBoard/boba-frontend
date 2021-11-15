@@ -5,7 +5,7 @@ import {
   useEditorsDispatch,
   useEditorsState,
 } from "./EditorsContext";
-import { Modal, ModalWithButtons } from "@bobaboard/ui-components";
+import { Modal, ModalWithButtons, toast } from "@bobaboard/ui-components";
 import { addPostInCache, setPostTagsInCache } from "cache/post";
 import {
   isCommentEditorState,
@@ -60,16 +60,24 @@ const Editors = () => {
           <ContributionEditorModal
             loading={isRefetching}
             onPostSaved={(post: PostType, postedSlug: string) => {
+              const postedBoard = boards.find(
+                (board) => board.slug == postedSlug
+              );
+              if (!postedBoard) {
+                toast.error(
+                  `The board with slug ${postedSlug} does not exist.`
+                );
+                return;
+              }
               if (isNewThread(state)) {
                 setRefetching(true);
                 // We can't do update the cache here because we don't know
                 // which random identity will have been assigned by the server.
-                refetchBoardActivity({ slug: postedSlug }).then(() => {
+                refetchBoardActivity({
+                  boardId: postedBoard.id,
+                }).then(() => {
                   onClose();
-                  if (
-                    postedSlug !=
-                    boards.find((board) => board.id == state.boardId)?.slug
-                  ) {
+                  if (postedBoard.id !== state.boardId) {
                     getLinkToBoard(postedSlug).onClick?.();
                   }
                   setRefetching(false);
@@ -80,14 +88,14 @@ const Editors = () => {
                 setPostTagsInCache(queryClient, {
                   threadId: state.threadId,
                   postId: post.postId,
-                  slug: postedSlug,
+                  boardId: postedSlug,
                   tags: post.tags,
                 });
               } else {
                 addPostInCache(queryClient, {
                   threadId: state.threadId,
                   post,
-                  slug: postedSlug,
+                  boardId: postedBoard.id,
                 });
               }
               onClose();
@@ -101,7 +109,7 @@ const Editors = () => {
               addCommentInCache(queryClient, {
                 threadId: state.threadId,
                 newComments: comments,
-                slug: boards.find((board) => board.id == state.boardId)!.slug,
+                boardId: state.boardId,
                 replyTo: {
                   postId: state.newComment.replyToContributionId,
                   commentId: state.newComment.replyToCommentId,

@@ -1,7 +1,4 @@
-import {
-  BOBATAN_NOTIFICATIONS_DATA,
-  BOBATAN_USER_DATA,
-} from "../data/UserData";
+import { BOBATAN_NOTIFICATIONS_DATA, BOBATAN_USER_DATA } from "./data/user";
 
 import { rest } from "msw";
 

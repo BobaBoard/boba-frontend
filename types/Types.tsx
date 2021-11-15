@@ -48,6 +48,7 @@ export interface PostType {
 
 export interface ThreadSummaryType {
   id: string;
+  parentBoardId: string;
   parentBoardSlug: string;
   starter: PostType;
   defaultView: "thread" | "gallery" | "timeline";

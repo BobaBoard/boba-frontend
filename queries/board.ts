@@ -108,22 +108,15 @@ export const usePinBoard = () => {
 export const useDismissBoardNotifications = () => {
   const refetchNotifications = useInvalidateNotifications();
   const refetchBoardActivity = useRefetchBoardActivity();
-  const boards = useRealmBoards();
   const { mutate: dismissNotifications } = useMutation(
     ({ boardId }: { boardId: string }) =>
       dismissBoardNotifications({ boardId }),
     {
       onSuccess: (_, { boardId }) => {
-        const boardSlug = boards.find(
-          (realmBoard) => realmBoard.id == boardId
-        )?.slug;
-        if (!boardSlug) {
-          return;
-        }
         log(`Successfully dismissed board notifications. Refetching...`);
         refetchNotifications();
         refetchBoardActivity({
-          slug: boardSlug,
+          boardId,
         });
       },
     }

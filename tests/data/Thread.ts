@@ -1,3 +1,4 @@
+import { GORE_BOARD_ID } from "./BoardSummary";
 import { ThreadType } from "types/Types";
 
 export const REMEMBER_TO_BE_EXCELLENT_GORE_THREAD: ThreadType = {
@@ -98,6 +99,7 @@ export const REMEMBER_TO_BE_EXCELLENT_GORE_THREAD: ThreadType = {
   new: false,
   id: "8b2646af-2778-487e-8e44-7ae530c2549c",
   parentBoardSlug: "gore",
+  parentBoardId: GORE_BOARD_ID,
   newPostsAmount: 0,
   newCommentsAmount: 0,
   totalCommentsAmount: 2,
@@ -109,7 +111,7 @@ export const REMEMBER_TO_BE_EXCELLENT_GORE_THREAD: ThreadType = {
   defaultView: "thread",
 };
 
-export const FAVORITE_CHARACTER_GORE_EMPTY_THREAD = {
+export const FAVORITE_CHARACTER_GORE_EMPTY_THREAD: ThreadType = {
   starter: {
     postId: "11b85dac-e122-40e0-b09a-8829c5e0250e",
     threadId: "29d1b2da-3289-454a-9089-2ed47db4967b",
@@ -120,7 +122,6 @@ export const FAVORITE_CHARACTER_GORE_EMPTY_THREAD = {
         "https://pbs.twimg.com/profile_images/473496567366705152/JyHRKG7g.jpeg",
       accessory:
         "https://firebasestorage.googleapis.com/v0/b/bobaboard-fb.appspot.com/o/images%2Fbobaland%2Fundefined%2F989f4b40-c1b8-4793-93dd-57e93df3e7ec.png?alt=media&token=cabdd8d5-b6a9-4914-bb59-eda4629f151b",
-      color: null,
     },
     userIdentity: { name: "oncest5evah", avatar: "/greedler.jpg" },
     created: "2020-04-30T03:23:00.00Z",
@@ -146,7 +147,6 @@ export const FAVORITE_CHARACTER_GORE_EMPTY_THREAD = {
           "https://pbs.twimg.com/profile_images/473496567366705152/JyHRKG7g.jpeg",
         accessory:
           "https://firebasestorage.googleapis.com/v0/b/bobaboard-fb.appspot.com/o/images%2Fbobaland%2Fundefined%2F989f4b40-c1b8-4793-93dd-57e93df3e7ec.png?alt=media&token=cabdd8d5-b6a9-4914-bb59-eda4629f151b",
-        color: null,
       },
       userIdentity: { name: "oncest5evah", avatar: "/greedler.jpg" },
       created: "2020-04-30T03:23:00.00Z",
@@ -168,6 +168,7 @@ export const FAVORITE_CHARACTER_GORE_EMPTY_THREAD = {
   new: false,
   id: "29d1b2da-3289-454a-9089-2ed47db4967b",
   parentBoardSlug: "gore",
+  parentBoardId: GORE_BOARD_ID,
   newPostsAmount: 0,
   newCommentsAmount: 0,
   totalCommentsAmount: 0,

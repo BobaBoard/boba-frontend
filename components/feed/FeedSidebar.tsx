@@ -37,7 +37,6 @@ const FeedSidebar: React.FC<FeedSidebarProps> = (props) => {
                 label: UPDATED_ONLY_DATA.label,
                 link: {
                   onClick: () => {
-                    console.log(props.currentOptions);
                     props.onOptionsChange({
                       ...props.currentOptions,
                       showRead: false,

@@ -7,12 +7,12 @@ export const addCommentInCache = (
   queryClient: QueryClient,
   {
     threadId,
-    slug,
+    boardId,
     newComments,
     replyTo,
   }: {
     threadId: string;
-    slug: string;
+    boardId: string;
     newComments: CommentType[];
     replyTo: {
       postId: string;
@@ -24,7 +24,7 @@ export const addCommentInCache = (
     queryClient,
     {
       threadId,
-      slug,
+      boardId,
     },
     {
       transformThread: (thread) => {
@@ -57,7 +57,7 @@ export const addCommentInCache = (
   );
   if (newComments[0].isOwn) {
     setThreadPersonalIdentityInCache(queryClient, {
-      slug,
+      boardId,
       threadId,
       personalIdentity: newComments[0].secretIdentity,
     });

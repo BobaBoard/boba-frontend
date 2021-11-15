@@ -74,6 +74,7 @@ export const makeClientThreadSummary = (
   return {
     id: serverThreadSummary.id,
     parentBoardSlug: serverThreadSummary.parent_board_slug,
+    parentBoardId: serverThreadSummary.parent_board_id,
     starter: makeClientPost(serverThreadSummary.starter),
     defaultView: serverThreadSummary.default_view,
     new: serverThreadSummary.new,
@@ -111,6 +112,7 @@ export const makeClientThread = (serverThread: any): ThreadType => {
     new: serverThread.new,
     id: serverThread.id,
     parentBoardSlug: serverThread.parent_board_slug,
+    parentBoardId: serverThread.parent_board_id,
     newPostsAmount: serverThread.new_posts_amount,
     newCommentsAmount: serverThread.new_comments_amount,
     totalCommentsAmount: serverThread.total_comments_amount,

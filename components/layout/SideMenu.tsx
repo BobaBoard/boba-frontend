@@ -64,7 +64,7 @@ const SideMenu = () => {
       onSuccess: () => {
         log(`Successfully dismissed all notifications. Refetching...`);
         refetchNotifications();
-        refetchBoardActivity({ slug });
+        refetchBoardActivity({ boardId: boardData!.id });
         if (threadId) {
           // TODO: swap this with method exported from query itself
           queryClient.invalidateQueries([THREAD_QUERY_KEY, { threadId }]);
@@ -89,7 +89,7 @@ const SideMenu = () => {
           board,
           notifications: realmBoardsNotifications,
           link: getLinkToBoard(board.slug, (slug) => {
-            refetchBoardActivity({ slug });
+            refetchBoardActivity({ boardId: board.id });
           }),
         })
       ),
@@ -98,7 +98,7 @@ const SideMenu = () => {
           board,
           notifications: realmBoardsNotifications,
           link: getLinkToBoard(board.slug, (slug) => {
-            refetchBoardActivity({ slug });
+            refetchBoardActivity({ boardId: board.id });
           }),
         })
       ),

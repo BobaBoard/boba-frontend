@@ -1,4 +1,4 @@
-import { BOBATAN_GORE_METADATA } from "../data/BoardMetadata";
+import { BOBATAN_GORE_METADATA } from "./data/board-metadata";
 import { rest } from "msw";
 
 export default [

@@ -16,7 +16,7 @@ const GORE_BOARD_FEED_SINGLE_PAGE: InfiniteData<FeedType> = {
   pageParams: [],
   pages: [
     {
-      cursor: null,
+      cursor: { next: null },
       activity: [FAVORITE_CHARACTER_GORE_THREAD_SUMMARY],
     },
   ],
@@ -26,14 +26,14 @@ const getThreadSummaryFromBoardFeedCache = (
   queryClient: QueryClient,
   data: {
     threadId: string;
-    slug: string;
+    boardId: string;
   }
 ) => {
   const boardFeed = getBoardActivityDataFromCache(queryClient, {
-    slug: data.slug,
+    boardId: data.boardId,
   });
 
-  for (const page of boardFeed.pages) {
+  for (const page of boardFeed!.pages) {
     const threadSummary = page.activity.find(
       (threadSummary) => threadSummary.id === data.threadId
     );
@@ -54,13 +54,13 @@ describe("Tests for addPostInCache (thread cache)", () => {
 
     addPostInCache(queryClient, {
       threadId: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.id,
-      slug: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.parentBoardSlug,
+      boardId: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.parentBoardId,
       post: REVOLVER_OCELOT_CONTRIBUTION,
     });
 
     const threadInCache = getThreadDataFromCache(queryClient, {
       threadId: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.id,
-    });
+    })!;
 
     expect(threadInCache.totalPostsAmount).toEqual(
       FAVORITE_CHARACTER_GORE_EMPTY_THREAD.totalPostsAmount + 1
@@ -87,13 +87,13 @@ describe("Tests for addPostInCache (thread cache)", () => {
     };
     addPostInCache(queryClient, {
       threadId: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.id,
-      slug: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.parentBoardSlug,
+      boardId: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.parentBoardId,
       post: newContribution,
     });
 
     const threadInCache = getThreadDataFromCache(queryClient, {
       threadId: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.id,
-    });
+    })!;
 
     expect(threadInCache.newPostsAmount).toEqual(
       FAVORITE_CHARACTER_GORE_EMPTY_THREAD.newPostsAmount + 1
@@ -118,13 +118,13 @@ describe("Tests for addPostInCache (thread cache)", () => {
     };
     addPostInCache(queryClient, {
       threadId: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.id,
-      slug: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.parentBoardSlug,
+      boardId: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.parentBoardId,
       post: ownContribution,
     });
 
     const threadInCache = getThreadDataFromCache(queryClient, {
       threadId: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.id,
-    });
+    })!;
 
     expect(threadInCache.personalIdentity).toEqual(newSecretIdentity);
   });
@@ -135,21 +135,21 @@ describe("Tests for addPostInCache (feed cache)", () => {
     const queryClient = new QueryClient();
     queryClient.setQueryData(
       getBoardQueryKey({
-        slug: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardSlug,
+        boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
       }),
       GORE_BOARD_FEED_SINGLE_PAGE
     );
 
     addPostInCache(queryClient, {
       threadId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.id,
-      slug: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardSlug,
+      boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
       post: REVOLVER_OCELOT_CONTRIBUTION,
     });
 
     const threadSummary = getThreadSummaryFromBoardFeedCache(queryClient, {
       threadId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.id,
-      slug: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardSlug,
-    });
+      boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+    })!;
 
     expect(threadSummary.totalPostsAmount).toEqual(
       FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.totalPostsAmount + 1
@@ -166,7 +166,7 @@ describe("Tests for addPostInCache (feed cache)", () => {
     const queryClient = new QueryClient();
     queryClient.setQueryData(
       getBoardQueryKey({
-        slug: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardSlug,
+        boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
       }),
       GORE_BOARD_FEED_SINGLE_PAGE
     );
@@ -177,14 +177,14 @@ describe("Tests for addPostInCache (feed cache)", () => {
     };
     addPostInCache(queryClient, {
       threadId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.id,
-      slug: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardSlug,
+      boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
       post: newContribution,
     });
 
     const threadSummary = getThreadSummaryFromBoardFeedCache(queryClient, {
       threadId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.id,
-      slug: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardSlug,
-    });
+      boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+    })!;
 
     expect(threadSummary.newPostsAmount).toEqual(
       FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.newPostsAmount + 1
@@ -195,7 +195,7 @@ describe("Tests for addPostInCache (feed cache)", () => {
     const queryClient = new QueryClient();
     queryClient.setQueryData(
       getBoardQueryKey({
-        slug: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardSlug,
+        boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
       }),
       GORE_BOARD_FEED_SINGLE_PAGE
     );
@@ -210,14 +210,14 @@ describe("Tests for addPostInCache (feed cache)", () => {
     };
     addPostInCache(queryClient, {
       threadId: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.id,
-      slug: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.parentBoardSlug,
+      boardId: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.parentBoardId,
       post: ownContribution,
     });
 
     const threadSummary = getThreadSummaryFromBoardFeedCache(queryClient, {
       threadId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.id,
-      slug: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardSlug,
-    });
+      boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+    })!;
 
     expect(threadSummary.personalIdentity).toEqual(newSecretIdentity);
   });

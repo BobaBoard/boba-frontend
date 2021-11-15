@@ -1,6 +1,6 @@
 import {
   FAVORITE_CHARACTER_GORE_THREAD_SUMMARY,
-  FAVORITE_MURDER_GORE,
+  FAVORITE_MURDER_GORE_THREAD_SUMMARY,
   REMEMBER_TO_BE_EXCELLENT_GORE_THREAD_SUMMARY,
   STUFF_WILL_BE_INSERTED_ANIME,
 } from "../data/ThreadSummary";
@@ -14,6 +14,7 @@ import {
   getUserFeedKey,
 } from "./activity.test";
 
+import { GORE_BOARD_ID } from "../data/BoardSummary";
 import { REMEMBER_TO_BE_EXCELLENT_GORE_THREAD } from "../data/Thread";
 import { THREAD_QUERY_KEY } from "queries/thread";
 import { setThreadInCache } from "cache/thread";
@@ -28,7 +29,7 @@ const GORE_BOARD_FEED_SINGLE_PAGE: InfiniteData<FeedType> = {
       activity: [
         REMEMBER_TO_BE_EXCELLENT_GORE_THREAD_SUMMARY,
         FAVORITE_CHARACTER_GORE_THREAD_SUMMARY,
-        FAVORITE_MURDER_GORE,
+        FAVORITE_MURDER_GORE_THREAD_SUMMARY,
       ],
     },
   ],
@@ -63,7 +64,7 @@ describe("Tests for setThreadInCache", () => {
   test("Thread is correctly updated in board feed", () => {
     const queryClient = new QueryClient();
     queryClient.setQueryData(
-      getBoardQueryKey({ slug: "gore" }),
+      getBoardQueryKey({ boardId: GORE_BOARD_ID }),
       GORE_BOARD_FEED_SINGLE_PAGE
     );
 
@@ -73,7 +74,7 @@ describe("Tests for setThreadInCache", () => {
     setThreadInCache(
       queryClient,
       {
-        slug: REMEMBER_TO_BE_EXCELLENT_GORE_THREAD_SUMMARY.parentBoardSlug,
+        boardId: REMEMBER_TO_BE_EXCELLENT_GORE_THREAD_SUMMARY.parentBoardId,
         threadId: REMEMBER_TO_BE_EXCELLENT_GORE_THREAD_SUMMARY.id,
       },
       {
@@ -83,7 +84,7 @@ describe("Tests for setThreadInCache", () => {
     );
 
     const newData = getBoardActivityDataFromCache(queryClient, {
-      slug: "gore",
+      boardId: GORE_BOARD_ID,
     })!;
     // TODO: why is it not the same instance of the object?
     expect(newData.pages[0].activity).toContainEqual(newThreadSummary);
@@ -108,7 +109,7 @@ describe("Tests for setThreadInCache", () => {
     setThreadInCache(
       queryClient,
       {
-        slug: STUFF_WILL_BE_INSERTED_ANIME.parentBoardSlug,
+        boardId: STUFF_WILL_BE_INSERTED_ANIME.parentBoardId,
         threadId: STUFF_WILL_BE_INSERTED_ANIME.id,
       },
       {
@@ -144,7 +145,7 @@ describe("Tests for setThreadInCache", () => {
     setThreadInCache(
       queryClient,
       {
-        slug: REMEMBER_TO_BE_EXCELLENT_GORE_THREAD.parentBoardSlug,
+        boardId: REMEMBER_TO_BE_EXCELLENT_GORE_THREAD.parentBoardId,
         threadId: REMEMBER_TO_BE_EXCELLENT_GORE_THREAD.id,
       },
       {

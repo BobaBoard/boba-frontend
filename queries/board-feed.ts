@@ -36,6 +36,6 @@ export function useBoardActivity(props: {
 
 export const useRefetchBoardActivity = () => {
   const queryClient = useQueryClient();
-  return ({ slug }: { slug: string | null }) =>
-    queryClient.invalidateQueries([BOARD_ACTIVITY_KEY, { slug }]);
+  return ({ boardId }: { boardId: string | null }) =>
+    queryClient.invalidateQueries([BOARD_ACTIVITY_KEY, { boardId }]);
 };

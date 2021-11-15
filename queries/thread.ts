@@ -29,17 +29,23 @@ export const THREAD_QUERY_KEY = "threadData";
 export const useMuteThread = () => {
   const queryClient = useQueryClient();
   const { mutate: setThreadMuted } = useMutation(
-    ({ threadId, mute }: { threadId: string; mute: boolean; slug: string }) =>
-      muteThread({ threadId, mute }),
+    ({
+      threadId,
+      mute,
+    }: {
+      threadId: string;
+      mute: boolean;
+      boardId: string;
+    }) => muteThread({ threadId, mute }),
     {
-      onMutate: ({ threadId, mute, slug }) => {
+      onMutate: ({ threadId, mute, boardId }) => {
         log(
           `Optimistically marking thread ${threadId} as ${
             mute ? "muted" : "unmuted"
           }.`
         );
         setThreadMutedInCache(queryClient, {
-          slug,
+          boardId,
           threadId,
           mute,
         });
@@ -74,15 +80,15 @@ export const useSetThreadView = () => {
     }: {
       threadId: string;
       view: ThreadType["defaultView"];
-      slug: string;
+      boardId: string;
     }) => updateThreadView({ threadId, view }),
     {
-      onMutate: ({ threadId, view, slug }) => {
+      onMutate: ({ threadId, view, boardId }) => {
         log(
           `Optimistically switched thread ${threadId} to default view ${view}.`
         );
         setThreadDefaultViewInCache(queryClient, {
-          slug,
+          boardId,
           categoryFilter: null,
           threadId,
           view,
@@ -109,17 +115,23 @@ export const useSetThreadView = () => {
 export const useSetThreadHidden = () => {
   const queryClient = useQueryClient();
   const { mutate: setThreadHidden } = useMutation(
-    ({ threadId, hide }: { threadId: string; hide: boolean; slug: string }) =>
-      hideThread({ threadId, hide }),
+    ({
+      threadId,
+      hide,
+    }: {
+      threadId: string;
+      hide: boolean;
+      boardId: string;
+    }) => hideThread({ threadId, hide }),
     {
-      onMutate: ({ threadId, hide, slug }) => {
+      onMutate: ({ threadId, hide, boardId }) => {
         log(
           `Optimistically marking thread ${threadId} as ${
             hide ? "hidden" : "visible"
           }.`
         );
         setThreadHiddenInCache(queryClient, {
-          slug,
+          boardId,
           threadId,
           hide,
         });
@@ -149,7 +161,7 @@ export const useReadThread = (args?: { activityOnly?: boolean }) => {
   const { isLoggedIn } = useAuth();
   // Mark thread as read on authentication and thread fetch
   const { mutate: readThread } = useMutation(
-    ({ threadId }: { threadId: string; slug: string }) => {
+    ({ threadId }: { threadId: string; boardId: string }) => {
       if (!isLoggedIn) {
         throw new Error("Attempt to read thread with no user logged in.");
       }
@@ -159,15 +171,15 @@ export const useReadThread = (args?: { activityOnly?: boolean }) => {
       return markThreadAsRead({ threadId });
     },
     {
-      onMutate: ({ threadId, slug }) => {
-        if (!threadId || !slug) {
+      onMutate: ({ threadId, boardId }) => {
+        if (!threadId || !boardId) {
           return;
         }
         log(`Optimistically marking thread ${threadId} as visited.`);
         setThreadActivityClearedInCache(
           queryClient,
           {
-            slug,
+            boardId,
             threadId,
           },
           {
@@ -242,7 +254,7 @@ export const useThread = ({
           `Searching board activity data for board ${boardId} and thread ${threadId}`
         );
         const thread = getThreadSummaryInCache(queryClient, {
-          slug,
+          boardId,
           threadId,
         });
         info(`...${thread ? "found" : "NOT found"}!`);

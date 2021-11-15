@@ -2,6 +2,7 @@ import boardHandlers from "./boards";
 import feedHandlers from "./feeds";
 import realmHandlers from "./realms";
 import { setupServer } from "msw/node";
+import threadHandlers from "./threads";
 import usersHandlers from "./users";
 
 // let worker: SetupWorkerApi;
@@ -18,5 +19,10 @@ export const server = setupServer(
   ...boardHandlers,
   ...usersHandlers,
   ...realmHandlers,
-  ...feedHandlers
+  ...feedHandlers,
+  ...threadHandlers
 );
+
+server.events.on("request:start", (req) => {
+  console.log("new request:", req.method, req.url.href, req.body);
+});

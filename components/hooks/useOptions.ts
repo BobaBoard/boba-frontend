@@ -222,13 +222,13 @@ const usePostOptions = ({
   }, [boardMetadata, post?.postId, threadId, editorDispatch]);
 
   const markReadCallback = React.useCallback(() => {
-    if (!boardMetadata) {
+    if (!boardId) {
       return;
     }
     readThread(
       {
         threadId,
-        slug: boardMetadata.slug,
+        boardId,
       },
       {
         onSuccess: () => {
@@ -236,17 +236,17 @@ const usePostOptions = ({
         },
       }
     );
-  }, [threadId, boardMetadata, readThread, refetchNotifications]);
+  }, [threadId, boardId, readThread, refetchNotifications]);
 
   const hideThreadCallback = React.useCallback(
     (hide: boolean) => {
-      if (!boardMetadata) {
+      if (!boardId) {
         return;
       }
       hideThread(
         {
           threadId,
-          slug: boardMetadata.slug,
+          boardId,
           hide,
         },
         {
@@ -256,18 +256,18 @@ const usePostOptions = ({
         }
       );
     },
-    [threadId, boardMetadata, hideThread, refetchNotifications]
+    [threadId, boardId, hideThread, refetchNotifications]
   );
 
   const muteThreadCallback = React.useCallback(
     (mute: boolean) => {
-      if (!boardMetadata) {
+      if (!boardId) {
         return;
       }
       muteThread(
         {
           threadId,
-          slug: boardMetadata.slug,
+          boardId,
           mute,
         },
         {
@@ -277,21 +277,21 @@ const usePostOptions = ({
         }
       );
     },
-    [threadId, boardMetadata, muteThread, refetchNotifications]
+    [threadId, boardId, muteThread, refetchNotifications]
   );
 
   const setThreadViewCallback = React.useCallback(
     (view: PostData["defaultView"]) => {
-      if (!boardMetadata) {
+      if (!boardId) {
         return;
       }
       setThreadView({
         threadId,
-        slug: boardMetadata.slug,
+        boardId,
         view,
       });
     },
-    [setThreadView, threadId, boardMetadata]
+    [setThreadView, threadId, boardId]
   );
 
   const getOption = React.useCallback(

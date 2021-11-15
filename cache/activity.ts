@@ -7,11 +7,11 @@ import { USER_FEED_KEY } from "queries/user-feed";
 // TODO: rename this (and the rest) to "getFeedsInCache"
 export const getActivitiesInCache = (
   queryClient: QueryClient,
-  key: { slug: string }
+  key: { boardId: string }
 ): InfiniteData<FeedType>[] => {
   const boardActivityData: InfiniteData<FeedType>[] = queryClient
     .getQueryCache()
-    .findAll([BOARD_ACTIVITY_KEY, { slug: key.slug }])
+    .findAll([BOARD_ACTIVITY_KEY, { boardId: key.boardId }])
     .map((data) => data.state.data) as InfiniteData<FeedType>[];
   const userActivityData: InfiniteData<FeedType>[] = queryClient
     .getQueryCache()
@@ -23,7 +23,7 @@ export const getActivitiesInCache = (
 
 export const setActivitiesInCache = (
   queryClient: QueryClient,
-  key: { slug: string },
+  key: { boardId: string },
   transform: (activity: FeedType) => FeedType
 ) => {
   const activityTransformer = (data: InfiniteData<FeedType>) => {
@@ -50,7 +50,7 @@ export const setActivitiesInCache = (
   };
   queryClient.setQueriesData(
     {
-      queryKey: [BOARD_ACTIVITY_KEY, { slug: key.slug }],
+      queryKey: [BOARD_ACTIVITY_KEY, { boardId: key.boardId }],
       exact: false,
     },
     activityTransformer

@@ -1,4 +1,4 @@
-import { V0_DATA } from "../data/Realm";
+import { V0_DATA } from "./data/realm";
 import { rest } from "msw";
 
 export default [
