@@ -81,12 +81,12 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
       onSuccess: (data: PostType | ThreadType, { slug }) => {
         log(`Received post data after save:`);
         log(data);
+        setPostLoading(false);
         if (!(data as any).posts) {
           props.onPostSaved(data as PostType, slug);
         } else {
           props.onPostSaved((data as ThreadType).posts[0], slug);
         }
-        setPostLoading(false);
       },
     }
   );

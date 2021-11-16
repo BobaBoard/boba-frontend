@@ -15,7 +15,7 @@ export const NEW_THREAD_BASE = {
       color: "black",
       accessory: null,
     },
-    userIdentity: { name: "bobatan", avatar: "/bobatan.png" },
+    user_identity: { name: "bobatan", avatar: "/bobatan.png" },
     friend: false,
     own: true,
     new: false,
@@ -38,4 +38,174 @@ export const NEW_THREAD_BASE = {
   total_posts_amount: 1,
   last_activity_at: "2021-09-20T01:22:00.00Z",
   direct_threads_amount: 0,
+};
+
+export const FAVORITE_CHARACTER_TO_MAIM_THREAD = {
+  id: "29d1b2da-3289-454a-9089-2ed47db4967b",
+  parent_board_slug: "gore",
+  parent_board_id: "c6d3d10e-8e49-4d73-b28a-9d652b41beec",
+  starter: {
+    id: "11b85dac-e122-40e0-b09a-8829c5e0250e",
+    parent_thread_id: "29d1b2da-3289-454a-9089-2ed47db4967b",
+    parent_post_id: null,
+    created_at: "2020-04-30T03:23:00.00Z",
+    content: '[{"insert":"Favorite character to maim?"}]',
+    secret_identity: {
+      name: "DragonFucker",
+      avatar:
+        "https://pbs.twimg.com/profile_images/473496567366705152/JyHRKG7g.jpeg",
+      color: null,
+      accessory:
+        "https://firebasestorage.googleapis.com/v0/b/bobaboard-fb.appspot.com/o/images%2Fbobaland%2Fundefined%2F989f4b40-c1b8-4793-93dd-57e93df3e7ec.png?alt=media&token=cabdd8d5-b6a9-4914-bb59-eda4629f151b",
+    },
+    friend: false,
+    own: false,
+    new: false,
+    tags: {
+      whisper_tags: [],
+      index_tags: ["evil", "bobapost"],
+      category_tags: ["bruises"],
+      content_warnings: [],
+    },
+    total_comments_amount: 0,
+    new_comments_amount: 0,
+  },
+  default_view: "thread",
+  muted: false,
+  hidden: false,
+  new: false,
+  new_posts_amount: 0,
+  new_comments_amount: 0,
+  total_comments_amount: 2,
+  total_posts_amount: 3,
+  last_activity_at: "2020-05-23T05:52:00.00Z",
+  direct_threads_amount: 2,
+  posts: [
+    {
+      id: "11b85dac-e122-40e0-b09a-8829c5e0250e",
+      parent_thread_id: "29d1b2da-3289-454a-9089-2ed47db4967b",
+      parent_post_id: null,
+      created_at: "2020-04-30T03:23:00.00Z",
+      content: '[{"insert":"Favorite character to maim?"}]',
+      secret_identity: {
+        name: "DragonFucker",
+        avatar:
+          "https://pbs.twimg.com/profile_images/473496567366705152/JyHRKG7g.jpeg",
+        color: null,
+        accessory:
+          "https://firebasestorage.googleapis.com/v0/b/bobaboard-fb.appspot.com/o/images%2Fbobaland%2Fundefined%2F989f4b40-c1b8-4793-93dd-57e93df3e7ec.png?alt=media&token=cabdd8d5-b6a9-4914-bb59-eda4629f151b",
+      },
+      friend: false,
+      own: false,
+      new: false,
+      tags: {
+        whisper_tags: [],
+        index_tags: ["evil", "bobapost"],
+        category_tags: ["bruises"],
+        content_warnings: [],
+      },
+      total_comments_amount: 0,
+      new_comments_amount: 0,
+    },
+    {
+      id: "619adf62-833f-4bea-b591-03e807338a8e",
+      parent_thread_id: "29d1b2da-3289-454a-9089-2ed47db4967b",
+      parent_post_id: "11b85dac-e122-40e0-b09a-8829c5e0250e",
+      created_at: "2020-05-01T05:42:00.00Z",
+      content: '[{"insert":"Revolver Ocelot"}]',
+      secret_identity: {
+        name: "Old Time-y Anon",
+        avatar:
+          "https://www.clickz.com/wp-content/uploads/2016/03/anontumblr.png",
+        color: null,
+        accessory:
+          "https://firebasestorage.googleapis.com/v0/b/bobaboard-fb.appspot.com/o/images%2Fbobaland%2Fundefined%2F9b7a5d90-4885-43bf-a5f5-e861b7b87505.png?alt=media&token=83ae88ca-5c81-4d1b-9208-0a936017c485",
+      },
+      friend: false,
+      own: false,
+      new: false,
+      tags: {
+        whisper_tags: ["fight me on this"],
+        index_tags: ["evil", "oddly specific", "metal gear", "bobapost"],
+        category_tags: [],
+        content_warnings: [],
+      },
+      total_comments_amount: 0,
+      new_comments_amount: 0,
+    },
+    {
+      id: "b95bb260-eae0-456c-a5d0-8ae9e52608d8",
+      parent_thread_id: "29d1b2da-3289-454a-9089-2ed47db4967b",
+      parent_post_id: "11b85dac-e122-40e0-b09a-8829c5e0250e",
+      created_at: "2020-05-02T06:04:00.00Z",
+      content: '[{"insert":"Kermit the Frog"}]',
+      secret_identity: {
+        name: "DragonFucker",
+        avatar:
+          "https://pbs.twimg.com/profile_images/473496567366705152/JyHRKG7g.jpeg",
+        color: null,
+        accessory:
+          "https://firebasestorage.googleapis.com/v0/b/bobaboard-fb.appspot.com/o/images%2Fbobaland%2Fundefined%2F989f4b40-c1b8-4793-93dd-57e93df3e7ec.png?alt=media&token=cabdd8d5-b6a9-4914-bb59-eda4629f151b",
+      },
+      friend: false,
+      own: false,
+      new: false,
+      tags: {
+        whisper_tags: [
+          "Im too ashamed to admit this ok",
+          "sorry mom",
+          "YOU WILL NEVER KNOW WHO I AM",
+        ],
+        index_tags: ["good", "oddly specific", "bobapost"],
+        category_tags: [],
+        content_warnings: [],
+      },
+      total_comments_amount: 2,
+      new_comments_amount: 0,
+    },
+  ],
+  comments: {
+    "11b85dac-e122-40e0-b09a-8829c5e0250e": [],
+    "619adf62-833f-4bea-b591-03e807338a8e": [],
+    "b95bb260-eae0-456c-a5d0-8ae9e52608d8": [
+      {
+        id: "46a16199-33d1-48c2-bb79-4d4095014688",
+        parent_comment_id: null,
+        chain_parent_id: null,
+        parent_post_id: "29d1b2da-3289-454a-9089-2ed47db4967b",
+        created_at: "2020-05-22T00:22:00.00Z",
+        content: '[{"insert":"OMG ME TOO"}]',
+        secret_identity: {
+          name: "Old Time-y Anon",
+          avatar:
+            "https://www.clickz.com/wp-content/uploads/2016/03/anontumblr.png",
+          color: null,
+          accessory:
+            "https://firebasestorage.googleapis.com/v0/b/bobaboard-fb.appspot.com/o/images%2Fbobaland%2Fundefined%2F9b7a5d90-4885-43bf-a5f5-e861b7b87505.png?alt=media&token=83ae88ca-5c81-4d1b-9208-0a936017c485",
+        },
+        friend: false,
+        own: false,
+        new: false,
+      },
+      {
+        id: "89fc3682-cb74-43f9-9a63-bd97d0f59bb9",
+        parent_comment_id: null,
+        chain_parent_id: "46a16199-33d1-48c2-bb79-4d4095014688",
+        parent_post_id: "29d1b2da-3289-454a-9089-2ed47db4967b",
+        created_at: "2020-05-23T05:52:00.00Z",
+        content: '[{"insert":"friends!!!!!"}]',
+        secret_identity: {
+          name: "Old Time-y Anon",
+          avatar:
+            "https://www.clickz.com/wp-content/uploads/2016/03/anontumblr.png",
+          color: null,
+          accessory:
+            "https://firebasestorage.googleapis.com/v0/b/bobaboard-fb.appspot.com/o/images%2Fbobaland%2Fundefined%2F9b7a5d90-4885-43bf-a5f5-e861b7b87505.png?alt=media&token=83ae88ca-5c81-4d1b-9208-0a936017c485",
+        },
+        friend: false,
+        own: false,
+        new: false,
+      },
+    ],
+  },
 };

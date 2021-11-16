@@ -1,5 +1,6 @@
 import boardHandlers from "./boards";
 import feedHandlers from "./feeds";
+import postsHandlers from "./posts";
 import realmHandlers from "./realms";
 import { setupServer } from "msw/node";
 import threadHandlers from "./threads";
@@ -20,7 +21,8 @@ export const server = setupServer(
   ...usersHandlers,
   ...realmHandlers,
   ...feedHandlers,
-  ...threadHandlers
+  ...threadHandlers,
+  ...postsHandlers
 );
 
 server.events.on("request:start", (req) => {

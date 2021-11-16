@@ -97,7 +97,7 @@ export const createPost = async (
     accessoryId,
     ...otherData
   } = postData;
-  const response = await axios.post(`/posts/${replyToPostId}/contribution`, {
+  const response = await axios.post(`/posts/${replyToPostId}/contributions`, {
     ...otherData,
     whisper_tags: whisperTags,
     category_tags: categoryTags,
@@ -106,6 +106,7 @@ export const createPost = async (
     identity_id: identityId,
     accessory_id: accessoryId,
   });
+
   const post = makeClientPost(response.data.contribution);
   log(`Received post from server:`);
   log(post);

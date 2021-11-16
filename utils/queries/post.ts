@@ -10,7 +10,7 @@ export const editPost = async ({
   postId: string;
   tags: TagsType;
 }): Promise<PostType> => {
-  const response = await axios.patch(`/posts/${postId}/contribution`, {
+  const response = await axios.patch(`/posts/${postId}/contributions`, {
     whisper_tags: tags.whisperTags,
     category_tags: tags.categoryTags,
     index_tags: tags.indexTags,

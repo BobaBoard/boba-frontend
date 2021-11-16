@@ -1,3 +1,4 @@
+import { Client, getBoardRouter, getThreadRouter } from "./utils";
 import {
   fireEvent,
   prettyDOM,
@@ -8,11 +9,14 @@ import {
 } from "@testing-library/react";
 
 import BoardPage from "pages/[boardId]/index";
-import { Client } from "./utils";
+import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../server-mocks/data/thread";
 import React from "react";
-import { rest } from "msw";
-import { server } from "../server-mocks";
+import ThreadPage from "pages/[boardId]/thread/[...threadId]";
 import userEvent from "@testing-library/user-event";
+
+jest.mock("components/hooks/usePreventPageChange");
+jest.mock("components/hooks/useIsChangingRoute");
+jest.mock("components/hooks/useOnPageExit");
 
 beforeAll(() => {
   document.createRange = () => {
@@ -45,9 +49,9 @@ beforeAll(() => {
 });
 
 describe("PostEditor", () => {
-  it("renders a heading", async () => {
+  it("renders post after creating new thread", async () => {
     render(
-      <Client>
+      <Client router={getBoardRouter({ boardSlug: "gore" })}>
         <BoardPage />
       </Client>
     );
@@ -55,6 +59,52 @@ describe("PostEditor", () => {
     fireEvent.click(document.querySelector(".fab-clickable-area")!);
     await waitFor(() => {
       expect(screen.getByText("Random Identity")).toBeInTheDocument();
+    });
+
+    const modal = document.querySelector<HTMLElement>(".ReactModalPortal");
+    const editorContainer = document.querySelector<HTMLElement>(
+      ".ReactModalPortal .ql-editor"
+    );
+    expect(editorContainer).toBeInTheDocument();
+    userEvent.type(editorContainer!, "bar");
+
+    await waitFor(() => {
+      expect(within(modal!).getByLabelText("Submit")).not.toBeDisabled();
+    });
+
+    fireEvent.click(within(modal!).getByLabelText("Submit"));
+
+    const mainContainer = document.querySelector<HTMLElement>(".content .main");
+    await waitFor(() => {
+      expect(editorContainer).not.toBeInTheDocument();
+      expect(within(mainContainer!).getByText("bar")).toBeInTheDocument();
+    });
+  });
+
+  it("renders post after replying to thread", async () => {
+    render(
+      <Client
+        router={getThreadRouter({
+          boardSlug: "gore",
+          threadId: FAVORITE_CHARACTER_TO_MAIM_THREAD.id,
+        })}
+      >
+        <ThreadPage />
+      </Client>
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByText("Contribute")[0]).toBeInTheDocument();
+    });
+    fireEvent.click(
+      document.querySelector<HTMLElement>(
+        ".post-container .footer-actions .button:first-child button"
+      )!
+    );
+
+    await waitFor(() => {
+      console.log(document.querySelector<HTMLElement>(".ReactModalPortal"));
+      expect(screen.getByText("Post")).toBeInTheDocument();
     });
 
     const modal = document.querySelector<HTMLElement>(".ReactModalPortal");

@@ -1,57 +1,16 @@
 import "@testing-library/jest-dom/extend-expect";
 
-import { NextRouter } from "next/router";
-import { debug } from "debug";
 import { server } from "../server-mocks/index";
 
-const routerInfo = debug("bobatest:router");
-const router: NextRouter = {
-  asPath: "/!gore",
-  basePath: "",
-  route: "/[boardId]",
-  pathname: "/[boardId]",
-  query: {
-    boardId: "!gore",
-  },
-  push: async (...args) => {
-    routerInfo("push", args);
-    return true;
-  },
-  prefetch: async () => {
-    routerInfo("prefetch");
-  },
-  replace: async () => {
-    routerInfo("replace");
-    return true;
-  },
-  reload: async () => {
-    routerInfo("reload");
-  },
-  back: async () => {
-    routerInfo("back");
-  },
-  beforePopState: async () => {
-    routerInfo("beforePopState");
-  },
-  events: {
-    on: () => {
-      routerInfo("on");
-    },
-    off: () => {
-      routerInfo("off");
-    },
-    emit: () => {
-      routerInfo("emit");
-    },
-  },
-  isFallback: false,
-};
+jest.mock("next/router", () => {
+  return {
+    __esModule: true,
+    default: jest.fn(),
+    useRouter: jest.fn(),
+  };
+});
 
-jest.mock("next/router", () => ({
-  __esModule: true,
-  default: router,
-  useRouter: () => router,
-}));
+// See: https://www.npmjs.com/package/@shopify/jest-dom-mocks
 
 Object.defineProperty(window, "matchMedia", {
   writable: true,
@@ -85,6 +44,13 @@ Object.defineProperty(window, "ResizeObserver", {
 Object.defineProperty(window, "ResizeObserverEntry", {
   writable: true,
   value: jest.fn().mockImplementation(() => ({})),
+});
+
+Object.defineProperty(window, "requestIdleCallback", {
+  writable: true,
+  value: jest.fn().mockImplementation((fn) => {
+    fn();
+  }),
 });
 
 beforeAll(() =>

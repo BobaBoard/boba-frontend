@@ -1,7 +1,12 @@
+import {
+  FAVORITE_CHARACTER_TO_MAIM_THREAD,
+  NEW_THREAD_BASE,
+} from "./data/thread";
+
 import { GORE_FEED } from "./data/feed-board";
-import { NEW_THREAD_BASE } from "./data/thread";
 import { rest } from "msw";
 import { server } from ".";
+
 export default [
   rest.post("/threads/gore/create", (req, res, ctx) => {
     console.log("creating text on gore board");
@@ -51,4 +56,17 @@ export default [
     );
     return res(ctx.status(200), ctx.json(newThread));
   }),
+  // TODO: remove the trailing /
+  rest.get(
+    "/threads/29d1b2da-3289-454a-9089-2ed47db4967b/",
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json(FAVORITE_CHARACTER_TO_MAIM_THREAD));
+    }
+  ),
+  rest.get(
+    "/threads/29d1b2da-3289-454a-9089-2ed47db4967b/visit",
+    (req, res, ctx) => {
+      return res(ctx.status(200));
+    }
+  ),
 ];

@@ -1,8 +1,10 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { Client, getBoardRouter } from "./utils";
+import { render, waitFor, within } from "@testing-library/react";
 
 import BoardPage from "pages/[boardId]/index";
-import { Client } from "./utils";
 import React from "react";
+
+const GORE_ROUTER = getBoardRouter({ boardSlug: "gore" });
 
 jest.mock("components/hooks/usePreventPageChange");
 jest.mock("components/hooks/useIsChangingRoute");
@@ -10,7 +12,7 @@ jest.mock("components/hooks/useIsChangingRoute");
 describe("BoardFeed", () => {
   it("renders sidebar description", async () => {
     render(
-      <Client>
+      <Client router={GORE_ROUTER}>
         <BoardPage />
       </Client>
     );
@@ -28,7 +30,7 @@ describe("BoardFeed", () => {
 
   it("renders posts", async () => {
     render(
-      <Client>
+      <Client router={GORE_ROUTER}>
         <BoardPage />
       </Client>
     );
