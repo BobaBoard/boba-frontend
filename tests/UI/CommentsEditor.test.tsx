@@ -1,4 +1,4 @@
-import { Client, getBoardRouter, getThreadRouter } from "./utils";
+import { Client, getThreadRouter } from "./utils";
 import {
   fireEvent,
   prettyDOM,
@@ -8,7 +8,6 @@ import {
   within,
 } from "@testing-library/react";
 
-import BoardPage from "pages/[boardId]/index";
 import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../server-mocks/data/thread";
 import React from "react";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
@@ -48,40 +47,8 @@ beforeAll(() => {
   };
 });
 
-describe("PostEditor", () => {
-  it("renders post after creating new thread", async () => {
-    render(
-      <Client router={getBoardRouter({ boardSlug: "gore" })}>
-        <BoardPage />
-      </Client>
-    );
-
-    fireEvent.click(document.querySelector(".fab-clickable-area")!);
-    await waitFor(() => {
-      expect(screen.getByText("Random Identity")).toBeInTheDocument();
-    });
-
-    const modal = document.querySelector<HTMLElement>(".ReactModalPortal");
-    const editorContainer = document.querySelector<HTMLElement>(
-      ".ReactModalPortal .ql-editor"
-    );
-    expect(editorContainer).toBeInTheDocument();
-    userEvent.type(editorContainer!, "bar");
-
-    await waitFor(() => {
-      expect(within(modal!).getByLabelText("Submit")).not.toBeDisabled();
-    });
-
-    fireEvent.click(within(modal!).getByLabelText("Submit"));
-
-    const mainContainer = document.querySelector<HTMLElement>(".content .main");
-    await waitFor(() => {
-      expect(editorContainer).not.toBeInTheDocument();
-      expect(within(mainContainer!).getByText("bar")).toBeInTheDocument();
-    });
-  });
-
-  it("renders post after replying to thread", async () => {
+describe("Comments editor", () => {
+  it("renders comments after replying to thread (single comment)", async () => {
     render(
       <Client
         router={getThreadRouter({
@@ -94,16 +61,12 @@ describe("PostEditor", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getAllByText("Contribute")[0]).toBeInTheDocument();
+      expect(screen.getAllByText("Comment")[0]).toBeInTheDocument();
     });
-    fireEvent.click(
-      document.querySelector<HTMLElement>(
-        ".post-container .footer-actions .button:first-child button"
-      )!
-    );
+    fireEvent.click(screen.getAllByText("Comment")[0]);
 
     await waitFor(() => {
-      expect(screen.getByText("Post")).toBeInTheDocument();
+      expect(screen.getByLabelText("Submit")).toBeVisible();
     });
 
     const modal = document.querySelector<HTMLElement>(".ReactModalPortal");
@@ -111,7 +74,7 @@ describe("PostEditor", () => {
       ".ReactModalPortal .ql-editor"
     );
     expect(editorContainer).toBeInTheDocument();
-    userEvent.type(editorContainer!, "bar");
+    userEvent.type(editorContainer!, "bar1");
 
     await waitFor(() => {
       expect(within(modal!).getByLabelText("Submit")).not.toBeDisabled();
@@ -122,7 +85,82 @@ describe("PostEditor", () => {
     const mainContainer = document.querySelector<HTMLElement>(".content .main");
     await waitFor(() => {
       expect(editorContainer).not.toBeInTheDocument();
-      expect(within(mainContainer!).getByText("bar")).toBeInTheDocument();
+      expect(within(mainContainer!).getByText("bar1")).toBeInTheDocument();
     });
+  });
+
+  it("renders comments after replying to thread (multiple comments)", async () => {
+    render(
+      <Client
+        router={getThreadRouter({
+          boardSlug: "gore",
+          threadId: FAVORITE_CHARACTER_TO_MAIM_THREAD.id,
+        })}
+      >
+        <ThreadPage />
+      </Client>
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByText("Comment")[0]).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getAllByText("Comment")[0]);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("Submit")).toBeVisible();
+    });
+
+    const modal = document.querySelector<HTMLElement>(".ReactModalPortal");
+    const editorContainer = document.querySelector<HTMLElement>(
+      ".ReactModalPortal .ql-editor"
+    );
+    expect(editorContainer).toBeInTheDocument();
+    userEvent.type(editorContainer!, "bar1");
+
+    await waitFor(() => {
+      expect(within(modal!).getByLabelText("Submit")).not.toBeDisabled();
+    });
+
+    fireEvent.click(modal!.querySelector(".append")!);
+
+    await waitFor(() => {
+      const editorContainer = document.querySelectorAll<HTMLElement>(
+        ".ReactModalPortal .ql-editor"
+      );
+      expect(editorContainer.length).toBe(2);
+      userEvent.type(editorContainer![1], "bar2");
+    });
+
+    await waitFor(() => {
+      expect(within(modal!).getAllByLabelText("Submit")[1]).not.toBeDisabled();
+    });
+
+    fireEvent.click(within(modal!).getAllByLabelText("Submit")[1]);
+
+    await waitFor(() => {
+      expect(editorContainer).not.toBeInTheDocument();
+      const mainContainer =
+        document.querySelector<HTMLElement>(".content .main");
+
+      // TODO: figure out how to check that these are effectively rendered as
+      // part of a chain.
+      expect(within(mainContainer!).getByText("bar1")).toBeInTheDocument();
+      expect(within(mainContainer!).getByText("bar2")).toBeInTheDocument();
+    });
+  });
+
+  it("renders comments after replying to comment (multiple comments)", async () => {
+    render(
+      <Client
+        router={getThreadRouter({
+          boardSlug: "gore",
+          threadId: FAVORITE_CHARACTER_TO_MAIM_THREAD.id,
+        })}
+      >
+        <ThreadPage />
+      </Client>
+    );
+
+    // TODO: fill this
   });
 });

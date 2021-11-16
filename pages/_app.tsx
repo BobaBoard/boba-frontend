@@ -183,7 +183,6 @@ function MyApp({
       "font-size: 16px; color: #ff4284;"
     );
   }, []);
-  console.log(router);
   return (
     <>
       <Head>

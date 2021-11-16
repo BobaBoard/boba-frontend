@@ -127,7 +127,6 @@ export const usePageDataListener = (router: NextRouter) => {
   // we dispatch our updates there.
   log("Checking possible route update");
   const newPageDetails = getPageDetails(router);
-  console.log(newPageDetails);
   if (!samePage(newPageDetails, currentPageData)) {
     currentPageData = newPageDetails;
     dispatchPending = true;

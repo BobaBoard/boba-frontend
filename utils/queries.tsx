@@ -120,7 +120,7 @@ export const createCommentChain = async ({
   replyToPostId: string | null;
   commentData: CommentData[];
 }): Promise<CommentType[]> => {
-  const response = await axios.post(`/posts/${replyToPostId}/comment`, {
+  const response = await axios.post(`/posts/${replyToPostId}/comments`, {
     contents: commentData.map((comment) => comment.content),
     forceAnonymous: commentData.some((data) => data.forceAnonymous),
     reply_to_comment_id: commentData[0].replyToCommentId,
