@@ -24,6 +24,11 @@ export const GORE_SUMMARY: BoardSummary = {
   loggedInOnly: false,
   delisted: false,
 };
+export const GORE_LOGGED_IN_SUMMARY: BoardSummary = {
+  ...GORE_SUMMARY,
+  muted: false,
+  pinned: true,
+};
 export const RECNRAVE_SUMMARY: BoardSummary = {
   id: RECNRAVE_BOARD_ID,
   realmId: "v0",

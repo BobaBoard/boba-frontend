@@ -115,7 +115,7 @@ export enum ThreadPermissions {
 }
 
 export enum BoardPermissions {
-  editMetadata = "edit_metadata",
+  editMetadata = "edit_board_details",
 }
 
 export enum PostPermissions {

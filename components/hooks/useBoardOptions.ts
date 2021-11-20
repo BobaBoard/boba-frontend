@@ -105,14 +105,7 @@ const useBoardOptions = ({
             return null;
           }
           return getMuteBoardOptions(!!boardMetadata.muted, (mute) =>
-            setBoardMuted(
-              { boardId, mute },
-              {
-                onSuccess: () => {
-                  refetchNotifications();
-                },
-              }
-            )
+            setBoardMuted({ boardId, mute })
           );
         case BoardOptions.PIN:
           if (!isLoggedIn || !boardMetadata || !boardId) {

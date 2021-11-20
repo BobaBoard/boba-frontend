@@ -56,8 +56,13 @@ Object.defineProperty(window, "requestIdleCallback", {
 beforeAll(() =>
   server.listen({
     onUnhandledRequest: ({ method, url }) => {
+      console.log("*********************");
+      console.log("*********************");
+      console.log("*********************");
       console.log(`Unhandled request: ${method} => ${url}`);
-      //  server.printHandlers();
+      console.log("*********************");
+      console.log("*********************");
+      console.log("*********************");
     },
   })
 );

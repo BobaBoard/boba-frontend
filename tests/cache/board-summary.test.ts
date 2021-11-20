@@ -102,6 +102,26 @@ describe("Tests for getBoardSummaryInCache", () => {
 });
 
 describe("Tests for setBoardSummaryInCache", () => {
+  test("BoardSummary is correctly not updated in cache that does not contain it", () => {
+    const queryClient = new QueryClient();
+    const originalData = {
+      slug: "v0",
+      boards: [KPOP_SUMMARY, DRAWN_SUMMARY],
+    };
+    queryClient.setQueryData(getV0QueryKey(), originalData);
+
+    const transform = jest.fn();
+    setBoardSummaryInCache(
+      queryClient,
+      {
+        boardId: GORE_BOARD_ID,
+      },
+      transform
+    );
+
+    expect(transform).not.toBeCalled();
+  });
+
   test("BoardSummary is correctly updated in cache that contains it", () => {
     const queryClient = new QueryClient();
     const originalData = {

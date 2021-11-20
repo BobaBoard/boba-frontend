@@ -5,6 +5,7 @@ import {
   render,
   screen,
   waitFor,
+  waitForElementToBeRemoved,
   within,
 } from "@testing-library/react";
 
@@ -75,8 +76,10 @@ describe("PostEditor", () => {
     fireEvent.click(within(modal!).getByLabelText("Submit"));
 
     const mainContainer = document.querySelector<HTMLElement>(".content .main");
+    await waitForElementToBeRemoved(() =>
+      document.querySelector<HTMLElement>(".ReactModalPortal .ql-editor")
+    );
     await waitFor(() => {
-      expect(editorContainer).not.toBeInTheDocument();
       expect(within(mainContainer!).getByText("bar")).toBeInTheDocument();
     });
   });
@@ -120,8 +123,10 @@ describe("PostEditor", () => {
     fireEvent.click(within(modal!).getByLabelText("Submit"));
 
     const mainContainer = document.querySelector<HTMLElement>(".content .main");
+    await waitForElementToBeRemoved(() =>
+      document.querySelector<HTMLElement>(".ReactModalPortal .ql-editor")
+    );
     await waitFor(() => {
-      expect(editorContainer).not.toBeInTheDocument();
       expect(within(mainContainer!).getByText("bar")).toBeInTheDocument();
     });
   });

@@ -1,5 +1,12 @@
 import { Client, getBoardRouter } from "./utils";
-import { render, waitFor, within } from "@testing-library/react";
+import {
+  fireEvent,
+  prettyDOM,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 
 import BoardPage from "pages/[boardId]/index";
 import React from "react";
@@ -25,6 +32,29 @@ describe("BoardFeed", () => {
       expect(within(sidebar!).getByText("pls b nice")).toBeInTheDocument();
       expect(within(sidebar!).getByText("blood")).toBeInTheDocument();
       expect(within(sidebar!).getByText("bruises")).toBeInTheDocument();
+    });
+  });
+
+  it("Allows editing sidebar", async () => {
+    render(
+      <Client router={GORE_ROUTER}>
+        <BoardPage />
+      </Client>
+    );
+
+    const sidebar = document.querySelector<HTMLElement>(".content .sidebar");
+    expect(within(sidebar!).getByLabelText("Board options")).toBeVisible();
+
+    fireEvent.click(within(sidebar!).getByLabelText("Board options"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Edit Board")).toBeVisible();
+    });
+
+    fireEvent.click(screen.getByText("Edit Board"));
+
+    await waitFor(() => {
+      expect(within(sidebar!).getByText("Save")).toBeVisible();
     });
   });
 

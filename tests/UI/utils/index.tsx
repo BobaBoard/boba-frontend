@@ -6,6 +6,7 @@ import { NextRouter } from "next/router";
 import { QueryParamProvider } from "components/QueryParamNextProvider";
 import React from "react";
 import { RealmContextProvider } from "../../../contexts/RealmContext";
+import { RealmType } from "types/Types";
 import { V0_DATA } from "../../server-mocks/data/realm";
 import { debug } from "debug";
 import { makeRealmData } from "utils/client-data";
@@ -89,9 +90,13 @@ export const getBoardRouter = ({
 export const Client = ({
   children,
   router,
+  initialData,
 }: {
   children: React.ReactNode;
   router: NextRouter;
+  initialData?: {
+    realm?: RealmType;
+  };
 }) => {
   usePageDataListener(router);
   const queryClient = new QueryClient({
@@ -118,7 +123,9 @@ export const Client = ({
           <ImageUploaderContext.Provider
             value={{ onImageUploadRequest: jest.fn() }}
           >
-            <RealmContextProvider initialData={makeRealmData(V0_DATA)}>
+            <RealmContextProvider
+              initialData={initialData?.realm || makeRealmData(V0_DATA)}
+            >
               {children}
             </RealmContextProvider>
           </ImageUploaderContext.Provider>

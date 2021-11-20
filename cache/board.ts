@@ -15,17 +15,37 @@ import { REALM_QUERY_KEY } from "contexts/RealmContext";
 export const getBoardSummaryInCache = (
   queryClient: QueryClient,
   { boardId }: { boardId: string }
-) => {
+): BoardSummary | null => {
   const boardsData = queryClient.getQueryData<{ boards: BoardSummary[] }>(
     REALM_QUERY_KEY,
     {
       exact: false,
     }
   );
-  if (!boardsData) {
-    return null;
+  const boardSummary =
+    boardsData?.boards.find((board) => board.id === boardId) || null;
+  if (boardSummary) {
+    return boardSummary;
   }
-  return boardsData.boards.find((board) => board.id === boardId) || null;
+  const boardMetadata = queryClient.getQueryData<BoardMetadata>(
+    [BOARD_METADATA_KEY, { boardId }],
+    {
+      exact: false,
+    }
+  );
+  if (boardMetadata) {
+    const boardSummary = { ...boardMetadata };
+    // We delete description even if non-optional. The result is a summary
+    // so here we're removing all the extra in metadata.
+    // @ts-expect-error
+    delete boardSummary.descriptions;
+    delete boardSummary.permissions;
+    delete boardSummary.postingIdentities;
+    delete boardSummary.accessories;
+    return boardSummary;
+  }
+
+  return null;
 };
 
 export const setBoardSummaryInCache = (
@@ -33,16 +53,16 @@ export const setBoardSummaryInCache = (
   { boardId }: { boardId: string },
   transform: (summary: BoardSummary) => BoardSummary
 ) => {
-  queryClient.setQueriesData(
+  queryClient.setQueriesData<RealmType | undefined>(
     {
       queryKey: REALM_QUERY_KEY,
       exact: false,
     },
-    (data: RealmType) => {
-      const containsBoard = data.boards.find(
+    (data) => {
+      const containsBoard = data?.boards.find(
         (realmBoard) => realmBoard.id == boardId
       );
-      if (!containsBoard) {
+      if (!containsBoard || !data) {
         return data;
       }
       return {
@@ -62,12 +82,15 @@ export const addBoardSummaryInCache = (
   queryClient: QueryClient,
   { realmSlug, summary }: { realmSlug: string; summary: BoardSummary }
 ) => {
-  queryClient.setQueriesData(
+  queryClient.setQueriesData<RealmType | undefined>(
     {
       queryKey: [REALM_QUERY_KEY, { realmSlug }],
       exact: false,
     },
-    (data: RealmType) => {
+    (data) => {
+      if (!data) {
+        return;
+      }
       const newData = {
         ...data,
         boards: [...data.boards],
@@ -90,12 +113,15 @@ export const setBoardMetadataInCache = (
   { boardId }: { boardId: string },
   transform: (summary: BoardMetadata) => BoardMetadata
 ) => {
-  queryClient.setQueriesData(
+  queryClient.setQueriesData<BoardMetadata | undefined>(
     {
       queryKey: [BOARD_METADATA_KEY, { boardId }],
       exact: false,
     },
-    (data: BoardMetadata) => {
+    (data) => {
+      if (!data) {
+        return undefined;
+      }
       const transformedData = transform({ ...data });
       return transformedData;
     }
@@ -107,14 +133,14 @@ export const setPinnedBoardInCache = (
   { boardId }: { boardId: string },
   transform: (pinnedBoard: PinnedBoardType) => PinnedBoardType
 ) => {
-  queryClient.setQueriesData(
+  queryClient.setQueriesData<Record<string, PinnedBoardType>>(
     {
       queryKey: PINNED_BOARDS_QUERY_KEY,
     },
-    (data: Record<string, PinnedBoardType>) => {
-      const pinnedBoard = data[boardId];
+    (data) => {
+      const pinnedBoard = data?.[boardId];
       if (!pinnedBoard) {
-        return data;
+        return data || {};
       }
       const transformedData = transform({ ...pinnedBoard });
       return {
@@ -129,17 +155,17 @@ export const addPinnedBoardInCache = (
   queryClient: QueryClient,
   { board }: { board: BoardSummary }
 ) => {
-  queryClient.setQueriesData(
-    {
-      queryKey: PINNED_BOARDS_QUERY_KEY,
-    },
-    (data: Record<string, PinnedBoardType>) => {
-      const currentBoardData = data[board.id];
+  queryClient.setQueryData<Record<string, PinnedBoardType>>(
+    PINNED_BOARDS_QUERY_KEY,
+    (data) => {
+      const currentBoardData = data?.[board.id];
       if (currentBoardData) {
         return data;
       }
-      const currentMaxIndex =
-        Math.max(...Object.values(data).map((board) => board.pinnedIndex)) || 0;
+      const currentMaxIndex = Math.max(
+        ...Object.values(data || {}).map((board) => board.pinnedIndex),
+        0
+      );
       const newData: PinnedBoardType = {
         ...board,
         pinned: true,
@@ -157,13 +183,13 @@ export const removePinnedBoardInCache = (
   queryClient: QueryClient,
   { boardId }: { boardId: string }
 ) => {
-  queryClient.setQueriesData(
+  queryClient.setQueriesData<Record<string, PinnedBoardType>>(
     {
       queryKey: PINNED_BOARDS_QUERY_KEY,
     },
-    (data: Record<string, PinnedBoardType>) => {
-      if (!data[boardId]) {
-        return data;
+    (data) => {
+      if (!data?.[boardId]) {
+        return data || {};
       }
       const newData = { ...data };
       delete newData[boardId];
@@ -183,16 +209,13 @@ export const setBoardMutedInCache = (
   }
 ) => {
   setBoardMetadataInCache(queryClient, { boardId }, (boardMetadata) => {
-    boardMetadata.muted = mute;
-    return boardMetadata;
+    return { ...boardMetadata, muted: mute };
   });
   setPinnedBoardInCache(queryClient, { boardId }, (board) => {
-    board.muted = mute;
-    return board;
+    return { ...board, muted: mute };
   });
   setBoardSummaryInCache(queryClient, { boardId }, (board) => {
-    board.muted = mute;
-    return board;
+    return { ...board, muted: mute };
   });
 };
 
@@ -207,17 +230,19 @@ export const setBoardPinnedInCache = (
   }
 ) => {
   setBoardMetadataInCache(queryClient, { boardId }, (boardMetadata) => {
-    boardMetadata.pinned = pin;
-    return boardMetadata;
+    return { ...boardMetadata, pinned: pin };
   });
   if (pin) {
     const boardSummary = getBoardSummaryInCache(queryClient, { boardId });
-    boardSummary && addPinnedBoardInCache(queryClient, { board: boardSummary });
+    if (boardSummary) {
+      addPinnedBoardInCache(queryClient, {
+        board: { ...boardSummary },
+      });
+    }
   } else {
     removePinnedBoardInCache(queryClient, { boardId });
   }
   setBoardSummaryInCache(queryClient, { boardId }, (board) => {
-    board.pinned = pin;
-    return board;
+    return { ...board, pinned: pin };
   });
 };

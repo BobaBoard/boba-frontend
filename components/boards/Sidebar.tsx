@@ -47,6 +47,7 @@ export const BoardSidebar: React.FC<BoardSidebarProps> = ({
   });
   const updateBoardMetadata = useUpdateBoardMetadata();
   const stopEditing = React.useCallback(() => setEditingSidebar(false), []);
+
   return (
     <div style={{ position: "relative" }}>
       <LibraryBoardSidebar

@@ -1,5 +1,11 @@
 import { BoardDescription, BoardMetadata } from "types/Types";
 import {
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "react-query";
+import {
   dismissBoardNotifications,
   getBoardMetadata,
   muteBoard,
@@ -14,7 +20,6 @@ import {
   setBoardSummaryInCache,
   setPinnedBoardInCache,
 } from "cache/board";
-import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import React from "react";
 import debug from "debug";
@@ -57,6 +62,7 @@ export const useMuteBoard = () => {
           }.`
         );
         refetchNotifications();
+        refetchBoardMetadata(queryClient, { boardId });
       },
     }
   );
@@ -98,6 +104,7 @@ export const usePinBoard = () => {
         );
         toast.success("Board pinned!");
         refetchPinnedBoards();
+        refetchBoardMetadata(queryClient, { boardId });
       },
     }
   );
@@ -161,10 +168,16 @@ export const useBoardMetadata = ({ boardId }: { boardId: string | null }) => {
 
 export const useRefetchBoardMetadata = ({ boardId }: { boardId: string }) => {
   const queryClient = useQueryClient();
-  return () =>
-    queryClient.invalidateQueries([BOARD_METADATA_KEY, { boardId }], {
-      exact: false,
-    });
+  return () => refetchBoardMetadata(queryClient, { boardId });
+};
+
+export const refetchBoardMetadata = (
+  queryClient: QueryClient,
+  { boardId }: { boardId: string }
+) => {
+  queryClient.invalidateQueries([BOARD_METADATA_KEY, { boardId }], {
+    exact: false,
+  });
 };
 
 export const useUpdateBoardMetadata = () => {
