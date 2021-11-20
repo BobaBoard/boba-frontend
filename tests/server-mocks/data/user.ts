@@ -37,7 +37,7 @@ export const BOBATAN_NOTIFICATIONS_DATA = {
   pinned_boards: {
     "c6d3d10e-8e49-4d73-b28a-9d652b41beec": {
       id: "c6d3d10e-8e49-4d73-b28a-9d652b41beec",
-      has_updates: false,
+      has_updates: true,
       is_outdated: false,
       last_activity_at: "2020-10-04T12:44:00.000Z",
       last_activity_from_others_at: null,
@@ -63,7 +63,7 @@ export const BOBATAN_NOTIFICATIONS_DATA = {
     },
     "c6d3d10e-8e49-4d73-b28a-9d652b41beec": {
       id: "c6d3d10e-8e49-4d73-b28a-9d652b41beec",
-      has_updates: false,
+      has_updates: true,
       is_outdated: false,
       last_activity_at: "2020-10-04T12:44:00.000Z",
       last_activity_from_others_at: null,

@@ -109,26 +109,30 @@ describe("BoardFeed", () => {
     });
   });
 
-  //   it("Allows dismissing board notifications", async () => {
-  //     render(
-  //       <Client router={GORE_ROUTER}>
-  //         <BoardPage />
-  //       </Client>
-  //     );
+  it("Allows dismissing board notifications", async () => {
+    const { sidebar } = renderSidebar();
 
-  //     const sidebar = document.querySelector<HTMLElement>(".content .sidebar");
-  //     expect(within(sidebar!).getByLabelText("Board options")).toBeVisible();
+    await waitFor(() => {
+      const pinnedBoardWithUpdates = document.querySelector<HTMLElement>(
+        ".pinned-boards a[href$=gore] .updates"
+      );
+      expect(pinnedBoardWithUpdates).toBeTruthy();
+    });
 
-  //     fireEvent.click(within(sidebar!).getByLabelText("Board options"));
+    expect(within(sidebar!).getByLabelText("Board options")).toBeVisible();
+    fireEvent.click(within(sidebar!).getByLabelText("Board options"));
 
-  //     await waitFor(() => {
-  //       expect(screen.getByText("Edit Board")).toBeVisible();
-  //     });
+    await waitFor(() => {
+      expect(screen.getByText("Dismiss notifications")).toBeVisible();
+    });
 
-  //     fireEvent.click(screen.getByText("Edit Board"));
+    fireEvent.click(screen.getByText("Dismiss notifications"));
 
-  //     await waitFor(() => {
-  //       expect(within(sidebar!).getByText("Save")).toBeVisible();
-  //     });
-  //   });
+    await waitFor(() => {
+      const pinnedBoardWithUpdates = document.querySelector<HTMLElement>(
+        ".pinned-boards a[href$=gore] .updates"
+      );
+      expect(pinnedBoardWithUpdates).toBeFalsy();
+    });
+  });
 });
