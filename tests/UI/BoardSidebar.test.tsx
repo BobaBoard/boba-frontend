@@ -81,7 +81,6 @@ describe("BoardFeed", () => {
     });
 
     // Check that board now asks to unmute
-
     expect(within(sidebar!).getByLabelText("Board options")).toBeVisible();
     fireEvent.click(within(sidebar!).getByLabelText("Board options"));
 
@@ -90,28 +89,25 @@ describe("BoardFeed", () => {
     });
   });
 
-  //   it("Allows pinning board", async () => {
-  //     render(
-  //       <Client router={GORE_ROUTER}>
-  //         <BoardPage />
-  //       </Client>
-  //     );
+  it("Allows unpinning board", async () => {
+    const { sidebar } = renderSidebar();
 
-  //     const sidebar = document.querySelector<HTMLElement>(".content .sidebar");
-  //     expect(within(sidebar!).getByLabelText("Board options")).toBeVisible();
+    expect(within(sidebar!).getByLabelText("Board options")).toBeVisible();
+    fireEvent.click(within(sidebar!).getByLabelText("Board options"));
 
-  //     fireEvent.click(within(sidebar!).getByLabelText("Board options"));
+    await waitFor(() => {
+      expect(screen.getByText("Unpin")).toBeVisible();
+    });
 
-  //     await waitFor(() => {
-  //       expect(screen.getByText("Edit Board")).toBeVisible();
-  //     });
+    fireEvent.click(screen.getByText("Unpin"));
 
-  //     fireEvent.click(screen.getByText("Edit Board"));
+    expect(within(sidebar!).getByLabelText("Board options")).toBeVisible();
+    fireEvent.click(within(sidebar!).getByLabelText("Board options"));
 
-  //     await waitFor(() => {
-  //       expect(within(sidebar!).getByText("Save")).toBeVisible();
-  //     });
-  //   });
+    await waitFor(() => {
+      expect(screen.getByText("Pin")).toBeVisible();
+    });
+  });
 
   //   it("Allows dismissing board notifications", async () => {
   //     render(
