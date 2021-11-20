@@ -52,7 +52,7 @@ export default [
             );
           }
         ),
-        rest.get(/\/users\/@me/, (req, res, ctx) => {
+        rest.get("/users/@me", (req, res, ctx) => {
           console.log("fetching bobatan's user data (gore unpinned)");
           const { gore, ...otherBoards } = BOBATAN_USER_DATA.pinned_boards;
           return res(
