@@ -1,7 +1,3 @@
-import {
-  PinnedMenu as LibraryPinnedMenu,
-  toast,
-} from "@bobaboard/ui-components";
 import { PageTypes, usePageDetails } from "utils/router-utils";
 import { faInbox, faRss, faThumbtack } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -9,6 +5,7 @@ import {
   useNotifications,
 } from "queries/notifications";
 
+import { PinnedMenu as LibraryPinnedMenu } from "@bobaboard/ui-components";
 import React from "react";
 import debug from "debug";
 import { useAuth } from "components/Auth";
@@ -33,7 +30,9 @@ const PinnedMenu = () => {
     (nextSlug) => {
       const nextBoardId = boards.find((board) => board.slug == slug)?.id;
       if (!nextBoardId) {
-        toast.error(`Couldn't find id for board ${slug}`);
+        // TODO: figure out why this happens with "null" when going from a
+        // page with no boardId to a page with one.
+        // toast.error(`Couldn't find id for board ${slug}`);
         return;
       }
       if (nextSlug == slug) {
