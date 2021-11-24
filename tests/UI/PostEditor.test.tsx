@@ -76,11 +76,59 @@ describe("PostEditor", () => {
     fireEvent.click(within(modal!).getByLabelText("Submit"));
 
     const mainContainer = document.querySelector<HTMLElement>(".content .main");
-    await waitForElementToBeRemoved(() =>
+    await waitForElementToBeRemoved(
       document.querySelector<HTMLElement>(".ReactModalPortal .ql-editor")
     );
     await waitFor(() => {
       expect(within(mainContainer!).getByText("bar")).toBeInTheDocument();
+    });
+  });
+
+  it("renders post after creating new thread (as role)", async () => {
+    render(
+      <Client router={getBoardRouter({ boardSlug: "gore" })}>
+        <BoardPage />
+      </Client>
+    );
+
+    fireEvent.click(document.querySelector(".fab-clickable-area")!);
+    await waitFor(() => {
+      expect(screen.getByText("Random Identity")).toBeInTheDocument();
+    });
+
+    const modal = document.querySelector<HTMLElement>(".ReactModalPortal");
+    const editorContainer = document.querySelector<HTMLElement>(
+      ".ReactModalPortal .ql-editor"
+    )!;
+    // Click on the identity selection dropdown
+    await within(modal!).findByLabelText("Select visible identity");
+    fireEvent.click(within(modal!).getByLabelText("Select visible identity"));
+
+    // Select the GoreMaster5000 identity
+    const popover = document.querySelector<HTMLElement>(
+      ".react-tiny-popover-container"
+    );
+    const identityInSelector = await within(popover!).findByText(
+      "GoreMaster5000"
+    );
+    fireEvent.click(identityInSelector);
+
+    userEvent.type(editorContainer!, "bar");
+
+    await waitFor(() => {
+      expect(within(modal!).getByLabelText("Submit")).not.toBeDisabled();
+    });
+
+    fireEvent.click(within(modal!).getByLabelText("Submit"));
+
+    const mainContainer = document.querySelector<HTMLElement>(".content .main");
+    await waitForElementToBeRemoved(
+      document.querySelector<HTMLElement>(".ReactModalPortal .ql-editor")
+    );
+    await waitFor(() => {
+      expect(within(mainContainer!).getByText("bar")).toBeVisible();
+      const post = within(mainContainer!).getByText("bar").closest("article");
+      expect(within(post!).getByText("GoreMaster5000")).toBeVisible();
     });
   });
 

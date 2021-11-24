@@ -3,6 +3,7 @@ import {
   NEW_THREAD_BASE,
 } from "./data/thread";
 
+import { BOBATAN_GORE_METADATA } from "./data/board-metadata";
 import { GORE_FEED } from "./data/feed-board";
 import { rest } from "msw";
 import { server } from ".";
@@ -18,6 +19,7 @@ export default [
       indexTags,
       contentWarnings,
       categoryTags,
+      identityId,
     } = req!.body! as any;
     const starter = {
       ...NEW_THREAD_BASE.starter,
@@ -27,6 +29,24 @@ export default [
         index_tags: indexTags || [],
         content_warnings: contentWarnings || [],
         category_tags: categoryTags || [],
+      },
+      secret_identity: {
+        name:
+          BOBATAN_GORE_METADATA.posting_identities.find(
+            (id) => id.id === identityId
+          )?.name || NEW_THREAD_BASE.starter.secret_identity.name,
+        color:
+          BOBATAN_GORE_METADATA.posting_identities.find(
+            (id) => id.id === identityId
+          )?.color || NEW_THREAD_BASE.starter.secret_identity.color,
+        accessory:
+          BOBATAN_GORE_METADATA.posting_identities.find(
+            (id) => id.id === identityId
+          )?.accessory || NEW_THREAD_BASE.starter.secret_identity.accessory,
+        avatar:
+          BOBATAN_GORE_METADATA.posting_identities.find(
+            (id) => id.id === identityId
+          )?.avatar_url || NEW_THREAD_BASE.starter.secret_identity.avatar,
       },
     };
 
