@@ -140,7 +140,7 @@ function UserFeedPage() {
           margin-bottom: 30px;
           width: 100%;
         }
-        .post > :global(div) {
+        .post > :global(article) {
           margin: 0 auto;
         }
         .empty {
