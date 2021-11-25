@@ -49,6 +49,15 @@ beforeAll(() => {
   };
 });
 
+const getPostByTextContent = async (textContent: string) => {
+  return (await screen.findByText(textContent))?.closest("article");
+};
+export const TagMatcher = (tagText: string) => {
+  return (_: string, node: HTMLElement) => {
+    return node.textContent === tagText && node.classList.contains("tag");
+  };
+};
+
 describe("PostEditor", () => {
   it("renders post after creating new thread", async () => {
     render(
@@ -121,15 +130,67 @@ describe("PostEditor", () => {
 
     fireEvent.click(within(modal!).getByLabelText("Submit"));
 
-    const mainContainer = document.querySelector<HTMLElement>(".content .main");
     await waitForElementToBeRemoved(
       document.querySelector<HTMLElement>(".ReactModalPortal .ql-editor")
     );
-    await waitFor(() => {
-      expect(within(mainContainer!).getByText("bar")).toBeVisible();
-      const post = within(mainContainer!).getByText("bar").closest("article");
-      expect(within(post!).getByText("GoreMaster5000")).toBeVisible();
-    });
+    const post = await getPostByTextContent("bar");
+    expect(within(post!).getByText("GoreMaster5000")).toBeVisible();
+  });
+
+  it("renders post after updating tags", async () => {
+    render(
+      <Client router={getBoardRouter({ boardSlug: "gore" })}>
+        <BoardPage />
+      </Client>
+    );
+    const post = await getPostByTextContent(
+      "Favorite murder scene in videogames?"
+    );
+    fireEvent.click(within(post!).getByLabelText("Post options"));
+    const popover = document.querySelector<HTMLElement>(
+      ".react-tiny-popover-container"
+    );
+    fireEvent.click(await within(popover!).findByText("Edit tags")!);
+
+    const tagsInput = await screen.findByLabelText("The tags input area");
+    const modal = document.querySelector<HTMLElement>(".ReactModalPortal");
+    expect(within(modal!).getByText("bruises")).toBeVisible();
+
+    fireEvent.click(tagsInput!);
+    userEvent.type(tagsInput!, "a new tag{enter}");
+    userEvent.type(tagsInput!, "+a new category{enter}");
+    userEvent.type(tagsInput!, "cn: a new warning{enter}");
+    userEvent.type(tagsInput!, "#a new search tag{enter}");
+
+    fireEvent.click(within(modal!).getByLabelText("Submit"));
+
+    await waitForElementToBeRemoved(
+      document.querySelector<HTMLElement>(".ReactModalPortal .ql-editor")
+    );
+    const updatedPost = await getPostByTextContent(
+      "Favorite murder scene in videogames?"
+    );
+    expect(
+      screen.getByText(TagMatcher("cn:a new warning"))
+    ).toBeInTheDocument();
+    expect(
+      within(updatedPost!).getByText(TagMatcher("»mwehehehehe"))
+    ).toBeInTheDocument();
+    expect(
+      within(updatedPost!).getByText(TagMatcher("»a new tag"))
+    ).toBeInTheDocument();
+    expect(
+      within(updatedPost!).getByText(TagMatcher("+blood"))
+    ).toBeInTheDocument();
+    expect(
+      within(updatedPost!).getByText(TagMatcher("+bruises"))
+    ).toBeInTheDocument();
+    expect(
+      within(updatedPost!).getByText(TagMatcher("+a new category"))
+    ).toBeInTheDocument();
+    expect(
+      within(updatedPost!).getByText(TagMatcher("#a new search tag"))
+    ).toBeInTheDocument();
   });
 
   it("renders post after replying to thread", async () => {
@@ -149,7 +210,7 @@ describe("PostEditor", () => {
     });
     fireEvent.click(
       document.querySelector<HTMLElement>(
-        ".post-container .footer-actions .button:first-child button"
+        "article .footer-actions .button:first-child button"
       )!
     );
 

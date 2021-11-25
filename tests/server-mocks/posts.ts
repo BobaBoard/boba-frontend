@@ -1,4 +1,8 @@
-import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "./data/thread";
+import {
+  FAVORITE_CHARACTER_TO_MAIM_THREAD,
+  FAVORITE_MURDER_SCENE_BOBATAN,
+} from "./data/thread";
+
 import { NEW_COMMENT_BASE } from "./data/comments";
 import { NEW_POST_BASE } from "./data/posts";
 import { rest } from "msw";
@@ -48,6 +52,26 @@ export default [
       }));
 
       return res(ctx.status(200), ctx.json({ comments: comments }));
+    }
+  ),
+
+  rest.patch(
+    `/posts/3db477e0-57ed-491d-ba11-b3a0110b59b0/contributions`,
+    (req, res, ctx) => {
+      const { whisper_tags, index_tags, content_warnings, category_tags } = req!
+        .body! as any;
+
+      const newPost = {
+        ...FAVORITE_MURDER_SCENE_BOBATAN.starter,
+        tags: {
+          whisper_tags,
+          index_tags,
+          content_warnings,
+          category_tags,
+        },
+      };
+
+      return res(ctx.status(200), ctx.json(newPost));
     }
   ),
 ];

@@ -1,5 +1,6 @@
 import {
   FAVORITE_CHARACTER_TO_MAIM_THREAD,
+  FAVORITE_MURDER_SCENE_BOBATAN,
   NEW_THREAD_BASE,
 } from "./data/thread";
 
@@ -83,6 +84,9 @@ export default [
       return res(ctx.status(200), ctx.json(FAVORITE_CHARACTER_TO_MAIM_THREAD));
     }
   ),
+  rest.get(`/threads/${FAVORITE_MURDER_SCENE_BOBATAN.id}/`, (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(FAVORITE_MURDER_SCENE_BOBATAN));
+  }),
   rest.get(
     "/threads/29d1b2da-3289-454a-9089-2ed47db4967b/visit",
     (req, res, ctx) => {

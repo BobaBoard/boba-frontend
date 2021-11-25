@@ -1,5 +1,6 @@
 import { FeedType, PostType, SecretIdentityType } from "types/Types";
 import { InfiniteData, QueryClient } from "react-query";
+import { addPostInCache, setPostTagsInCache } from "cache/post";
 import { expect, test } from "@jest/globals";
 import {
   getBoardActivityDataFromCache,
@@ -10,7 +11,6 @@ import { getThreadDataFromCache, getThreadKey } from "./thread.test";
 import { FAVORITE_CHARACTER_GORE_EMPTY_THREAD } from "../data/Thread";
 import { FAVORITE_CHARACTER_GORE_THREAD_SUMMARY } from "../data/ThreadSummary";
 import { REVOLVER_OCELOT_CONTRIBUTION } from "../data/Contribution";
-import { addPostInCache } from "cache/post";
 
 const GORE_BOARD_FEED_SINGLE_PAGE: InfiniteData<FeedType> = {
   pageParams: [],
@@ -220,5 +220,82 @@ describe("Tests for addPostInCache (feed cache)", () => {
     })!;
 
     expect(threadSummary.personalIdentity).toEqual(newSecretIdentity);
+  });
+});
+
+describe("Tests for setPostTagsInCache (feed cache)", () => {
+  test("It correctly updates the tags of the post in feed cache", () => {
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(
+      getBoardQueryKey({
+        boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+      }),
+      GORE_BOARD_FEED_SINGLE_PAGE
+    );
+
+    setPostTagsInCache(queryClient, {
+      threadId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.id,
+      boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+      postId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.starter.postId,
+      tags: {
+        whisperTags: ["whisper"],
+        contentWarnings: ["spoiler"],
+        categoryTags: ["gore"],
+        indexTags: ["metal gear"],
+      },
+    });
+
+    const threadSummary = getThreadSummaryFromBoardFeedCache(queryClient, {
+      threadId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.id,
+      boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+    })!;
+
+    expect(threadSummary.starter.tags).toEqual({
+      whisperTags: ["whisper"],
+      contentWarnings: ["spoiler"],
+      categoryTags: ["gore"],
+      indexTags: ["metal gear"],
+    });
+    // Check that the thread object has also been updated
+    expect(threadSummary.starter).not.toBe(
+      FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.starter
+    );
+  });
+
+  test("It correctly updates the tags of the post in thread cache", () => {
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(
+      getThreadKey({ threadId: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.id }),
+      FAVORITE_CHARACTER_GORE_EMPTY_THREAD
+    );
+
+    setPostTagsInCache(queryClient, {
+      threadId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.id,
+      boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+      postId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.starter.postId,
+      tags: {
+        whisperTags: ["whisper"],
+        contentWarnings: ["spoiler"],
+        categoryTags: ["gore"],
+        indexTags: ["metal gear"],
+      },
+    });
+
+    const threadInCache = getThreadDataFromCache(queryClient, {
+      threadId: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.id,
+    })!;
+
+    expect(threadInCache.starter.tags).toEqual({
+      whisperTags: ["whisper"],
+      contentWarnings: ["spoiler"],
+      categoryTags: ["gore"],
+      indexTags: ["metal gear"],
+    });
+    expect(threadInCache.posts[0].tags).toEqual({
+      whisperTags: ["whisper"],
+      contentWarnings: ["spoiler"],
+      categoryTags: ["gore"],
+      indexTags: ["metal gear"],
+    });
   });
 });

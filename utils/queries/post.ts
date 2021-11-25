@@ -16,7 +16,7 @@ export const editPost = async ({
     index_tags: tags.indexTags,
     content_warnings: tags.contentWarnings,
   });
-  const post = makeClientPost(response.data?.contribution);
+  const post = makeClientPost(response.data);
   return post;
 };
 

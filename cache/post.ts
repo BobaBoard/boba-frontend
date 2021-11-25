@@ -33,6 +33,7 @@ const setPostInCache = (
           ? 1
           : -1
         : 0);
+    newThread.starter = updatedStarter;
     return newThread;
   };
   setThreadInCache(
@@ -134,9 +135,12 @@ export const setPostTagsInCache = (
   }
 ) => {
   setPostInCache(queryClient, { boardId, threadId, postId }, (post) => {
+    if (post.postId != postId) {
+      return post;
+    }
     return {
       ...post,
-      tags,
+      tags: { ...tags },
     };
   });
 };

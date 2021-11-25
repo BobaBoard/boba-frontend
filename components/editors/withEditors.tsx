@@ -60,6 +60,16 @@ const Editors = () => {
           <ContributionEditorModal
             loading={isRefetching}
             onPostSaved={(post: PostType, postedSlug: string) => {
+              if (isEditContribution(state)) {
+                setPostTagsInCache(queryClient, {
+                  threadId: state.threadId,
+                  postId: post.postId,
+                  boardId: state.boardId,
+                  tags: post.tags,
+                });
+                onClose();
+                return;
+              }
               const postedBoard = boards.find(
                 (board) => board.slug == postedSlug
               );
@@ -83,14 +93,6 @@ const Editors = () => {
                   setRefetching(false);
                 });
                 return;
-              }
-              if (isEditContribution(state)) {
-                setPostTagsInCache(queryClient, {
-                  threadId: state.threadId,
-                  postId: post.postId,
-                  boardId: postedSlug,
-                  tags: post.tags,
-                });
               } else {
                 addPostInCache(queryClient, {
                   threadId: state.threadId,

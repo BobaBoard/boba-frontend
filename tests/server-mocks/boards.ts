@@ -74,7 +74,7 @@ export default [
       console.log("removing notifications from board gore");
 
       server.use(
-        rest.get(/\/users\/@me\/notifications/, (req, res, ctx) => {
+        rest.get("/users/@me/notifications", (req, res, ctx) => {
           console.log(
             "fetching bobatan's notification data (gore update dismissed)"
           );
