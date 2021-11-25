@@ -68,6 +68,9 @@ describe("Tests for addPostInCache (thread cache)", () => {
     expect(threadInCache.directThreadsAmount).toEqual(
       FAVORITE_CHARACTER_GORE_EMPTY_THREAD.directThreadsAmount + 1
     );
+    expect(threadInCache.totalCommentsAmount).toEqual(
+      FAVORITE_CHARACTER_GORE_EMPTY_THREAD.totalCommentsAmount
+    );
     expect(threadInCache.posts).toContainEqual(REVOLVER_OCELOT_CONTRIBUTION);
 
     // Check that the thread object has also been updated
@@ -97,6 +100,10 @@ describe("Tests for addPostInCache (thread cache)", () => {
 
     expect(threadInCache.newPostsAmount).toEqual(
       FAVORITE_CHARACTER_GORE_EMPTY_THREAD.newPostsAmount + 1
+    );
+
+    expect(threadInCache.newCommentsAmount).toEqual(
+      FAVORITE_CHARACTER_GORE_EMPTY_THREAD.newCommentsAmount
     );
   });
 
@@ -157,6 +164,9 @@ describe("Tests for addPostInCache (feed cache)", () => {
     expect(threadSummary.directThreadsAmount).toEqual(
       FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.directThreadsAmount + 1
     );
+    expect(threadSummary.totalCommentsAmount).toEqual(
+      FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.totalCommentsAmount
+    );
 
     // Check that the thread object has also been updated
     expect(threadSummary).not.toBe(FAVORITE_CHARACTER_GORE_THREAD_SUMMARY);
@@ -188,6 +198,9 @@ describe("Tests for addPostInCache (feed cache)", () => {
 
     expect(threadSummary.newPostsAmount).toEqual(
       FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.newPostsAmount + 1
+    );
+    expect(threadSummary.newCommentsAmount).toEqual(
+      FAVORITE_CHARACTER_GORE_EMPTY_THREAD.newCommentsAmount
     );
   });
 

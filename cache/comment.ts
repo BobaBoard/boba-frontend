@@ -37,20 +37,22 @@ export const addCommentInCache = (
               ...newComments,
             ],
           },
-          newCommentsAmount: thread.newPostsAmount + newComments.length,
-          totalCommentsAmount: thread.totalPostsAmount + newComments.length,
+          newCommentsAmount: thread.newCommentsAmount + newComments.length,
+          totalCommentsAmount: thread.totalCommentsAmount + newComments.length,
         };
       },
       transformThreadSummary: (thread) => {
         return {
           ...thread,
-          newPostsAmount:
-            thread.newPostsAmount +
+          // TODO: maybe we don't want to update the newCommentsAmount here
+          // if they come from the user themselves
+          newCommentsAmount:
+            thread.newCommentsAmount +
             newComments.reduce(
               (current, comment) => (current += comment.isNew ? 1 : 0),
               0
             ),
-          totalCommentsAmount: thread.totalPostsAmount + newComments.length,
+          totalCommentsAmount: thread.totalCommentsAmount + newComments.length,
         };
       },
     }
