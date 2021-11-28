@@ -45,6 +45,7 @@ const HiddenThread: React.FC<{
       </a>
       <style jsx>{`
         .post.hidden {
+          margin: 0 auto;
           max-width: 500px;
           width: calc(100% - 40px);
           background-color: gray;

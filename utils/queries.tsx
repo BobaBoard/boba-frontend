@@ -38,7 +38,7 @@ export const dismissAllNotifications = async () => {
 
 export const markThreadAsRead = async ({ threadId }: { threadId: string }) => {
   log(`Marking thread ${threadId} as read.`);
-  await axios.get(`threads/${threadId}/visit`);
+  await axios.post(`threads/${threadId}/visits`);
   return true;
 };
 
@@ -53,7 +53,7 @@ export const muteThread = async ({
   if (mute) {
     await axios.post(`threads/${threadId}/mute`);
   } else {
-    await axios.post(`threads/${threadId}/unmute`);
+    await axios.delete(`threads/${threadId}/mute`);
   }
   return true;
 };
@@ -69,16 +69,16 @@ export const hideThread = async ({
   if (hide) {
     await axios.post(`threads/${threadId}/hide`);
   } else {
-    await axios.post(`threads/${threadId}/unhide`);
+    await axios.delete(`threads/${threadId}/hide`);
   }
   return true;
 };
 
 export const createThread = async (
-  slug: string,
+  boardId: string,
   postData: PostData
 ): Promise<ThreadType> => {
-  const response = await axios.post(`/threads/${slug}/create`, postData);
+  const response = await axios.post(`/threads/${boardId}/create`, postData);
   log(`Received thread from server:`);
   log(response.data);
   return makeClientThread(response.data);

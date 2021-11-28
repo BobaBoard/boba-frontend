@@ -56,17 +56,17 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
     PostType | ThreadType,
     unknown,
     {
-      slug: string;
+      boardId: string;
       replyToPostId: string | null;
       postData: PostData;
     }
   >(
-    ({ slug, replyToPostId, postData }) => {
+    ({ boardId, replyToPostId, postData }) => {
       // Choose the endpoint according to the provided data.
       // If there's no post to reply to, then it's a new thread.
       // Else, it belongs as a contribution to that post.
       if (!replyToPostId) {
-        return createThread(slug, postData);
+        return createThread(boardId, postData);
       } else {
         return createPost(replyToPostId, postData);
       }
@@ -78,14 +78,14 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
         error(serverError);
         setPostLoading(false);
       },
-      onSuccess: (data: PostType | ThreadType, { slug }) => {
+      onSuccess: (data: PostType | ThreadType, { boardId }) => {
         log(`Received post data after save:`);
         log(data);
         setPostLoading(false);
         if (!(data as any).posts) {
-          props.onPostSaved(data as PostType, slug);
+          props.onPostSaved(data as PostType, boardId);
         } else {
-          props.onPostSaved((data as ThreadType).posts[0], slug);
+          props.onPostSaved((data as ThreadType).posts[0], boardId);
         }
       },
     }
@@ -206,10 +206,9 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
               }
               log(identityId);
               postContribution({
-                slug: postedBoardSlug
-                  ? postedBoardSlug
-                  : // TODO[realms]: remove this forced non-null
-                    boards.find((board) => board.id == state.boardId)!.slug,
+                boardId: postedBoardSlug
+                  ? boards.find((board) => board.slug == postedBoardSlug)!.id
+                  : state.boardId,
                 replyToPostId: parentContribution?.postId || null,
                 postData: {
                   content: text,
@@ -240,7 +239,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
 
 export interface PostEditorModalProps {
   onCancel: (empty: boolean) => void;
-  onPostSaved: (post: PostType, board?: string) => void;
+  onPostSaved: (post: PostType, boardId?: string) => void;
   loading?: boolean;
 }
 

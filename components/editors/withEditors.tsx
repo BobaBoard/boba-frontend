@@ -59,7 +59,7 @@ const Editors = () => {
         {isContributionEditorState(state) && (
           <ContributionEditorModal
             loading={isRefetching}
-            onPostSaved={(post: PostType, postedSlug: string) => {
+            onPostSaved={(post: PostType, postedBoardId: string) => {
               if (isEditContribution(state)) {
                 setPostTagsInCache(queryClient, {
                   threadId: state.threadId,
@@ -71,11 +71,11 @@ const Editors = () => {
                 return;
               }
               const postedBoard = boards.find(
-                (board) => board.slug == postedSlug
+                (board) => board.id == postedBoardId
               );
               if (!postedBoard) {
                 toast.error(
-                  `The board with slug ${postedSlug} does not exist.`
+                  `The board with id ${postedBoardId} does not exist.`
                 );
                 return;
               }
@@ -88,7 +88,7 @@ const Editors = () => {
                 }).then(() => {
                   onClose();
                   if (postedBoard.id !== state.boardId) {
-                    getLinkToBoard(postedSlug).onClick?.();
+                    getLinkToBoard(postedBoard.slug).onClick?.();
                   }
                   setRefetching(false);
                 });
