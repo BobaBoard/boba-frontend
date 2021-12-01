@@ -78,7 +78,7 @@ export const createThread = async (
   boardId: string,
   postData: PostData
 ): Promise<ThreadType> => {
-  const response = await axios.post(`/threads/${boardId}/create`, postData);
+  const response = await axios.post(`/boards/${boardId}`, postData);
   log(`Received thread from server:`);
   log(response.data);
   return makeClientThread(response.data);

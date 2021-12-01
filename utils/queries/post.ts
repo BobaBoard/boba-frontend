@@ -27,7 +27,7 @@ export const updateThreadView = async ({
   threadId: string;
   view: ThreadType["defaultView"];
 }) => {
-  await axios.post(`/threads/${threadId}/update/view`, {
+  await axios.patch(`/threads/${threadId}`, {
     defaultView: view,
   });
 };

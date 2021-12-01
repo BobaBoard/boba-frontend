@@ -12,7 +12,7 @@ export const updateUserData = async (data: {
   avatarUrl: string;
   username: string;
 }> => {
-  const response = await axios.post(`/users/me/update`, data);
+  const response = await axios.patch(`/users/@me`, data);
   log(`Updated user data on server:`);
   log(response.data);
   return response.data;
