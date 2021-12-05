@@ -1,4 +1,5 @@
 import "@testing-library/jest-dom/extend-expect";
+import "jest-canvas-mock";
 
 import { server } from "../server-mocks/index";
 
@@ -46,11 +47,34 @@ Object.defineProperty(window, "ResizeObserverEntry", {
   value: jest.fn().mockImplementation(() => ({})),
 });
 
+Object.defineProperty(window, "scroll", {
+  writable: true,
+  value: jest.fn().mockImplementation(() => ({})),
+});
+
 Object.defineProperty(window, "requestIdleCallback", {
   writable: true,
   value: jest.fn().mockImplementation((fn) => {
     fn();
   }),
+});
+
+Object.defineProperty(global.Image.prototype, "src", {
+  set() {
+    this.dispatchEvent(new Event("load"));
+  },
+});
+
+Object.defineProperty(global.Image.prototype, "width", {
+  get() {
+    return 10;
+  },
+});
+
+Object.defineProperty(global.Image.prototype, "height", {
+  get() {
+    return 10;
+  },
 });
 
 beforeAll(() =>

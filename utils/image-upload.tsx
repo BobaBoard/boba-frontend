@@ -1,15 +1,15 @@
-import React from "react";
-import firebase from "firebase/app";
-import { v4 as uuidv4 } from "uuid";
-import noop from "noop-ts";
-
-import { getPageDetails } from "./router-utils";
 import { NextRouter } from "next/router";
-import loadImage from "blueimp-load-image";
+import React from "react";
 import debug from "debug";
+import firebase from "firebase/app";
+import { getPageDetails } from "./router-utils";
+import loadImage from "blueimp-load-image";
+import noop from "noop-ts";
+import { v4 as uuidv4 } from "uuid";
+
 const error = debug("bobafrontend:postEditor-error");
 
-const uploadImage = ({
+export const uploadImage = ({
   baseUrl,
   extension,
   imageData,
@@ -18,6 +18,7 @@ const uploadImage = ({
   extension: string;
   imageData: string;
 }): Promise<string> => {
+  console.log(uuidv4());
   const ref = firebase.storage().ref(baseUrl).child(`${uuidv4()}${extension}`);
 
   return new Promise((onSuccess, onReject) => {
@@ -42,6 +43,13 @@ const applyAndStripExif = async (imageData: string) => {
     canvas: true,
   });
   return (imageWithRotation.image as any as HTMLCanvasElement).toDataURL();
+};
+
+export const extractImageExtension = (imageData: string) => {
+  if (imageData.startsWith("data:image")) {
+    return imageData.match(/[^:/]\w+(?=;|,)/)?.[0];
+  }
+  return "";
 };
 
 const STRIP_EXIF_EXTENSIONS = ["jpeg", "jpg", "tiff"];

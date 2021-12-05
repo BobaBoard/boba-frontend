@@ -79,6 +79,7 @@
     "cypress": "^8.7.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.3.1",
+    "jest-canvas-mock": "^2.3.1",
     "msw": "^0.35.0",
     "react": "16.13.1",
     "react-dom": "16.13.1",

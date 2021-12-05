@@ -157,7 +157,7 @@ const AuthProvider: React.FC<{
         user: { username: data.username, avatarUrl: data.avatarUrl },
       });
     },
-    []
+    [status]
   );
 
   const attemptLogin = React.useCallback(
@@ -188,7 +188,7 @@ const AuthProvider: React.FC<{
           return false;
         });
     },
-    []
+    [status]
   );
 
   const attemptLogout = React.useCallback(() => {

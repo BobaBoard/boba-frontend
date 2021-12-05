@@ -12,6 +12,8 @@ import { debug } from "debug";
 import { makeRealmData } from "utils/client-data";
 import { usePageDataListener } from "utils/router-utils";
 
+const useRouter = jest.spyOn(require("next/router"), "useRouter");
+
 const routerInfo = debug("bobatest:router");
 
 export const BASE_ROUTER: NextRouter = {
@@ -87,6 +89,21 @@ export const getBoardRouter = ({
   },
 });
 
+export const getUserSettingsRoute = ({
+  settingSection,
+}: {
+  settingSection: string;
+}): NextRouter => ({
+  ...BASE_ROUTER,
+  pathname: "/users/settings/[[...settingId]]",
+  route: "/users/settings/[[...settingId]]",
+  query: {
+    settingId: [settingSection],
+  },
+  asPath: `/users/settings/${settingSection}`,
+  basePath: "",
+});
+
 export const Client = ({
   children,
   router,
@@ -98,6 +115,13 @@ export const Client = ({
     realm?: RealmType;
   };
 }) => {
+  const [userData, setUserData] = React.useState<{
+    username: string;
+    avatarUrl: string;
+  }>({
+    username: "bobatan",
+    avatarUrl: "/bobatan.png",
+  });
   usePageDataListener(router);
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -107,6 +131,8 @@ export const Client = ({
     },
   });
 
+  useRouter.mockImplementationOnce(() => router);
+
   return (
     <QueryParamProvider router={router}>
       <QueryClientProvider client={queryClient}>
@@ -114,10 +140,8 @@ export const Client = ({
           value={{
             isLoggedIn: true,
             isPending: false,
-            user: {
-              username: "bobatan",
-              avatarUrl: "/bobatan.png",
-            },
+            user: userData,
+            refreshUserData: setUserData,
           }}
         >
           <ImageUploaderContext.Provider

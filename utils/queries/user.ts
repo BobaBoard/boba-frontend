@@ -2,6 +2,7 @@ import { SettingType } from "@bobaboard/ui-components";
 import axios from "axios";
 import debug from "debug";
 import { getServerBaseUrl } from "../location-utils";
+import { makeClientData } from "utils/client-data";
 
 const log = debug("bobafrontend:queries:user-log");
 
@@ -15,7 +16,10 @@ export const updateUserData = async (data: {
   const response = await axios.patch(`/users/@me`, data);
   log(`Updated user data on server:`);
   log(response.data);
-  return response.data;
+  return makeClientData(response.data) as {
+    avatarUrl: string;
+    username: string;
+  };
 };
 
 export const getBobadex = async (): Promise<any> => {

@@ -1,13 +1,14 @@
-import React from "react";
-import Layout from "components/layout/Layout";
-import { TabsGroup, DefaultTheme } from "@bobaboard/ui-components";
-import { useAuth } from "components/Auth";
-import { useRouter } from "next/router";
-import { FeedWithMenu } from "@bobaboard/ui-components";
+import { DefaultTheme, TabsGroup } from "@bobaboard/ui-components";
 import { faHollyBerry, faUser } from "@fortawesome/free-solid-svg-icons";
-import UserSettings from "components/settings/UserSettings";
+
 import DecorationsSettings from "components/settings/DecorationsSettings";
+import { FeedWithMenu } from "@bobaboard/ui-components";
+import Layout from "components/layout/Layout";
+import React from "react";
+import UserSettings from "components/settings/UserSettings";
+import { useAuth } from "components/Auth";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
+import { useRouter } from "next/router";
 
 //import debug from "debug";
 //const log = debug("bobafrontend:index-log");

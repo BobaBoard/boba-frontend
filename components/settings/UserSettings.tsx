@@ -1,15 +1,15 @@
+import { BobaDex, UserDetails } from "@bobaboard/ui-components";
 import React, { useEffect } from "react";
-import { updateUserData, getBobadex } from "utils/queries/user";
-import { useQuery, useMutation } from "react-query";
-import { UserDetails, BobaDex } from "@bobaboard/ui-components";
-import { v4 as uuidv4 } from "uuid";
-import firebase from "firebase/app";
+import { extractImageExtension, uploadImage } from "utils/image-upload";
+import { getBobadex, updateUserData } from "utils/queries/user";
+import { useMutation, useQuery } from "react-query";
+
+import { BobadexSeasonType } from "types/Types";
+import { SettingPageIds } from "pages/users/settings/[[...settingId]]";
 import debug from "debug";
+import { makeClientData } from "utils/client-data";
 import { useAuth } from "components/Auth";
 import { useRouter } from "next/router";
-import { SettingPageIds } from "pages/users/settings/[[...settingId]]";
-import { BobadexSeasonType } from "types/Types";
-import { makeClientData } from "utils/client-data";
 
 const log = debug("bobafrontend:settings:UserSettings-log");
 
@@ -101,46 +101,38 @@ const UserSettings = () => {
           onCancel={() => {
             setEditing(false);
           }}
-          onSubmit={(
+          onSubmit={async (
             promise: Promise<{ editedImg: string; username: string }>
           ) => {
             setLoading(true);
-            promise.then(({ editedImg, username: newUsername }) => {
-              const ref = firebase
-                .storage()
-                .ref(`images/users/avatar/`)
-                .child(uuidv4());
+            const { editedImg, username: newUsername } = await promise;
+            if (editedImg == avatar && username == newUsername) {
+              setEditing(false);
+              setLoading(false);
+              return;
+            } else if (editedImg == avatar) {
+              updateData({
+                avatarUrl: avatar,
+                username: newUsername,
+              });
+              return;
+            }
 
-              if (editedImg == avatar && username == newUsername) {
-                setEditing(false);
-                setLoading(false);
-                return;
-              } else if (editedImg == avatar) {
-                updateData({
-                  avatarUrl: avatar,
-                  username: newUsername,
-                });
-                return;
-              }
-
-              ref
-                .putString(editedImg, "data_url")
-                .on(firebase.storage.TaskEvent.STATE_CHANGED, {
-                  complete: () => {
-                    ref.getDownloadURL().then((url) => {
-                      updateData({
-                        avatarUrl: url,
-                        username: newUsername,
-                      });
-                    });
-                  },
-                  error: (e) => {
-                    log(e);
-                    setEditing(false);
-                    setLoading(false);
-                  },
-                });
-            });
+            try {
+              const url = await uploadImage({
+                baseUrl: `images/users/avatar/`,
+                extension: "." + extractImageExtension(editedImg),
+                imageData: editedImg,
+              });
+              updateData({
+                avatarUrl: url,
+                username: newUsername,
+              });
+            } catch (e) {
+              log(e);
+              setEditing(false);
+              setLoading(false);
+            }
           }}
           editing={editing}
           loading={isUserPending || loading}
