@@ -8,11 +8,23 @@ const LoadingSpinner: React.FC<{
 }> = (props) => {
   return (
     <>
-      <div className="container">
+      <div
+        className="loading-spinner"
+        role="progressbar"
+        aria-valuetext={
+          props.loading ? props.loadingMessage : props.idleMessage
+        }
+        aria-busy={props.loading}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={props.loading ? 0 : 100}
+        aria-label="bottom page loading bar"
+      >
         <div
           className={classnames("idle-indicator", {
             idle: !props.loading,
           })}
+          aria-hidden="true"
         >
           {props.idleMessage}
         </div>
@@ -21,6 +33,7 @@ const LoadingSpinner: React.FC<{
             className={classnames("loading-indicator", {
               loading: props.loading,
             })}
+            aria-hidden="true"
           >
             {props.loadingMessage}
           </div>
@@ -36,12 +49,13 @@ const LoadingSpinner: React.FC<{
                 behavior: "smooth",
               });
             }}
+            aria-label="Scroll to top"
           />
         </div>
       </div>
       <div className="spacer" />
       <style jsx>{`
-        .container {
+        .loading-spinner {
           position: absolute;
           bottom: 0;
           width: 100%;
