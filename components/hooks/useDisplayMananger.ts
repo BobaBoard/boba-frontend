@@ -78,7 +78,6 @@ const maybeCollapseToElement = ({
     firstCollapsedLvl1!.postId,
     lastCollapsedLvl1!.postId
   );
-  ("");
   collapseManager.onCollapseLevel(collapseGroupId);
 };
 
@@ -124,7 +123,10 @@ const getDisplayPostsForView = (
           return newPosts;
         }
       }
+      break;
     }
+    default:
+      throw new Error(`Unknown view mode: ${viewMode.currentThreadViewMode}`);
   }
 };
 
@@ -221,7 +223,19 @@ const useThreadViewDisplay = () => {
 
 export const FIRST_LOAD = 5;
 export const READ_MORE_STEP = 5;
-export const useDisplayManager = (collapseManager: CollapseManager) => {
+/**
+ * Note: changes to optional loading amount won't be honored after mount.
+ */
+export const useDisplayManager = (
+  collapseManager: CollapseManager,
+  {
+    firstLoadAmount,
+    loadMoreAmount,
+  }: { firstLoadAmount: number; loadMoreAmount: number } = {
+    firstLoadAmount: FIRST_LOAD,
+    loadMoreAmount: READ_MORE_STEP,
+  }
+) => {
   const currentModeDisplayElements = useThreadViewDisplay();
   const {
     currentThreadViewMode,
@@ -229,7 +243,7 @@ export const useDisplayManager = (collapseManager: CollapseManager) => {
     removeOnChangeHandler,
     activeFilters,
   } = useThreadViewContext();
-  const { postsInfoMap } = useThreadContext();
+  const { postsInfoMap, isFetching } = useThreadContext();
   /**
    * How many contributions are currently displayed (at most) in the current mode.
    * Automatically reset when view changes. Also automatically increased in case of
@@ -237,12 +251,15 @@ export const useDisplayManager = (collapseManager: CollapseManager) => {
    * Can't be more than max length of current contributions.
    * TODO: check the last statement is true.
    */
-  const [maxDisplay, setMaxDisplay] = useStateWithCallback(FIRST_LOAD);
-  const { isFetching } = useThreadContext();
+  const [maxDisplay, setMaxDisplay] = useStateWithCallback(firstLoadAmount);
+  const loadMoreIdleCallback = React.useRef<number | null>(null);
+  // These are stored in a ref to prevent changing them after the first render.
+  const loadMoreAmountRef = React.useRef(loadMoreAmount);
+  const firstLoadAmountRef = React.useRef(firstLoadAmount);
 
   React.useEffect(() => {
     const clearMaxDisplayCallback = () => {
-      setMaxDisplay(FIRST_LOAD);
+      setMaxDisplay(firstLoadAmountRef.current);
     };
     addOnChangeHandler(clearMaxDisplayCallback);
     return () => {
@@ -252,53 +269,50 @@ export const useDisplayManager = (collapseManager: CollapseManager) => {
 
   const displayMore = React.useCallback(
     (callback: (newMax: number, hasMore: boolean) => void) => {
+      log("Potentially increasing the amount of displayed posts...");
       setMaxDisplay(
         (maxDisplay) =>
           Math.min(
-            maxDisplay + READ_MORE_STEP,
-            currentModeDisplayElements.length
+            maxDisplay + loadMoreAmountRef.current,
+            isFetching ? maxDisplay : currentModeDisplayElements.length
           ),
         (newValue) => {
           log(
             `New total posts loaded: ${newValue}. Total posts: ${currentModeDisplayElements.length}`
           );
-          callback(newValue, newValue <= currentModeDisplayElements.length);
+          const hasMore = newValue < currentModeDisplayElements.length;
+          if (!hasMore && loadMoreIdleCallback.current) {
+            log("Clearing load more idle callback");
+            cancelIdleCallback(loadMoreIdleCallback.current);
+          }
+          callback(newValue, newValue < currentModeDisplayElements.length);
         }
       );
     },
-    [setMaxDisplay, currentModeDisplayElements]
+    [setMaxDisplay, currentModeDisplayElements, isFetching]
   );
 
   React.useEffect(() => {
     if (isFetching || currentThreadViewMode != THREAD_VIEW_MODES.THREAD) {
       return;
     }
-    let id: number;
-    let timeout: NodeJS.Timeout;
     const idleCallback = () => {
       log(`Browser idle (or equivalent). Loading more.....`);
       requestAnimationFrame(() =>
         displayMore((newValue, hasMore) => {
           if (hasMore) {
-            // NOTE: THE TIMEOUT IS FOR TESTING PURPOSES
-            // timeout = setTimeout(() => {
             log(`Creating request for further load at next idle step.`);
-            // @ts-ignore
-            id = requestIdleCallback(idleCallback, { timeout: 1000 });
-            // }, 1000);
+            loadMoreIdleCallback.current = requestIdleCallback(idleCallback, {
+              timeout: 1000,
+            });
           }
         })
       );
     };
-    // @ts-ignore
-    requestIdleCallback(idleCallback);
+    loadMoreIdleCallback.current = requestIdleCallback(idleCallback);
     return () => {
-      if (id) {
-        // @ts-ignore
-        cancelIdleCallback(id);
-      }
-      if (timeout) {
-        clearTimeout(timeout);
+      if (loadMoreIdleCallback.current) {
+        cancelIdleCallback(loadMoreIdleCallback.current);
       }
     };
   }, [isFetching, currentThreadViewMode, displayMore, activeFilters]);
@@ -319,7 +333,7 @@ export const useDisplayManager = (collapseManager: CollapseManager) => {
         (maxDisplay) => {
           const newMaxDisplay = Math.min(
             elementIndex > maxDisplay
-              ? elementIndex + (READ_MORE_STEP - 1)
+              ? elementIndex + (loadMoreAmountRef.current - 1)
               : maxDisplay,
             currentModeDisplayElements.length
           );
