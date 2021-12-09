@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom/extend-expect";
 import "jest-canvas-mock";
 
+import { ensureMocksReset } from "@shopify/jest-dom-mocks";
 import { server } from "../server-mocks/index";
 
 jest.mock("next/router", () => {
@@ -94,4 +95,5 @@ afterAll(() => server.close());
 
 beforeEach(() => {
   server.resetHandlers();
+  ensureMocksReset();
 });

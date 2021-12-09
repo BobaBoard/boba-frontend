@@ -10,6 +10,8 @@ import { RealmType } from "types/Types";
 import { V0_DATA } from "../../server-mocks/data/realm";
 import { debug } from "debug";
 import { makeRealmData } from "utils/client-data";
+import { matchRequestUrl } from "msw";
+import { server } from "../../server-mocks";
 import { usePageDataListener } from "utils/router-utils";
 
 const useRouter = jest.spyOn(require("next/router"), "useRouter");
@@ -127,6 +129,7 @@ export const Client = ({
     defaultOptions: {
       queries: {
         retry: false,
+        cacheTime: Infinity,
       },
     },
   });
@@ -157,4 +160,33 @@ export const Client = ({
       </QueryClientProvider>
     </QueryParamProvider>
   );
+};
+
+export const waitForRequest = (method: string, url: string) => {
+  let requestId = "";
+  return new Promise((resolve, reject) => {
+    server.events.on("request:start", (req) => {
+      const matchesMethod = req.method.toLowerCase() === method.toLowerCase();
+      const matchesUrl = matchRequestUrl(req.url, url);
+      if (matchesMethod && matchesUrl) {
+        requestId = req.id;
+      }
+    });
+    server.events.on("request:end", (req) => {
+      if (req.id === requestId) {
+        resolve(req);
+      }
+    });
+    server.events.on("request:unhandled", (req) => {
+      if (req.id === requestId) {
+        reject(
+          new Error(`The ${req.method} ${req.url.href} request was unhandled.`)
+        );
+      }
+    });
+  });
+};
+
+export const getThreadRequestPromise = ({ threadId }: { threadId: string }) => {
+  return waitForRequest("GET", `/threads/${threadId}`);
 };
