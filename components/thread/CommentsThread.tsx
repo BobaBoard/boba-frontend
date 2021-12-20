@@ -1,11 +1,12 @@
 import {
-  CommentChain,
+  Comment,
   CommentHandler,
   DefaultTheme,
   NewCommentsThread,
 } from "@bobaboard/ui-components";
 import { CommentType, ThreadCommentInfoType } from "types/Types";
 
+import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
 import React from "react";
 import debug from "debug";
 import { faComment } from "@fortawesome/free-regular-svg-icons";
@@ -83,8 +84,12 @@ const ThreadComment: React.FC<{
       })),
     [rootComment, parentChainMap]
   );
-  const replyToLast = React.useCallback(
-    () => onNewComment(parentPostId, chainInfo[chainInfo.length - 1].id),
+  const replyToLast = React.useMemo<LinkWithAction>(
+    () => ({
+      onClick: () =>
+        onNewComment(parentPostId, chainInfo[chainInfo.length - 1].id),
+      label: "Add a new comment",
+    }),
     [parentPostId, chainInfo, onNewComment]
   );
   const onSetRef = React.useCallback(
@@ -107,9 +112,7 @@ const ThreadComment: React.FC<{
             {
               name: "Reply",
               icon: faComment,
-              link: {
-                onClick: replyToLast,
-              },
+              link: replyToLast,
             },
           ]
         : undefined,
@@ -117,7 +120,7 @@ const ThreadComment: React.FC<{
   );
 
   return (
-    <CommentChain
+    <Comment
       ref={onSetRef}
       key={rootComment.commentId}
       secretIdentity={rootComment.secretIdentity}
@@ -129,7 +132,7 @@ const ThreadComment: React.FC<{
       onExtraAction={isLoggedIn ? replyToLast : undefined}
       options={options}
       forceHideIdentity={forceHideIdentity}
-      disableMotionEffect={disableMotionEffect}
+      disableMotionOnScroll={disableMotionEffect}
     />
   );
 };
