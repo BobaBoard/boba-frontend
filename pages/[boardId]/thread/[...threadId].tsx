@@ -41,14 +41,89 @@ import { useReadThread } from "queries/thread";
 import { useThreadCollapseManager } from "components/thread/useCollapseManager";
 
 // const error = debug("bobafrontend:ThreadPage-error");
-// const log = debug("bobafrontend:ThreadPage-log");
-const info = debug("bobafrontend:ThreadPage-info");
+const log = debug("bobafrontend:ThreadPage-log");
+// const info = debug("bobafrontend:ThreadPage-info");
 
 const MemoizedThreadView = React.memo(ThreadView);
 const MemoizedGalleryThreadView = React.memo(GalleryThreadView);
 const MemoizedTimelineThreadView = React.memo(TimelineThreadView);
 
-const MARK_THREAD_READ_DELAY = 1000;
+export const MARK_THREAD_READ_DELAY = 1000;
+const useMarkThreadReadOnDelay = (threadId: string, slug: string) => {
+  const boardId = useRealmBoardId({ realmSlug: "v0", boardSlug: slug });
+  // The latest threadId that was marked as read. When this changes, we need to
+  // mark the thread as read again.
+  const latestReadThread = React.useRef<string | null>(null);
+  const markReadTimeout = React.useRef<NodeJS.Timeout | null>(null);
+  const invalidateThread = useInvalidateThreadData();
+  const refetchNotifications = useInvalidateNotifications();
+  const markAsRead = useReadThread({ activityOnly: true });
+  const { isLoggedIn } = useAuth();
+  const { isLoading: isFetchingThread, isRefetching: isRefetchingThread } =
+    useThreadContext();
+
+  useOnPageExit(
+    React.useCallback(() => {
+      log(
+        "Exiting current thread, invalidating it and restoring mark as read."
+      );
+      if (markReadTimeout.current) {
+        clearTimeout(markReadTimeout.current);
+        markReadTimeout.current = null;
+      }
+      if (!latestReadThread.current || latestReadThread.current === threadId) {
+        return;
+      }
+      invalidateThread({ threadId: latestReadThread.current });
+      latestReadThread.current = null;
+    }, [threadId, invalidateThread])
+  );
+
+  React.useEffect(() => {
+    if (
+      isFetchingThread ||
+      isRefetchingThread ||
+      !isLoggedIn ||
+      !threadId ||
+      latestReadThread.current == threadId ||
+      markReadTimeout.current
+    ) {
+      // The thread is either still loading, or we've already marked it as read
+      // (or are in the process of doing so).
+      log("Skip marking thread as read (for now).");
+      return;
+    }
+
+    markReadTimeout.current = setTimeout(() => {
+      if (latestReadThread.current == threadId) {
+        // This ensures we only mark as read once per thread.
+        log("Marking thread as read already scheduled. Bailing.");
+        return;
+      }
+      latestReadThread.current = threadId;
+      markAsRead(
+        { boardId: boardId!, threadId },
+        {
+          onSuccess: () => {
+            markReadTimeout.current = null;
+            refetchNotifications();
+          },
+          onError: () => {
+            latestReadThread.current = null;
+          },
+        }
+      );
+    }, MARK_THREAD_READ_DELAY);
+  }, [
+    markAsRead,
+    refetchNotifications,
+    isFetchingThread,
+    isRefetchingThread,
+    isLoggedIn,
+    boardId,
+    threadId,
+  ]);
+};
 
 function ThreadPage() {
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
@@ -56,17 +131,12 @@ function ThreadPage() {
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const { getLinkToBoard } = useCachedLinks();
   const currentBoardData = useBoardSummary({ boardId });
-  const refetchNotifications = useInvalidateNotifications();
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
   const onCompassClick = React.useCallback(
     () => setShowSidebar(!showSidebar),
     [showSidebar]
   );
-  const markAsRead = useReadThread({ activityOnly: true });
-  const hasMarkedAsRead = React.useRef(false);
-  const markReadTimeout = React.useRef<NodeJS.Timeout | null>(null);
-  const invalidateThread = useInvalidateThreadData();
   const { currentThreadViewMode, setThreadViewMode } = useThreadViewContext();
   const collapseManager = useThreadCollapseManager();
   const {
@@ -81,57 +151,7 @@ function ThreadPage() {
     currentBoardData?.accentColor
   );
   const { onNewContribution } = useThreadEditors();
-  useOnPageExit(
-    React.useCallback(() => {
-      info(
-        "Exiting current thread, invalidating it and restoring mark as read."
-      );
-      if (!threadId || !hasMarkedAsRead.current) {
-        return;
-      }
-      hasMarkedAsRead.current = false;
-      markReadTimeout.current = null;
-      invalidateThread({ threadId });
-    }, [threadId, invalidateThread])
-  );
-
-  React.useEffect(() => {
-    if (
-      !isFetchingThread &&
-      !isRefetchingThread &&
-      isLoggedIn &&
-      !hasMarkedAsRead.current &&
-      !markReadTimeout.current
-    ) {
-      markReadTimeout.current = setTimeout(() => {
-        info("Marking thread as read.");
-        markAsRead(
-          { boardId: boardId!, threadId },
-          {
-            onSuccess: () => {
-              info("Thread marked as read. Refetching notifications.");
-              hasMarkedAsRead.current = true;
-              refetchNotifications();
-            },
-          }
-        );
-      }, MARK_THREAD_READ_DELAY);
-    }
-    return () => {
-      if (markReadTimeout.current) {
-        clearTimeout(markReadTimeout.current);
-        markReadTimeout.current = null;
-      }
-    };
-  }, [
-    markAsRead,
-    refetchNotifications,
-    isFetchingThread,
-    isRefetchingThread,
-    isLoggedIn,
-    boardId,
-    threadId,
-  ]);
+  useMarkThreadReadOnDelay(threadId, slug);
 
   // TODO: disable this while post editing and readd
   // const currentPostIndex = React.useRef<number>(-1);

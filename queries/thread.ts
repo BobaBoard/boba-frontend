@@ -18,7 +18,6 @@ import debug from "debug";
 import { toast } from "@bobaboard/ui-components";
 import { updateThreadView } from "utils/queries/post";
 import { useAuth } from "components/Auth";
-import { useBoardSummary } from "contexts/RealmContext";
 
 const info = debug("bobafrontend:hooks:queries:thread-info");
 const error = debug("bobafrontend:hooks:queries:thread-error");
@@ -212,12 +211,7 @@ export const useThread = ({
 }) => {
   const queryClient = useQueryClient();
   const { isLoggedIn } = useAuth();
-  // TODO[realms]: get rid of the need for slug here and also
-  // figure out a better default for boardId.
-  const { slug } = useBoardSummary({ boardId: boardId || "" }) || {};
 
-  log(`Using thread with null`);
-  //const queryClient = useQueryClient();
   const { data, isLoading, isFetching } = useQuery<
     ThreadType | null,
     [
@@ -232,6 +226,7 @@ export const useThread = ({
       if (!threadId) {
         return null;
       }
+      log(`Fetcing thread with id ${threadId}.`);
       return getThreadData({ threadId });
     },
 
@@ -247,7 +242,7 @@ export const useThread = ({
       refetchOnMount: false,
       cacheTime: 5 * 1000,
       placeholderData: () => {
-        if (!threadId || !boardId || !slug) {
+        if (!threadId || !boardId) {
           return null;
         }
         info(
@@ -264,7 +259,7 @@ export const useThread = ({
       },
       staleTime: 30 * 1000,
       notifyOnChangeProps: ["data", "isLoading", "isFetching"],
-      enabled: !!(fetch ?? true) && !!slug && !!threadId,
+      enabled: !!(fetch ?? true) && !!threadId,
       onSuccess: (data) => {
         log(`Retrieved thread data for thread with id ${threadId}`);
         info(data);

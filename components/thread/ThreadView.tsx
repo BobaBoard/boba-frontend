@@ -40,6 +40,7 @@ const loadingBar = css.resolve`
   }
   .thread-loading-bar {
     top: ${DefaultTheme.HEADER_HEIGHT_PX}px!important;
+    position: fixed;
     transition: visibility 800ms ease-out;
     opacity: 0;
   }
@@ -147,6 +148,7 @@ const ThreadLevel: React.FC<{
     return null;
   }
 
+  log(`Rendering post with id ${props.post.postId}`);
   const hasNestedContributions = parentChildrenMap.has(props.post.postId);
   // When there's only comments replying to the post, then the indentation is just made of
   // the comments themselves.
@@ -306,10 +308,12 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
             currentModeDisplayElements.length,
         })}
         accentColor={boardData?.accentColor}
-        progress={
-          (currentModeLoadedElements.length * 100) /
-          currentModeDisplayElements.length
-        }
+        label={"thread load percentage"}
+        // TODO: readd progress here.
+        // progress={
+        //   (currentModeLoadedElements.length * 100) /
+        //   currentModeDisplayElements.length
+        // }
       />
       <div
         className={classnames("whole-thread", {

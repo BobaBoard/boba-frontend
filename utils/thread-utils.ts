@@ -63,8 +63,8 @@ export const makeCommentsTree = (
     }
   });
 
-  log(`Created comment tree:`);
-  log(result);
+  log(`Created comments tree with ${result.total} comments.`);
+  info(result);
   return result;
 };
 

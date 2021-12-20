@@ -45,7 +45,7 @@ export const acceptInvite = async (data: {
 };
 
 export const getUserSettings = async (): Promise<SettingType> => {
-  const response = await axios.get(`/users/settings`);
+  const response = await axios.get(`/users/@me/settings`);
   log(`Got user settings from server:`);
   log(response.data);
   return response.data;
@@ -54,8 +54,8 @@ export const getUserSettings = async (): Promise<SettingType> => {
 export const updateUserSettings = async (
   name: string,
   value: unknown
-): Promise<any> => {
-  const response = await axios.post(`/users/settings/update`, {
+): Promise<SettingType> => {
+  const response = await axios.patch(`/users/@me/settings`, {
     name,
     value,
   });

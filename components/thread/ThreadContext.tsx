@@ -196,7 +196,6 @@ export const useThreadWithNull = ({
   boardId: string | null;
   fetch?: boolean;
 }): ThreadContextType => {
-  log(`Using thread with null`);
   const {
     data: threadData,
     isLoading: isFetchingThread,
