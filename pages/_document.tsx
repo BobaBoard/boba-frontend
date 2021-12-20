@@ -1,9 +1,9 @@
+import Document, { Head, Html, Main, NextScript } from "next/document";
+
 import React from "react";
-import Document, { Html, Head, Main, NextScript } from "next/document";
-
 import { flush as componentsFlush } from "@bobaboard/ui-components";
-
 import debug from "debug";
+
 const info = debug("bobafrontend:Document-info");
 info.enabled = false;
 
@@ -51,6 +51,7 @@ class MyDocument extends Document {
               font-family: Inter, sans-serif;
               background-color: rgb(47, 47, 48);
               font-size: 1.6rem;
+              font-display:optional;
             }
             * {
               scrollbar-width: thin;
