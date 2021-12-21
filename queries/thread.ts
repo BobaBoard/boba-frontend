@@ -232,14 +232,8 @@ export const useThread = ({
 
     {
       refetchOnWindowFocus: false,
-      // We don't want thread to be automatically refetched on mount because this might
-      // cause the "read" status to change. Instead, we want to wait for them to become
-      // inactive (no one is using them) and then quickly garbage collect them so they get
-      // refetched again next visit.
-      // TODO: better investigate whether to use the fetch variable (or another) for this.
-      // TODO: one blessed day we will simply mark "your thread was updated, click to refresh"
-      // and maybe at that point we can keep refreshing the thread if we wait to load the data.
-      refetchOnMount: false,
+      // NOTE: this only refetches on mount if the data is stale
+      refetchOnMount: true,
       cacheTime: 5 * 1000,
       placeholderData: () => {
         if (!threadId || !boardId) {

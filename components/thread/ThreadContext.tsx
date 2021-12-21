@@ -81,11 +81,17 @@ const ThreadContextProvider: React.FC<{
     boardId: props.boardId,
     threadId: props.threadId,
     postId: props.postId,
-    fetch: true,
   });
 
   return (
-    <ThreadContext.Provider value={value}>
+    <ThreadContext.Provider
+      value={React.useMemo(
+        () => ({
+          ...value,
+        }),
+        [value]
+      )}
+    >
       {props.children}
     </ThreadContext.Provider>
   );
