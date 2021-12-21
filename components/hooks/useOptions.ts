@@ -44,11 +44,6 @@ export enum PostOptions {
   DEBUG = "DEBUG",
 }
 
-enum DebugOptions {
-  COPY_CONTENT_DATA = "COPY_CONTENT_DATA",
-  COPY_POST_ID = "COPY_POST_ID",
-}
-
 const isPostEditPermission = (postPermission: PostPermissions) => {
   return [
     PostPermissions.editContent,
@@ -149,7 +144,7 @@ const getUpdateViewOption = (
   ].filter((option) => option.name.toLowerCase() != currentView),
 });
 
-const getDebugOption = (callback: (debugOption: DebugOptions) => void) => ({
+const getDebugOption = (callback: () => void) => ({
   icon: faBug,
   name: "Debug",
   options: [
@@ -157,14 +152,7 @@ const getDebugOption = (callback: (debugOption: DebugOptions) => void) => ({
       icon: faCopy,
       name: "Copy content data",
       link: {
-        onClick: () => callback(DebugOptions.COPY_CONTENT_DATA),
-      },
-    },
-    {
-      icon: faCopy,
-      name: "Copy post id",
-      link: {
-        onClick: () => callback(DebugOptions.COPY_POST_ID),
+        onClick: () => callback(),
       },
     },
   ],
@@ -369,18 +357,9 @@ const usePostOptions = ({
             })
           );
         case PostOptions.DEBUG:
-          return getDebugOption((option) => {
-            switch (option) {
-              case DebugOptions.COPY_CONTENT_DATA:
-                copyText(post.content);
-                break;
-              case DebugOptions.COPY_POST_ID:
-                copyText(post.postId);
-                break;
-              default:
-                throw new Error("Unrecognized debug option");
-            }
-            toast.success("Copied!");
+          return getDebugOption(() => {
+            copyText(post.content);
+            toast.success("Copied post details");
           });
       }
     },
