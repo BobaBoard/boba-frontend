@@ -40,8 +40,9 @@ import { useOnPageExit } from "components/hooks/useOnPageExit";
 import { useReadThread } from "queries/thread";
 import { useThreadCollapseManager } from "components/thread/useCollapseManager";
 
-// const error = debug("bobafrontend:ThreadPage-error");
+const error = debug("bobafrontend:ThreadPage-error");
 const log = debug("bobafrontend:ThreadPage-log");
+log.enabled = true;
 // const info = debug("bobafrontend:ThreadPage-info");
 
 const MemoizedThreadView = React.memo(ThreadView);
@@ -105,6 +106,7 @@ const useMarkThreadReadOnDelay = (threadId: string, slug: string) => {
         { boardId: boardId!, threadId },
         {
           onSuccess: () => {
+            log("Thread marked as read.");
             markReadTimeout.current = null;
             refetchNotifications();
           },
@@ -323,6 +325,7 @@ ThreadWithEditors.getInitialProps = async (ctx: NextPageContext) => {
       summary,
     };
   } catch (e) {
+    error(e);
     return {};
   }
 };
