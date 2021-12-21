@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useQueryClient } from "react-query";
 
+import React from "react";
 import { getBoardActivityData } from "utils/queries/feeds";
 import { useAuth } from "components/Auth";
 import { useBoardSummary } from "contexts/RealmContext";
@@ -36,6 +37,9 @@ export function useBoardActivity(props: {
 
 export const useRefetchBoardActivity = () => {
   const queryClient = useQueryClient();
-  return ({ boardId }: { boardId: string | null }) =>
-    queryClient.invalidateQueries([BOARD_ACTIVITY_KEY, { boardId }]);
+  return React.useCallback(
+    ({ boardId }: { boardId: string | null }) =>
+      queryClient.invalidateQueries([BOARD_ACTIVITY_KEY, { boardId }]),
+    [queryClient]
+  );
 };

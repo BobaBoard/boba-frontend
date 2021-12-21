@@ -232,9 +232,11 @@ export const useThread = ({
 
     {
       refetchOnWindowFocus: false,
-      // NOTE: this only refetches on mount if the data is stale
+      // NOTE: this only refetches on mount if the data is stale, which will happen
+      // after all consumers are unmounted, or when the data is manually invalidated.
       refetchOnMount: true,
-      cacheTime: 5 * 1000,
+      // Never cache thread data. We never want to return old data for threads.
+      cacheTime: 0,
       placeholderData: () => {
         if (!threadId || !boardId) {
           return null;
@@ -251,7 +253,9 @@ export const useThread = ({
           ? { ...thread, posts: [thread?.starter], comments: {} }
           : undefined;
       },
-      staleTime: 30 * 1000,
+      // When a thread is mounted, never automatically refetch it. We don't want
+      // the data to change while the user is viewing it.
+      staleTime: Infinity,
       notifyOnChangeProps: ["data", "isLoading", "isFetching"],
       enabled: !!(fetch ?? true) && !!threadId,
       onSuccess: (data) => {

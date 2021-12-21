@@ -38,6 +38,7 @@ import { useDisplayManager } from "components/hooks/useDisplayMananger";
 import { useInvalidateNotifications } from "queries/notifications";
 import { useOnPageExit } from "components/hooks/useOnPageExit";
 import { useReadThread } from "queries/thread";
+import { useRefetchBoardActivity } from "queries/board-feed";
 import { useThreadCollapseManager } from "components/thread/useCollapseManager";
 
 const error = debug("bobafrontend:ThreadPage-error");
@@ -58,6 +59,7 @@ const useMarkThreadReadOnDelay = (threadId: string, slug: string) => {
   const markReadTimeout = React.useRef<NodeJS.Timeout | null>(null);
   const invalidateThread = useInvalidateThreadData();
   const refetchNotifications = useInvalidateNotifications();
+  const refetchBoardActivity = useRefetchBoardActivity();
   const markAsRead = useReadThread({ activityOnly: true });
   const { isLoggedIn } = useAuth();
   const { isLoading: isFetchingThread, isRefetching: isRefetchingThread } =
@@ -109,6 +111,7 @@ const useMarkThreadReadOnDelay = (threadId: string, slug: string) => {
             log("Thread marked as read.");
             markReadTimeout.current = null;
             refetchNotifications();
+            refetchBoardActivity({ boardId });
           },
           onError: () => {
             latestReadThread.current = null;
@@ -119,6 +122,7 @@ const useMarkThreadReadOnDelay = (threadId: string, slug: string) => {
   }, [
     markAsRead,
     refetchNotifications,
+    refetchBoardActivity,
     isFetchingThread,
     isRefetchingThread,
     isLoggedIn,
