@@ -102,7 +102,8 @@ export const addPostInCache = (
       transformThreadSummary: (thread) => {
         return {
           ...thread,
-          newPostsAmount: thread.newPostsAmount + (post.isNew ? 1 : 0),
+          newPostsAmount:
+            thread.newPostsAmount + (post.isNew && !post.isOwn ? 1 : 0),
           totalPostsAmount: thread.totalPostsAmount + 1,
           directThreadsAmount:
             thread.directThreadsAmount +

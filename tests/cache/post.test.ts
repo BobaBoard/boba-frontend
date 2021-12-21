@@ -22,7 +22,7 @@ const GORE_BOARD_FEED_SINGLE_PAGE: InfiniteData<FeedType> = {
   ],
 };
 
-const getThreadSummaryFromBoardFeedCache = (
+export const getThreadSummaryFromBoardFeedCache = (
   queryClient: QueryClient,
   data: {
     threadId: string;
@@ -172,7 +172,7 @@ describe("Tests for addPostInCache (feed cache)", () => {
     expect(threadSummary).not.toBe(FAVORITE_CHARACTER_GORE_THREAD_SUMMARY);
   });
 
-  test("It correctly deals with new posts in feed cache", () => {
+  test("It correctly deals with new posts in feed cache (others)", () => {
     const queryClient = new QueryClient();
     queryClient.setQueryData(
       getBoardQueryKey({
@@ -184,6 +184,7 @@ describe("Tests for addPostInCache (feed cache)", () => {
     const newContribution: PostType = {
       ...REVOLVER_OCELOT_CONTRIBUTION,
       isNew: true,
+      isOwn: false,
     };
     addPostInCache(queryClient, {
       threadId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.id,
@@ -198,6 +199,40 @@ describe("Tests for addPostInCache (feed cache)", () => {
 
     expect(threadSummary.newPostsAmount).toEqual(
       FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.newPostsAmount + 1
+    );
+    expect(threadSummary.newCommentsAmount).toEqual(
+      FAVORITE_CHARACTER_GORE_EMPTY_THREAD.newCommentsAmount
+    );
+  });
+
+  test("It correctly deals with new posts in feed cache (own)", () => {
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(
+      getBoardQueryKey({
+        boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+      }),
+      GORE_BOARD_FEED_SINGLE_PAGE
+    );
+
+    const newContribution: PostType = {
+      ...REVOLVER_OCELOT_CONTRIBUTION,
+      isNew: true,
+      isOwn: true,
+    };
+    addPostInCache(queryClient, {
+      threadId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.id,
+      boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+      post: newContribution,
+    });
+
+    const threadSummary = getThreadSummaryFromBoardFeedCache(queryClient, {
+      threadId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.id,
+      boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+    })!;
+
+    // Since the post has been made by the user themself, the feed should not have any new posts.
+    expect(threadSummary.newPostsAmount).toEqual(
+      FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.newPostsAmount
     );
     expect(threadSummary.newCommentsAmount).toEqual(
       FAVORITE_CHARACTER_GORE_EMPTY_THREAD.newCommentsAmount

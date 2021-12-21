@@ -1,10 +1,13 @@
-import { CommentType, SecretIdentityType } from "types/Types";
+import { CommentType, FeedType, SecretIdentityType } from "types/Types";
+import { InfiniteData, QueryClient } from "react-query";
 import { expect, test } from "@jest/globals";
 import { getThreadDataFromCache, getThreadKey } from "./thread.test";
 
 import { FAVORITE_CHARACTER_GORE_EMPTY_THREAD } from "../data/Thread";
-import { QueryClient } from "react-query";
+import { FAVORITE_CHARACTER_GORE_THREAD_SUMMARY } from "../data/ThreadSummary";
 import { addCommentInCache } from "cache/comment";
+import { getBoardQueryKey } from "./activity.test";
+import { getThreadSummaryFromBoardFeedCache } from "./post.test";
 
 const TEST_COMMENT: CommentType = {
   commentId: "146d4087-e11e-4912-9d67-93065b9a0c78",
@@ -24,6 +27,16 @@ const TEST_COMMENT: CommentType = {
     '[{"insert":"BobaNitro users can be mean to the webmaster once a month."}]',
   isNew: true,
   isOwn: false,
+};
+
+const GORE_BOARD_FEED_SINGLE_PAGE: InfiniteData<FeedType> = {
+  pageParams: [],
+  pages: [
+    {
+      cursor: { next: null },
+      activity: [FAVORITE_CHARACTER_GORE_THREAD_SUMMARY],
+    },
+  ],
 };
 
 describe("Tests for addCommentInCache (thread cache)", () => {
@@ -118,4 +131,157 @@ describe("Tests for addCommentInCache (thread cache)", () => {
 
 describe("Tests for addCommentInCache (feed cache)", () => {
   // TODO: add test for transformThreadSummary
+  test("It correctly adds the comment in feed cache", () => {
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(
+      getBoardQueryKey({
+        boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+      }),
+      GORE_BOARD_FEED_SINGLE_PAGE
+    );
+
+    const newComment = {
+      ...TEST_COMMENT,
+      isNew: true,
+    };
+    addCommentInCache(queryClient, {
+      threadId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.id,
+      boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+      newComments: [newComment],
+      replyTo: {
+        postId: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.starter.postId,
+        commentId: null,
+      },
+    });
+
+    const threadSummary = getThreadSummaryFromBoardFeedCache(queryClient, {
+      threadId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.id,
+      boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+    })!;
+
+    expect(threadSummary.totalCommentsAmount).toEqual(
+      FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.totalCommentsAmount + 1
+    );
+    expect(threadSummary.totalPostsAmount).toEqual(
+      FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.totalPostsAmount
+    );
+    expect(threadSummary.directThreadsAmount).toEqual(
+      FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.directThreadsAmount
+    );
+
+    // Check that the thread object has also been updated
+    expect(threadSummary).not.toBe(FAVORITE_CHARACTER_GORE_THREAD_SUMMARY);
+  });
+
+  test("It correctly deals with new comment in feed cache (others)", () => {
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(
+      getBoardQueryKey({
+        boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+      }),
+      GORE_BOARD_FEED_SINGLE_PAGE
+    );
+
+    const newComment = {
+      ...TEST_COMMENT,
+      isNew: true,
+      isOwn: false,
+    };
+    addCommentInCache(queryClient, {
+      threadId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.id,
+      boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+      newComments: [newComment],
+      replyTo: {
+        postId: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.starter.postId,
+        commentId: null,
+      },
+    });
+
+    const threadSummary = getThreadSummaryFromBoardFeedCache(queryClient, {
+      threadId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.id,
+      boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+    })!;
+
+    expect(threadSummary.newCommentsAmount).toEqual(
+      FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.newPostsAmount + 1
+    );
+    expect(threadSummary.newPostsAmount).toEqual(
+      FAVORITE_CHARACTER_GORE_EMPTY_THREAD.newCommentsAmount
+    );
+  });
+
+  test("It correctly deals with new posts in feed cache (own)", () => {
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(
+      getBoardQueryKey({
+        boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+      }),
+      GORE_BOARD_FEED_SINGLE_PAGE
+    );
+
+    const ownComment = {
+      ...TEST_COMMENT,
+      isNew: true,
+      isOwn: true,
+    };
+    addCommentInCache(queryClient, {
+      threadId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.id,
+      boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+      newComments: [ownComment],
+      replyTo: {
+        postId: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.starter.postId,
+        commentId: null,
+      },
+    });
+
+    const threadSummary = getThreadSummaryFromBoardFeedCache(queryClient, {
+      threadId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.id,
+      boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+    })!;
+
+    // Since the comment has been made by the user themself, the feed should not have any new comment.
+    expect(threadSummary.newPostsAmount).toEqual(
+      FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.newPostsAmount
+    );
+    expect(threadSummary.newCommentsAmount).toEqual(
+      FAVORITE_CHARACTER_GORE_EMPTY_THREAD.newCommentsAmount
+    );
+  });
+
+  test("It correctly adds personal identity in feed cache", () => {
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(
+      getBoardQueryKey({
+        boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+      }),
+      GORE_BOARD_FEED_SINGLE_PAGE
+    );
+    const newSecretIdentity: SecretIdentityType = {
+      name: "SUPER_SECRET_IDENTITY_NAME",
+      avatar: "SUPER_SECRET_IDENTITY_AVATAR",
+    };
+
+    const ownComment: CommentType = {
+      ...TEST_COMMENT,
+      secretIdentity: newSecretIdentity,
+      isNew: true,
+      isOwn: true,
+    };
+    addCommentInCache(queryClient, {
+      threadId: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.id,
+      boardId: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.parentBoardId,
+      newComments: [ownComment],
+      replyTo: {
+        postId: FAVORITE_CHARACTER_GORE_EMPTY_THREAD.starter.postId,
+        commentId: null,
+      },
+    });
+
+    const threadSummary = getThreadSummaryFromBoardFeedCache(queryClient, {
+      threadId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.id,
+      boardId: FAVORITE_CHARACTER_GORE_THREAD_SUMMARY.parentBoardId,
+    })!;
+
+    expect(threadSummary.personalIdentity).toEqual(newSecretIdentity);
+  });
 });

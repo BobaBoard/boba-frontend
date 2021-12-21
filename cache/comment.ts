@@ -49,7 +49,8 @@ export const addCommentInCache = (
           newCommentsAmount:
             thread.newCommentsAmount +
             newComments.reduce(
-              (current, comment) => (current += comment.isNew ? 1 : 0),
+              (current, comment) =>
+                (current += comment.isNew && !comment.isOwn ? 1 : 0),
               0
             ),
           totalCommentsAmount: thread.totalCommentsAmount + newComments.length,
