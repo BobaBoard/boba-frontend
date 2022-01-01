@@ -323,7 +323,6 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
         <Link
           as={`${threadBaseUrl}${window.location.search}`}
           href={`/[boardId]/thread/[...threadId]`}
-          shallow={true}
         >
           <a>Show whole thread</a>
         </Link>
