@@ -324,7 +324,25 @@ ThreadWithEditors.getInitialProps = async (ctx: NextPageContext) => {
     if (!thread) {
       return {};
     }
-    const summary = getDeltaSummary(JSON.parse(thread.starter.content));
+
+    const currentPost = ctx.query.threadId[1]
+      ? thread.posts.find((post) => post.postId == ctx.query.threadId![1])
+      : thread.starter;
+    if (!currentPost) {
+      // TODO: you should log error here.
+      return {};
+    }
+    let summary = getDeltaSummary(JSON.parse(currentPost.content));
+    if (currentPost != thread.starter) {
+      const starterSummary = getDeltaSummary(
+        JSON.parse(thread.starter.content)
+      );
+      // merge the summary with the starter one
+      summary = {
+        ...starterSummary,
+        ...summary,
+      };
+    }
     return {
       summary,
     };

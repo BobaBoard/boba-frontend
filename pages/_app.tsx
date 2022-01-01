@@ -86,11 +86,6 @@ const AxiosInterceptor = () => {
 
 const embedsAxios = axios.create();
 const embedsFetchers = {
-  getTumblrEmbedFromUrl: (url: string) => {
-    return embedsAxios.get(`posts/embed/tumblr?url=${url}`).then((res) => {
-      return res.data;
-    });
-  },
   getOEmbedFromUrl: (url: string) => {
     // We add a random number to the embed load to get around https://github.com/itteco/iframely/issues/281
     return embedsAxios
@@ -113,12 +108,13 @@ export const getTitle = (
   currentBoardData: BoardSummary | BoardData | undefined | null,
   threadSummary: ReturnType<typeof getDeltaSummary> | undefined
 ) => {
+  const currentSlugString = currentBoardData
+    ? ` — !${currentBoardData.slug}`
+    : "";
   if (threadSummary?.title) {
-    return `BobaBoard v0 — ${threadSummary.title}`;
+    return `${threadSummary.title}${currentSlugString} — BobaBoard v0`;
   }
-  return currentBoardData
-    ? `BobaBoard v0 — !${currentBoardData.slug} — Where the bugs are funny and the people are cool!`
-    : "BobaBoard v0 — Where the bugs are funny and the people are cool!";
+  return `BobaBoard v0${currentSlugString} — Where the bugs are funny and the people are cool!`;
 };
 
 const getImage = (
