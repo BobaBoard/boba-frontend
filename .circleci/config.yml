@@ -62,7 +62,7 @@ jobs:
           command: yarn link @bobaboard/ui-components
       - run:
           name: test
-          command: yarn run test
+          command: yarn run test:ci
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
