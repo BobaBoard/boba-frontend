@@ -41,7 +41,7 @@ jobs:
             git clone https://github.com/essential-randomness/bobaboard-ui.git
       - node/install-packages:
           pkg-manager: yarn
-          app-dir: obabobard-ui
+          app-dir: bobaboard-ui
       - run:
           name: build ui
           working_directory: bobaboard-ui
