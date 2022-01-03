@@ -14,7 +14,7 @@ import { DisplayManager } from "components/hooks/useDisplayMananger";
 import React from "react";
 import { UNCATEGORIZED_LABEL } from "utils/thread-utils";
 import classnames from "classnames";
-import moment from "moment";
+import { formatDistanceToNow } from "date-fns";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { useThreadContext } from "components/thread/ThreadContext";
 
@@ -41,7 +41,9 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
     <div className={classnames("thread-sidebar", { open: !!props.open })}>
       <div className="post-header">
         <PostQuote
-          createdTime={moment.utc(threadRoot.created).fromNow()}
+          createdTime={formatDistanceToNow(new Date(threadRoot.created), {
+            addSuffix: true,
+          })}
           text={threadRoot.content}
           secretIdentity={threadRoot.secretIdentity}
           userIdentity={threadRoot.userIdentity}

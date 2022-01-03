@@ -8,7 +8,7 @@ import React from "react";
 import { THREAD_PATH } from "utils/router-utils";
 import axios from "axios";
 import debug from "debug";
-import moment from "moment";
+import { formatDistanceToNow } from "date-fns";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useNotifications } from "queries/notifications";
 import { useRealmBoards } from "contexts/RealmContext";
@@ -47,7 +47,7 @@ const UpdatesDisplay = (props: { lastUpdate: any }) => {
       {props?.lastUpdate && (
         <div className="last">
           [Last Updated:{" "}
-          {moment.utc(props?.lastUpdate.last_updated).format("MM/DD/YY")}.{" "}
+          {new Date(props?.lastUpdate.last_updated).toLocaleDateString()}.{" "}
           <Link
             href={THREAD_PATH}
             as={
@@ -60,7 +60,10 @@ const UpdatesDisplay = (props: { lastUpdate: any }) => {
           </Link>
           ]
           <PostQuote
-            createdTime={moment.utc(props?.lastUpdate.last_updated).fromNow()}
+            createdTime={formatDistanceToNow(
+              new Date(props?.lastUpdate.last_updated),
+              { addSuffix: true }
+            )}
             createdTimeLink={{
               href: updatesThreadUrl,
             }}

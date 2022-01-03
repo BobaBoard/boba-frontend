@@ -10,7 +10,7 @@ import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
 import React from "react";
 import debug from "debug";
 import { faComment } from "@fortawesome/free-regular-svg-icons";
-import moment from "moment";
+import { formatDistanceToNow } from "date-fns";
 import { useAuth } from "components/Auth";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { useThreadContext } from "./ThreadContext";
@@ -125,7 +125,9 @@ const ThreadComment: React.FC<{
       key={rootComment.commentId}
       secretIdentity={rootComment.secretIdentity}
       userIdentity={rootComment.userIdentity}
-      createdTime={moment.utc(rootComment.created).fromNow()}
+      createdTime={formatDistanceToNow(new Date(rootComment.created), {
+        addSuffix: true,
+      })}
       comments={chainInfo}
       new={isLoggedIn && rootComment.isNew}
       op={rootComment.secretIdentity.name == opIdentity?.name}

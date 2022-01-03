@@ -1,7 +1,7 @@
 import { BoardSummary, UserNotifications } from "types/Types";
 
+import { compareDesc } from "date-fns";
 import debug from "debug";
-import moment from "moment";
 
 const info = debug("bobafrontend:board-utils-info");
 
@@ -31,21 +31,12 @@ export const processBoardsUpdates = ({
         boardsNotifications[board.id]?.lastActivityFromOthersAt &&
         (!isLoggedIn || boardsNotifications[board.id].hasUpdates)
     )
-    .sort((b1, b2) => {
-      const lastUpdateB1 = moment.utc(
-        boardsNotifications[b1.id].lastActivityFromOthersAt
-      );
-      const lastUpdateB2 = moment.utc(
-        boardsNotifications[b2.id].lastActivityFromOthersAt
-      );
-      if (lastUpdateB1.isBefore(lastUpdateB2)) {
-        return 1;
-      }
-      if (lastUpdateB1.isAfter(lastUpdateB2)) {
-        return -1;
-      }
-      return 0;
-    });
+    .sort((b1, b2) =>
+      compareDesc(
+        boardsNotifications[b1.id].lastActivityFromOthersAt!,
+        boardsNotifications[b2.id].lastActivityFromOthersAt!
+      )
+    );
 
   return {
     recentBoards: recentBoards.filter((b) =>
