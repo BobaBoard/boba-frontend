@@ -13,7 +13,7 @@ import {
 } from "types/Types";
 import { DEFAULT_USER_AVATAR, DEFAULT_USER_NAME } from "components/Auth";
 
-import moment from "moment";
+import { max } from "date-fns";
 
 export const makeClientComment = (
   serverComment: any,
@@ -129,13 +129,13 @@ export const makeClientThread = (serverThread: any): ThreadType => {
 export const makeClientBoardData = (serverBoardData: any): BoardData => {
   let lastUpdate = null;
   if (serverBoardData.last_post) {
-    lastUpdate = moment.utc(serverBoardData.last_post);
+    lastUpdate = new Date(serverBoardData.last_post);
   }
   if (serverBoardData.last_comment) {
-    const commentUpdate = moment.utc(serverBoardData.last_comment);
+    const commentUpdate = new Date(serverBoardData.last_comment);
     lastUpdate = lastUpdate
-      ? moment.max(lastUpdate, commentUpdate)
-      : moment.utc(commentUpdate);
+      ? max([lastUpdate, commentUpdate])
+      : new Date(commentUpdate);
   }
   return {
     slug: serverBoardData.slug,
@@ -144,12 +144,12 @@ export const makeClientBoardData = (serverBoardData: any): BoardData => {
     accentColor: serverBoardData.settings?.accentColor,
     loggedInOnly: serverBoardData.loggedInOnly,
     delisted: serverBoardData.delisted,
-    lastUpdate: lastUpdate ? lastUpdate.toDate() : undefined,
+    lastUpdate: lastUpdate ? lastUpdate : undefined,
     lastUpdateFromOthers: serverBoardData.last_activity_from_others
-      ? moment.utc(serverBoardData.last_activity_from_others).toDate()
+      ? new Date(serverBoardData.last_activity_from_others)
       : undefined,
     lastVisit: serverBoardData.last_visit
-      ? moment.utc(serverBoardData.last_visit).toDate()
+      ? new Date(serverBoardData.last_visit)
       : undefined,
     descriptions: serverBoardData.descriptions || [],
     hasUpdates: serverBoardData.has_updates,
@@ -226,11 +226,11 @@ const makeBoardNotifications = (boardNotification: any): BoardNotifications => {
     id: boardNotification.id,
     hasUpdates: boardNotification.has_updates,
     isOutdated: boardNotification.is_outdated,
-    lastActivityAt: moment.utc(boardNotification.last_activity_at).toDate(),
-    lastActivityFromOthersAt: moment
-      .utc(boardNotification.last_activity_from_others_at)
-      .toDate(),
-    lastVisitedAt: moment.utc(boardNotification.last_visited_at).toDate(),
+    lastActivityAt: new Date(boardNotification.last_activity_at),
+    lastActivityFromOthersAt: new Date(
+      boardNotification.last_activity_from_others_at
+    ),
+    lastVisitedAt: new Date(boardNotification.last_visited_at),
   };
 };
 
