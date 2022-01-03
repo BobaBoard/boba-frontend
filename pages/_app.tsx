@@ -4,12 +4,10 @@ import "normalize.css";
 
 import App, { AppContext } from "next/app";
 import { AuthProvider, useAuth } from "components/Auth";
-import { BoardData, BoardSummary } from "types/Types";
 import {
   EditorContext,
   ImageUploaderContext,
   ToastContainer,
-  getDeltaSummary,
   toast,
 } from "@bobaboard/ui-components";
 import { Hydrate, QueryClient, QueryClientProvider } from "react-query";
@@ -22,9 +20,11 @@ import {
 } from "utils/location-utils";
 
 import type { AppProps } from "next/app";
+import { BoardData } from "types/Types";
 import { CustomErrorPage } from "./_error";
 import ErrorBoundary from "@stefanprobst/next-error-boundary";
 import Head from "next/head";
+import OpenGraphMeta from "components/OpenGraphMeta";
 import { QueryParamProvider } from "components/QueryParamNextProvider";
 import React from "react";
 import { ReactQueryDevtools } from "react-query/devtools";
@@ -104,46 +104,6 @@ const editorContext = {
   fetchers: embedsFetchers,
 };
 
-export const getTitle = (
-  currentBoardData: BoardSummary | BoardData | undefined | null,
-  threadSummary: ReturnType<typeof getDeltaSummary> | undefined
-) => {
-  const currentSlugString = currentBoardData
-    ? ` — !${currentBoardData.slug}`
-    : "";
-  if (threadSummary?.title) {
-    return `${threadSummary.title}${currentSlugString} — BobaBoard v0`;
-  }
-  return `BobaBoard v0${currentSlugString} — Where the bugs are funny and the people are cool!`;
-};
-
-const getImage = (
-  currentBoardData: BoardData | BoardData | undefined,
-  threadSummary: ReturnType<typeof getDeltaSummary> | undefined
-) => {
-  if (threadSummary?.images?.length) {
-    return threadSummary.images[0];
-  }
-  return currentBoardData
-    ? currentBoardData.avatarUrl
-    : "https://v0.boba.social/bobatan.png";
-};
-
-const getDescription = (
-  currentBoardData: BoardData | BoardData | undefined,
-  threadSummary: ReturnType<typeof getDeltaSummary> | undefined
-) => {
-  if (threadSummary?.text) {
-    let summaryText = threadSummary.text;
-    if (summaryText.startsWith(threadSummary.title + "\n")) {
-      summaryText = summaryText.substring(summaryText.indexOf("\n") + 1);
-    }
-    return summaryText;
-  }
-  return currentBoardData
-    ? currentBoardData.tagline
-    : `BobaBoard is an upcoming commmunity (and platform) aiming to balance the freedom and wonder of the early 00s web with a modern user experience and ethos. Feel free to look around, but remember: what you see is Work in Progress! Read more (and get involved) at www.bobaboard.com.`;
-};
 const queryClient = new QueryClient();
 
 function MyApp({
@@ -181,39 +141,16 @@ function MyApp({
   }, []);
   return (
     <>
+      <OpenGraphMeta
+        currentBoardData={currentBoardData}
+        threadSummary={props.summary}
+      />
       <Head>
-        <title>{getTitle(currentBoardData, props.summary)}</title>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, user-scalable=1.0"
         ></meta>
-        <meta
-          property="og:title"
-          content={getTitle(currentBoardData, props.summary)}
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          property="og:description"
-          content={getDescription(currentBoardData, props.summary)}
-        />
-        <meta
-          property="og:image"
-          content={getImage(currentBoardData, props.summary)}
-        />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@BobaBoard" />
-        <meta
-          name="twitter:title"
-          content={getTitle(currentBoardData, props.summary)}
-        />
-        <meta
-          name="twitter:description"
-          content={getDescription(currentBoardData, props.summary)}
-        />
-        <meta
-          name="twitter:image"
-          content={getImage(currentBoardData, props.summary)}
-        />
+
         <link rel="icon" type="image/svg+xml" href="/icons/logo-compact.svg" />
         <link
           rel="apple-touch-icon"
