@@ -38,17 +38,17 @@ jobs:
       - run:
           name: Clone ui repository
           command: >-
-            git clone https://github.com/essential-randomness/bobabobard-ui
+            git clone https://github.com/essential-randomness/bobaboard-ui.git
       - node/install-packages:
           pkg-manager: yarn
           app-dir: obabobard-ui
       - run:
           name: build ui
-          working_directory: obabobard-ui
+          working_directory: bobaboard-ui
           command: yarn run build
       - run:
           name: create ui link
-          working_directory: bobabobard-ui
+          working_directory: bobaboard-ui
           command: yarn link
       ## frontend
       - node/install-packages:
@@ -58,7 +58,7 @@ jobs:
           command: yarn link @bobaboard/boba-editor
       - run:
           name: link ui
-          command: yarn link @bobaboard/bobabobard-ui
+          command: yarn link @bobaboard/bobaboard-ui
       - run:
           name: test
           command: yarn run test
