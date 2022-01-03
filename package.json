@@ -10,7 +10,7 @@
     "dev:debug": "cross-env NODE_OPTIONS='--inspect' DEBUG=bobafrontend:* next dev",
     "build": "rm -rf .next && next build",
     "start": "next start -p 8080 ",
-    "test": "jest --roots tests",
+    "test": "jest --roots tests --runInBand",
     "test:ci": "yarn run test --ci",
     "test:watch": "cross-env DEBUG=bobafrontend:*-log jest --watch",
     "test:UI:watch": "yarn run test:watch tests/UI",
