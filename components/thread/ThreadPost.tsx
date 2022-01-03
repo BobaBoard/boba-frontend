@@ -18,6 +18,7 @@ import { PostType } from "types/Types";
 import React from "react";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { formatDistanceToNow } from "date-fns";
+import { getCurrentSearchParams } from "utils/location-utils";
 import { log } from "debug";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
@@ -186,7 +187,7 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
   );
   const threadLink = React.useMemo(
     () => ({
-      href: `${directLink.href}${window.location.search}`,
+      href: `${directLink.href}${getCurrentSearchParams()}`,
       onClick: onNotesClick ? onNotesClickWithId : directLink.onClick,
     }),
     [directLink, onNotesClickWithId, onNotesClick]
@@ -244,7 +245,7 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
         secretIdentity: post.secretIdentity,
         userIdentity: post.userIdentity,
         createdTimeLink: {
-          href: `${directLink.href}${window.location.search}`,
+          href: `${directLink.href}${getCurrentSearchParams()}`,
           onClick: directLink.onClick,
         },
         notesLink: threadLink,

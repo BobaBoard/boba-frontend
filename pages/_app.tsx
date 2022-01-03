@@ -12,7 +12,7 @@ import {
   getDeltaSummary,
   toast,
 } from "@bobaboard/ui-components";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { Hydrate, QueryClient, QueryClientProvider } from "react-query";
 import {
   getCurrentHost,
   getCurrentRealmSlug,
@@ -238,23 +238,25 @@ function MyApp({
       <ErrorBoundary fallback={<CustomErrorPage />}>
         <QueryParamProvider router={router}>
           <QueryClientProvider client={queryClient}>
-            <EditorContext.Provider value={editorContext}>
-              <ImageUploaderContext.Provider value={imageUploader}>
-                <AuthProvider>
-                  <AxiosInterceptor />
-                  <UpdateNotice />
-                  <RealmContextProvider initialData={props.realmData}>
-                    {React.useMemo(
-                      () => (
-                        <Component {...props} />
-                      ),
-                      [Component, props]
-                    )}
-                  </RealmContextProvider>
-                </AuthProvider>
-              </ImageUploaderContext.Provider>
-            </EditorContext.Provider>
-            <ReactQueryDevtools initialIsOpen={false} />
+            <Hydrate state={props.dehydratedState}>
+              <EditorContext.Provider value={editorContext}>
+                <ImageUploaderContext.Provider value={imageUploader}>
+                  <AuthProvider>
+                    <AxiosInterceptor />
+                    <UpdateNotice />
+                    <RealmContextProvider initialData={props.realmData}>
+                      {React.useMemo(
+                        () => (
+                          <Component {...props} />
+                        ),
+                        [Component, props]
+                      )}
+                    </RealmContextProvider>
+                  </AuthProvider>
+                </ImageUploaderContext.Provider>
+              </EditorContext.Provider>
+              <ReactQueryDevtools initialIsOpen={false} />
+            </Hydrate>
           </QueryClientProvider>
         </QueryParamProvider>
       </ErrorBoundary>

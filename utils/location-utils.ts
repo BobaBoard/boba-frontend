@@ -15,6 +15,14 @@ export const getCurrentHost = (
       );
 };
 
+export const getCurrentSearchParams = () => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return window.location.search;
+};
+
 const REALM_SLUG_PARAM_NAME = "realm";
 export const getCurrentRealmSlug = (context?: NextPageContext) => {
   if (isStaging(context) || isLocalhost(context)) {

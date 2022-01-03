@@ -5,6 +5,7 @@ import {
   muteThread,
 } from "utils/queries";
 import {
+  getThreadInCache,
   getThreadSummaryInCache,
   setThreadActivityClearedInCache,
   setThreadDefaultViewInCache,
@@ -238,12 +239,19 @@ export const useThread = ({
       // Never cache thread data. We never want to return old data for threads.
       cacheTime: 0,
       placeholderData: () => {
-        if (!threadId || !boardId) {
+        if (!threadId) {
           return null;
         }
         info(
           `Searching board activity data for board ${boardId} and thread ${threadId}`
         );
+        const cachedThread = getThreadInCache(queryClient, { threadId });
+        if (cachedThread) {
+          return cachedThread;
+        }
+        if (!boardId) {
+          return null;
+        }
         const thread = getThreadSummaryInCache(queryClient, {
           boardId,
           threadId,

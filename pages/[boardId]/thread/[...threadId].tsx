@@ -4,6 +4,8 @@ import {
   PostingActionButton,
   getDeltaSummary,
 } from "@bobaboard/ui-components";
+import { QueryClient, dehydrate } from "react-query";
+import { THREAD_QUERY_KEY, useReadThread } from "queries/thread";
 import {
   THREAD_VIEW_MODES,
   ThreadViewContextProvider,
@@ -37,7 +39,6 @@ import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
 import { useInvalidateNotifications } from "queries/notifications";
 import { useOnPageExit } from "components/hooks/useOnPageExit";
-import { useReadThread } from "queries/thread";
 import { useRefetchBoardActivity } from "queries/board-feed";
 import { useThreadCollapseManager } from "components/thread/useCollapseManager";
 
@@ -280,9 +281,6 @@ function ThreadPage() {
             position: relative;
             box-sizing: border-box;
           }
-          .feed.loading .view-modes {
-            display: none;
-          }
         `}
       </style>
     </div>
@@ -316,14 +314,21 @@ ThreadWithEditors.getInitialProps = async (ctx: NextPageContext) => {
     if (!ctx.query.threadId?.length) {
       return {};
     }
+    const threadId = ctx.query.threadId[0];
     const response = await axios.get(
-      getServerBaseUrl(ctx) + `threads/${ctx.query.threadId[0]}/`
+      getServerBaseUrl(ctx) + `threads/${threadId}/`
     );
     const thread = makeClientThread(await response.data);
 
     if (!thread) {
       return {};
     }
+    const queryClient = new QueryClient();
+
+    await queryClient.setQueryData(
+      [THREAD_QUERY_KEY, { threadId, isLoggedIn: false }],
+      thread
+    );
 
     const currentPost = ctx.query.threadId[1]
       ? thread.posts.find((post) => post.postId == ctx.query.threadId![1])
@@ -345,6 +350,7 @@ ThreadWithEditors.getInitialProps = async (ctx: NextPageContext) => {
     }
     return {
       summary,
+      dehydratedState: dehydrate(queryClient),
     };
   } catch (e) {
     error(e);

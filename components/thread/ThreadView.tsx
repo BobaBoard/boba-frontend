@@ -19,6 +19,7 @@ import React from "react";
 import classnames from "classnames";
 import css from "styled-jsx/css";
 import debug from "debug";
+import { getCurrentSearchParams } from "utils/location-utils";
 import { useAuth } from "components/Auth";
 import { useBoardSummaryBySlug } from "queries/board";
 import { useStemOptions } from "components/hooks/useStemOptions";
@@ -321,7 +322,7 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
         })}
       >
         <Link
-          as={`${threadBaseUrl}${window.location.search}`}
+          as={`${threadBaseUrl}${getCurrentSearchParams()}`}
           href={`/[boardId]/thread/[...threadId]`}
         >
           <a>Show whole thread</a>

@@ -131,12 +131,8 @@ const getDisplayPostsForView = (
 };
 
 const useThreadViewDisplay = () => {
-  const {
-    chronologicalPostsSequence,
-    postCommentsMap,
-    isFetching,
-    postsInfoMap,
-  } = useThreadContext();
+  const { chronologicalPostsSequence, postCommentsMap, postsInfoMap } =
+    useThreadContext();
   const {
     currentThreadViewMode,
     timelineViewMode,
@@ -147,7 +143,7 @@ const useThreadViewDisplay = () => {
   const { postId } = usePageDetails<ThreadPageDetails>();
 
   return React.useMemo(() => {
-    if (isFetching) {
+    if (!chronologicalPostsSequence) {
       return [];
     }
     const displayPostsForView = getDisplayPostsForView(
@@ -208,7 +204,6 @@ const useThreadViewDisplay = () => {
 
     return displayPostsForView;
   }, [
-    isFetching,
     timelineViewMode,
     galleryViewMode,
     currentThreadViewMode,

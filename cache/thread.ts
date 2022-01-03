@@ -258,3 +258,17 @@ export const getThreadSummaryInCache = (
   }
   return null;
 };
+
+export const getThreadInCache = (
+  queryClient: QueryClient,
+  {
+    threadId,
+  }: {
+    threadId: string;
+  }
+): ThreadType | undefined => {
+  return queryClient
+    .getQueryCache()
+    .find<ThreadType>([THREAD_QUERY_KEY, { threadId }], { exact: false })?.state
+    .data;
+};
