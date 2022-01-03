@@ -43,6 +43,10 @@ jobs:
           pkg-manager: yarn
           app-dir: bobaboard-ui
       - run:
+          name: link editor
+          command: yarn link @bobaboard/boba-editor
+          working_directory: bobaboard-ui
+      - run:
           name: build ui
           working_directory: bobaboard-ui
           command: yarn run build
@@ -53,9 +57,6 @@ jobs:
       ## frontend
       - node/install-packages:
           pkg-manager: yarn
-      - run:
-          name: link editor
-          command: yarn link @bobaboard/boba-editor
       - run:
           name: link ui
           command: yarn link @bobaboard/bobaboard-ui
