@@ -1,6 +1,7 @@
 import {
   PostQuote,
   SegmentedButton,
+  SidebarSection,
   TagType,
   TagsFilterSection,
 } from "@bobaboard/ui-components";
@@ -85,62 +86,64 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
       </div>
       {contentNotices.length >= 1 && (
         <div className="category-filters">
-          <h3>Content Notices</h3>
-          <TagsFilterSection
-            tags={contentNotices.map((notice) => ({
-              name: notice,
-              state:
-                excludedNotices == null || !excludedNotices.includes(notice)
-                  ? TagsFilterSection.FilteredTagsState.ACTIVE
-                  : TagsFilterSection.FilteredTagsState.DISABLED,
-            }))}
-            onTagsStateChangeRequest={(notice) => {
-              if (excludedNotices?.includes(notice)) {
-                const newNotices = excludedNotices.filter(
-                  (existingNotice) => existingNotice != notice
+          <SidebarSection id="1" index={0} title="Content Notices">
+            <TagsFilterSection
+              tags={contentNotices.map((notice) => ({
+                name: notice,
+                state:
+                  excludedNotices == null || !excludedNotices.includes(notice)
+                    ? TagsFilterSection.FilteredTagsState.ACTIVE
+                    : TagsFilterSection.FilteredTagsState.DISABLED,
+              }))}
+              onTagsStateChangeRequest={(notice) => {
+                if (excludedNotices?.includes(notice)) {
+                  const newNotices = excludedNotices.filter(
+                    (existingNotice) => existingNotice != notice
+                  );
+                  setExcludedNotices(newNotices.length > 0 ? newNotices : null);
+                  return;
+                }
+                setExcludedNotices(
+                  excludedNotices ? [...excludedNotices, notice] : [notice]
                 );
-                setExcludedNotices(newNotices.length > 0 ? newNotices : null);
-                return;
-              }
-              setExcludedNotices(
-                excludedNotices ? [...excludedNotices, notice] : [notice]
-              );
-            }}
-            onClearFilterRequests={() => {
-              setExcludedNotices(null);
-            }}
-            type={TagType.CONTENT_WARNING}
-          />
+              }}
+              onClearFilterRequests={() => {
+                setExcludedNotices(null);
+              }}
+              type={TagType.CONTENT_WARNING}
+            />
+          </SidebarSection>
         </div>
       )}
       {categories.length >= 1 && (
         <div className="category-filters">
-          <h3>Category Filters</h3>
-          <TagsFilterSection
-            tags={categories.map((category) => ({
-              name: category,
-              state:
-                activeFilters == null || activeFilters.includes(category)
+          <SidebarSection id="1" index={0} title="Category Filter">
+            <TagsFilterSection
+              tags={categories.map((category) => ({
+                name: category,
+                state:
+                  activeFilters == null || activeFilters.includes(category)
+                    ? TagsFilterSection.FilteredTagsState.ACTIVE
+                    : TagsFilterSection.FilteredTagsState.DISABLED,
+              }))}
+              onTagsStateChangeRequest={(name) => {
+                setActiveFilter(name);
+              }}
+              onClearFilterRequests={() => {
+                setActiveFilter(null);
+              }}
+              uncategorized={
+                activeFilters == null ||
+                activeFilters.includes(UNCATEGORIZED_LABEL)
                   ? TagsFilterSection.FilteredTagsState.ACTIVE
-                  : TagsFilterSection.FilteredTagsState.DISABLED,
-            }))}
-            onTagsStateChangeRequest={(name) => {
-              setActiveFilter(name);
-            }}
-            onClearFilterRequests={() => {
-              setActiveFilter(null);
-            }}
-            uncategorized={
-              activeFilters == null ||
-              activeFilters.includes(UNCATEGORIZED_LABEL)
-                ? TagsFilterSection.FilteredTagsState.ACTIVE
-                : TagsFilterSection.FilteredTagsState.DISABLED
-            }
-            onUncategorizedStateChangeRequest={() => {
-              setActiveFilter(UNCATEGORIZED_LABEL);
-            }}
-            type={TagType.CATEGORY}
-          />
+                  : TagsFilterSection.FilteredTagsState.DISABLED
+              }
+              onUncategorizedStateChangeRequest={() => {
+                setActiveFilter(UNCATEGORIZED_LABEL);
+              }}
+              type={TagType.CATEGORY}
+            />
+          </SidebarSection>
         </div>
       )}
       <style jsx>{`
@@ -156,24 +159,18 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
           color: white;
           margin-bottom: 10px;
         }
-        .views .buttons {
-          width: 100%;
-        }
+
         .category-filters {
           color: white;
           margin-top: 15px;
         }
-        .sorry {
-          font-style: italic;
-          font-size: 16px;
-          margin-top: -6px;
-        }
-        .clear-filters {
-          color: white;
-          font-size: smaller;
-          display: block;
-          margin-top: 5px;
-          text-align: center;
+        h3 {
+          font-weight: bold;
+          font-size: var(--font-size-regular);
+          margin-top: 20px;
+          display: flex;
+          -webkit-box-align: baseline;
+          align-items: baseline;
         }
         /*TODO: remove this and figure out how not to load the tweets in the sidebar
           when not needed. (Tweets loaded in the sidebar will have problems with people
