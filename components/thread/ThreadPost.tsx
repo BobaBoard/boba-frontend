@@ -17,8 +17,8 @@ import { PostProps } from "@bobaboard/ui-components/dist/post/Post";
 import { PostType } from "types/Types";
 import React from "react";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
+import { formatDistanceToNow } from "date-fns";
 import { log } from "debug";
-import moment from "moment";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { useRealmBoardId } from "contexts/RealmContext";
@@ -237,7 +237,9 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
         postId: post.postId,
       });
       return {
-        createdTime: moment.utc(post.created).fromNow(),
+        createdTime: formatDistanceToNow(new Date(post.created), {
+          addSuffix: true,
+        }),
         text: post.content,
         secretIdentity: post.secretIdentity,
         userIdentity: post.userIdentity,

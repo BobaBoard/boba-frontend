@@ -4,7 +4,7 @@ import { PostOptions, usePostOptions } from "./hooks/useOptions";
 import React from "react";
 import { ThreadSummaryType } from "types/Types";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
-import moment from "moment";
+import { formatDistanceToNow } from "date-fns";
 import noop from "noop-ts";
 import { useCachedLinks } from "./hooks/useCachedLinks";
 import { useForceHideIdentity } from "./hooks/useForceHideIdentity";
@@ -120,9 +120,13 @@ const ThreadPreview: React.FC<{
   return (
     <Post
       key={rootPost.postId}
-      createdTime={`${moment.utc(rootPost.created).fromNow()}${
+      createdTime={`${formatDistanceToNow(new Date(rootPost.created), {
+        addSuffix: true,
+      })}${
         hasReplies
-          ? ` [updated: ${moment.utc(thread.lastActivityAt).fromNow()}]`
+          ? ` [updated: ${formatDistanceToNow(new Date(thread.lastActivityAt), {
+              addSuffix: true,
+            })}]`
           : ""
       }`}
       createdTimeLink={linkToThread}

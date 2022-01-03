@@ -16,8 +16,8 @@ import {
 } from "utils/thread-utils";
 
 import React from "react";
+import { compareAsc as compareDatesAsc } from "date-fns";
 import debug from "debug";
-import moment from "moment";
 import { useQueryClient } from "react-query";
 
 const log = debug("bobafrontend:ThreadContext-log");
@@ -126,15 +126,9 @@ export const useThreadMetadata = ({
     }
 
     const chronologicalPostsSequence =
-      threadData?.posts.sort((post1, post2) => {
-        if (moment.utc(post1.created).isBefore(moment.utc(post2.created))) {
-          return -1;
-        }
-        if (moment.utc(post1.created).isAfter(moment.utc(post2.created))) {
-          return 1;
-        }
-        return 0;
-      }) || [];
+      threadData?.posts.sort((post1, post2) =>
+        compareDatesAsc(new Date(post1.created), new Date(post2.created))
+      ) || [];
 
     const threadDisplaySequence = postsDisplaySequence
       ? extractRepliesSequence(postsDisplaySequence, postCommentsMap)
