@@ -47,10 +47,7 @@ const UpdatesDisplay = (props: { lastUpdate: any }) => {
       {props?.lastUpdate && (
         <div className="last">
           [Last Updated:{" "}
-          {new Date(props?.lastUpdate.last_updated).toLocaleDateString(
-            "MM/DD/YY"
-          )}
-          .{" "}
+          {new Date(props?.lastUpdate.last_updated).toLocaleDateString()}.{" "}
           <Link
             href={THREAD_PATH}
             as={
