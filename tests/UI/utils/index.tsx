@@ -1,11 +1,14 @@
 import { QueryClient, QueryClientProvider } from "react-query";
+import {
+  REALM_QUERY_KEY,
+  RealmContextProvider,
+} from "../../../contexts/RealmContext";
 
 import { AuthContext } from "components/Auth";
 import { ImageUploaderContext } from "@bobaboard/ui-components";
 import { NextRouter } from "next/router";
 import { QueryParamProvider } from "components/QueryParamNextProvider";
 import React from "react";
-import { RealmContextProvider } from "../../../contexts/RealmContext";
 import { RealmType } from "types/Types";
 import { V0_DATA } from "../../server-mocks/data/realm";
 import { debug } from "debug";
@@ -135,6 +138,16 @@ export const Client = ({
   });
 
   useRouter.mockImplementationOnce(() => router);
+  queryClient.setQueryData(
+    [
+      REALM_QUERY_KEY,
+      {
+        realmSlug: initialData?.realm?.slug || V0_DATA.slug,
+        isLoggedIn: true,
+      },
+    ],
+    initialData?.realm || makeRealmData(V0_DATA)
+  );
 
   return (
     <QueryParamProvider router={router}>
@@ -150,11 +163,7 @@ export const Client = ({
           <ImageUploaderContext.Provider
             value={{ onImageUploadRequest: jest.fn() }}
           >
-            <RealmContextProvider
-              initialData={initialData?.realm || makeRealmData(V0_DATA)}
-            >
-              {children}
-            </RealmContextProvider>
+            <RealmContextProvider>{children}</RealmContextProvider>
           </ImageUploaderContext.Provider>
         </AuthContext.Provider>
       </QueryClientProvider>
