@@ -46,6 +46,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "include": ["/**/*"],
+  "include": ["/**/*", "additional.d.ts"],
   "exclude": ["node_modules", "build", "scripts", "dist"]
 }

@@ -1,10 +1,11 @@
+import { useQuery, useQueryClient } from "react-query";
+
 import React from "react";
 import { RealmType } from "types/Types";
 import debug from "debug";
 import { getCurrentRealmSlug } from "utils/location-utils";
 import { getRealmData } from "utils/queries/realm";
 import { useAuth } from "components/Auth";
-import { useQuery } from "react-query";
 
 //const log = debug("bobafrontend:contexts:RealmContext-log");
 const info = debug("bobafrontend:contexts:RealmContext-info");
@@ -84,10 +85,10 @@ export const useRealmBoardId = ({
 
 export const REALM_QUERY_KEY = "realmData";
 const RealmContextProvider: React.FC<{
-  initialData: RealmType;
   children: React.ReactNode;
-}> = ({ initialData, children }) => {
+}> = ({ children }) => {
   const realmSlug = getCurrentRealmSlug();
+  const queryClient = useQueryClient();
   const { isLoggedIn } = useAuth();
 
   const { data: realmData, dataUpdatedAt } = useQuery<RealmType>(
@@ -99,8 +100,16 @@ const RealmContextProvider: React.FC<{
       return getRealmData({ realmSlug });
     },
     {
-      initialData: initialData,
       staleTime: Infinity,
+      placeholderData: () => {
+        if (!isLoggedIn) {
+          return;
+        }
+        return queryClient
+          .getQueryCache()
+          .find<RealmType>([REALM_QUERY_KEY, { realmSlug }], { exact: false })
+          ?.state.data;
+      },
       refetchInterval: 60 * 1000,
       refetchOnWindowFocus: true,
       notifyOnChangeProps: ["data", "dataUpdatedAt"],

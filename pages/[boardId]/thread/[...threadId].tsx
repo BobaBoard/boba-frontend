@@ -4,7 +4,6 @@ import {
   PostingActionButton,
   getDeltaSummary,
 } from "@bobaboard/ui-components";
-import { QueryClient, dehydrate } from "react-query";
 import { THREAD_QUERY_KEY, useReadThread } from "queries/thread";
 import {
   THREAD_VIEW_MODES,
@@ -22,7 +21,8 @@ import { useThreadEditors, withEditors } from "components/editors/withEditors";
 import GalleryThreadView from "components/thread/GalleryThreadView";
 import Layout from "components/layout/Layout";
 import LoadingSpinner from "components/LoadingSpinner";
-import { NextPageContext } from "next";
+import { NextPage } from "next";
+import { PageContextWithQueryClient } from "additional";
 import React from "react";
 import ThreadSidebar from "components/thread/ThreadSidebar";
 //import { useHotkeys } from "react-hotkeys-hook";
@@ -305,11 +305,10 @@ const ThreadPageWithContext: React.FC<{
   );
 };
 
-const ThreadWithEditors = withEditors(ThreadPageWithContext);
+const ThreadWithEditors: NextPage = withEditors(ThreadPageWithContext);
 export default ThreadWithEditors;
 
-// @ts-expect-error
-ThreadWithEditors.getInitialProps = async (ctx: NextPageContext) => {
+ThreadWithEditors.getInitialProps = async (ctx: PageContextWithQueryClient) => {
   try {
     if (!ctx.query.threadId?.length) {
       return {};
@@ -323,9 +322,8 @@ ThreadWithEditors.getInitialProps = async (ctx: NextPageContext) => {
     if (!thread) {
       return {};
     }
-    const queryClient = new QueryClient();
 
-    await queryClient.setQueryData(
+    await ctx.queryClient.setQueryData(
       [THREAD_QUERY_KEY, { threadId, isLoggedIn: false }],
       thread
     );
@@ -350,7 +348,6 @@ ThreadWithEditors.getInitialProps = async (ctx: NextPageContext) => {
     }
     return {
       summary,
-      dehydratedState: dehydrate(queryClient),
     };
   } catch (e) {
     error(e);

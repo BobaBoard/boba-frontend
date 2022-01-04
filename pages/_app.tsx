@@ -2,7 +2,6 @@ import "../wdyr";
 import "@bobaboard/ui-components/dist/main.css";
 import "normalize.css";
 
-import App, { AppContext } from "next/app";
 import { AuthProvider, useAuth } from "components/Auth";
 import {
   EditorContext,
@@ -10,7 +9,16 @@ import {
   ToastContainer,
   toast,
 } from "@bobaboard/ui-components";
-import { Hydrate, QueryClient, QueryClientProvider } from "react-query";
+import {
+  Hydrate,
+  QueryClient,
+  QueryClientProvider,
+  dehydrate,
+} from "react-query";
+import {
+  REALM_QUERY_KEY,
+  RealmContextProvider,
+} from "../contexts/RealmContext";
 import {
   getCurrentHost,
   getCurrentRealmSlug,
@@ -19,6 +27,8 @@ import {
   isAllowedSandboxLocation,
 } from "utils/location-utils";
 
+import App from "next/app";
+import { AppContextWithQueryClient } from "additional";
 import type { AppProps } from "next/app";
 import { BoardData } from "types/Types";
 import { CustomErrorPage } from "./_error";
@@ -28,13 +38,11 @@ import OpenGraphMeta from "components/OpenGraphMeta";
 import { QueryParamProvider } from "components/QueryParamNextProvider";
 import React from "react";
 import { ReactQueryDevtools } from "react-query/devtools";
-import { RealmContextProvider } from "../contexts/RealmContext";
 import { UpdateNotice } from "components/UpdateNotice";
 import axios from "axios";
 import debug from "debug";
 import embedsCache from "utils/embeds-cache";
 import { getRealmData } from "utils/queries/realm";
-import { makeClientBoardData } from "utils/client-data";
 import smoothscroll from "smoothscroll-polyfill";
 import useFromBackButton from "components/hooks/useFromBackButton";
 import { useImageUploader } from "utils/image-upload";
@@ -115,11 +123,6 @@ function MyApp({
   props,
 }: AppProps<{ [key: string]: BoardData }>) {
   log(`Re-rendering app`);
-  const boardData: BoardData[] = React.useMemo(
-    () => props?.realmData.boards.map(makeClientBoardData) || [],
-    [props?.realmData]
-  );
-  const currentBoardData = boardData.find((board) => board.slug == props.slug);
   useFromBackButton(router);
   usePageDataListener(router);
   useScrollRestoration(router);
@@ -139,12 +142,9 @@ function MyApp({
       "font-size: 16px; color: #ff4284;"
     );
   }, []);
+
   return (
     <>
-      <OpenGraphMeta
-        currentBoardData={currentBoardData}
-        threadSummary={props.summary}
-      />
       <Head>
         <meta
           name="viewport"
@@ -181,7 +181,11 @@ function MyApp({
                   <AuthProvider>
                     <AxiosInterceptor />
                     <UpdateNotice />
-                    <RealmContextProvider initialData={props.realmData}>
+                    <RealmContextProvider>
+                      <OpenGraphMeta
+                        slug={props.slug}
+                        threadSummary={props.summary}
+                      />
                       {React.useMemo(
                         () => (
                           <Component {...props} />
@@ -202,10 +206,12 @@ function MyApp({
 }
 export default MyApp;
 
-MyApp.getInitialProps = async (appContext: AppContext) => {
+MyApp.getInitialProps = async (appContext: AppContextWithQueryClient) => {
   // TODO[realms]: figure out why it fetches /undefined sometimes
   // September 2021: it does it when you first load the main page on localhost.
   const { ctx } = appContext;
+  const queryClient = new QueryClient();
+  ctx.queryClient = queryClient;
   const realmSlug = getCurrentRealmSlug(ctx);
   log(`Fetching data for realm ${realmSlug}`);
   const realmBody = await getRealmData({
@@ -215,6 +221,10 @@ MyApp.getInitialProps = async (appContext: AppContext) => {
   const appProps = await App.getInitialProps(appContext);
   const realmData = await realmBody;
 
+  await queryClient.setQueryData(
+    [REALM_QUERY_KEY, { realmSlug, isLoggedIn: false }],
+    realmData
+  );
   if (!isAllowedSandboxLocation(ctx)) {
     // We should use 302 redirect here rather than 301 because
     // 301 will be cached by the client and trap us forever until
@@ -236,6 +246,7 @@ MyApp.getInitialProps = async (appContext: AppContext) => {
       slug: ctx.query.boardId?.slice(1),
       currentPath: ctx.asPath,
       ...appProps.pageProps,
+      dehydratedState: dehydrate(queryClient),
     },
   };
 };
