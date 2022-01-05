@@ -1,5 +1,5 @@
 import { Post, TagType, TagsType } from "@bobaboard/ui-components";
-import { PostOptions, usePostOptions } from "./hooks/useOptions";
+import { PostOptions, usePostOptions } from "./hooks/usePostOptions";
 
 import React from "react";
 import { ThreadSummaryType } from "types/Types";
