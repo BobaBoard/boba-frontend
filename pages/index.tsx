@@ -4,11 +4,13 @@ import { getServerBaseUrl, isStaging } from "utils/location-utils";
 import Layout from "components/layout/Layout";
 import Link from "next/link";
 import { NextPageContext } from "next";
+import { PostType } from "types/Types";
 import React from "react";
 import { THREAD_PATH } from "utils/router-utils";
 import axios from "axios";
 import debug from "debug";
 import { formatDistanceToNow } from "date-fns";
+import { makeClientPost } from "utils/client-data";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useNotifications } from "queries/notifications";
 import { useRealmBoards } from "contexts/RealmContext";
@@ -38,8 +40,8 @@ const StagingWarning = () => {
   );
 };
 
-const UpdatesDisplay = (props: { lastUpdate: any }) => {
-  const updatesThreadUrl = `${process.env.NEXT_PUBLIC_RELEASE_THREAD_URL}/${props?.lastUpdate?.latest_post_string_id}`;
+const UpdatesDisplay = (props: { lastUpdate: PostType }) => {
+  const updatesThreadUrl = `${process.env.NEXT_PUBLIC_RELEASE_THREAD_URL}/${props?.lastUpdate?.postId}`;
 
   return (
     <div className="updates">
@@ -47,7 +49,7 @@ const UpdatesDisplay = (props: { lastUpdate: any }) => {
       {props?.lastUpdate && (
         <div className="last">
           [Last Updated:{" "}
-          {new Date(props?.lastUpdate.last_updated).toLocaleDateString()}.{" "}
+          {new Date(props?.lastUpdate.created).toLocaleDateString()}.{" "}
           <Link
             href={THREAD_PATH}
             as={
@@ -61,19 +63,14 @@ const UpdatesDisplay = (props: { lastUpdate: any }) => {
           ]
           <PostQuote
             createdTime={formatDistanceToNow(
-              new Date(props?.lastUpdate.last_updated),
+              new Date(props?.lastUpdate.created),
               { addSuffix: true }
             )}
             createdTimeLink={{
               href: updatesThreadUrl,
             }}
-            text={props?.lastUpdate.post_content}
-            secretIdentity={{
-              name: props?.lastUpdate.secret_identity_name,
-              avatar: props?.lastUpdate.secret_identity_avatar,
-              color: props?.lastUpdate.secret_identity_color,
-              accessory: props?.lastUpdate.secret_identity_accessory,
-            }}
+            text={props?.lastUpdate.content}
+            secretIdentity={props.lastUpdate.secretIdentity}
           />
         </div>
       )}
@@ -248,10 +245,11 @@ HomePage.getInitialProps = async (ctx: NextPageContext) => {
       isStaging(ctx)
         ? process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID_STAGING
         : process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID
-    }/latest`;
+    }/`;
     const response = await axios.get(subscriptionUrl);
+    const post = await response.data?.activity[0];
     return {
-      lastUpdate: await response.data[0],
+      lastUpdate: post ? makeClientPost(post) : null,
     };
   } catch (e) {
     error(`Error retrieving lastUpdate.`);
