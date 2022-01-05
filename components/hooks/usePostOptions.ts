@@ -1,4 +1,4 @@
-import { PostData, PostPermissions, PostType } from "types/Types";
+import { PostData, PostType } from "types/Types";
 import {
   faBookOpen,
   faBug,
@@ -25,6 +25,7 @@ import { EditorActions } from "components/editors/types";
 import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
 import React from "react";
 import { faCopy } from "@fortawesome/free-regular-svg-icons";
+import { isPostEditPermission } from "utils/permissions-utils";
 import { toast } from "@bobaboard/ui-components";
 import { useAuth } from "components/Auth";
 import { useBoardMetadata } from "queries/board";
@@ -49,16 +50,6 @@ enum DebugOptions {
   COPY_POST_ID = "COPY_POST_ID",
 }
 
-const isPostEditPermission = (postPermission: PostPermissions) => {
-  return [
-    PostPermissions.editContent,
-    PostPermissions.editWhisperTags,
-    PostPermissions.editCategoryTags,
-    PostPermissions.editWhisperTags,
-    PostPermissions.editContentNotices,
-  ].includes(postPermission);
-};
-
 const copyText = (text: string) => {
   const tempInput = document.createElement("input");
   tempInput.value = text;
@@ -78,75 +69,6 @@ const getCopyLinkOption = (href: string, text: string) => ({
       toast.success("Link copied!");
     },
   },
-});
-
-const getEditTagsOption = (callback: () => void) => ({
-  icon: faEdit,
-  name: "Edit tags",
-  link: {
-    onClick: callback,
-  },
-});
-
-const getMarkReadOption = (callback: () => void) => ({
-  icon: faBookOpen,
-  name: "Mark read",
-  link: {
-    onClick: callback,
-  },
-});
-
-const getMuteThreadOption = (
-  muted: boolean,
-  callback: (muted: boolean) => void
-) => ({
-  icon: muted ? faVolumeUp : faVolumeMute,
-  name: muted ? "Unmute thread" : "Mute thread",
-  link: {
-    onClick: () => callback(!muted),
-  },
-});
-
-const getHideThreadOption = (
-  hidden: boolean,
-  callback: (hidden: boolean) => void
-) => ({
-  icon: hidden ? faEye : faEyeSlash,
-  name: hidden ? "Unhide thread" : "Hide thread",
-  link: {
-    onClick: () => callback(!hidden),
-  },
-});
-
-const getUpdateViewOption = (
-  currentView: PostData["defaultView"],
-  callback: (updatedView: PostData["defaultView"]) => void
-) => ({
-  icon: faEdit,
-  name: "Change default view",
-  options: [
-    {
-      icon: faCodeBranch,
-      name: "Thread",
-      link: {
-        onClick: () => callback("thread"),
-      },
-    },
-    {
-      icon: faImages,
-      name: "Gallery",
-      link: {
-        onClick: () => callback("gallery"),
-      },
-    },
-    {
-      icon: faFilm,
-      name: "Timeline",
-      link: {
-        onClick: () => callback("timeline"),
-      },
-    },
-  ].filter((option) => option.name.toLowerCase() != currentView),
 });
 
 const getDebugOption = (callback: (debugOption: DebugOptions) => void) => ({
@@ -194,6 +116,234 @@ const getOpenAsOptions = (
   ],
 });
 
+const useEditTagsOption = ({
+  boardId,
+  post,
+  threadId,
+}: {
+  boardId: string | null;
+  threadId: string;
+  post: PostType | undefined;
+}) => {
+  const { isLoggedIn } = useAuth();
+  const editorDispatch = useEditorsDispatch();
+  const { boardMetadata } = useBoardMetadata({ boardId });
+  return React.useMemo(() => {
+    if (
+      !isLoggedIn ||
+      !post ||
+      (!post.isOwn &&
+        !boardMetadata?.permissions?.postPermissions.some(isPostEditPermission))
+    ) {
+      return null;
+    }
+
+    return {
+      icon: faEdit,
+      name: "Edit tags",
+      link: {
+        onClick: () => {
+          if (!boardMetadata || !post?.postId) {
+            return;
+          }
+          editorDispatch({
+            type: EditorActions.EDIT_TAGS,
+            payload: {
+              boardId: boardMetadata.id,
+              contributionId: post.postId,
+              threadId: threadId,
+            },
+          });
+        },
+      },
+    };
+  }, [boardMetadata, editorDispatch, isLoggedIn, post, threadId]);
+};
+
+const useMuteThreadOption = ({
+  muted,
+  boardId,
+  threadId,
+}: {
+  muted: boolean | undefined;
+  boardId: string | null;
+  threadId: string;
+}) => {
+  const { isLoggedIn } = useAuth();
+  const muteThread = useMuteThread();
+  const refetchNotifications = useInvalidateNotifications();
+  return React.useMemo(() => {
+    if (!isLoggedIn || muted === undefined) {
+      return null;
+    }
+    return {
+      icon: muted ? faVolumeUp : faVolumeMute,
+      name: muted ? "Unmute thread" : "Mute thread",
+      link: {
+        onClick: () => {
+          if (!boardId) {
+            return;
+          }
+          muteThread(
+            {
+              threadId,
+              boardId,
+              mute: !muted,
+            },
+            {
+              onSuccess: () => {
+                refetchNotifications();
+              },
+            }
+          );
+        },
+      },
+    };
+  }, [muted, boardId, threadId, muteThread, refetchNotifications, isLoggedIn]);
+};
+
+const useHideThreadOption = ({
+  hidden,
+  boardId,
+  threadId,
+}: {
+  hidden: boolean | undefined;
+  boardId: string | null;
+  threadId: string;
+}) => {
+  const { isLoggedIn } = useAuth();
+  const hideThread = useSetThreadHidden();
+  const refetchNotifications = useInvalidateNotifications();
+
+  return React.useMemo(() => {
+    if (!isLoggedIn || hidden === undefined) {
+      return null;
+    }
+    return {
+      icon: hidden ? faEye : faEyeSlash,
+      name: hidden ? "Unhide thread" : "Hide thread",
+      link: {
+        onClick: () => {
+          if (!boardId) {
+            return;
+          }
+          hideThread(
+            {
+              threadId,
+              boardId,
+              hide: !hidden,
+            },
+            {
+              onSuccess: () => {
+                refetchNotifications();
+              },
+            }
+          );
+        },
+      },
+    };
+  }, [threadId, boardId, hideThread, refetchNotifications, hidden, isLoggedIn]);
+};
+
+const useMarkReadOption = ({
+  boardId,
+  threadId,
+}: {
+  boardId: string | null;
+  threadId: string;
+}) => {
+  const { isLoggedIn } = useAuth();
+  const readThread = useReadThread();
+  const refetchNotifications = useInvalidateNotifications();
+
+  return React.useMemo(() => {
+    if (!isLoggedIn) {
+      return null;
+    }
+
+    return {
+      icon: faBookOpen,
+      name: "Mark read",
+      link: {
+        onClick: () => {
+          if (!boardId) {
+            return;
+          }
+          readThread(
+            {
+              threadId,
+              boardId,
+            },
+            {
+              onSuccess: () => {
+                refetchNotifications();
+              },
+            }
+          );
+        },
+      },
+    };
+  }, [boardId, threadId, readThread, refetchNotifications, isLoggedIn]);
+};
+
+const useUpdateThreadViewOption = ({
+  threadId,
+  boardId,
+  post,
+  currentView,
+}: {
+  boardId: string | null;
+  threadId: string;
+  currentView: PostData["defaultView"];
+  post: PostType | undefined;
+}) => {
+  const { isLoggedIn } = useAuth();
+  const setThreadView = useSetThreadView();
+  return React.useMemo(() => {
+    if (!isLoggedIn || !post?.isOwn) {
+      return null;
+    }
+
+    const setView = (view: PostData["defaultView"]) => {
+      if (!boardId) {
+        return;
+      }
+      setThreadView({
+        threadId,
+        boardId,
+        view,
+      });
+    };
+    return {
+      icon: faEdit,
+      name: "Change default view",
+      options: [
+        {
+          icon: faCodeBranch,
+          name: "Thread",
+          link: {
+            onClick: () => setView("thread"),
+          },
+        },
+        {
+          icon: faImages,
+          name: "Gallery",
+          link: {
+            onClick: () => setView("gallery"),
+          },
+        },
+        {
+          icon: faFilm,
+          name: "Timeline",
+          link: {
+            onClick: () => setView("timeline"),
+          },
+        },
+      ].filter((option) => option.name.toLowerCase() != currentView),
+    };
+  }, [isLoggedIn, post, boardId, threadId, currentView, setThreadView]);
+};
+
 const usePostOptions = ({
   options,
   data: { threadId, boardId, post, ...data },
@@ -210,101 +360,25 @@ const usePostOptions = ({
   };
 }): DropdownProps["options"] => {
   const { getLinkToPost, getLinkToThread } = useCachedLinks();
-  const { isLoggedIn } = useAuth();
-  const editorDispatch = useEditorsDispatch();
-  const readThread = useReadThread();
-  const hideThread = useSetThreadHidden();
-  const muteThread = useMuteThread();
-  const setThreadView = useSetThreadView();
   const { boardMetadata } = useBoardMetadata({ boardId });
-  const refetchNotifications = useInvalidateNotifications();
-
-  const editTagsCallback = React.useCallback(() => {
-    if (!boardMetadata || !post?.postId) {
-      return;
-    }
-    editorDispatch({
-      type: EditorActions.EDIT_TAGS,
-      payload: {
-        boardId: boardMetadata.id,
-        contributionId: post.postId,
-        threadId: threadId,
-      },
-    });
-  }, [boardMetadata, post?.postId, threadId, editorDispatch]);
-
-  const markReadCallback = React.useCallback(() => {
-    if (!boardId) {
-      return;
-    }
-    readThread(
-      {
-        threadId,
-        boardId,
-      },
-      {
-        onSuccess: () => {
-          refetchNotifications();
-        },
-      }
-    );
-  }, [threadId, boardId, readThread, refetchNotifications]);
-
-  const hideThreadCallback = React.useCallback(
-    (hide: boolean) => {
-      if (!boardId) {
-        return;
-      }
-      hideThread(
-        {
-          threadId,
-          boardId,
-          hide,
-        },
-        {
-          onSuccess: () => {
-            refetchNotifications();
-          },
-        }
-      );
-    },
-    [threadId, boardId, hideThread, refetchNotifications]
-  );
-
-  const muteThreadCallback = React.useCallback(
-    (mute: boolean) => {
-      if (!boardId) {
-        return;
-      }
-      muteThread(
-        {
-          threadId,
-          boardId,
-          mute,
-        },
-        {
-          onSuccess: () => {
-            refetchNotifications();
-          },
-        }
-      );
-    },
-    [threadId, boardId, muteThread, refetchNotifications]
-  );
-
-  const setThreadViewCallback = React.useCallback(
-    (view: PostData["defaultView"]) => {
-      if (!boardId) {
-        return;
-      }
-      setThreadView({
-        threadId,
-        boardId,
-        view,
-      });
-    },
-    [setThreadView, threadId, boardId]
-  );
+  const muteThreadOption = useMuteThreadOption({
+    boardId,
+    threadId,
+    muted: data.muted,
+  });
+  const markAsReadOption = useMarkReadOption({ boardId, threadId });
+  const hideThreadOption = useHideThreadOption({
+    threadId,
+    boardId,
+    hidden: data.hidden,
+  });
+  const editTagsOption = useEditTagsOption({ threadId, boardId, post });
+  const updateViewOption = useUpdateThreadViewOption({
+    threadId,
+    boardId,
+    post,
+    currentView: data.currentView,
+  });
 
   const getOption = React.useCallback(
     (option: PostOptions) => {
@@ -330,36 +404,15 @@ const usePostOptions = ({
             "Copy thread link"
           );
         case PostOptions.HIDE:
-          if (!isLoggedIn || data.hidden == undefined) {
-            return null;
-          }
-          return getHideThreadOption(data.hidden, hideThreadCallback);
+          return hideThreadOption;
         case PostOptions.MUTE:
-          if (!isLoggedIn || data.muted == undefined) {
-            return null;
-          }
-          return getMuteThreadOption(data.muted, muteThreadCallback);
+          return muteThreadOption;
         case PostOptions.MARK_READ:
-          if (!isLoggedIn) {
-            return null;
-          }
-          return getMarkReadOption(markReadCallback);
+          return markAsReadOption;
         case PostOptions.UPDATE_VIEW:
-          if (!isLoggedIn || !post.isOwn) {
-            return null;
-          }
-          return getUpdateViewOption(data.currentView, setThreadViewCallback);
+          return updateViewOption;
         case PostOptions.EDIT_TAGS:
-          if (
-            !isLoggedIn ||
-            (!post.isOwn &&
-              !boardMetadata?.permissions?.postPermissions.some(
-                isPostEditPermission
-              ))
-          ) {
-            return null;
-          }
-          return getEditTagsOption(editTagsCallback);
+          return editTagsOption;
         case PostOptions.OPEN_AS:
           return getOpenAsOptions((view) =>
             getLinkToThread({
@@ -385,20 +438,16 @@ const usePostOptions = ({
       }
     },
     [
-      isLoggedIn,
       post,
       threadId,
       boardMetadata,
-      editTagsCallback,
       getLinkToPost,
       getLinkToThread,
-      hideThreadCallback,
-      markReadCallback,
-      muteThreadCallback,
-      setThreadViewCallback,
-      data.hidden,
-      data.muted,
-      data.currentView,
+      updateViewOption,
+      markAsReadOption,
+      muteThreadOption,
+      hideThreadOption,
+      editTagsOption,
     ]
   );
 
