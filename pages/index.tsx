@@ -241,14 +241,11 @@ export default HomePage;
 
 HomePage.getInitialProps = async (ctx: NextPageContext) => {
   try {
-    const subscription = await getLatestSubscriptionUpdate(
-      {
-        subscriptionId: isStaging(ctx)
-          ? process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID_STAGING!
-          : process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID!,
-      },
-      ctx
-    );
+    const subscription = await getLatestSubscriptionUpdate({
+      subscriptionId: isStaging(ctx)
+        ? process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID_STAGING!
+        : process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID!,
+    });
     return {
       lastUpdate: subscription
         ? makeClientPost(subscription?.activity[0])

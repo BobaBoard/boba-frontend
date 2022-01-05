@@ -210,12 +210,12 @@ MyApp.getInitialProps = async (appContext: AppContextWithQueryClient) => {
   // TODO[realms]: figure out why it fetches /undefined sometimes
   // September 2021: it does it when you first load the main page on localhost.
   const { ctx } = appContext;
+  axios.defaults.baseURL = getServerBaseUrl(ctx);
   const queryClient = new QueryClient();
   ctx.queryClient = queryClient;
   const realmSlug = getCurrentRealmSlug(ctx);
   log(`Fetching data for realm ${realmSlug}`);
   const realmBody = await getRealmData({
-    baseUrl: getServerBaseUrl(ctx),
     realmSlug,
   });
   const appProps = await App.getInitialProps(appContext);

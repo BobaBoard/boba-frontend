@@ -1,29 +1,22 @@
 import { PostData, ThreadType } from "types/Types";
 
-import { NextPageContext } from "next";
 import axios from "axios";
 import debug from "debug";
-import { getServerBaseUrl } from "../location-utils";
 import { makeClientThread } from "../client-data";
 
 const log = debug("bobafrontend:queries:thread-log");
 
-export const getThreadData = async (
-  {
-    threadId,
-  }: {
-    threadId: string;
-  },
-  ctx?: NextPageContext
-): Promise<ThreadType> => {
+export const getThreadData = async ({
+  threadId,
+}: {
+  threadId: string;
+}): Promise<ThreadType> => {
   if (!threadId) {
     log(`...can't fetch thread with no id.`);
     // TODO: don't request thread when there's no id.
     throw new Error("Attempted to fetch thread with no id.");
   }
-  const response = await axios.get(
-    `${getServerBaseUrl(ctx)}threads/${threadId}/`
-  );
+  const response = await axios.get(`/threads/${threadId}/`);
   log(`Fetched data for thread with id ${threadId}`);
   return makeClientThread(response.data);
 };
