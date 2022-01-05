@@ -4,7 +4,6 @@ import {
   PostData,
   PostType,
   TagsType,
-  ThreadType,
 } from "types/Types";
 import { makeClientComment, makeClientPost } from "../client-data";
 
@@ -57,18 +56,6 @@ export const editPost = async ({
   });
   const post = makeClientPost(response.data);
   return post;
-};
-
-export const updateThreadView = async ({
-  threadId,
-  view,
-}: {
-  threadId: string;
-  view: ThreadType["defaultView"];
-}) => {
-  await axios.patch(`/threads/${threadId}`, {
-    defaultView: view,
-  });
 };
 
 export const createCommentChain = async ({

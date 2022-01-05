@@ -120,6 +120,10 @@ export const getServerBaseUrl = (context?: NextPageContext) => {
     return process.env.NEXT_PUBLIC_DEFAULT_BACKEND;
   }
 
+  if (!context) {
+    return `http://localhost:4200/`;
+  }
+
   let backendLocation = "";
   const localhost = isLocalhost(context);
   if (localhost) {

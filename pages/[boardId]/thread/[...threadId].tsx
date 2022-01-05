@@ -28,11 +28,9 @@ import ThreadSidebar from "components/thread/ThreadSidebar";
 //import { useHotkeys } from "react-hotkeys-hook";
 import ThreadView from "components/thread/ThreadView";
 import TimelineThreadView from "components/thread/TimelineThreadView";
-import axios from "axios";
 import classnames from "classnames";
 import debug from "debug";
-import { getServerBaseUrl } from "utils/location-utils";
-import { makeClientThread } from "utils/client-data";
+import { getThreadData } from "utils/queries/thread";
 import { useAuth } from "components/Auth";
 import { useBeamToNew } from "components/hooks/useBeamToNew";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
@@ -314,10 +312,8 @@ ThreadWithEditors.getInitialProps = async (ctx: PageContextWithQueryClient) => {
       return {};
     }
     const threadId = ctx.query.threadId[0];
-    const response = await axios.get(
-      getServerBaseUrl(ctx) + `threads/${threadId}/`
-    );
-    const thread = makeClientThread(await response.data);
+    const postId = ctx.query.threadId[1];
+    const thread = await getThreadData({ threadId });
 
     if (!thread) {
       return {};
@@ -328,8 +324,8 @@ ThreadWithEditors.getInitialProps = async (ctx: PageContextWithQueryClient) => {
       thread
     );
 
-    const currentPost = ctx.query.threadId[1]
-      ? thread.posts.find((post) => post.postId == ctx.query.threadId![1])
+    const currentPost = postId
+      ? thread.posts.find((post) => post.postId == postId)
       : thread.starter;
     if (!currentPost) {
       // TODO: you should log error here.

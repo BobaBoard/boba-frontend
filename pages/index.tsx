@@ -1,5 +1,4 @@
 import { BoardsDisplay, PostQuote, useBoos } from "@bobaboard/ui-components";
-import { getServerBaseUrl, isStaging } from "utils/location-utils";
 
 import Layout from "components/layout/Layout";
 import Link from "next/link";
@@ -7,9 +6,10 @@ import { NextPageContext } from "next";
 import { PostType } from "types/Types";
 import React from "react";
 import { THREAD_PATH } from "utils/router-utils";
-import axios from "axios";
 import debug from "debug";
 import { formatDistanceToNow } from "date-fns";
+import { getLatestSubscriptionUpdate } from "utils/queries/subscription";
+import { isStaging } from "utils/location-utils";
 import { makeClientPost } from "utils/client-data";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useNotifications } from "queries/notifications";
@@ -241,15 +241,18 @@ export default HomePage;
 
 HomePage.getInitialProps = async (ctx: NextPageContext) => {
   try {
-    const subscriptionUrl = `${getServerBaseUrl(ctx)}subscriptions/${
-      isStaging(ctx)
-        ? process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID_STAGING
-        : process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID
-    }/`;
-    const response = await axios.get(subscriptionUrl);
-    const post = await response.data?.activity[0];
+    const subscription = await getLatestSubscriptionUpdate(
+      {
+        subscriptionId: isStaging(ctx)
+          ? process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID_STAGING!
+          : process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID!,
+      },
+      ctx
+    );
     return {
-      lastUpdate: post ? makeClientPost(post) : null,
+      lastUpdate: subscription
+        ? makeClientPost(subscription?.activity[0])
+        : null,
     };
   } catch (e) {
     error(`Error retrieving lastUpdate.`);

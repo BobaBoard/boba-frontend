@@ -17,7 +17,7 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import { ThreadType } from "types/Types";
 import debug from "debug";
 import { toast } from "@bobaboard/ui-components";
-import { updateThreadView } from "utils/queries/post";
+import { updateThreadView } from "utils/queries/thread";
 import { useAuth } from "components/Auth";
 
 const info = debug("bobafrontend:hooks:queries:thread-info");
