@@ -14,7 +14,7 @@ import { SideMenu as LibrarySideMenu } from "@bobaboard/ui-components";
 import React from "react";
 import { THREAD_QUERY_KEY } from "queries/thread";
 import debug from "debug";
-import { dismissAllNotifications } from "utils/queries";
+import { dismissAllNotifications } from "utils/queries/user";
 import { processBoardsUpdates } from "utils/boards-utils";
 import { useAuth } from "components/Auth";
 import { useBoardSummaryBySlug } from "queries/board";

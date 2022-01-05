@@ -1,7 +1,46 @@
-import { PostType, TagsType, ThreadType } from "types/Types";
+import {
+  CommentData,
+  CommentType,
+  PostData,
+  PostType,
+  TagsType,
+  ThreadType,
+} from "types/Types";
+import { makeClientComment, makeClientPost } from "../client-data";
 
 import axios from "axios";
-import { makeClientPost } from "../client-data";
+import debug from "debug";
+
+const log = debug("bobafrontend:queries:post-log");
+
+export const createPost = async (
+  replyToPostId: string,
+  postData: PostData
+): Promise<PostType> => {
+  const {
+    whisperTags,
+    categoryTags,
+    indexTags,
+    contentWarnings,
+    identityId,
+    accessoryId,
+    ...otherData
+  } = postData;
+  const response = await axios.post(`/posts/${replyToPostId}/contributions`, {
+    ...otherData,
+    whisper_tags: whisperTags,
+    category_tags: categoryTags,
+    index_tags: indexTags,
+    content_warnings: contentWarnings,
+    identity_id: identityId,
+    accessory_id: accessoryId,
+  });
+
+  const post = makeClientPost(response.data.contribution);
+  log(`Received post from server:`);
+  log(post);
+  return post;
+};
 
 export const editPost = async ({
   postId,
@@ -30,4 +69,26 @@ export const updateThreadView = async ({
   await axios.patch(`/threads/${threadId}`, {
     defaultView: view,
   });
+};
+
+export const createCommentChain = async ({
+  replyToPostId,
+  commentData,
+}: {
+  replyToPostId: string | null;
+  commentData: CommentData[];
+}): Promise<CommentType[]> => {
+  const response = await axios.post(`/posts/${replyToPostId}/comments`, {
+    contents: commentData.map((comment) => comment.content),
+    forceAnonymous: commentData.some((data) => data.forceAnonymous),
+    reply_to_comment_id: commentData[0].replyToCommentId,
+    identity_id: commentData[0].identityId,
+    accessory_id: commentData[0].accessoryId,
+  });
+  const comments = response.data.comments.map((comment: any) =>
+    makeClientComment(comment, replyToPostId!)
+  );
+  log(`Received comment from server:`);
+  log(comments);
+  return comments;
 };

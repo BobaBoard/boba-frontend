@@ -3,7 +3,7 @@ import {
   hideThread,
   markThreadAsRead,
   muteThread,
-} from "utils/queries";
+} from "utils/queries/thread";
 import {
   getThreadInCache,
   getThreadSummaryInCache,

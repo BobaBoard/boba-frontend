@@ -66,3 +66,8 @@ export const updateUserSettings = async (
   log(response?.data);
   return response?.data;
 };
+
+export const dismissAllNotifications = async () => {
+  await axios.post(`users/notifications/dismiss`);
+  return true;
+};

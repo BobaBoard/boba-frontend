@@ -11,7 +11,6 @@ import {
   processTags,
   useThreadDetails,
 } from "./utils";
-import { createPost, createThread } from "utils/queries";
 import {
   isContributionEditorState,
   isEditContribution,
@@ -19,6 +18,8 @@ import {
 } from "./types";
 
 import React from "react";
+import { createPost } from "utils/queries/post";
+import { createThread } from "utils/queries/thread";
 import debug from "debug";
 import { editPost } from "utils/queries/post";
 import { useAuth } from "components/Auth";
