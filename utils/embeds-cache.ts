@@ -1,3 +1,6 @@
+import debug from "debug";
+const log = debug("bobafrontend:utils:embeds-cache");
+
 const CACHE = new Map<string, HTMLElement | undefined>();
 const TIMESTAMPS = new Map<string, number>();
 const embedsCache = new Proxy(CACHE, {
@@ -43,9 +46,9 @@ setTimeout(function clearCache() {
   toClear.forEach((value) => {
     TIMESTAMPS.delete(value);
     CACHE.delete(value);
-    console.log(`cleared ${value}`);
+    log(`cleared ${value}`);
   });
   setTimeout(clearCache, TIMEOUT);
 }, TIMEOUT);
 
-export default (embedsCache as unknown) as Map<string, HTMLElement | undefined>;
+export default embedsCache as unknown as Map<string, HTMLElement | undefined>;

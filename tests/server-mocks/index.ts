@@ -1,10 +1,13 @@
 import boardHandlers from "./boards";
+import debug from "debug";
 import feedHandlers from "./feeds";
 import postsHandlers from "./posts";
 import realmHandlers from "./realms";
 import { setupServer } from "msw/node";
 import threadHandlers from "./threads";
 import usersHandlers from "./users";
+
+const log = debug("bobafrontend:tests:server-mocks");
 
 // let worker: SetupWorkerApi;
 // let server: SetupServerApi;
@@ -26,5 +29,5 @@ export const server = setupServer(
 );
 
 server.events.on("request:start", (req) => {
-  console.log("new request:", req.method, req.url.href, req.body);
+  log("new request:", req.method, req.url.href, req.body);
 });

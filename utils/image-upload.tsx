@@ -18,7 +18,6 @@ export const uploadImage = ({
   extension: string;
   imageData: string;
 }): Promise<string> => {
-  console.log(uuidv4());
   const ref = firebase.storage().ref(baseUrl).child(`${uuidv4()}${extension}`);
 
   return new Promise((onSuccess, onReject) => {
