@@ -1,13 +1,44 @@
 import { Client, getThreadRouter } from "./utils";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  prettyDOM,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 
 import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../server-mocks/data/thread";
 import React from "react";
+import { TagMatcher } from "./utils/matchers";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
 
 jest.mock("components/hooks/usePreventPageChange");
 jest.mock("components/hooks/useIsChangingRoute");
 jest.mock("components/hooks/useOnPageExit");
+
+const displaysOptionInPanel = async ({
+  optionText,
+  postId,
+}: {
+  optionText: string;
+  postId: string;
+}) => {
+  const postIndex = FAVORITE_CHARACTER_TO_MAIM_THREAD.posts.findIndex(
+    (post) => post.id == postId
+  );
+  await waitFor(async () => {
+    expect(
+      screen.queryAllByLabelText("Post options")?.[postIndex]
+    ).toBeInTheDocument();
+  });
+  fireEvent.click(screen.queryAllByLabelText("Post options")?.[postIndex]);
+  await waitFor(() => {
+    expect(screen.getByText(optionText)).toBeInTheDocument();
+  });
+
+  return screen.getByText(optionText);
+};
 
 describe("Post Options (Thread)", () => {
   describe("Copy link options", () => {
@@ -23,20 +54,15 @@ describe("Post Options (Thread)", () => {
         </Client>
       );
 
-      await waitFor(async () => {
-        expect(
-          screen.queryAllByLabelText("Post options")?.[0]
-        ).toBeInTheDocument();
-      });
-      fireEvent.click(screen.queryAllByLabelText("Post options")?.[0]);
-      await waitFor(() => {
-        expect(screen.getByText("Copy thread link")).toBeInTheDocument();
+      const option = await displaysOptionInPanel({
+        optionText: "Copy thread link",
+        postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.starter.id,
       });
       let copiedValue = "";
       document.execCommand = jest.fn().mockImplementation(async () => {
         copiedValue = (document.activeElement as HTMLInputElement).value;
       });
-      fireEvent.click(screen.getByText("Copy thread link"));
+      fireEvent.click(option);
       await waitFor(() => {
         expect(copiedValue).toBe(
           `http://localhost/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}`
@@ -56,20 +82,15 @@ describe("Post Options (Thread)", () => {
         </Client>
       );
 
-      await waitFor(async () => {
-        expect(
-          screen.queryAllByLabelText("Post options")?.[1]
-        ).toBeInTheDocument();
-      });
-      fireEvent.click(screen.queryAllByLabelText("Post options")?.[1]);
-      await waitFor(() => {
-        expect(screen.getByText("Copy thread link")).toBeInTheDocument();
+      const option = await displaysOptionInPanel({
+        optionText: "Copy thread link",
+        postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
       });
       let copiedValue = "";
       document.execCommand = jest.fn().mockImplementation(async () => {
         copiedValue = (document.activeElement as HTMLInputElement).value;
       });
-      fireEvent.click(screen.getByText("Copy thread link"));
+      fireEvent.click(option);
       await waitFor(() => {
         expect(copiedValue).toBe(
           `http://localhost/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}`
@@ -90,22 +111,15 @@ describe("Post Options (Thread)", () => {
         </Client>
       );
 
-      await waitFor(async () => {
-        expect(
-          // We must take the second post on the page because the first post is the thread
-          // and does not have a copy post link option.
-          screen.queryAllByLabelText("Post options")?.[1]
-        ).toBeInTheDocument();
-      });
-      fireEvent.click(screen.queryAllByLabelText("Post options")?.[1]);
-      await waitFor(() => {
-        expect(screen.getByText("Copy link")).toBeInTheDocument();
+      const option = await displaysOptionInPanel({
+        optionText: "Copy link",
+        postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
       });
       let copiedValue = "";
       document.execCommand = jest.fn().mockImplementation(async () => {
         copiedValue = (document.activeElement as HTMLInputElement).value;
       });
-      fireEvent.click(screen.getByText("Copy link"));
+      fireEvent.click(option);
       await waitFor(() => {
         expect(copiedValue).toBe(
           `http://localhost/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}/${FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id}`
@@ -113,5 +127,106 @@ describe("Post Options (Thread)", () => {
       });
       expect(screen.getByText("Link copied!")).toBeInTheDocument();
     });
+  });
+
+  it("Correctly mutes and unmutes thread", async () => {
+    render(
+      <Client
+        router={getThreadRouter({
+          threadId: FAVORITE_CHARACTER_TO_MAIM_THREAD.id,
+          boardSlug: FAVORITE_CHARACTER_TO_MAIM_THREAD.parent_board_slug,
+        })}
+      >
+        <ThreadPage />
+      </Client>
+    );
+
+    const muteOption = await displaysOptionInPanel({
+      optionText: "Mute thread",
+      postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
+    });
+    fireEvent.click(muteOption);
+    // TODO: create a visual indicator that the thread is muted and also check that.
+    const unmuteOption = await displaysOptionInPanel({
+      optionText: "Unmute thread",
+      postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
+    });
+    fireEvent.click(unmuteOption);
+    await displaysOptionInPanel({
+      optionText: "Mute thread",
+      postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
+    });
+  });
+
+  it("Correctly hides and unhides thread", async () => {
+    render(
+      <Client
+        router={getThreadRouter({
+          threadId: FAVORITE_CHARACTER_TO_MAIM_THREAD.id,
+          boardSlug: FAVORITE_CHARACTER_TO_MAIM_THREAD.parent_board_slug,
+        })}
+      >
+        <ThreadPage />
+      </Client>
+    );
+
+    const hideOption = await displaysOptionInPanel({
+      optionText: "Hide thread",
+      postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
+    });
+    fireEvent.click(hideOption);
+    // TODO: create a visual indicator that the thread is hidden and also check that.
+    const unhideOption = await displaysOptionInPanel({
+      optionText: "Unhide thread",
+      postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
+    });
+    fireEvent.click(unhideOption);
+    await displaysOptionInPanel({
+      optionText: "Hide thread",
+      postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
+    });
+  });
+
+  it("Correctly calls tag editor", async () => {
+    render(
+      <Client
+        router={getThreadRouter({
+          threadId: FAVORITE_CHARACTER_TO_MAIM_THREAD.id,
+          boardSlug: FAVORITE_CHARACTER_TO_MAIM_THREAD.parent_board_slug,
+        })}
+      >
+        <ThreadPage />
+      </Client>
+    );
+
+    const editTagsOption = await displaysOptionInPanel({
+      optionText: "Edit tags",
+      postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
+    });
+    fireEvent.click(editTagsOption);
+    // TODO: create a visual indicator that the thread is hidden and also check that.
+    await waitFor(
+      () => {
+        expect(screen.getByLabelText("The post editor footer")).toBeVisible();
+      },
+      { timeout: 5000 }
+    );
+    const postEditorFooter = screen.getByLabelText("The post editor footer");
+    expect(
+      within(postEditorFooter).getByText(TagMatcher("#evil"))
+    ).toBeVisible();
+    expect(
+      within(postEditorFooter).getByText(TagMatcher("#oddly specific"))
+    ).toBeVisible();
+    expect(
+      within(postEditorFooter).getByText(TagMatcher("#metal gear"))
+    ).toBeVisible();
+    expect(
+      within(postEditorFooter).getByText(TagMatcher("#bobapost"))
+    ).toBeVisible();
+
+    expect(
+      within(postEditorFooter).getByText(TagMatcher("»fight me on this"))
+    ).toBeVisible();
   });
 });
