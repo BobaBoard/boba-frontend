@@ -6,7 +6,7 @@ import {
   TagType,
   TagsType,
 } from "@bobaboard/ui-components";
-import { PostOptions, usePostOptions } from "../hooks/usePostOptions";
+import { PostOptions, usePostOptions } from "../options/usePostOptions";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import {
   getTotalContributions,
