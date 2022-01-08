@@ -90,7 +90,6 @@ describe("Post Options (Thread)", () => {
         "http://localhost/!gore/thread/29d1b2da-3289-454a-9089-2ed47db4967b"
       );
     });
-
-    // TODO: figure out how to test alert popup
+    expect(screen.getByText("Link copied!")).toBeInTheDocument();
   });
 });

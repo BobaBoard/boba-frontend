@@ -1,3 +1,4 @@
+import { ImageUploaderContext, ToastContainer } from "@bobaboard/ui-components";
 import { QueryClient, QueryClientProvider } from "react-query";
 import {
   REALM_QUERY_KEY,
@@ -5,7 +6,6 @@ import {
 } from "../../../contexts/RealmContext";
 
 import { AuthContext } from "components/Auth";
-import { ImageUploaderContext } from "@bobaboard/ui-components";
 import { NextRouter } from "next/router";
 import { QueryParamProvider } from "components/QueryParamNextProvider";
 import React from "react";
@@ -163,6 +163,7 @@ export const Client = ({
           <ImageUploaderContext.Provider
             value={{ onImageUploadRequest: jest.fn() }}
           >
+            <ToastContainer />
             <RealmContextProvider>{children}</RealmContextProvider>
           </ImageUploaderContext.Provider>
         </AuthContext.Provider>
