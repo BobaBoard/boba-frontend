@@ -31,36 +31,6 @@ afterAll(() => {
   jest.useRealTimers();
 });
 
-beforeAll(() => {
-  document.createRange = () => {
-    const range = new Range();
-
-    range.getBoundingClientRect = () => {
-      return {
-        x: 0,
-        y: 0,
-        bottom: 0,
-        height: 0,
-        left: 0,
-        right: 0,
-        top: 0,
-        width: 0,
-        toJSON: jest.fn(),
-      };
-    };
-
-    range.getClientRects = () => {
-      return {
-        item: () => null,
-        length: 0,
-        [Symbol.iterator]: jest.fn(),
-      };
-    };
-
-    return range;
-  };
-});
-
 describe("Threads test", () => {
   it("displays loading indicator while thread is being fetched", async () => {
     const threadFetched = getThreadRequestPromise({
