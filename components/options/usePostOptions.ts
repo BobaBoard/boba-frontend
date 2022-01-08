@@ -1,6 +1,5 @@
 import { PostData, PostType } from "types/Types";
 import {
-  faBug,
   faCodeBranch,
   faFilm,
   faImages,
@@ -12,7 +11,6 @@ import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownList
 import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
 import React from "react";
 import { copyText } from "utils/text-utils";
-import { faCopy } from "@fortawesome/free-regular-svg-icons";
 import { toast } from "@bobaboard/ui-components";
 import { useBoardMetadata } from "queries/board";
 import { useCachedLinks } from "../hooks/useCachedLinks";
