@@ -17,7 +17,7 @@ export const getCurrentHost = (
 
 export const getCurrentSearchParams = () => {
   if (typeof window === "undefined") {
-    return null;
+    return "";
   }
 
   return window.location.search;
