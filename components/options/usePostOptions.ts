@@ -19,6 +19,7 @@ import { useEditTagsOption } from "./post/useEditTagsOption";
 import { useHideThreadOption } from "./post/useHideThreadOption";
 import { useMarkReadOption } from "./post/useMarkReadOption";
 import { useMuteThreadOption } from "./post/useMuteThreadOption";
+import { useStarThreadOption } from "./post/useStarThreadOption";
 import { useUpdateThreadViewOption } from "./post/useUpdateThreadViewOption";
 
 export enum PostOptions {
@@ -28,6 +29,7 @@ export enum PostOptions {
   MARK_READ = "MARK_READ",
   MUTE = "MUTE",
   HIDE = "HIDE",
+  STAR = "STAR",
   UPDATE_VIEW = "UPDATE_VIEW",
   OPEN_AS = "OPEN_AS",
   DEBUG = "DEBUG",
@@ -82,6 +84,7 @@ const usePostOptions = ({
     currentView: PostData["defaultView"];
     hidden?: boolean;
     muted?: boolean;
+    starred?: boolean;
   };
 }): DropdownProps["options"] => {
   const { getLinkToPost, getLinkToThread } = useCachedLinks();
@@ -96,6 +99,11 @@ const usePostOptions = ({
     threadId,
     boardId,
     hidden: data.hidden,
+  });
+  const starThreadOption = useStarThreadOption({
+    threadId,
+    boardId,
+    starred: data.starred,
   });
   const editTagsOption = useEditTagsOption({ threadId, boardId, post });
   const updateViewOption = useUpdateThreadViewOption({
@@ -133,6 +141,8 @@ const usePostOptions = ({
           return hideThreadOption;
         case PostOptions.MUTE:
           return muteThreadOption;
+        case PostOptions.STAR:
+          return starThreadOption;
         case PostOptions.MARK_READ:
           return markAsReadOption;
         case PostOptions.UPDATE_VIEW:
@@ -161,6 +171,7 @@ const usePostOptions = ({
       markAsReadOption,
       muteThreadOption,
       hideThreadOption,
+      starThreadOption,
       editTagsOption,
       debugOptions,
     ]

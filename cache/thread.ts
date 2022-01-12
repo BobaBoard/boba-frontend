@@ -196,6 +196,39 @@ export const setThreadHiddenInCache = (
   );
 };
 
+export const setThreadStarredInCache = (
+  queryClient: QueryClient,
+  {
+    boardId,
+    threadId,
+    star,
+  }: {
+    boardId: string;
+    threadId: string;
+    star: boolean;
+  }
+) => {
+  const transformer: ThreadTransformerType = (thread) => {
+    if (thread.starred == star) {
+      return thread;
+    }
+    const newThread = { ...thread };
+    newThread.starred = star;
+    return newThread;
+  };
+  setThreadInCache(
+    queryClient,
+    {
+      boardId,
+      threadId,
+    },
+    {
+      transformThread: transformer,
+      transformThreadSummary: transformer,
+    }
+  );
+};
+
 export const setThreadPersonalIdentityInCache = (
   queryClient: QueryClient,
   {

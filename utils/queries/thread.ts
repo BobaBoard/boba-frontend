@@ -71,6 +71,22 @@ export const hideThread = async ({
   return true;
 };
 
+export const starThread = async ({
+  threadId,
+  star,
+}: {
+  threadId: string;
+  star: boolean;
+}) => {
+  log(`Updating thread ${threadId} starred state.`);
+  if (star) {
+    await axios.post(`threads/${threadId}/stars`);
+  } else {
+    await axios.delete(`threads/${threadId}/stars`);
+  }
+  return true;
+};
+
 export const createThread = async (
   boardId: string,
   postData: PostData

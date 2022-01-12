@@ -54,6 +54,7 @@ export interface ThreadSummaryType {
   defaultView: "thread" | "gallery" | "timeline";
   muted: boolean;
   hidden: boolean;
+  starred: boolean;
   new: boolean;
   newPostsAmount: number;
   newCommentsAmount: number;

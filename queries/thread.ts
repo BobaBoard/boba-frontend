@@ -3,6 +3,7 @@ import {
   hideThread,
   markThreadAsRead,
   muteThread,
+  starThread,
 } from "utils/queries/thread";
 import {
   getThreadInCache,
@@ -11,6 +12,7 @@ import {
   setThreadDefaultViewInCache,
   setThreadHiddenInCache,
   setThreadMutedInCache,
+  setThreadStarredInCache,
 } from "cache/thread";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
@@ -154,6 +156,51 @@ export const useSetThreadHidden = () => {
     }
   );
   return setThreadHidden;
+};
+
+export const useSetThreadStarred = () => {
+  const queryClient = useQueryClient();
+  const { mutate: setThreadStarred } = useMutation(
+    ({
+      threadId,
+      star,
+    }: {
+      threadId: string;
+      star: boolean;
+      boardId: string;
+    }) => starThread({ threadId, star }),
+    {
+      onMutate: ({ threadId, star, boardId }) => {
+        log(
+          `Optimistically marking thread ${threadId} as ${
+            star ? "starred" : "unstarred"
+          }.`
+        );
+        setThreadStarredInCache(queryClient, {
+          boardId,
+          threadId,
+          star,
+        });
+      },
+      onError: (error: Error, { threadId, star }) => {
+        toast.error(
+          `Error while marking thread as ${star ? "starred" : "unstarred"}`
+        );
+        log(`Error while marking thread ${threadId} as starred:`);
+        log(error);
+      },
+      onSuccess: (data: boolean, { threadId, star }) => {
+        log(
+          `Successfully marked thread ${threadId} as  ${
+            star ? "starred" : "unstarred"
+          }.`
+        );
+        queryClient.invalidateQueries("allBoardsData");
+      },
+    }
+  );
+
+  return setThreadStarred;
 };
 
 export const useReadThread = (args?: { activityOnly?: boolean }) => {
