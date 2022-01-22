@@ -96,7 +96,9 @@ export const getRedirectToSandboxLocation = (
 export const isLocalhost = (context?: NextPageContext) => {
   const currentHost = getCurrentHost(context);
   return !!(
-    currentHost?.startsWith("localhost") || currentHost?.startsWith("192.")
+    currentHost?.startsWith("localhost") ||
+    currentHost?.startsWith("192.") ||
+    currentHost?.endsWith(".local")
   );
 };
 
@@ -110,6 +112,7 @@ export const isStaging = (context?: NextPageContext) => {
 
 export const getServerBaseUrl = (context?: NextPageContext) => {
   const staging = isStaging(context);
+  console.log(process.env.NODE_ENV);
   if (process.env.NODE_ENV == "production") {
     return staging
       ? "https://staging-dot-backend-dot-bobaboard.uc.r.appspot.com/"
