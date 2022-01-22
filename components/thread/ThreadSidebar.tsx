@@ -59,6 +59,7 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
                 id: THREAD_VIEW_MODES.THREAD,
                 label: "Thread",
                 link: {
+                  // TODO: add href here
                   onClick: () => props.onViewChange(THREAD_VIEW_MODES.THREAD),
                 },
               },
@@ -66,6 +67,7 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
                 id: THREAD_VIEW_MODES.MASONRY,
                 label: "Gallery",
                 link: {
+                  // TODO: add href here
                   onClick: () => props.onViewChange(THREAD_VIEW_MODES.MASONRY),
                 },
               },
@@ -73,6 +75,7 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
                 id: THREAD_VIEW_MODES.TIMELINE,
                 label: "Timeline",
                 link: {
+                  // TODO: add href here
                   onClick: () => props.onViewChange(THREAD_VIEW_MODES.TIMELINE),
                 },
               },
