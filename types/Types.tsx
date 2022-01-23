@@ -281,9 +281,7 @@ export interface UserNotifications {
 export interface InitialAppProps {
   // TODO: not all pages will be within a realm
   realmSlug: string;
-  realmData: RealmType;
-  // TODO: rename this to board slug
-  slug: string;
+  boardSlug: string;
   dehydratedState: DehydratedState;
   summary?: ReturnType<typeof getDeltaSummary> | undefined;
 }

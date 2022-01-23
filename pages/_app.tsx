@@ -167,7 +167,7 @@ function BobaBoardApp({
                     <UpdateNotice />
                     <RealmContextProvider>
                       <OpenGraphMeta
-                        slug={props.slug}
+                        slug={props.boardSlug}
                         threadSummary={props.summary}
                       />
                       {React.useMemo(
@@ -225,9 +225,8 @@ BobaBoardApp.getInitialProps = async (
   );
   log(`Returning initial props`);
   return {
-    realmData,
     realmSlug,
-    slug: ctx.query.boardId?.slice(1),
+    boardSlug: ctx.query.boardId?.slice(1),
     // TODO: try to type this
     ...appProps.pageProps,
     dehydratedState: dehydrate(queryClient),
