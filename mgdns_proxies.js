@@ -1,6 +1,6 @@
 const mdns = require("multicast-dns")();
 
-const TO_REGISTER = ["v0.boba.local", "v1.boba.local"];
+const TO_REGISTER = ["v0_boba.local", "v1_boba.local"];
 
 // mdns.on("response", function (response) {
 //   if (response.answers.some((q) => q.name.indexOf("boba.local") != -1)) {
