@@ -121,9 +121,10 @@ function BobaBoardApp({
 }: AppPropsWithPropsType<InitialAppProps>) {
   log(`Re-rendering app`);
   useFromBackButton(router);
-  usePageDataListener(router);
+  usePageDataListener(router, props.realmSlug);
   useScrollRestoration(router);
   useConsoleHelloMessage();
+  // TODO: figure out how to remove this from here or at least not have to pass it router.
   const imageUploader = useImageUploader(router);
 
   return (

@@ -127,7 +127,7 @@ export const Client = ({
     username: "bobatan",
     avatarUrl: "/bobatan.png",
   });
-  usePageDataListener(router);
+  usePageDataListener(router, undefined);
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {

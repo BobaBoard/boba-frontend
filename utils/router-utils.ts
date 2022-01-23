@@ -2,10 +2,12 @@ import Router, { NextRouter } from "next/router";
 
 import React from "react";
 import debug from "debug";
+import { getClientSideRealm } from "./location-utils";
 
 const log = debug("bobafrontend:router-utils-log");
 
 interface PageDetails {
+  realmSlug: string | null;
   slug: string | null;
   threadId: string | null;
   postId: string | null;
@@ -14,6 +16,7 @@ interface PageDetails {
 }
 
 export interface ThreadPageDetails {
+  realmSlug: string;
   slug: string;
   threadId: string;
   postId: string | null;
@@ -22,6 +25,7 @@ export interface ThreadPageDetails {
 }
 
 export interface BoardPageDetails {
+  realmSlug: string;
   slug: string;
   threadId: null;
   postId: null;
@@ -32,6 +36,7 @@ export interface BoardPageDetails {
 let isInitialized = false;
 let dispatchPending = false;
 let currentPageData: PageDetails = {
+  realmSlug: null,
   slug: null,
   threadId: null,
   postId: null,
@@ -113,7 +118,10 @@ const samePage = (newPage: PageDetails, oldPage: PageDetails) => {
   return JSON.stringify(newPage) === JSON.stringify(oldPage);
 };
 
-export const usePageDataListener = (router: NextRouter) => {
+export const usePageDataListener = (
+  router: NextRouter,
+  serverRealmSlug: string | undefined
+) => {
   if (!isInitialized) {
     isInitialized = true;
   }
@@ -126,13 +134,18 @@ export const usePageDataListener = (router: NextRouter) => {
   // We then use useEffect() to wait for the next "commit phase", and, if there's been an update
   // we dispatch our updates there.
   log("Checking possible route update");
+  const currentRealm =
+    typeof window === "undefined" ? serverRealmSlug : getClientSideRealm();
   const newPageDetails = getPageDetails(router);
+  newPageDetails.realmSlug = currentRealm || null;
+
   if (!samePage(newPageDetails, currentPageData)) {
     currentPageData = newPageDetails;
     dispatchPending = true;
   }
   React.useEffect(() => {
     if (dispatchPending) {
+      console.log(currentPageData);
       log("Dispatching updated route to listeners");
       listeners.forEach((listener) => listener(currentPageData));
       dispatchPending = false;

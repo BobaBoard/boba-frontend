@@ -279,6 +279,7 @@ export interface UserNotifications {
 }
 
 export interface InitialAppProps {
+  // TODO: not all pages will be within a realm
   realmSlug: string;
   realmData: RealmType;
   // TODO: rename this to board slug
