@@ -43,6 +43,7 @@ import debug from "debug";
 import embedsCache from "utils/embeds-cache";
 import { getRealmData } from "utils/queries/realm";
 import smoothscroll from "smoothscroll-polyfill";
+import { useConsoleHelloMessage } from "components/hooks/useConsoleHelloMessage";
 import useFromBackButton from "components/hooks/useFromBackButton";
 import { useImageUploader } from "utils/image-upload";
 import { usePageDataListener } from "utils/router-utils";
@@ -118,27 +119,12 @@ function BobaBoardApp({
   router,
   ...props
 }: AppPropsWithPropsType<InitialAppProps>) {
-  console.log(props);
   log(`Re-rendering app`);
   useFromBackButton(router);
   usePageDataListener(router);
   useScrollRestoration(router);
+  useConsoleHelloMessage();
   const imageUploader = useImageUploader(router);
-
-  React.useEffect(() => {
-    console.log(
-      "%c~*Welcome to BobaBoard*~",
-      "font-size: 30px; color: white; text-shadow: -1px 2px 0 #ff4284, 1px 2px 0 #ff4284, 1px -2px 0 #ff4284, -1px -2px 0 #ff4284;"
-    );
-    console.log(
-      "%cIf you're here out of curiosity, hello!°꒳°",
-      "font-size: 20px; color: #ff4284;"
-    );
-    console.log(
-      "%c★★★★ If you know what you're doing, please consider volunteering: https://docs.google.com/forms/d/e/1FAIpQLSdCX2_fZgIYX0PXeCAA-pfQrcLw_lSp2clGHTt3uBTWgnwVSw/viewform ★★★★",
-      "font-size: 16px; color: #ff4284;"
-    );
-  }, []);
 
   return (
     <>
@@ -205,9 +191,7 @@ export default BobaBoardApp;
 
 BobaBoardApp.getInitialProps = async (
   appContext: AppContextWithQueryClient
-): Promise<InitialAppProps | null> => {
-  // TODO[realms]: figure out why it fetches /undefined sometimes
-  // September 2021: it does it when you first load the main page on localhost.
+): Promise<InitialAppProps | Record<string, never>> => {
   const { ctx } = appContext;
   if (!isAllowedSandboxLocation(ctx)) {
     // We should use 302 redirect here rather than 301 because
@@ -220,7 +204,7 @@ BobaBoardApp.getInitialProps = async (
       )}${getRedirectToSandboxLocation(ctx)}`,
     });
     ctx.res?.end();
-    return null;
+    return {};
   }
 
   axios.defaults.baseURL = getServerBaseUrl(ctx);
@@ -242,11 +226,8 @@ BobaBoardApp.getInitialProps = async (
   return {
     realmData,
     realmSlug,
-    slug:
-      // TODO: figure out why this is undefined as a string sometimes.
-      ctx.query.boardId == "undefined" || !ctx.query.boardId
-        ? null
-        : ctx.query.boardId?.slice(1),
+    slug: ctx.query.boardId?.slice(1),
+    // TODO: try to type this
     ...appProps.pageProps,
     dehydratedState: dehydrate(queryClient),
   };
