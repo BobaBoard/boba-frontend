@@ -2,6 +2,7 @@ import "../wdyr";
 import "@bobaboard/ui-components/dist/main.css";
 import "normalize.css";
 
+import { AppContextWithQueryClient, AppPropsWithPropsType } from "additional";
 import { AuthProvider, useAuth } from "components/Auth";
 import {
   EditorContext,
@@ -28,12 +29,10 @@ import {
 } from "utils/location-utils";
 
 import App from "next/app";
-import { AppContextWithQueryClient } from "additional";
-import type { AppProps } from "next/app";
-import { BoardData } from "types/Types";
 import { CustomErrorPage } from "./_error";
 import ErrorBoundary from "@stefanprobst/next-error-boundary";
 import Head from "next/head";
+import { InitialAppProps } from "types/Types";
 import OpenGraphMeta from "components/OpenGraphMeta";
 import { QueryParamProvider } from "components/QueryParamNextProvider";
 import React from "react";
@@ -114,14 +113,12 @@ const editorContext = {
 
 const queryClient = new QueryClient();
 
-function MyApp({
+function BobaBoardApp({
   Component,
   router,
-  // TODO: theoretically this should be pageProps, but pageProps is always null
-  // and props is filled instead.
-  // @ts-ignore
-  props,
-}: AppProps<{ [key: string]: BoardData }>) {
+  ...props
+}: AppPropsWithPropsType<InitialAppProps>) {
+  console.log(props);
   log(`Re-rendering app`);
   useFromBackButton(router);
   usePageDataListener(router);
@@ -204,12 +201,28 @@ function MyApp({
     </>
   );
 }
-export default MyApp;
+export default BobaBoardApp;
 
-MyApp.getInitialProps = async (appContext: AppContextWithQueryClient) => {
+BobaBoardApp.getInitialProps = async (
+  appContext: AppContextWithQueryClient
+): Promise<InitialAppProps | null> => {
   // TODO[realms]: figure out why it fetches /undefined sometimes
   // September 2021: it does it when you first load the main page on localhost.
   const { ctx } = appContext;
+  if (!isAllowedSandboxLocation(ctx)) {
+    // We should use 302 redirect here rather than 301 because
+    // 301 will be cached by the client and trap us forever until
+    // the cache is cleared.
+    ctx.res?.writeHead(302, {
+      location: `http://${getCurrentHost(
+        ctx,
+        true
+      )}${getRedirectToSandboxLocation(ctx)}`,
+    });
+    ctx.res?.end();
+    return null;
+  }
+
   axios.defaults.baseURL = getServerBaseUrl(ctx);
   const queryClient = new QueryClient();
   ctx.queryClient = queryClient;
@@ -225,28 +238,16 @@ MyApp.getInitialProps = async (appContext: AppContextWithQueryClient) => {
     [REALM_QUERY_KEY, { realmSlug, isLoggedIn: false }],
     realmData
   );
-  if (!isAllowedSandboxLocation(ctx)) {
-    // We should use 302 redirect here rather than 301 because
-    // 301 will be cached by the client and trap us forever until
-    // the cache is cleared.
-    ctx.res?.writeHead(302, {
-      location: `http://${getCurrentHost(
-        ctx,
-        true
-      )}${getRedirectToSandboxLocation(ctx)}`,
-    });
-    ctx.res?.end();
-    return;
-  }
   log(`Returning initial props`);
   return {
-    props: {
-      realmData,
-      realmSlug,
-      slug: ctx.query.boardId?.slice(1),
-      currentPath: ctx.asPath,
-      ...appProps.pageProps,
-      dehydratedState: dehydrate(queryClient),
-    },
+    realmData,
+    realmSlug,
+    slug:
+      // TODO: figure out why this is undefined as a string sometimes.
+      ctx.query.boardId == "undefined" || !ctx.query.boardId
+        ? null
+        : ctx.query.boardId?.slice(1),
+    ...appProps.pageProps,
+    dehydratedState: dehydrate(queryClient),
   };
 };
