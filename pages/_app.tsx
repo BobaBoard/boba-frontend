@@ -2,7 +2,11 @@ import "../wdyr";
 import "@bobaboard/ui-components/dist/main.css";
 import "normalize.css";
 
-import { AppContextWithQueryClient, AppPropsWithPropsType } from "additional";
+import {
+  AppContextWithQueryClient,
+  AppPropsWithPropsType,
+  GlobalAppProps,
+} from "additional";
 import { AuthProvider, useAuth } from "components/Auth";
 import {
   EditorContext,
@@ -32,7 +36,6 @@ import App from "next/app";
 import { CustomErrorPage } from "./_error";
 import ErrorBoundary from "@stefanprobst/next-error-boundary";
 import Head from "next/head";
-import { InitialAppProps } from "types/Types";
 import OpenGraphMeta from "components/OpenGraphMeta";
 import { QueryParamProvider } from "components/QueryParamNextProvider";
 import React from "react";
@@ -114,11 +117,7 @@ const editorContext = {
 
 const queryClient = new QueryClient();
 
-function BobaBoardApp({
-  Component,
-  router,
-  ...props
-}: AppPropsWithPropsType<InitialAppProps>) {
+function BobaBoardApp({ Component, router, ...props }: AppPropsWithPropsType) {
   log(`Re-rendering app`);
   useFromBackButton(router);
   usePageDataListener(router, props.realmSlug);
@@ -170,12 +169,7 @@ function BobaBoardApp({
                         slug={props.boardSlug}
                         threadSummary={props.summary}
                       />
-                      {React.useMemo(
-                        () => (
-                          <Component {...props} />
-                        ),
-                        [Component, props]
-                      )}
+                      <Component />
                     </RealmContextProvider>
                   </AuthProvider>
                 </ImageUploaderContext.Provider>
@@ -192,7 +186,7 @@ export default BobaBoardApp;
 
 BobaBoardApp.getInitialProps = async (
   appContext: AppContextWithQueryClient
-): Promise<InitialAppProps | Record<string, never>> => {
+): Promise<GlobalAppProps | Record<string, never>> => {
   const { ctx } = appContext;
   if (!isAllowedSandboxLocation(ctx)) {
     // We should use 302 redirect here rather than 301 because
@@ -217,6 +211,9 @@ BobaBoardApp.getInitialProps = async (
     realmSlug,
   });
   const appProps = await App.getInitialProps(appContext);
+  if (Array.isArray(ctx.query.boardId)) {
+    throw new Error("Expected single board id");
+  }
   const realmData = await realmBody;
 
   await queryClient.setQueryData(
@@ -227,8 +224,8 @@ BobaBoardApp.getInitialProps = async (
   return {
     realmSlug,
     boardSlug: ctx.query.boardId?.slice(1),
-    // TODO: try to type this
-    ...appProps.pageProps,
+    ...appProps,
     dehydratedState: dehydrate(queryClient),
+    summary: appProps.pageProps.summary,
   };
 };

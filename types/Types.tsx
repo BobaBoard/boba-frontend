@@ -1,6 +1,3 @@
-import type { DehydratedState } from "react-query";
-import type { getDeltaSummary } from "@bobaboard/ui-components";
-
 export interface SecretIdentityType {
   name: string;
   avatar: string;
@@ -276,12 +273,4 @@ export interface UserNotifications {
   isOutdatedNotifications: boolean;
   realmBoards: Record<string, BoardNotifications>;
   pinnedBoards: Record<string, BoardNotifications>;
-}
-
-export interface InitialAppProps {
-  // TODO: not all pages will be within a realm
-  realmSlug: string;
-  boardSlug: string;
-  dehydratedState: DehydratedState;
-  summary?: ReturnType<typeof getDeltaSummary> | undefined;
 }

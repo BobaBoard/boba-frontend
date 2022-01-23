@@ -2,7 +2,8 @@ import { BoardsDisplay, PostQuote, useBoos } from "@bobaboard/ui-components";
 
 import Layout from "components/layout/Layout";
 import Link from "next/link";
-import { NextPageContext } from "next";
+import { NextPage } from "next";
+import { PageContextWithQueryClient } from "additional";
 import { PostType } from "types/Types";
 import React from "react";
 import { THREAD_PATH } from "utils/router-utils";
@@ -93,7 +94,9 @@ const UpdatesDisplay = (props: { lastUpdate: PostType }) => {
   );
 };
 
-function HomePage(props: { lastUpdate?: any }) {
+const HomePage: NextPage<{
+  lastUpdate: PostType | null;
+}> = (props) => {
   const { styles } = useBoos({ startActive: true });
   const { getLinkToBoard } = useCachedLinks();
   const boards = useRealmBoards();
@@ -138,7 +141,9 @@ function HomePage(props: { lastUpdate?: any }) {
                 channel, the <code>!bobaland</code> board or the (even more)
                 anonymous feedback form in the user menu.
               </p>
-              <UpdatesDisplay lastUpdate={props.lastUpdate} />
+              {props.lastUpdate && (
+                <UpdatesDisplay lastUpdate={props.lastUpdate} />
+              )}
             </div>
             <div className="display">
               <BoardsDisplay boards={boardsToDisplay} />
@@ -235,11 +240,11 @@ function HomePage(props: { lastUpdate?: any }) {
       `}</style>
     </div>
   );
-}
+};
 
 export default HomePage;
 
-HomePage.getInitialProps = async (ctx: NextPageContext) => {
+HomePage.getInitialProps = async (ctx: PageContextWithQueryClient) => {
   try {
     const subscription = await getLatestSubscriptionUpdate({
       subscriptionId: isStaging(ctx)
@@ -253,6 +258,8 @@ HomePage.getInitialProps = async (ctx: NextPageContext) => {
     };
   } catch (e) {
     error(`Error retrieving lastUpdate.`);
-    return {};
+    return {
+      lastUpdate: null,
+    };
   }
 };
