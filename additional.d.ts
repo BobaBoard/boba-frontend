@@ -4,8 +4,7 @@ import type { QueryClient, DehydratedState } from "react-query";
 import type { getDeltaSummary } from "@bobaboard/ui-components";
 
 declare type GlobalAppProps = {
-  // TODO: not all pages will be within a realm
-  realmSlug: string;
+  serverHostname: string | undefined;
   boardSlug: string | undefined;
   dehydratedState: DehydratedState;
   summary?: ReturnType<typeof getDeltaSummary> | undefined;

@@ -120,7 +120,7 @@ const queryClient = new QueryClient();
 function BobaBoardApp({ Component, router, ...props }: AppPropsWithPropsType) {
   log(`Re-rendering app`);
   useFromBackButton(router);
-  usePageDataListener(router, props.realmSlug);
+  usePageDataListener(router, props.serverHostname);
   useScrollRestoration(router);
   useConsoleHelloMessage();
   // TODO: figure out how to remove this from here or at least not have to pass it router.
@@ -164,7 +164,7 @@ function BobaBoardApp({ Component, router, ...props }: AppPropsWithPropsType) {
                   <AuthProvider>
                     <AxiosInterceptor />
                     <UpdateNotice />
-                    <RealmContextProvider>
+                    <RealmContextProvider serverHostname={props.serverHostname}>
                       <OpenGraphMeta
                         slug={props.boardSlug}
                         threadSummary={props.summary}
@@ -194,7 +194,7 @@ BobaBoardApp.getInitialProps = async (
     // the cache is cleared.
     ctx.res?.writeHead(302, {
       location: `http://${getCurrentHost(
-        ctx,
+        ctx?.req?.headers?.host,
         true
       )}${getRedirectToSandboxLocation(ctx)}`,
     });
@@ -205,7 +205,10 @@ BobaBoardApp.getInitialProps = async (
   axios.defaults.baseURL = getServerBaseUrl(ctx);
   const queryClient = new QueryClient();
   ctx.queryClient = queryClient;
-  const realmSlug = getCurrentRealmSlug(ctx);
+  const realmSlug = getCurrentRealmSlug({
+    serverHostname: ctx.req?.headers.host,
+  });
+
   log(`Fetching data for realm ${realmSlug}`);
   const realmBody = await getRealmData({
     realmSlug,
@@ -222,7 +225,7 @@ BobaBoardApp.getInitialProps = async (
   );
   log(`Returning initial props`);
   return {
-    realmSlug,
+    serverHostname: ctx?.req?.headers?.host,
     boardSlug: ctx.query.boardId?.slice(1),
     ...appProps,
     dehydratedState: dehydrate(queryClient),

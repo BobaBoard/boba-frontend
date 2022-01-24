@@ -109,6 +109,7 @@ export const getUserSettingsRoute = ({
   basePath: "",
 });
 
+const oldWindow = window.location;
 export const Client = ({
   children,
   router,
@@ -149,6 +150,14 @@ export const Client = ({
     initialData?.realm || makeRealmData(V0_DATA)
   );
 
+  Object.defineProperty(window, "location", {
+    value: {
+      ...oldWindow,
+      hostname: "v0_boba.social",
+    },
+    writable: true,
+  });
+
   return (
     <QueryParamProvider router={router}>
       <QueryClientProvider client={queryClient}>
@@ -164,7 +173,9 @@ export const Client = ({
             value={{ onImageUploadRequest: jest.fn() }}
           >
             <ToastContainer />
-            <RealmContextProvider>{children}</RealmContextProvider>
+            <RealmContextProvider serverHostname={undefined}>
+              {children}
+            </RealmContextProvider>
           </ImageUploaderContext.Provider>
         </AuthContext.Provider>
       </QueryClientProvider>

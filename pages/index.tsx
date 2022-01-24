@@ -247,7 +247,7 @@ export default HomePage;
 HomePage.getInitialProps = async (ctx: PageContextWithQueryClient) => {
   try {
     const subscription = await getLatestSubscriptionUpdate({
-      subscriptionId: isStaging(ctx)
+      subscriptionId: isStaging(ctx?.req?.headers?.host)
         ? process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID_STAGING!
         : process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID!,
     });
