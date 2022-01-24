@@ -1,10 +1,9 @@
 import { NextPageContext } from "next/dist/next-server/lib/utils";
 
 export const getCurrentHost = (
-  context: NextPageContext | undefined,
+  serverHost: string | undefined,
   withPort?: boolean
 ) => {
-  const serverHost = context?.req?.headers.host;
   return typeof window !== "undefined"
     ? window.location.hostname
     : serverHost?.substr(
@@ -23,39 +22,32 @@ export const getCurrentSearchParams = () => {
   return window.location.search;
 };
 
+const REALM_SLUG_SEPARATOR = "_";
+const getRealmFromHostname = (hostname: string) => {
+  return hostname.substring(0, hostname.indexOf(REALM_SLUG_SEPARATOR));
+};
 export const getClientSideRealm = () => {
   if (typeof window === "undefined") {
     throw new Error("getClientSideRealm should only be called on the client");
   }
   // TODO: change this with actual working code
-  return window.location.hostname.substring(
-    0,
-    window.location.hostname.indexOf("_")
-  );
+  return getRealmFromHostname(window.location.hostname);
 };
 
-const REALM_SLUG_PARAM_NAME = "realm";
-export const getCurrentRealmSlug = (context?: NextPageContext) => {
-  if (isStaging(context) || isLocalhost(context)) {
-    // On localhost and staging, we take the Realm slug from the query params.
-    // This is because staging is already on a subdomain (so the Realm cannot be specified that way),
-    // and subdomains on localhost would complicate configuration too much.
-    if (context?.query.realm) {
-      return context.query[REALM_SLUG_PARAM_NAME] as string;
-    } else if (typeof window !== "undefined") {
-      return (
-        new URLSearchParams(window.location.search).get(
-          REALM_SLUG_PARAM_NAME
-        ) || "v0"
-      );
-    } else {
-      // TODO[realms]: figure out what to do if no realm is specified.
-      return "v0";
+export const getCurrentRealmSlug = ({
+  serverHostname,
+}: {
+  serverHostname: string | undefined;
+}) => {
+  if (typeof window === "undefined") {
+    if (serverHostname) {
+      return getRealmFromHostname(serverHostname);
     }
+    throw new Error(
+      "Server hostname required to get current realm slug on server."
+    );
   }
-  const currentHost = getCurrentHost(context);
-  // TODO[realms]: this should throw some kind of exception rather than defaulting to v0
-  return currentHost?.substring(0, currentHost.indexOf(".")) || "v0";
+  return getClientSideRealm();
 };
 
 const SANDBOX_LOCATIONS = ["tys-sandbox.boba.social"];
@@ -63,7 +55,7 @@ export const isSandbox = (context: NextPageContext | undefined) => {
   if (process.env.NEXT_PUBLIC_TEST_SANDBOX === "true") {
     return true;
   }
-  const currentHost = getCurrentHost(context);
+  const currentHost = getCurrentHost(context?.req?.headers?.host);
   return currentHost && SANDBOX_LOCATIONS.includes(currentHost);
 };
 
@@ -80,22 +72,17 @@ const ALLOWED_SANDBOX_LOCATIONS = {
 export const isAllowedSandboxLocation = (
   context: NextPageContext | undefined
 ) => {
-  if (
-    !context ||
-    !context.asPath ||
-    !isSandbox(context) ||
-    !getCurrentHost(context)
-  ) {
+  const currentHost = getCurrentHost(context?.req?.headers?.host);
+  if (!context || !context.asPath || !isSandbox(context) || !currentHost) {
     return true;
   }
-  const currentHost = getCurrentHost(context)!;
   return ALLOWED_SANDBOX_LOCATIONS[currentHost].includes(context.asPath);
 };
 
 export const getRedirectToSandboxLocation = (
   context?: NextPageContext | undefined
 ) => {
-  const currentHost = getCurrentHost(context);
+  const currentHost = getCurrentHost(context?.req?.headers?.host);
   if (!currentHost || !isSandbox(context)) {
     throw new Error(
       "No valid current host in sandbox location, or tried sandbox redirect in non-sandbox environment."
@@ -104,25 +91,24 @@ export const getRedirectToSandboxLocation = (
   return ALLOWED_SANDBOX_LOCATIONS[currentHost][0];
 };
 
-export const isLocalhost = (context?: NextPageContext) => {
-  const currentHost = getCurrentHost(context);
+export const isLocalhost = (hostName?: string | undefined) => {
   return !!(
-    currentHost?.startsWith("localhost") ||
-    currentHost?.startsWith("192.") ||
-    currentHost?.endsWith(".local")
+    hostName?.startsWith("localhost") ||
+    hostName?.startsWith("192.") ||
+    hostName?.endsWith(".local")
   );
 };
 
-export const isStaging = (context?: NextPageContext) => {
+export const isStaging = (serverHostname?: string | undefined) => {
   if (process.env.NEXT_PUBLIC_ENV == "staging") {
     return true;
   }
-  const currentHost = getCurrentHost(context);
-  return !!currentHost?.startsWith("staging");
+  return !!serverHostname?.startsWith("staging");
 };
 
 export const getServerBaseUrl = (context?: NextPageContext) => {
-  const staging = isStaging(context);
+  const currentHost = getCurrentHost(context?.req?.headers?.host);
+  const staging = isStaging(currentHost);
   if (process.env.NODE_ENV == "production") {
     return staging
       ? "https://staging-dot-backend-dot-bobaboard.uc.r.appspot.com/"
@@ -138,9 +124,9 @@ export const getServerBaseUrl = (context?: NextPageContext) => {
   }
 
   let backendLocation = "";
-  const localhost = isLocalhost(context);
+  const localhost = isLocalhost(currentHost);
   if (localhost) {
-    backendLocation = getCurrentHost(context) || "localhost";
+    backendLocation = currentHost || "localhost";
   } else if (staging) {
     backendLocation = `staging-dot-backend-dot-bobaboard.uc.r.appspot.com`;
   } else {

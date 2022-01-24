@@ -85,9 +85,13 @@ export const useRealmBoardId = ({
 
 export const REALM_QUERY_KEY = "realmData";
 const RealmContextProvider: React.FC<{
+  serverHostname: string | undefined;
   children: React.ReactNode;
-}> = ({ children }) => {
-  const realmSlug = getCurrentRealmSlug();
+}> = ({ children, serverHostname }) => {
+  const realmSlug = getCurrentRealmSlug({
+    serverHostname,
+  });
+
   const queryClient = useQueryClient();
   const { isLoggedIn } = useAuth();
 
