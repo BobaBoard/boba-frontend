@@ -1,10 +1,11 @@
-const TO_REGISTER = ["v0.boba.local", "v1.boba.local"];
+const Bonjour = require("bonjour-service").default;
+const bonjourInstance = new Bonjour();
 
-var bonjour = require("bonjour")();
+const TO_REGISTER = ["boba.local"];
 
 let registeredServices = 0;
 TO_REGISTER.forEach((server) => {
-  const service = bonjour.publish({
+  const service = bonjourInstance.publish({
     name: `BobaBoard Server: ${server} `,
     host: server,
     type: "http",
