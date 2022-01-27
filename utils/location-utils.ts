@@ -39,6 +39,12 @@ export const getCurrentRealmSlug = ({
 }: {
   serverHostname: string | undefined;
 }) => {
+  if (
+    isStaging(serverHostname) &&
+    isLocalhost(getCurrentHost(serverHostname))
+  ) {
+    return "v0";
+  }
   if (typeof window === "undefined") {
     if (serverHostname) {
       return getRealmFromHostname(serverHostname);
