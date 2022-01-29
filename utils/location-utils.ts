@@ -22,15 +22,19 @@ export const getCurrentSearchParams = () => {
   return window.location.search;
 };
 
-const REALM_SLUG_SEPARATOR = "_";
+const REALM_SLUG_SEPARATOR_LOCAL = "_";
+const SUBDOMAIN_REGEX = /(?:http[s]*:\/\/)*(?<sub>.*?)\.(?=[^/]*\..{2,5})/i;
 const getRealmFromHostname = (hostname: string) => {
-  return hostname.substring(0, hostname.indexOf(REALM_SLUG_SEPARATOR));
+  if (isLocalhost(hostname)) {
+    return hostname.substring(0, hostname.indexOf(REALM_SLUG_SEPARATOR_LOCAL));
+  }
+  // TODO: this will need work for staging
+  return hostname.match(SUBDOMAIN_REGEX)?.groups?.["sub"] || "v0";
 };
-export const getClientSideRealm = () => {
+const getClientSideRealm = () => {
   if (typeof window === "undefined") {
     throw new Error("getClientSideRealm should only be called on the client");
   }
-  // TODO: change this with actual working code
   return getRealmFromHostname(window.location.hostname);
 };
 
