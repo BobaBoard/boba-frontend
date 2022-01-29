@@ -105,7 +105,8 @@ export const isLocalhost = (hostName?: string | undefined) => {
   return !!(
     hostName?.startsWith("localhost") ||
     hostName?.startsWith("192.") ||
-    hostName?.endsWith(".local")
+    hostName?.endsWith(".local") ||
+    hostName?.endsWith(".local:3000")
   );
 };
 
