@@ -117,6 +117,11 @@ jobs:
           name: link ui
           command: yarn link @bobaboard/ui-components
       - run:
+          name: Add twisted-minds_boba.local
+          command: |
+            sudo tee -a /etc/hosts \<<<'127.0.0.1 twisted-minds_boba.local'
+            cat /etc/hosts
+      - run:
           name: test
           command: yarn run test:e2e:ci
 
