@@ -169,7 +169,13 @@ function BobaBoardApp({ Component, router, ...props }: AppPropsWithPropsType) {
                         slug={props.boardSlug}
                         threadSummary={props.summary}
                       />
-                      <Component />
+                      {React.useMemo(
+                        () => (
+                          // @ts-expect-error
+                          <Component {...props.pageProps} />
+                        ),
+                        [Component, props.pageProps]
+                      )}
                     </RealmContextProvider>
                   </AuthProvider>
                 </ImageUploaderContext.Provider>
