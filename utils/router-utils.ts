@@ -1,8 +1,8 @@
 import Router, { NextRouter } from "next/router";
-import { getClientSideRealm, getCurrentRealmSlug } from "./location-utils";
 
 import React from "react";
 import debug from "debug";
+import { getCurrentRealmSlug } from "./location-utils";
 
 const log = debug("bobafrontend:router-utils-log");
 

@@ -1,7 +1,6 @@
 import { expect, test } from "@jest/globals";
 
 import { makeComment } from "../utils";
-// TODO: figure out absolute import paths
 import { makeCommentsTree } from "utils/thread-utils";
 
 // NOTE: Chained comments also share the parent with the comment they're chained to.
