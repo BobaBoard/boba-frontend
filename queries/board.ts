@@ -102,7 +102,7 @@ export const usePinBoard = () => {
             pin ? "pinned" : "unpinned"
           }.`
         );
-        toast.success("Board pinned!");
+        toast.success(`Board ${pin ? "pinned" : "unpinned"}!`);
         refetchPinnedBoards();
         refetchBoardMetadata(queryClient, { boardId });
       },

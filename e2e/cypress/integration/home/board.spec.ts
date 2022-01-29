@@ -2,7 +2,7 @@ describe("Board", () => {
   before(() => {
     indexedDB.deleteDatabase("firebaseLocalStorageDb");
     cy.login(
-      "http://localhost:3000/!gore",
+      "http://twisted-minds_boba.local:3000/!gore",
       Cypress.env("TEST_EMAIL"),
       Cypress.env("TEST_PASSWORD")
     );
@@ -35,7 +35,7 @@ describe("Board", () => {
     cy.get(".popover-content").contains("Unmute").click();
   });
 
-  it("should pin and unpin board", () => {
+  it("should unpin and-repin board", () => {
     cy.get(".pinned-boards .pinned-section:nth-child(2)")
       .find(".pinned-item")
       .should("have.length", 2);
