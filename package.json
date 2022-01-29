@@ -20,8 +20,8 @@
     "test": "jest --roots tests --runInBand",
     "test:UI:watch": "yarn run test:watch tests/UI",
     "test:ci": "yarn run test --ci",
-    "test:e2e": "start-server-and-test 'yarn dev' 3000 'yarn cypress'",
-    "test:e2e:ci": "start-server-and-test 'yarn dev' 3000 'yarn cypress:headless'",
+    "test:e2e": "start-server-and-test 'yarn dev:bonjour' http://twisted-minds_boba.local:3000/ 'yarn cypress'",
+    "test:e2e:ci": "start-server-and-test 'yarn dev:bonjour' http://twisted-minds_boba.local:3000/ 'yarn cypress:headless'",
     "test:watch": "cross-env DEBUG=bobafrontend:*-log jest --watch"
   },
   "dependencies": {
