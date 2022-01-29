@@ -1,7 +1,6 @@
 import { Client, getThreadRouter } from "./utils";
 import {
   fireEvent,
-  prettyDOM,
   render,
   screen,
   waitFor,
@@ -12,10 +11,13 @@ import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../server-mocks/data/thread";
 import React from "react";
 import { TagMatcher } from "./utils/matchers";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
+import { copyText } from "utils/text-utils";
+import { mocked } from "ts-jest/utils";
 
 jest.mock("components/hooks/usePreventPageChange");
 jest.mock("components/hooks/useIsChangingRoute");
 jest.mock("components/hooks/useOnPageExit");
+jest.mock("utils/text-utils.ts");
 
 const displaysOptionInPanel = async ({
   optionText,
@@ -58,17 +60,14 @@ describe("Post Options (Thread)", () => {
         optionText: "Copy thread link",
         postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.starter.id,
       });
-      let copiedValue = "";
-      document.execCommand = jest.fn().mockImplementation(async () => {
-        copiedValue = (document.activeElement as HTMLInputElement).value;
-      });
+      mocked(copyText);
       fireEvent.click(option);
       await waitFor(() => {
-        expect(copiedValue).toBe(
-          `http://localhost/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}`
-        );
+        expect(screen.getByText("Link copied!")).toBeInTheDocument();
       });
-      expect(screen.getByText("Link copied!")).toBeInTheDocument();
+      expect(copyText).toHaveBeenLastCalledWith(
+        `http://localhost/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}`
+      );
     });
     it("Correctly copies thread URL from thread reply", async () => {
       render(
@@ -86,17 +85,13 @@ describe("Post Options (Thread)", () => {
         optionText: "Copy thread link",
         postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
       });
-      let copiedValue = "";
-      document.execCommand = jest.fn().mockImplementation(async () => {
-        copiedValue = (document.activeElement as HTMLInputElement).value;
-      });
       fireEvent.click(option);
       await waitFor(() => {
-        expect(copiedValue).toBe(
-          `http://localhost/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}`
-        );
+        expect(screen.getByText("Link copied!")).toBeInTheDocument();
       });
-      expect(screen.getByText("Link copied!")).toBeInTheDocument();
+      expect(copyText).toHaveBeenLastCalledWith(
+        `http://localhost/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}`
+      );
     });
 
     it("Correctly copies post URL", async () => {
@@ -115,17 +110,13 @@ describe("Post Options (Thread)", () => {
         optionText: "Copy link",
         postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
       });
-      let copiedValue = "";
-      document.execCommand = jest.fn().mockImplementation(async () => {
-        copiedValue = (document.activeElement as HTMLInputElement).value;
-      });
       fireEvent.click(option);
       await waitFor(() => {
-        expect(copiedValue).toBe(
-          `http://localhost/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}/${FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id}`
-        );
+        expect(screen.getByText("Link copied!")).toBeInTheDocument();
       });
-      expect(screen.getByText("Link copied!")).toBeInTheDocument();
+      expect(copyText).toHaveBeenLastCalledWith(
+        `http://localhost/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}/${FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id}`
+      );
     });
   });
 

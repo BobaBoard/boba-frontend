@@ -5,7 +5,6 @@ import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../server-mocks/data/thread";
 import React from "react";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
 import { mocked } from "ts-jest/utils";
-import { requestIdleCallback } from "@shopify/jest-dom-mocks";
 import { useReadThread } from "queries/thread";
 
 jest.mock("components/hooks/usePreventPageChange");

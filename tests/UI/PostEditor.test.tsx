@@ -54,7 +54,7 @@ describe("PostEditor", () => {
 
     fireEvent.click(within(modal!).getByLabelText("Submit"));
 
-    const mainContainer = document.querySelector<HTMLElement>(".content .main");
+    const mainContainer = document.querySelector<HTMLElement>(".content main");
     await waitForElementToBeRemoved(
       document.querySelector<HTMLElement>(".ReactModalPortal .ql-editor")
     );
@@ -201,7 +201,7 @@ describe("PostEditor", () => {
 
     fireEvent.click(within(modal!).getByLabelText("Submit"));
 
-    const mainContainer = document.querySelector<HTMLElement>(".content .main");
+    const mainContainer = document.querySelector<HTMLElement>(".content main");
     await waitForElementToBeRemoved(() =>
       document.querySelector<HTMLElement>(".ReactModalPortal .ql-editor")
     );
