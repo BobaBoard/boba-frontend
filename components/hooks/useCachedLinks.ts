@@ -1,15 +1,16 @@
-import { ThreadViewQueryParams } from "../thread/ThreadViewContext";
-import { stringify } from "query-string";
-import { PostData } from "types/Types";
-import { encodeQueryParams } from "use-query-params";
 import {
   BOARD_PATH,
-  createLinkTo,
   FEED_PATH,
   PERSONAL_SETTINGS_PATH,
   THREAD_PATH,
+  createLinkTo,
 } from "utils/router-utils";
+
+import { PostData } from "types/Types";
+import { ThreadViewQueryParams } from "../thread/ThreadViewContext";
+import { encodeQueryParams } from "use-query-params";
 import { isSandbox } from "utils/location-utils";
+import { stringify } from "query-string";
 
 interface LinkWithNotNullAction {
   href: string;
@@ -107,9 +108,6 @@ const linkToLogs = createLinkTo({
   url: process.env.NEXT_PUBLIC_RELEASE_THREAD_URL || "",
 });
 const linkToPersonalSettings = createLinkTo({ url: PERSONAL_SETTINGS_PATH });
-// TODO: rename this because it's not a hook and can be used outside of a
-// component context.
-
 const SANDBOXED_LINKS = {
   linkToHome: linkToCurrent,
   linkToFeed: linkToCurrent,
@@ -142,6 +140,8 @@ const REGULAR_LINKS = {
   getLinkToThread,
   getLinkToPost,
 };
+// TODO: rename this because it's not a hook and can be used outside of a
+// component context.
 export const useCachedLinks = () => {
   if (isSandbox(undefined)) {
     return SANDBOXED_LINKS;
