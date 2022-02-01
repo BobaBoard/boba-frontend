@@ -9,11 +9,10 @@ import {
   ThreadContextType,
   useThreadContext,
 } from "components/thread/ThreadContext";
+import { act, renderHook } from "@testing-library/react-hooks";
 
 import React from "react";
-import { act } from "react-dom/test-utils";
 import { mocked } from "ts-jest/utils";
-import { renderHook } from "@testing-library/react-hooks";
 import { useQueryParams } from "use-query-params";
 
 jest.mock("components/thread/ThreadContext.tsx");
@@ -41,8 +40,8 @@ const NEUTRAL_QUERY_PARAMS_STATE = {
   thread: false,
   all: false,
   timeline: false,
-  latest: undefined,
-  new: undefined,
+  latest: false,
+  new: false,
 };
 
 const getThreadViewContextWrapper = () => {
@@ -77,9 +76,7 @@ describe("useThreadViewContext", () => {
     );
     expect(result.current.galleryViewMode).toStrictEqual({
       mode: GALLERY_VIEW_MODE.ALL,
-      // TODO: this is wrong, it should be either true or false according to
-      // whether the cover has new entries or not.
-      showCover: undefined,
+      showCover: false,
     });
   });
 
@@ -96,7 +93,6 @@ describe("useThreadViewContext", () => {
     expect(result.current.currentThreadViewMode).toBe(
       THREAD_VIEW_MODES.TIMELINE
     );
-    // TODO: this should be either ALL or NEW according to whether there's new posts.
     expect(result.current.timelineViewMode).toBe(TIMELINE_VIEW_MODE.ALL);
   });
 
@@ -111,7 +107,6 @@ describe("useThreadViewContext", () => {
       wrapper: getThreadViewContextWrapper(),
     });
 
-    // TODO: this should be only called once with the query already set
     expect(setQueryParams).toHaveBeenLastCalledWith(
       {
         ...NEUTRAL_QUERY_PARAMS_STATE,
@@ -137,18 +132,18 @@ describe("useThreadViewContext", () => {
     expect(result.current.currentThreadViewMode).toBe(
       THREAD_VIEW_MODES.TIMELINE
     );
-    // TODO: this should be immediately NEW
-    expect(result.current.timelineViewMode).toBe(TIMELINE_VIEW_MODE.ALL);
-    // TODO: this gets called correctly but then an update gets called again for all
-    // expect(setQueryParams).toHaveBeenLastCalledWith(
-    //   {
-    //     ...NEUTRAL_QUERY_PARAMS_STATE,
-    //     new: true,
-    //     timeline: true,
-    //   },
-    //   "replace"
-    // );
+    expect(result.current.timelineViewMode).toBe(TIMELINE_VIEW_MODE.NEW);
+    expect(setQueryParams).toHaveBeenLastCalledWith(
+      {
+        ...NEUTRAL_QUERY_PARAMS_STATE,
+        new: true,
+        timeline: true,
+      },
+      "replace"
+    );
   });
+
+  // TODO: test above but for gallery
 
   describe("State updates", () => {
     let mockedThreadContext: Partial<ThreadContextType>;
@@ -173,15 +168,16 @@ describe("useThreadViewContext", () => {
           showCover: true,
         });
       });
+      expect(result.current.currentThreadViewMode).toBe(
+        THREAD_VIEW_MODES.MASONRY
+      );
 
-      // TODO: this should be immediately true
-      // expect(result.current.currentThreadViewMode).toBe(
-      //   THREAD_VIEW_MODES.MASONRY
-      // );
       // TODO: this should be only called once with the query already set
       expect(setQueryParams).toHaveBeenLastCalledWith(
         {
           ...NEUTRAL_QUERY_PARAMS_STATE,
+          // TODO: this is here because it does not exist for masonry view
+          latest: undefined,
           new: true,
           gallery: true,
           showCover: true,
@@ -206,8 +202,6 @@ describe("useThreadViewContext", () => {
       expect(setQueryParams).toHaveBeenLastCalledWith(
         {
           ...NEUTRAL_QUERY_PARAMS_STATE,
-          // TODO: this should be undefined
-          latest: false,
           new: true,
           timeline: true,
         },
@@ -231,12 +225,15 @@ describe("useThreadViewContext", () => {
       });
 
       // TODO: this should be only called once with the query already set
-      expect(setQueryParams).toHaveBeenLastCalledWith({
-        // TODO: this should be the same value as neutral
-        gallery: false,
-        timeline: false,
-        thread: true,
-      });
+      expect(setQueryParams).toHaveBeenLastCalledWith(
+        {
+          // TODO: this should be the same value as neutral
+          gallery: false,
+          timeline: false,
+          thread: true,
+        },
+        "replace"
+      );
     });
   });
 

@@ -232,12 +232,7 @@ export const useDisplayManager = (
   }
 ) => {
   const currentModeDisplayElements = useThreadViewDisplay();
-  const {
-    currentThreadViewMode,
-    addOnChangeHandler,
-    removeOnChangeHandler,
-    activeFilters,
-  } = useThreadViewContext();
+  const { currentThreadViewMode, activeFilters } = useThreadViewContext();
   const { postsInfoMap, isFetching } = useThreadContext();
   /**
    * How many contributions are currently displayed (at most) in the current mode.
@@ -253,14 +248,8 @@ export const useDisplayManager = (
   const firstLoadAmountRef = React.useRef(firstLoadAmount);
 
   React.useEffect(() => {
-    const clearMaxDisplayCallback = () => {
-      setMaxDisplay(firstLoadAmountRef.current);
-    };
-    addOnChangeHandler(clearMaxDisplayCallback);
-    return () => {
-      removeOnChangeHandler(clearMaxDisplayCallback);
-    };
-  }, [addOnChangeHandler, removeOnChangeHandler, setMaxDisplay]);
+    setMaxDisplay(firstLoadAmountRef.current);
+  }, [currentThreadViewMode, setMaxDisplay]);
 
   const displayMore = React.useCallback(
     (callback: (newMax: number, hasMore: boolean) => void) => {
