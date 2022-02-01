@@ -89,6 +89,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.3.1",
     "jest-canvas-mock": "^2.3.1",
+    "jest-extended": "^2.0.0",
     "msw": "^0.35.0",
     "multicast-dns": "^7.2.4",
     "react": "16.13.1",

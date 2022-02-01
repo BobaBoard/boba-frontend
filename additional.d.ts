@@ -1,3 +1,5 @@
+/// <reference types="jest-extended" />
+
 import type { NextPageContext } from "next";
 import type { AppContext, AppProps } from "next/app";
 import type { QueryClient, DehydratedState } from "react-query";

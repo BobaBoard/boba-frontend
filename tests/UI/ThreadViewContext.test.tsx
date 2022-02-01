@@ -12,6 +12,7 @@ import {
 import { act, renderHook } from "@testing-library/react-hooks";
 
 import React from "react";
+import _ from "cypress/types/lodash";
 import { mocked } from "ts-jest/utils";
 import { useQueryParams } from "use-query-params";
 
@@ -33,15 +34,36 @@ const mockThreadContext = () => {
   return mockThreadContext;
 };
 
+/**
+ * This and the following are the states we can expect by default for each type of
+ * view mode.
+ * Note that the defaults don't actually set the corresponding view mode to true,
+ * because they assume that view mode is the default view mode, which should not
+ * appear in the final URL. If it should be explicitly specified, then the param
+ * should explicitly be set to true.
+ */
 const NEUTRAL_QUERY_PARAMS_STATE = {
   excludedNotices: undefined,
   filter: undefined,
   gallery: false,
-  thread: false,
-  all: false,
   timeline: false,
-  latest: false,
+  thread: false,
+};
+const NEUTRAL_QUERY_PARAMS_STATE_WITH_THREAD = {
+  ...NEUTRAL_QUERY_PARAMS_STATE,
+};
+
+const NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY = {
+  ...NEUTRAL_QUERY_PARAMS_STATE,
+  all: false,
   new: false,
+  showCover: false,
+};
+const NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE = {
+  ...NEUTRAL_QUERY_PARAMS_STATE,
+  all: false,
+  new: false,
+  latest: false,
 };
 
 const getThreadViewContextWrapper = () => {
@@ -50,10 +72,22 @@ const getThreadViewContextWrapper = () => {
   };
 };
 
+const mockQueryParams = (initialState?: Record<string, any>) => {
+  const setQueryParams = jest.fn();
+  mocked(useQueryParams).mockImplementation(() => [
+    initialState || {},
+    setQueryParams,
+  ]);
+
+  return setQueryParams;
+};
+
 describe("useThreadViewContext", () => {
   let mockedThreadContext: Partial<ThreadContextType>;
+  let setQueryParams: jest.Mock;
   beforeEach(() => {
     mockedThreadContext = mockThreadContext();
+    setQueryParams = mockQueryParams();
   });
 
   it("Returns thread view mode if none is specified", async () => {
@@ -62,11 +96,17 @@ describe("useThreadViewContext", () => {
       wrapper: getThreadViewContextWrapper(),
     });
 
+    expect(setQueryParams).toHaveBeenCalledOnce();
+    expect(setQueryParams).toHaveBeenLastCalledWith(
+      expect.objectContaining(NEUTRAL_QUERY_PARAMS_STATE),
+      "replace"
+    );
     expect(result.current.currentThreadViewMode).toBe(THREAD_VIEW_MODES.THREAD);
   });
 
   it("Returns default view mode if none is specified in query params", async () => {
     mockedThreadContext.defaultView = "gallery";
+
     const { result } = renderHook(() => useThreadViewContext(), {
       wrapper: getThreadViewContextWrapper(),
     });
@@ -78,14 +118,17 @@ describe("useThreadViewContext", () => {
       mode: GALLERY_VIEW_MODE.ALL,
       showCover: false,
     });
+    expect(setQueryParams).toHaveBeenCalledOnce();
+    expect(setQueryParams).toHaveBeenLastCalledWith(
+      expect.objectContaining(NEUTRAL_QUERY_PARAMS_STATE),
+      "replace"
+    );
   });
 
-  it("Returns view mode in the params if specified in query params", async () => {
+  it("Returns view mode in the params if specified", async () => {
     mockedThreadContext.defaultView = "gallery";
-    mocked(useQueryParams).mockImplementation(() => [
-      { timeline: true },
-      jest.fn(),
-    ]);
+    const setQueryParams = mockQueryParams({ timeline: true });
+
     const { result } = renderHook(() => useThreadViewContext(), {
       wrapper: getThreadViewContextWrapper(),
     });
@@ -94,70 +137,100 @@ describe("useThreadViewContext", () => {
       THREAD_VIEW_MODES.TIMELINE
     );
     expect(result.current.timelineViewMode).toBe(TIMELINE_VIEW_MODE.ALL);
-  });
-
-  it("Adds view mode to the params if different from default", async () => {
-    mockedThreadContext.defaultView = "gallery";
-    const setQueryParams = jest.fn();
-    mocked(useQueryParams).mockImplementation(() => [
-      { timeline: true },
-      setQueryParams,
-    ]);
-    renderHook(() => useThreadViewContext(), {
-      wrapper: getThreadViewContextWrapper(),
-    });
-
+    expect(setQueryParams).toHaveBeenCalledOnce();
     expect(setQueryParams).toHaveBeenLastCalledWith(
       {
-        ...NEUTRAL_QUERY_PARAMS_STATE,
+        ...NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE,
+        timeline: true,
+        // TODO: since this is the default, it should not be set in the URL
         all: true,
-        timeline: true,
       },
       "replace"
     );
   });
 
-  it("Switch to new for timeline if there are updated posts", async () => {
-    mockedThreadContext.defaultView = "gallery";
-    mockedThreadContext.hasNewReplies = true;
-    const setQueryParams = jest.fn();
-    mocked(useQueryParams).mockImplementation(() => [
-      { timeline: true },
-      setQueryParams,
-    ]);
-    const { result } = renderHook(() => useThreadViewContext(), {
-      wrapper: getThreadViewContextWrapper(),
+  describe("Default states", () => {
+    it("Defaults to new for timeline if there are updated posts", async () => {
+      mockedThreadContext.defaultView = "timeline";
+      mockedThreadContext.hasNewReplies = true;
+      const setQueryParams = mockQueryParams();
+      const { result } = renderHook(() => useThreadViewContext(), {
+        wrapper: getThreadViewContextWrapper(),
+      });
+
+      expect(result.current.currentThreadViewMode).toBe(
+        THREAD_VIEW_MODES.TIMELINE
+      );
+      expect(result.current.timelineViewMode).toBe(TIMELINE_VIEW_MODE.NEW);
+
+      expect(setQueryParams).toHaveBeenCalledOnce();
+      expect(setQueryParams).toHaveBeenCalledWith(
+        {
+          ...NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE,
+          new: true,
+        },
+        "replace"
+      );
     });
 
-    expect(result.current.currentThreadViewMode).toBe(
-      THREAD_VIEW_MODES.TIMELINE
-    );
-    expect(result.current.timelineViewMode).toBe(TIMELINE_VIEW_MODE.NEW);
-    expect(setQueryParams).toHaveBeenLastCalledWith(
-      {
-        ...NEUTRAL_QUERY_PARAMS_STATE,
-        new: true,
-        timeline: true,
-      },
-      "replace"
-    );
-  });
+    it("Defaults to new for gallery if there are updated posts", async () => {
+      mockedThreadContext.defaultView = "gallery";
+      mockedThreadContext.hasNewReplies = true;
+      const setQueryParams = mockQueryParams();
+      const { result } = renderHook(() => useThreadViewContext(), {
+        wrapper: getThreadViewContextWrapper(),
+      });
 
-  // TODO: test above but for gallery
+      expect(result.current.currentThreadViewMode).toBe(
+        THREAD_VIEW_MODES.MASONRY
+      );
+      expect(result.current.galleryViewMode).toEqual({
+        mode: GALLERY_VIEW_MODE.NEW,
+        showCover: false,
+      });
+      expect(setQueryParams).toHaveBeenCalledOnce();
+      expect(setQueryParams).toHaveBeenCalledWith(
+        {
+          ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
+          new: true,
+        },
+        "replace"
+      );
+    });
+
+    it("Defaults to show cover for gallery if root is updated", async () => {
+      mockedThreadContext.defaultView = "gallery";
+      mockedThreadContext.hasNewReplies = true;
+      // @ts-expect-error
+      mockedThreadContext.threadRoot = { isNew: true };
+      const setQueryParams = mockQueryParams();
+      const { result } = renderHook(() => useThreadViewContext(), {
+        wrapper: getThreadViewContextWrapper(),
+      });
+
+      expect(result.current.currentThreadViewMode).toBe(
+        THREAD_VIEW_MODES.MASONRY
+      );
+      expect(result.current.galleryViewMode).toEqual({
+        mode: GALLERY_VIEW_MODE.NEW,
+        showCover: true,
+      });
+      expect(setQueryParams).toHaveBeenCalledOnce();
+      expect(setQueryParams).toHaveBeenCalledWith(
+        {
+          ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
+          new: true,
+          showCover: true,
+        },
+        "replace"
+      );
+    });
+  });
 
   describe("State updates", () => {
-    let mockedThreadContext: Partial<ThreadContextType>;
-    beforeEach(() => {
-      mockedThreadContext = mockThreadContext();
-    });
-
-    it("Correctly switches view mode for gallery", async () => {
+    it("Correctly switches view mode for gallery with show cover", async () => {
       mockedThreadContext.defaultView = "thread";
-      const setQueryParams = jest.fn();
-      mocked(useQueryParams).mockImplementation(() => [
-        { timeline: true },
-        setQueryParams,
-      ]);
+      const setQueryParams = mockQueryParams({ timeline: true });
       const { result } = renderHook(() => useThreadViewContext(), {
         wrapper: getThreadViewContextWrapper(),
       });
@@ -172,14 +245,12 @@ describe("useThreadViewContext", () => {
         THREAD_VIEW_MODES.MASONRY
       );
 
-      // TODO: this should be only called once with the query already set
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
       expect(setQueryParams).toHaveBeenLastCalledWith(
         {
-          ...NEUTRAL_QUERY_PARAMS_STATE,
-          // TODO: this is here because it does not exist for masonry view
-          latest: undefined,
-          new: true,
+          ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
           gallery: true,
+          new: true,
           showCover: true,
         },
         "replace"
@@ -188,8 +259,6 @@ describe("useThreadViewContext", () => {
 
     it("Correctly switches view mode for timeline", async () => {
       mockedThreadContext.defaultView = "gallery";
-      const setQueryParams = jest.fn();
-      mocked(useQueryParams).mockImplementation(() => [{}, setQueryParams]);
       const { result } = renderHook(() => useThreadViewContext(), {
         wrapper: getThreadViewContextWrapper(),
       });
@@ -198,24 +267,20 @@ describe("useThreadViewContext", () => {
         result.current.setTimelineViewMode(TIMELINE_VIEW_MODE.NEW);
       });
 
-      // TODO: this should be only called once with the query already set
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
       expect(setQueryParams).toHaveBeenLastCalledWith(
         {
-          ...NEUTRAL_QUERY_PARAMS_STATE,
-          new: true,
+          ...NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE,
           timeline: true,
+          new: true,
         },
         "replace"
       );
     });
 
-    it("Correctly switches back to thread", async () => {
+    it("Correctly switches to thread", async () => {
       mockedThreadContext.defaultView = "gallery";
-      const setQueryParams = jest.fn();
-      mocked(useQueryParams).mockImplementation(() => [
-        { timeline: true },
-        setQueryParams,
-      ]);
+      const setQueryParams = mockQueryParams({ timeline: true });
       const { result } = renderHook(() => useThreadViewContext(), {
         wrapper: getThreadViewContextWrapper(),
       });
@@ -224,21 +289,107 @@ describe("useThreadViewContext", () => {
         result.current.setThreadViewMode(THREAD_VIEW_MODES.THREAD);
       });
 
-      // TODO: this should be only called once with the query already set
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
+      expect(setQueryParams).toHaveBeenLastCalledWith(
+        { ...NEUTRAL_QUERY_PARAMS_STATE_WITH_THREAD, thread: true },
+        "replace"
+      );
+    });
+  });
+
+  describe("Filters updates", () => {
+    it("Adds filters without adding explicit view mode for default view", async () => {
+      mockedThreadContext.defaultView = "gallery";
+      const setQueryParams = mockQueryParams();
+      const { result } = renderHook(() => useThreadViewContext(), {
+        wrapper: getThreadViewContextWrapper(),
+      });
+
+      act(() => {
+        result.current.setActiveFilter("test");
+      });
+
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
       expect(setQueryParams).toHaveBeenLastCalledWith(
         {
-          // TODO: this should be the same value as neutral
-          gallery: false,
-          timeline: false,
-          thread: true,
+          ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
+          // TODO: this should not be here cause this is the default view
+          all: true,
+          filter: ["test"],
+        },
+        "replace"
+      );
+    });
+
+    it("Adds filters and keeps explicit parameters", async () => {
+      mockedThreadContext.defaultView = "gallery";
+      const setQueryParams = mockQueryParams({ timeline: true, new: true });
+      const { result } = renderHook(() => useThreadViewContext(), {
+        wrapper: getThreadViewContextWrapper(),
+      });
+
+      act(() => {
+        result.current.setActiveFilter("test");
+      });
+
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
+      expect(setQueryParams).toHaveBeenLastCalledWith(
+        {
+          ...NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE,
+          timeline: true,
+          new: true,
+          filter: ["test"],
         },
         "replace"
       );
     });
   });
 
-  // TODO: add more tests
-  // - active filters
-  // - active content notices
-  // - callbacks
+  describe("Excluded content notices updates", () => {
+    it("Adds filters without adding explicit view mode for default view", async () => {
+      mockedThreadContext.defaultView = "gallery";
+      const setQueryParams = mockQueryParams();
+      const { result } = renderHook(() => useThreadViewContext(), {
+        wrapper: getThreadViewContextWrapper(),
+      });
+
+      act(() => {
+        result.current.setExcludedNotices(["test1", "test2", "test3"]);
+      });
+
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
+      expect(setQueryParams).toHaveBeenLastCalledWith(
+        {
+          ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
+          // TODO: this should not be here cause this is the default view
+          all: true,
+          excludedNotices: ["test1", "test2", "test3"],
+        },
+        "replace"
+      );
+    });
+
+    it("Adds filters and keeps explicit parameters", async () => {
+      mockedThreadContext.defaultView = "gallery";
+      const setQueryParams = mockQueryParams({ timeline: true, new: true });
+      const { result } = renderHook(() => useThreadViewContext(), {
+        wrapper: getThreadViewContextWrapper(),
+      });
+
+      act(() => {
+        result.current.setExcludedNotices(["test1", "test2", "test3"]);
+      });
+
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
+      expect(setQueryParams).toHaveBeenLastCalledWith(
+        {
+          ...NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE,
+          timeline: true,
+          new: true,
+          excludedNotices: ["test1", "test2", "test3"],
+        },
+        "replace"
+      );
+    });
+  });
 });
