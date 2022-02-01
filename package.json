@@ -52,6 +52,7 @@
     "smoothscroll-polyfill": "^0.4.4",
     "styled-jsx": "3.3.0",
     "use-query-params": "^1.1.9",
+    "utility-types": "^3.10.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

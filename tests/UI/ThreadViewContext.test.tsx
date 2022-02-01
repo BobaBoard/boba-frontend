@@ -142,8 +142,6 @@ describe("useThreadViewContext", () => {
       {
         ...NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE,
         timeline: true,
-        // TODO: since this is the default, it should not be set in the URL
-        all: true,
       },
       "replace"
     );
@@ -228,7 +226,7 @@ describe("useThreadViewContext", () => {
   });
 
   describe("State updates", () => {
-    it("Correctly switches view mode for gallery with show cover", async () => {
+    it("Correctly switches view mode for gallery with explicit show cover", async () => {
       mockedThreadContext.defaultView = "thread";
       const setQueryParams = mockQueryParams({ timeline: true });
       const { result } = renderHook(() => useThreadViewContext(), {
@@ -252,6 +250,65 @@ describe("useThreadViewContext", () => {
           gallery: true,
           new: true,
           showCover: true,
+        },
+        "replace"
+      );
+    });
+
+    it("Correctly switches view mode for gallery without explicit show cover (new)", async () => {
+      mockedThreadContext.defaultView = "thread";
+      mockedThreadContext.hasNewReplies = true;
+      // @ts-expect-error
+      mockedThreadContext.threadRoot = { isNew: true };
+      const setQueryParams = mockQueryParams({ timeline: true });
+      const { result } = renderHook(() => useThreadViewContext(), {
+        wrapper: getThreadViewContextWrapper(),
+      });
+
+      act(() => {
+        result.current.setGalleryViewMode({
+          mode: GALLERY_VIEW_MODE.NEW,
+        });
+      });
+      expect(result.current.currentThreadViewMode).toBe(
+        THREAD_VIEW_MODES.MASONRY
+      );
+
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
+      expect(setQueryParams).toHaveBeenLastCalledWith(
+        {
+          ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
+          gallery: true,
+          new: true,
+          showCover: true,
+        },
+        "replace"
+      );
+    });
+
+    it("Correctly switches view mode for gallery without explicit show cover (not new)", async () => {
+      mockedThreadContext.defaultView = "thread";
+      const setQueryParams = mockQueryParams({ timeline: true });
+      const { result } = renderHook(() => useThreadViewContext(), {
+        wrapper: getThreadViewContextWrapper(),
+      });
+
+      act(() => {
+        result.current.setGalleryViewMode({
+          mode: GALLERY_VIEW_MODE.NEW,
+          showCover: false,
+        });
+      });
+      expect(result.current.currentThreadViewMode).toBe(
+        THREAD_VIEW_MODES.MASONRY
+      );
+
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
+      expect(setQueryParams).toHaveBeenLastCalledWith(
+        {
+          ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
+          gallery: true,
+          new: true,
         },
         "replace"
       );
@@ -298,7 +355,7 @@ describe("useThreadViewContext", () => {
   });
 
   describe("Filters updates", () => {
-    it("Adds filters without adding explicit view mode for default view", async () => {
+    it("Adds filters without adding explicit view mode for default view (filters)", async () => {
       mockedThreadContext.defaultView = "gallery";
       const setQueryParams = mockQueryParams();
       const { result } = renderHook(() => useThreadViewContext(), {
@@ -313,8 +370,6 @@ describe("useThreadViewContext", () => {
       expect(setQueryParams).toHaveBeenLastCalledWith(
         {
           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
-          // TODO: this should not be here cause this is the default view
-          all: true,
           filter: ["test"],
         },
         "replace"
@@ -346,7 +401,7 @@ describe("useThreadViewContext", () => {
   });
 
   describe("Excluded content notices updates", () => {
-    it("Adds filters without adding explicit view mode for default view", async () => {
+    it("Adds filters without adding explicit view mode for default view (notices)", async () => {
       mockedThreadContext.defaultView = "gallery";
       const setQueryParams = mockQueryParams();
       const { result } = renderHook(() => useThreadViewContext(), {
@@ -361,8 +416,6 @@ describe("useThreadViewContext", () => {
       expect(setQueryParams).toHaveBeenLastCalledWith(
         {
           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
-          // TODO: this should not be here cause this is the default view
-          all: true,
           excludedNotices: ["test1", "test2", "test3"],
         },
         "replace"

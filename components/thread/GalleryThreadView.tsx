@@ -206,7 +206,6 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
                 onClick: () =>
                   setGalleryViewMode({
                     mode: GALLERY_VIEW_MODE.NEW,
-                    showCover: galleryViewMode.showCover,
                   }),
               },
             },
@@ -220,7 +219,6 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
                 onClick: () =>
                   setGalleryViewMode({
                     mode: GALLERY_VIEW_MODE.ALL,
-                    showCover: galleryViewMode.showCover,
                   }),
               },
             },
