@@ -12,6 +12,9 @@ import { useThreadContext } from "../thread/ThreadContext";
 const log = debug("bobafrontend:useBeamToNew-log");
 const info = debug("bobafrontend:useBeamToNew-info");
 
+/**
+ * Attempts scrolling to element if it's found in page. If not, returns false.
+ */
 const tryScrollToElement = (
   threadElement: PostType | CommentType,
   accentColor: string | undefined
@@ -26,6 +29,100 @@ const tryScrollToElement = (
     scrollToComment(threadElement.commentId, accentColor || "#f96680");
   }
   return false;
+};
+
+/**
+ * Gets the DOM Element corresponding to the given element of a thread.
+ */
+const getElementContainer = ({
+  threadElement,
+}: {
+  threadElement: PostType | CommentType;
+}) => {
+  if (isPost(threadElement)) {
+    return document.querySelector(
+      `.post[data-post-id='${threadElement.postId}']`
+    );
+  } else if (isComment(threadElement)) {
+    return document.querySelector(
+      `.comment[data-comment-id='${threadElement.commentId}']`
+    );
+  }
+  throw new Error("Invalid threadElement");
+};
+
+/**
+ * Checks if the given element has already been scrolled past.
+ */
+const isScrolledPast = ({
+  threadElement,
+}: {
+  threadElement: PostType | CommentType;
+}) => {
+  const container = getElementContainer({ threadElement });
+  if (!container) {
+    return false;
+  }
+  return container.getBoundingClientRect().y <= 0;
+};
+
+/**
+ * Gets the element after the current index in the given sequence of new replies, with wrap.
+ */
+const getNextElementIndex = ({
+  currentIndex,
+  newRepliesSequence,
+}: {
+  currentIndex: number;
+  newRepliesSequence: (PostType | CommentType)[];
+}) => {
+  const nextIndex = (currentIndex + 1) % newRepliesSequence.length;
+  const next = newRepliesSequence[nextIndex];
+  // Skip the root post.
+  if (!isPost(next) || next.parentPostId != null) {
+    return nextIndex;
+  }
+  return (nextIndex + 1) % newRepliesSequence.length;
+};
+
+/**
+ * Gets the next element after the current index that we have NOT scrolled past.
+ * If we scrolled past them all, returns the first element.
+ */
+const getNextElementInViewIndex = ({
+  currentIndex,
+  newRepliesSequence,
+}: {
+  currentIndex: number;
+  newRepliesSequence: (PostType | CommentType)[];
+}) => {
+  let nextIndex = getNextElementIndex({
+    currentIndex,
+    newRepliesSequence,
+  });
+  let next = newRepliesSequence[nextIndex];
+  // Keep trying to go to the next element until we find one that is either
+  // below the fold, or we find none are. In that case, we should start back
+  // again from index zero.
+  while (
+    isScrolledPast({
+      threadElement: next,
+    })
+  ) {
+    nextIndex = getNextElementIndex({
+      currentIndex: nextIndex,
+      newRepliesSequence,
+    });
+    if (nextIndex < currentIndex) {
+      // We've gone back to the beginning, return directly.
+      return getNextElementIndex({
+        currentIndex: -1,
+        newRepliesSequence,
+      });
+    }
+    next = newRepliesSequence[nextIndex];
+  }
+  return nextIndex;
 };
 
 export const useBeamToNew = (
@@ -48,20 +145,11 @@ export const useBeamToNew = (
     }
 
     log(`Finding next new reply...`);
-    // @ts-ignore
-    newRepliesIndex.current =
-      (newRepliesIndex.current + 1) % newRepliesSequence.length;
-    let next = newRepliesSequence[newRepliesIndex.current];
-    // Skip the root post.
-    if (isPost(next) && next.parentPostId == null) {
-      newRepliesIndex.current =
-        (newRepliesIndex.current + 1) % newRepliesSequence.length;
-      // This won't be the root, cause we already addressed the case when the root is the only
-      // new post.
-      next = newRepliesSequence[newRepliesIndex.current];
-      info(`...skipping the root...`);
-    }
-    log(`Beaming to new reply with index ${newRepliesIndex}`);
+    newRepliesIndex.current = getNextElementInViewIndex({
+      currentIndex: newRepliesIndex.current,
+      newRepliesSequence,
+    });
+    const next = newRepliesSequence[newRepliesIndex.current];
     info(newRepliesSequence);
     setLoading(true, () => {
       displayManager.displayToThreadElement(next, () => {
