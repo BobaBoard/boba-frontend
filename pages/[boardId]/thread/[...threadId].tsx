@@ -64,6 +64,8 @@ const useMarkThreadReadOnDelay = (threadId: string, slug: string) => {
   const { isLoading: isFetchingThread, isRefetching: isRefetchingThread } =
     useThreadContext();
 
+  // When we exit the thread, we must "restart" the timeout for mark has read and
+  // remove the thread from the cache.
   useOnPageExit(
     React.useCallback(() => {
       log(
@@ -81,6 +83,7 @@ const useMarkThreadReadOnDelay = (threadId: string, slug: string) => {
     }, [threadId, invalidateThread])
   );
 
+  // Mark the thread as read after a delay
   React.useEffect(() => {
     if (
       isFetchingThread ||
