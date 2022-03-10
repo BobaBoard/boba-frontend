@@ -2,6 +2,11 @@ import "../wdyr";
 import "@bobaboard/ui-components/dist/main.css";
 import "normalize.css";
 
+import {
+  AppContextWithQueryClient,
+  AppPropsWithPropsType,
+  GlobalAppProps,
+} from "additional";
 import { AuthProvider, useAuth } from "components/Auth";
 import {
   EditorContext,
@@ -28,9 +33,6 @@ import {
 } from "utils/location-utils";
 
 import App from "next/app";
-import { AppContextWithQueryClient } from "additional";
-import type { AppProps } from "next/app";
-import { BoardData } from "types/Types";
 import { CustomErrorPage } from "./_error";
 import ErrorBoundary from "@stefanprobst/next-error-boundary";
 import Head from "next/head";
@@ -44,6 +46,7 @@ import debug from "debug";
 import embedsCache from "utils/embeds-cache";
 import { getRealmData } from "utils/queries/realm";
 import smoothscroll from "smoothscroll-polyfill";
+import { useConsoleHelloMessage } from "components/hooks/useConsoleHelloMessage";
 import useFromBackButton from "components/hooks/useFromBackButton";
 import { useImageUploader } from "utils/image-upload";
 import { usePageDataListener } from "utils/router-utils";
@@ -114,34 +117,14 @@ const editorContext = {
 
 const queryClient = new QueryClient();
 
-function MyApp({
-  Component,
-  router,
-  // TODO: theoretically this should be pageProps, but pageProps is always null
-  // and props is filled instead.
-  // @ts-ignore
-  props,
-}: AppProps<{ [key: string]: BoardData }>) {
+function BobaBoardApp({ Component, router, ...props }: AppPropsWithPropsType) {
   log(`Re-rendering app`);
   useFromBackButton(router);
-  usePageDataListener(router);
+  usePageDataListener(router, props.realmSlug);
   useScrollRestoration(router);
+  useConsoleHelloMessage();
+  // TODO: figure out how to remove this from here or at least not have to pass it router.
   const imageUploader = useImageUploader(router);
-
-  React.useEffect(() => {
-    console.log(
-      "%c~*Welcome to BobaBoard*~",
-      "font-size: 30px; color: white; text-shadow: -1px 2px 0 #ff4284, 1px 2px 0 #ff4284, 1px -2px 0 #ff4284, -1px -2px 0 #ff4284;"
-    );
-    console.log(
-      "%cIf you're here out of curiosity, hello!°꒳°",
-      "font-size: 20px; color: #ff4284;"
-    );
-    console.log(
-      "%c★★★★ If you know what you're doing, please consider volunteering: https://docs.google.com/forms/d/e/1FAIpQLSdCX2_fZgIYX0PXeCAA-pfQrcLw_lSp2clGHTt3uBTWgnwVSw/viewform ★★★★",
-      "font-size: 16px; color: #ff4284;"
-    );
-  }, []);
 
   return (
     <>
@@ -183,15 +166,10 @@ function MyApp({
                     <UpdateNotice />
                     <RealmContextProvider>
                       <OpenGraphMeta
-                        slug={props.slug}
+                        slug={props.boardSlug}
                         threadSummary={props.summary}
                       />
-                      {React.useMemo(
-                        () => (
-                          <Component {...props} />
-                        ),
-                        [Component, props]
-                      )}
+                      <Component />
                     </RealmContextProvider>
                   </AuthProvider>
                 </ImageUploaderContext.Provider>
@@ -204,27 +182,12 @@ function MyApp({
     </>
   );
 }
-export default MyApp;
+export default BobaBoardApp;
 
-MyApp.getInitialProps = async (appContext: AppContextWithQueryClient) => {
-  // TODO[realms]: figure out why it fetches /undefined sometimes
-  // September 2021: it does it when you first load the main page on localhost.
+BobaBoardApp.getInitialProps = async (
+  appContext: AppContextWithQueryClient
+): Promise<GlobalAppProps | Record<string, never>> => {
   const { ctx } = appContext;
-  axios.defaults.baseURL = getServerBaseUrl(ctx);
-  const queryClient = new QueryClient();
-  ctx.queryClient = queryClient;
-  const realmSlug = getCurrentRealmSlug(ctx);
-  log(`Fetching data for realm ${realmSlug}`);
-  const realmBody = await getRealmData({
-    realmSlug,
-  });
-  const appProps = await App.getInitialProps(appContext);
-  const realmData = await realmBody;
-
-  await queryClient.setQueryData(
-    [REALM_QUERY_KEY, { realmSlug, isLoggedIn: false }],
-    realmData
-  );
   if (!isAllowedSandboxLocation(ctx)) {
     // We should use 302 redirect here rather than 301 because
     // 301 will be cached by the client and trap us forever until
@@ -236,17 +199,33 @@ MyApp.getInitialProps = async (appContext: AppContextWithQueryClient) => {
       )}${getRedirectToSandboxLocation(ctx)}`,
     });
     ctx.res?.end();
-    return;
+    return {};
   }
+
+  axios.defaults.baseURL = getServerBaseUrl(ctx);
+  const queryClient = new QueryClient();
+  ctx.queryClient = queryClient;
+  const realmSlug = getCurrentRealmSlug(ctx);
+  log(`Fetching data for realm ${realmSlug}`);
+  const realmBody = await getRealmData({
+    realmSlug,
+  });
+  const appProps = await App.getInitialProps(appContext);
+  if (Array.isArray(ctx.query.boardId)) {
+    throw new Error("Expected single board id");
+  }
+  const realmData = await realmBody;
+
+  await queryClient.setQueryData(
+    [REALM_QUERY_KEY, { realmSlug, isLoggedIn: false }],
+    realmData
+  );
   log(`Returning initial props`);
   return {
-    props: {
-      realmData,
-      realmSlug,
-      slug: ctx.query.boardId?.slice(1),
-      currentPath: ctx.asPath,
-      ...appProps.pageProps,
-      dehydratedState: dehydrate(queryClient),
-    },
+    realmSlug,
+    boardSlug: ctx.query.boardId?.slice(1),
+    ...appProps,
+    dehydratedState: dehydrate(queryClient),
+    summary: appProps.pageProps.summary,
   };
 };

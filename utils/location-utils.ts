@@ -23,6 +23,17 @@ export const getCurrentSearchParams = () => {
   return window.location.search;
 };
 
+export const getClientSideRealm = () => {
+  if (typeof window === "undefined") {
+    throw new Error("getClientSideRealm should only be called on the client");
+  }
+  // TODO: change this with actual working code
+  return window.location.hostname.substring(
+    0,
+    window.location.hostname.indexOf("_")
+  );
+};
+
 const REALM_SLUG_PARAM_NAME = "realm";
 export const getCurrentRealmSlug = (context?: NextPageContext) => {
   if (isStaging(context) || isLocalhost(context)) {
