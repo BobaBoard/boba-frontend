@@ -80,6 +80,7 @@ export const makeClientThreadSummary = (
     new: serverThreadSummary.new,
     muted: serverThreadSummary.muted,
     hidden: serverThreadSummary.hidden,
+    starred: serverThreadSummary.starred,
     newPostsAmount: serverThreadSummary.new_posts_amount,
     newCommentsAmount: serverThreadSummary.new_comments_amount,
     totalPostsAmount: serverThreadSummary.total_posts_amount,
@@ -121,6 +122,7 @@ export const makeClientThread = (serverThread: any): ThreadType => {
     lastActivityAt: serverThread.last_activity_at,
     muted: serverThread.muted,
     hidden: serverThread.hidden,
+    starred: serverThread.starred,
     defaultView: serverThread.default_view,
     personalIdentity,
   };
