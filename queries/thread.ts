@@ -21,6 +21,7 @@ import debug from "debug";
 import { toast } from "@bobaboard/ui-components";
 import { updateThreadView } from "utils/queries/thread";
 import { useAuth } from "components/Auth";
+import { useInvalidateNotifications } from "./notifications";
 
 const info = debug("bobafrontend:hooks:queries:thread-info");
 const error = debug("bobafrontend:hooks:queries:thread-error");
@@ -160,6 +161,7 @@ export const useSetThreadHidden = () => {
 
 export const useSetThreadStarred = () => {
   const queryClient = useQueryClient();
+  const refetchNotifications = useInvalidateNotifications();
   const { mutate: setThreadStarred } = useMutation(
     ({
       threadId,
@@ -179,7 +181,7 @@ export const useSetThreadStarred = () => {
         setThreadStarredInCache(queryClient, {
           boardId,
           threadId,
-          star,
+          star: !star,
         });
       },
       onError: (error: Error, { threadId, star }) => {
@@ -195,7 +197,7 @@ export const useSetThreadStarred = () => {
             star ? "starred" : "unstarred"
           }.`
         );
-        queryClient.invalidateQueries("allBoardsData");
+          refetchNotifications();
       },
     }
   );

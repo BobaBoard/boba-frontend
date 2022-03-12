@@ -25,7 +25,6 @@
     "test:watch": "cross-env DEBUG=bobafrontend:*-log jest --watch"
   },
   "dependencies": {
-    "@bobaboard/ui-components": "^0.1.0",
     "@fortawesome/fontawesome-common-types": "0.2.34",
     "@fortawesome/fontawesome-svg-core": "1.2.34",
     "@fortawesome/free-regular-svg-icons": "^5.15.4",

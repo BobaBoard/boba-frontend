@@ -2,7 +2,6 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 import React from "react";
 import { useAuth } from "components/Auth";
-import { useInvalidateNotifications } from "queries/notifications";
 import { useSetThreadStarred } from "queries/thread";
 
 export const useStarThreadOption = ({
@@ -16,7 +15,6 @@ export const useStarThreadOption = ({
 }) => {
   const { isLoggedIn } = useAuth();
   const starThread = useSetThreadStarred();
-  const refetchNotifications = useInvalidateNotifications();
 
   return React.useMemo(() => {
     if (!isLoggedIn || starred === undefined) {
@@ -36,14 +34,9 @@ export const useStarThreadOption = ({
               boardId,
               star: !starred,
             },
-            {
-              onSuccess: () => {
-                refetchNotifications();
-              },
-            }
           );
         },
       },
     };
-  }, [threadId, boardId, starThread, refetchNotifications, starred, isLoggedIn]);
+  }, [threadId, boardId, starThread, starred, isLoggedIn]);
 };
