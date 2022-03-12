@@ -57,7 +57,7 @@ describe("Comments editor", () => {
       document.querySelector<HTMLElement>(".ReactModalPortal .ql-editor")
     );
 
-    const mainContainer = document.querySelector<HTMLElement>(".content .main");
+    const mainContainer = document.querySelector<HTMLElement>(".content main");
     await waitFor(() => {
       expect(within(mainContainer!).getByText("bar1")).toBeInTheDocument();
     });
@@ -116,7 +116,7 @@ describe("Comments editor", () => {
     );
     await waitFor(() => {
       const mainContainer =
-        document.querySelector<HTMLElement>(".content .main");
+        document.querySelector<HTMLElement>(".content main");
 
       // TODO: figure out how to check that these are effectively rendered as
       // part of a chain.

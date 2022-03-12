@@ -1,7 +1,7 @@
 const Bonjour = require("bonjour-service").default;
 const bonjourInstance = new Bonjour();
 
-const TO_REGISTER = ["boba.local"];
+const TO_REGISTER = ["twisted-minds_boba.local", "uwu_boba.local"];
 
 let registeredServices = 0;
 TO_REGISTER.forEach((server) => {

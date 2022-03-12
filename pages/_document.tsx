@@ -39,6 +39,7 @@ class MyDocument extends Document {
             defer
             src="//platform.twitter.com/widgets.js"
           ></script>
+          <script async src="https://www.tiktok.com/embed.js"></script>
           <style>{`
             html {
               font-size: 62.5%;

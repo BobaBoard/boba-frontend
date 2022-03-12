@@ -123,7 +123,7 @@ const HomePage: NextPage<{
           <div className="content">
             <div className="intro">
               <div className="title">
-                <h1>Welcome to B❄️baB❄️ard!</h1>
+                <h1>Welcome to B🌸baB🌸ard!</h1>
               </div>
               <div className="tagline">
                 "Where the bugs are funny and the people are cool" — Outdated
@@ -247,7 +247,7 @@ export default HomePage;
 HomePage.getInitialProps = async (ctx: PageContextWithQueryClient) => {
   try {
     const subscription = await getLatestSubscriptionUpdate({
-      subscriptionId: isStaging(ctx)
+      subscriptionId: isStaging(ctx?.req?.headers?.host)
         ? process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID_STAGING!
         : process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID!,
     });

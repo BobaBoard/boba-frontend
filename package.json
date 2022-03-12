@@ -20,8 +20,8 @@
     "test": "jest --roots tests --runInBand",
     "test:UI:watch": "yarn run test:watch tests/UI",
     "test:ci": "yarn run test --ci",
-    "test:e2e": "start-server-and-test 'yarn dev' 3000 'yarn cypress'",
-    "test:e2e:ci": "start-server-and-test 'yarn dev' 3000 'yarn cypress:headless'",
+    "test:e2e": "start-server-and-test 'yarn dev:bonjour' http://twisted-minds_boba.local:3000/ 'yarn cypress'",
+    "test:e2e:ci": "start-server-and-test 'yarn dev:bonjour' http://twisted-minds_boba.local:3000/ 'yarn cypress:headless'",
     "test:watch": "cross-env DEBUG=bobafrontend:*-log jest --watch"
   },
   "dependencies": {
@@ -53,6 +53,7 @@
     "smoothscroll-polyfill": "^0.4.4",
     "styled-jsx": "3.3.0",
     "use-query-params": "^1.1.9",
+    "utility-types": "^3.10.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -90,6 +91,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.3.1",
     "jest-canvas-mock": "^2.3.1",
+    "jest-extended": "^2.0.0",
     "msw": "^0.35.0",
     "multicast-dns": "^7.2.4",
     "react": "16.13.1",

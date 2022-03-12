@@ -2,7 +2,7 @@ import Router, { NextRouter } from "next/router";
 
 import React from "react";
 import debug from "debug";
-import { getClientSideRealm } from "./location-utils";
+import { getCurrentRealmSlug } from "./location-utils";
 
 const log = debug("bobafrontend:router-utils-log");
 
@@ -120,7 +120,7 @@ const samePage = (newPage: PageDetails, oldPage: PageDetails) => {
 
 export const usePageDataListener = (
   router: NextRouter,
-  serverRealmSlug: string | undefined
+  serverHostname: string | undefined
 ) => {
   if (!isInitialized) {
     isInitialized = true;
@@ -134,8 +134,7 @@ export const usePageDataListener = (
   // We then use useEffect() to wait for the next "commit phase", and, if there's been an update
   // we dispatch our updates there.
   log("Checking possible route update");
-  const currentRealm =
-    typeof window === "undefined" ? serverRealmSlug : getClientSideRealm();
+  const currentRealm = getCurrentRealmSlug({ serverHostname });
   const newPageDetails = getPageDetails(router);
   newPageDetails.realmSlug = currentRealm || null;
 
@@ -145,7 +144,6 @@ export const usePageDataListener = (
   }
   React.useEffect(() => {
     if (dispatchPending) {
-      console.log(currentPageData);
       log("Dispatching updated route to listeners");
       listeners.forEach((listener) => listener(currentPageData));
       dispatchPending = false;

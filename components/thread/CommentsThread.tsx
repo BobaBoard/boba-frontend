@@ -53,7 +53,7 @@ export const scrollToComment = (commentId: string, color: string) => {
     top:
       element.getBoundingClientRect().top +
       window.pageYOffset -
-      (DefaultTheme.HEADER_HEIGHT_PX + 2),
+      (DefaultTheme.HEADER_HEIGHT_PX + 25),
     behavior: "smooth",
   });
 };

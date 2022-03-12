@@ -32,5 +32,5 @@ module.exports = {
     "/node_modules/",
     "^.+\\.module\\.(css|sass|scss)$",
   ],
-  setupFilesAfterEnv: ["<rootDir>/tests/UI/jest.setup.ts"],
+  setupFilesAfterEnv: ["jest-extended/all", "<rootDir>/tests/UI/jest.setup.ts"],
 };
