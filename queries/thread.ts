@@ -181,15 +181,20 @@ export const useSetThreadStarred = () => {
         setThreadStarredInCache(queryClient, {
           boardId,
           threadId,
-          star: !star,
+          star,
         });
       },
-      onError: (error: Error, { threadId, star }) => {
+      onError: (error: Error, { threadId, star, boardId }) => {
         toast.error(
           `Error while marking thread as ${star ? "starred" : "unstarred"}`
         );
         log(`Error while marking thread ${threadId} as starred:`);
         log(error);
+        setThreadStarredInCache(queryClient, {
+          boardId,
+          threadId,
+          star: !star,
+        });
       },
       onSuccess: (data: boolean, { threadId, star }) => {
         log(
