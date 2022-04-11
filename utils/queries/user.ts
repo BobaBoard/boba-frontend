@@ -24,7 +24,7 @@ export const updateUserData = async (data: {
 
 export const getBobadex = async (): Promise<any> => {
   const response = await axios.get(`/users/@me/bobadex`);
-  log(`Updated user data on server:`);
+  log(`Got user data from server:`);
   log(response.data);
   return response.data;
 };
