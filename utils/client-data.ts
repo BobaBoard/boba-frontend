@@ -262,6 +262,9 @@ export const makeRealmData = (realmData: any) => {
       boardPage: realmData.settings.board_page,
       threadPage: realmData.settings.thread_page,
     },
+    ...(!!realmData.realm_permissions && {
+      realmPermissions: realmData.realm_permissions,
+    }),
     boards: realmData.boards.map(makeClientBoardSummary),
   };
 };

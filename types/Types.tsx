@@ -132,6 +132,10 @@ export interface Permissions {
   threadPermissions: ThreadPermissions[];
 }
 
+export enum RealmPermissions {
+  createRealmInvite = "create_realm_invite",
+}
+
 export interface BoardData {
   slug: string;
   avatarUrl: string;
@@ -256,6 +260,7 @@ export interface RealmType {
     boardPage: CssVariableSetting[];
     threadPage: CssVariableSetting[];
   };
+  realmPermissions?: RealmPermissions[];
   boards: BoardSummary[];
 }
 
