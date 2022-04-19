@@ -1,7 +1,7 @@
+import { RealmPermissions, RealmType } from "types/Types";
 import { useQuery, useQueryClient } from "react-query";
 
 import React from "react";
-import { RealmType } from "types/Types";
 import debug from "debug";
 import { getCurrentRealmSlug } from "utils/location-utils";
 import { getRealmData } from "utils/queries/realm";
@@ -47,6 +47,18 @@ const useRealmSettings = () => {
     );
   }
   return context.realmData.settings;
+};
+
+const useRealmPermissions = () => {
+  const context = React.useContext(RealmContext);
+  if (context === undefined) {
+    throw new Error(
+      "useRealmPermissions must be used within a RealmContextProvider"
+    );
+  }
+  return context.realmData.realmPermissions
+    ? context.realmData.realmPermissions
+    : ([] as string[]);
 };
 
 const useRealmBoards = () => {
@@ -151,6 +163,7 @@ export {
   MemoizedProvider as RealmContextProvider,
   useRealmContext,
   useRealmSettings,
+  useRealmPermissions,
   useRealmBoards,
   useRealmHomepage,
   useRealmContextUpdatedAt,
