@@ -52,6 +52,7 @@ export enum PageTypes {
   POST = "POST",
   FEED = "FEED",
   SETTINGS = "SETTINGS",
+  ADMIN = "ADMIN",
   INVITE = "INVITE",
 }
 
@@ -60,6 +61,7 @@ export const THREAD_PATH = "/[boardId]/thread/[...threadId]";
 export const POST_PATH = "/[boardId]/thread/[...threadId]";
 export const FEED_PATH = "/users/feed";
 export const PERSONAL_SETTINGS_PATH = "/users/settings";
+export const REALM_ADMIN_PATH = "/realms/admin";
 export const INVITE_PAGE_PATH = "/invite/[inviteId]";
 
 export const usePageDetails = <T extends PageDetails>() => {
@@ -95,6 +97,8 @@ const getPageType = (router: NextRouter): PageTypes | null => {
       return PageTypes.FEED;
     case PERSONAL_SETTINGS_PATH:
       return PageTypes.SETTINGS;
+    case REALM_ADMIN_PATH:
+      return PageTypes.ADMIN;
     case INVITE_PAGE_PATH:
       return PageTypes.INVITE;
     default:
