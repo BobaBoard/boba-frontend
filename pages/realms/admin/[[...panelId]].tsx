@@ -1,12 +1,10 @@
 import { DefaultTheme, TabsGroup } from "@bobaboard/ui-components";
-import { faHollyBerry, faUser } from "@fortawesome/free-solid-svg-icons";
 
-import DecorationsSettings from "components/settings/DecorationsSettings";
 import { FeedWithMenu } from "@bobaboard/ui-components";
 import InvitesPanel from "components/realm/InvitesPanel";
 import Layout from "components/layout/Layout";
 import React from "react";
-import UserSettings from "components/settings/UserSettings";
+import { faDoorOpen } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useRealmPermissions } from "contexts/RealmContext";
@@ -55,7 +53,7 @@ function AdminPage() {
   const userRealmPermissions = useRealmPermissions();
 
   const currentPanelId =
-    (router.query.settingId?.[0] as AdminPanelIds) || AdminPanelIds.INVITE_FORM;
+    (router.query.panelId?.[0] as AdminPanelIds) || AdminPanelIds.INVITE_FORM;
 
   React.useEffect(() => {
     let top = 0;
@@ -75,6 +73,7 @@ function AdminPage() {
     if (!isUserPending && !isLoggedIn) {
       linkToHome.onClick();
     }
+    // This will require a more complicated check if we add realm permissions that shouldn't grant access to the Realm Admin page
     if (!isUserPending && !userRealmPermissions.length) {
       linkToHome.onClick();
     }
@@ -88,7 +87,7 @@ function AdminPage() {
             <FeedWithMenu.Sidebar>
               <div className="sidebar-container">
                 {userRealmPermissions.includes("create_realm_invite") && (
-                  <TabsGroup title="Realm Invites" icon={faUser}>
+                  <TabsGroup title="Realm Invites" icon={faDoorOpen}>
                     <TabsGroup.Option
                       id={AdminPanelIds.INVITE_FORM}
                       selected={AdminPanelIds.INVITE_FORM == currentPanelId}
