@@ -8,6 +8,7 @@ import {
   faBook,
   faCogs,
   faComments,
+  faCrown,
   faLock,
   faLockOpen,
   faSignOutAlt,
@@ -16,6 +17,7 @@ import {
   useInvalidateNotifications,
   useNotifications,
 } from "queries/notifications";
+import { useRealmPermissions, useRealmSettings } from "contexts/RealmContext";
 
 import { BOARD_ACTIVITY_KEY } from "queries/board-feed";
 import LoginModal from "../LoginModal";
@@ -29,7 +31,6 @@ import { useCachedLinks } from "../hooks/useCachedLinks";
 import { useForceHideIdentity } from "../hooks/useForceHideIdentity";
 import { useIsChangingRoute } from "../hooks/useIsChangingRoute";
 import { useQueryClient } from "react-query";
-import { useRealmSettings } from "contexts/RealmContext";
 import { useServerCssVariables } from "../hooks/useServerCssVariables";
 
 // const log = debug("bobafrontend:Layout-log");
@@ -37,7 +38,9 @@ const error = debug("bobafrontend:Layout-error");
 
 const useLoggedInDropdownOptions = (openLogin: () => void) => {
   const { forceHideIdentity, toggleForceHideIdentity } = useForceHideIdentity();
-  const { linkToPersonalSettings, linkToLogs } = useCachedLinks();
+  const { linkToPersonalSettings, linkToLogs, linkToRealmAdmin } =
+    useCachedLinks();
+  const userRealmPermissions = useRealmPermissions();
   return React.useMemo(
     () => [
       {
@@ -50,6 +53,16 @@ const useLoggedInDropdownOptions = (openLogin: () => void) => {
         name: "User Settings",
         link: linkToPersonalSettings,
       },
+      // This will require a more complicated check if we add realm permissions that shouldn't grant access to the Realm Admin page
+      ...(userRealmPermissions.length
+        ? [
+            {
+              icon: faCrown,
+              name: "Realm Administration",
+              link: linkToRealmAdmin,
+            },
+          ]
+        : []),
       {
         icon: faBook,
         name: "Welcome Guide",
@@ -82,7 +95,9 @@ const useLoggedInDropdownOptions = (openLogin: () => void) => {
       openLogin,
       linkToLogs,
       linkToPersonalSettings,
+      linkToRealmAdmin,
       toggleForceHideIdentity,
+      userRealmPermissions,
     ]
   );
 };
@@ -117,6 +132,7 @@ function useTitleLink() {
     linkToFeed,
     linkToCurrent,
     linkToPersonalSettings,
+    linkToRealmAdmin,
     getLinkToBoard,
   } = useCachedLinks();
   const queryClient = useQueryClient();
@@ -138,6 +154,8 @@ function useTitleLink() {
       return getLinkToBoard(slug, onBoardChange);
     case PageTypes.SETTINGS:
       return linkToPersonalSettings;
+    case PageTypes.ADMIN:
+      return linkToRealmAdmin;
     case PageTypes.INVITE:
       return linkToCurrent;
     case PageTypes.FEED:
