@@ -2,6 +2,7 @@ import {
   BOARD_PATH,
   FEED_PATH,
   PERSONAL_SETTINGS_PATH,
+  REALM_ADMIN_PATH,
   THREAD_PATH,
   createLinkTo,
 } from "utils/router-utils";
@@ -108,11 +109,13 @@ const linkToLogs = createLinkTo({
   url: process.env.NEXT_PUBLIC_RELEASE_THREAD_URL || "",
 });
 const linkToPersonalSettings = createLinkTo({ url: PERSONAL_SETTINGS_PATH });
+const linkToRealmAdmin = createLinkTo({ url: REALM_ADMIN_PATH });
 const SANDBOXED_LINKS = {
   linkToHome: linkToCurrent,
   linkToFeed: linkToCurrent,
   linkToLogs: linkToCurrent,
   linkToPersonalSettings: linkToCurrent,
+  linkToRealmAdmin: linkToCurrent,
   linkToCurrent,
   getLinkToBoard: (
     slug: string,
@@ -135,6 +138,7 @@ const REGULAR_LINKS = {
   linkToFeed,
   linkToLogs,
   linkToPersonalSettings,
+  linkToRealmAdmin,
   linkToCurrent,
   getLinkToBoard,
   getLinkToThread,
