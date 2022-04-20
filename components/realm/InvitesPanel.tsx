@@ -1,17 +1,15 @@
-import { BobaDex, UserDetails } from "@bobaboard/ui-components";
 import React, { useEffect } from "react";
 import { extractImageExtension, uploadImage } from "utils/image-upload";
-import { getBobadex, updateUserData } from "utils/queries/user";
-import { useMutation, useQuery } from "react-query";
 
-import { BobadexSeasonType } from "types/Types";
-import { SettingPageIds } from "pages/users/settings/[[...settingId]]";
+import { AdminPanelIds } from "pages/realms/admin/[[...panelId]]";
+import { UserDetails } from "@bobaboard/ui-components";
 import debug from "debug";
-import { makeClientData } from "utils/client-data";
+import { updateUserData } from "utils/queries/user";
 import { useAuth } from "components/Auth";
+import { useMutation } from "react-query";
 import { useRouter } from "next/router";
 
-const log = debug("bobafrontend:settings:UserSettings-log");
+const log = debug("bobafrontend:realms:RealmAdmin-log");
 
 const InvitesPanel = () => {
   const {
@@ -42,12 +40,6 @@ const InvitesPanel = () => {
     }
   );
 
-  const { data } = useQuery(["bobadex"], async () => {
-    return makeClientData(await getBobadex()) as {
-      seasons: BobadexSeasonType[];
-    };
-  });
-
   useEffect(() => {
     if (!isUserPending && isLoggedIn) {
       setUsername(user!.username);
@@ -60,12 +52,12 @@ const InvitesPanel = () => {
 
   return (
     <>
-      <h2 id={SettingPageIds.DISPLAY_DATA}>You</h2>
+      <h2 id={AdminPanelIds.INVITE_FORM}>Create Realm Invite</h2>
       <div className="description">
-        This is how your own posts will appear to yourself. In the future,
-        you'll be able to share this identity with your friends.
+        Invite Boba users to your realm. Each invite is single use.
       </div>
-      <div className="user-details">
+      <div className="invite-form">
+        {/* TODO: Replace with correct inputs. UserDetail currently acting as placeholder */}
         <UserDetails
           username={username}
           imageUrl={avatar}
@@ -114,22 +106,18 @@ const InvitesPanel = () => {
           accentColor={"#f96680"}
         />
       </div>
-      <h2 id={SettingPageIds.BOBADEX}>BobaDex</h2>
+      <h2 id={AdminPanelIds.PENDING_INVITES}>Pending Realm Invites</h2>
       <div className="description">
-        A random identity is assigned to you on each thread you make (or join!)
-        on BobaBoard. Collect them all!
+        A list of all currently pending invites for the realm
       </div>
-      {/* <div>
-        {data &&
-          data.seasons.map((season: BobadexSeasonType) => (
-            <SeasonDisplay
-              key={season.id}
-              name={season.name}
-              totalIdentities={season.identitiesCount}
-              revealedIdentities={season.caughtIdentities}
-            />
-          ))}
-      </div> */}
+      <div className="invite-grid">
+        <h3>Date Created</h3>
+        <h3>Date of Expiry</h3>
+        <h3>Invite URL</h3>
+        <h3>Label</h3>
+        <h3>Created By</h3>
+        {/* TODO: Get invites and put them here */}
+      </div>
       <style jsx>{`
         .page {
           width: 80%;
@@ -144,13 +132,26 @@ const InvitesPanel = () => {
           margin-top: 50px;
         }
 
-        .user-details {
+        h3 {
+          font-size: var(--font-size-regular);
+        }
+
+        .invite-form {
           width: 100%;
         }
 
         .description {
           margin-bottom: 3.5rem;
           font-size: var(--font-size-regular);
+        }
+
+        .invite-grid {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 1em;
+          background-color: rgb(73, 12, 25);
+          width: 100%;
+          height: 400px;
         }
       `}</style>
     </>
