@@ -4,6 +4,7 @@ import { extractImageExtension, uploadImage } from "utils/image-upload";
 import { AdminPanelIds } from "pages/realms/admin/[[...panelId]]";
 import { UserDetails } from "@bobaboard/ui-components";
 import debug from "debug";
+import { format } from "date-fns";
 import { updateUserData } from "utils/queries/user";
 import { useAuth } from "components/Auth";
 import { useMutation } from "react-query";
@@ -23,6 +24,35 @@ const InvitesPanel = () => {
   const [avatar, setAvatar] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
+
+  const invites = [
+    {
+      realm_id: "76ef4cc3-1603-4278-95d7-99c59f481d2e",
+      invite_url: "https://twisted_minds.boba.social/invites/123invite_code456",
+      invitee_email: "ms.boba@bobaboard.com",
+      own: false,
+      issued_at: "2021-06-09T04:20:00Z",
+      expires_at: "2021-06-09T16:20:00Z",
+      label: "This is a test invite.",
+    },
+    {
+      realm_id: "76ef4cc3-1603-4278-95d7-99c59f481d2e",
+      invite_url: "https://twisted_minds.boba.social/invites/456invite_code789",
+      invitee_email: "nolabels@bobaboard.com",
+      own: true,
+      issued_at: "2021-06-09T04:20:00Z",
+      expires_at: "2021-06-09T16:20:00Z",
+    },
+    {
+      realm_id: "76ef4cc3-1603-4278-95d7-99c59f481d2e",
+      invite_url: "https://twisted_minds.boba.social/invites/789invite_code456",
+      invitee_email: "someone.else@bobaboard.com",
+      own: true,
+      issued_at: "2021-06-09T04:20:00Z",
+      expires_at: "2021-06-09T16:20:00Z",
+      label: "This is test invite 3",
+    },
+  ];
 
   const { mutate: updateData } = useMutation(
     (data: { avatarUrl: string; username: string }) => updateUserData(data),
@@ -110,14 +140,28 @@ const InvitesPanel = () => {
       <div className="description">
         A list of all currently pending invites for the realm
       </div>
-      <div className="invite-grid">
-        <h3>Date Created</h3>
-        <h3>Date of Expiry</h3>
-        <h3>Invite URL</h3>
-        <h3>Label</h3>
-        <h3>Created By</h3>
-        {/* TODO: Get invites and put them here */}
-      </div>
+      <table className="invite-grid">
+        <thead>
+          <tr>
+            <th>Created</th>
+            <th>Expires</th>
+            <th>Invite URL</th>
+            <th>Label</th>
+            <th>Created By</th>
+          </tr>
+        </thead>
+        <tbody>
+          {invites.map((invite) => (
+            <tr key={invite.invite_url}>
+              <td>{format(new Date(invite.issued_at), "MMM d, yyyy")}</td>
+              <td>{format(new Date(invite.expires_at), "MMM d, yyyy")}</td>
+              <td>{invite.invite_url}</td>
+              <td>{invite.label ? invite.label : ""}</td>
+              <td>{invite.own ? "You" : "Another Admin"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
       <style jsx>{`
         .page {
           width: 80%;
@@ -132,8 +176,10 @@ const InvitesPanel = () => {
           margin-top: 50px;
         }
 
-        h3 {
+        th {
           font-size: var(--font-size-regular);
+          justify-content: start;
+          text-align: start;
         }
 
         .invite-form {
@@ -145,13 +191,20 @@ const InvitesPanel = () => {
           font-size: var(--font-size-regular);
         }
 
+        thead,
+        tbody,
+        tr {
+          display: contents;
+        }
+
         .invite-grid {
           display: grid;
           grid-template-columns: repeat(5, 1fr);
           gap: 1em;
           background-color: rgb(73, 12, 25);
+          border-radius: 15px;
           width: 100%;
-          height: 400px;
+          padding: 1em;
         }
       `}</style>
     </>
