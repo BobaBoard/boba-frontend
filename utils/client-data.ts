@@ -255,6 +255,7 @@ export const makeClientNotifications = (
 
 export const makeRealmData = (realmData: any) => {
   return {
+    id: realmData.id,
     slug: realmData.slug,
     settings: {
       root: realmData.settings.root,

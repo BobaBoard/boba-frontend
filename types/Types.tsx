@@ -248,6 +248,7 @@ export interface CssVariableSetting {
 }
 
 export interface RealmType {
+  id: string;
   slug: string;
   settings: {
     root: {

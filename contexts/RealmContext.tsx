@@ -48,6 +48,14 @@ const useRealmSettings = () => {
   return context.realmData.settings;
 };
 
+const useRealmId = () => {
+  const context = React.useContext(RealmContext);
+  if (context === undefined) {
+    throw new Error("useRealmId must be used within a RealmContextProvider");
+  }
+  return context.realmData.id;
+};
+
 const useRealmPermissions = () => {
   const context = React.useContext(RealmContext);
   if (context === undefined) {
@@ -152,6 +160,7 @@ export {
   MemoizedProvider as RealmContextProvider,
   useRealmContext,
   useRealmSettings,
+  useRealmId,
   useRealmPermissions,
   useRealmBoards,
   useRealmContextUpdatedAt,
