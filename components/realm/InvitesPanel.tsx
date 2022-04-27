@@ -1,8 +1,8 @@
+import { Button, Input, UserDetails } from "@bobaboard/ui-components";
 import React, { useEffect } from "react";
 import { extractImageExtension, uploadImage } from "utils/image-upload";
 
 import { AdminPanelIds } from "pages/realms/admin/[[...panelId]]";
-import { UserDetails } from "@bobaboard/ui-components";
 import debug from "debug";
 import { format } from "date-fns";
 import { updateUserData } from "utils/queries/user";
@@ -20,8 +20,9 @@ const InvitesPanel = () => {
     refreshUserData,
   } = useAuth();
   const [editing, setEditing] = React.useState(false);
-  const [username, setUsername] = React.useState("");
-  const [avatar, setAvatar] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [label, setLabel] = React.useState("");
+  const [createdInvite, setcreatedInvite] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
 
@@ -54,7 +55,8 @@ const InvitesPanel = () => {
     },
   ];
 
-  const { mutate: updateData } = useMutation(
+  const { mutate: createInvite } = useMutation(
+    // TODO: Change this to create invite
     (data: { avatarUrl: string; username: string }) => updateUserData(data),
     {
       onSuccess: ({ avatarUrl, username }) => {
@@ -71,10 +73,6 @@ const InvitesPanel = () => {
   );
 
   useEffect(() => {
-    if (!isUserPending && isLoggedIn) {
-      setUsername(user!.username);
-      setAvatar(user!.avatarUrl);
-    }
     if (!isUserPending && !isLoggedIn) {
       router.push("/").then(() => window.scrollTo(0, 0));
     }
@@ -88,53 +86,20 @@ const InvitesPanel = () => {
       </div>
       <div className="invite-form">
         {/* TODO: Replace with correct inputs. UserDetail currently acting as placeholder */}
-        <UserDetails
-          username={username}
-          imageUrl={avatar}
-          editable
-          onEdit={() => {
-            setEditing(true);
-          }}
-          onCancel={() => {
-            setEditing(false);
-          }}
-          onSubmit={async (
-            promise: Promise<{ editedImg: string; username: string }>
-          ) => {
-            setLoading(true);
-            const { editedImg, username: newUsername } = await promise;
-            if (editedImg == avatar && username == newUsername) {
-              setEditing(false);
-              setLoading(false);
-              return;
-            } else if (editedImg == avatar) {
-              updateData({
-                avatarUrl: avatar,
-                username: newUsername,
-              });
-              return;
-            }
-
-            try {
-              const url = await uploadImage({
-                baseUrl: `images/users/avatar/`,
-                extension: "." + extractImageExtension(editedImg),
-                imageData: editedImg,
-              });
-              updateData({
-                avatarUrl: url,
-                username: newUsername,
-              });
-            } catch (e) {
-              log(e);
-              setEditing(false);
-              setLoading(false);
-            }
-          }}
-          editing={editing}
-          loading={isUserPending || loading}
-          accentColor={"#f96680"}
+        <Input
+          id="email"
+          value={email}
+          label="Email:"
+          onTextChange={setEmail}
         />
+        <Input
+          id="label"
+          value={label}
+          label="Label (optional - all Realm admins will be able to see this):"
+          onTextChange={setLabel}
+        />
+        <Button>Create Invite</Button>
+        <div>{createdInvite}</div>
       </div>
       <h2 id={AdminPanelIds.PENDING_INVITES}>Pending Realm Invites</h2>
       <div className="description">
@@ -200,11 +165,12 @@ const InvitesPanel = () => {
         .invite-grid {
           display: grid;
           grid-template-columns: repeat(5, 1fr);
-          gap: 1em;
-          background-color: rgb(73, 12, 25);
-          border-radius: 15px;
+          row-gap: 0.8em;
+          column-gap: 1em;
+          background-color: #3a3a3c;
+          border-radius: 10px;
           width: 100%;
-          padding: 1em;
+          padding: 20px;
         }
       `}</style>
     </>
