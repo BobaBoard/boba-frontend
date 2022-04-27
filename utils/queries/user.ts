@@ -67,7 +67,11 @@ export const updateUserSettings = async (
   return response?.data;
 };
 
-export const dismissRealmNotifications = async ({realmId} : {realmId: string}) => {
+export const dismissRealmNotifications = async ({
+  realmId,
+}: {
+  realmId: string;
+}) => {
   await axios.delete(`/realms/${realmId}/notifications`);
 };
 
@@ -93,8 +97,3 @@ export const dismissRealmNotifications = async ({realmId} : {realmId: string}) =
 //   log(response?.data);
 //   return response?.data;
 // };
-
-export const dismissAllNotifications = async () => {
-  await axios.post(`users/notifications/dismiss`);
-  return true;
-};
