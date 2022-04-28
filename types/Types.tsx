@@ -133,7 +133,7 @@ export interface Permissions {
 }
 
 export enum RealmPermissions {
-  createRealmInvite = "create_realm_invite",
+  CREATE_REALM_INVITE = "create_realm_invite",
 }
 
 export interface BoardData {
@@ -261,7 +261,7 @@ export interface RealmType {
     boardPage: CssVariableSetting[];
     threadPage: CssVariableSetting[];
   };
-  realmPermissions?: RealmPermissions[];
+  realmPermissions: RealmPermissions[];
   boards: BoardSummary[];
 }
 
