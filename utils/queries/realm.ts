@@ -2,7 +2,6 @@ import { RealmType } from "types/Types";
 import axios from "axios";
 import debug from "debug";
 import { makeRealmData } from "utils/client-data";
-import { useRealmId } from "contexts/RealmContext";
 
 const log = debug("bobafrontend:queries:realm-log");
 

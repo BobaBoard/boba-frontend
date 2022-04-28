@@ -4,6 +4,7 @@ import { FeedWithMenu } from "@bobaboard/ui-components";
 import InvitesPanel from "components/realm/InvitesPanel";
 import Layout from "components/layout/Layout";
 import React from "react";
+import { RealmPermissions } from "types/Types";
 import { faDoorOpen } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
@@ -86,7 +87,9 @@ function AdminPage() {
           <FeedWithMenu showSidebar={showSidebar} onCloseSidebar={closeSidebar}>
             <FeedWithMenu.Sidebar>
               <div className="sidebar-container">
-                {userRealmPermissions.includes("create_realm_invite") && (
+                {userRealmPermissions.includes(
+                  RealmPermissions.CREATE_REALM_INVITE
+                ) && (
                   <TabsGroup title="Realm Invites" icon={faDoorOpen}>
                     <TabsGroup.Option
                       id={AdminPanelIds.INVITE_FORM}
