@@ -22,7 +22,7 @@ const InvitesPanel = () => {
   const [editing, setEditing] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [label, setLabel] = React.useState("");
-  const [createdInvite, setcreatedInvite] = React.useState("");
+  const [createdInvite, setCreatedInvite] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
 
@@ -59,9 +59,10 @@ const InvitesPanel = () => {
     // TODO: Change this to create invite
     (data: { avatarUrl: string; username: string }) => updateUserData(data),
     {
-      onSuccess: ({ avatarUrl, username }) => {
-        setAvatar(avatarUrl);
-        setUsername(username);
+      onSuccess: ({ inviteUrl }) => {
+        setEmail("");
+        setLabel("");
+        setCreatedInvite(inviteUrl);
         refreshUserData?.({ username, avatarUrl });
         setEditing(false);
         setLoading(false);
@@ -72,6 +73,8 @@ const InvitesPanel = () => {
     }
   );
 
+  // This was in the UserSettings component that I was using as my example,
+  // but if the parent page is already checking this does it still need to be here?
   useEffect(() => {
     if (!isUserPending && !isLoggedIn) {
       router.push("/").then(() => window.scrollTo(0, 0));

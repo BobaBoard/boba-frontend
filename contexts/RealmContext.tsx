@@ -64,9 +64,7 @@ const useRealmPermissions = () => {
       "useRealmPermissions must be used within a RealmContextProvider"
     );
   }
-  return context.realmData.realmPermissions
-    ? context.realmData.realmPermissions
-    : ([] as string[]);
+  return context.realmData.realmPermissions;
 };
 
 const useRealmBoards = () => {
