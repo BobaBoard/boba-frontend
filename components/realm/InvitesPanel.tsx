@@ -1,70 +1,77 @@
-import { Button, Input, UserDetails } from "@bobaboard/ui-components";
+import {
+  Button,
+  ButtonStyle,
+  Input,
+  InputStyle,
+} from "@bobaboard/ui-components";
 import React, { useEffect } from "react";
-import { extractImageExtension, uploadImage } from "utils/image-upload";
+import { createRealmInvite, getRealmInvites } from "utils/queries/realm";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import { AdminPanelIds } from "pages/realms/admin/[[...panelId]]";
+import classnames from "classnames";
 import debug from "debug";
 import { format } from "date-fns";
-import { updateUserData } from "utils/queries/user";
 import { useAuth } from "components/Auth";
-import { useMutation } from "react-query";
+import { useRealmId } from "contexts/RealmContext";
 import { useRouter } from "next/router";
 
 const log = debug("bobafrontend:realms:RealmAdmin-log");
 
 const InvitesPanel = () => {
-  const {
-    isPending: isUserPending,
-    user,
-    isLoggedIn,
-    refreshUserData,
-  } = useAuth();
-  const [editing, setEditing] = React.useState(false);
+  const { isPending: isUserPending, user, isLoggedIn } = useAuth();
+  const realmId = useRealmId();
   const [email, setEmail] = React.useState("");
   const [label, setLabel] = React.useState("");
   const [createdInvite, setCreatedInvite] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
 
-  const invites = [
-    {
-      realm_id: "76ef4cc3-1603-4278-95d7-99c59f481d2e",
-      invite_url: "https://twisted_minds.boba.social/invites/123invite_code456",
-      invitee_email: "ms.boba@bobaboard.com",
-      own: false,
-      issued_at: "2021-06-09T04:20:00Z",
-      expires_at: "2021-06-09T16:20:00Z",
-      label: "This is a test invite.",
-    },
-    {
-      realm_id: "76ef4cc3-1603-4278-95d7-99c59f481d2e",
-      invite_url: "https://twisted_minds.boba.social/invites/456invite_code789",
-      invitee_email: "nolabels@bobaboard.com",
-      own: true,
-      issued_at: "2021-06-09T04:20:00Z",
-      expires_at: "2021-06-09T16:20:00Z",
-    },
-    {
-      realm_id: "76ef4cc3-1603-4278-95d7-99c59f481d2e",
-      invite_url: "https://twisted_minds.boba.social/invites/789invite_code456",
-      invitee_email: "someone.else@bobaboard.com",
-      own: true,
-      issued_at: "2021-06-09T04:20:00Z",
-      expires_at: "2021-06-09T16:20:00Z",
-      label: "This is test invite 3",
-    },
-  ];
+  const queryClient = useQueryClient();
+
+  const REALM_INVITES_KEY = "realmInvites";
+  const { data: invites } = useQuery([REALM_INVITES_KEY, { realmId }], () =>
+    getRealmInvites({ realmId })
+  );
+
+  // const invites = [
+  //   {
+  //     realm_id: "76ef4cc3-1603-4278-95d7-99c59f481d2e",
+  //     invite_url: "https://twisted_minds.boba.social/invites/123invite_code456",
+  //     invitee_email: "ms.boba@bobaboard.com",
+  //     own: false,
+  //     issued_at: "2021-06-09T04:20:00Z",
+  //     expires_at: "2021-06-09T16:20:00Z",
+  //     label: "This is a test invite.",
+  //   },
+  //   {
+  //     realm_id: "76ef4cc3-1603-4278-95d7-99c59f481d2e",
+  //     invite_url: "https://twisted_minds.boba.social/invites/456invite_code789",
+  //     invitee_email: "nolabels@bobaboard.com",
+  //     own: true,
+  //     issued_at: "2021-06-09T04:20:00Z",
+  //     expires_at: "2021-06-09T16:20:00Z",
+  //   },
+  //   {
+  //     realm_id: "76ef4cc3-1603-4278-95d7-99c59f481d2e",
+  //     invite_url: "https://twisted_minds.boba.social/invites/789invite_code456",
+  //     invitee_email: "someone.else@bobaboard.com",
+  //     own: true,
+  //     issued_at: "2021-06-09T04:20:00Z",
+  //     expires_at: "2021-06-09T16:20:00Z",
+  //     label: "This is test invite 3",
+  //   },
+  // ];
 
   const { mutate: createInvite } = useMutation(
-    // TODO: Change this to create invite
-    (data: { avatarUrl: string; username: string }) => updateUserData(data),
+    (data: { realmId: string; email: string; label?: string }) =>
+      createRealmInvite(data),
     {
       onSuccess: ({ inviteUrl }) => {
         setEmail("");
         setLabel("");
         setCreatedInvite(inviteUrl);
-        refreshUserData?.({ username, avatarUrl });
-        setEditing(false);
+        queryClient.invalidateQueries(REALM_INVITES_KEY);
         setLoading(false);
       },
       onError: () => {
@@ -88,48 +95,77 @@ const InvitesPanel = () => {
         Invite Boba users to your realm. Each invite is single use.
       </div>
       <div className="invite-form">
-        {/* TODO: Replace with correct inputs. UserDetail currently acting as placeholder */}
         <Input
           id="email"
           value={email}
           label="Email:"
           onTextChange={setEmail}
+          theme={InputStyle.DARK}
         />
         <Input
           id="label"
           value={label}
           label="Label (optional - all Realm admins will be able to see this):"
           onTextChange={setLabel}
+          theme={InputStyle.DARK}
         />
-        <Button>Create Invite</Button>
-        <div>{createdInvite}</div>
+        <Button
+          onClick={() => {
+            setLoading(true);
+            createInvite({
+              realmId,
+              email,
+              label,
+            });
+          }}
+          theme={ButtonStyle.DARK}
+        >
+          Create Invite
+        </Button>
+        {loading ? (
+          <div>Loading...</div>
+        ) : (
+          <div
+            className={classnames("created-invite", {
+              visible: createdInvite?.length > 0,
+            })}
+          >
+            {createdInvite}
+          </div>
+        )}
       </div>
       <h2 id={AdminPanelIds.PENDING_INVITES}>Pending Realm Invites</h2>
       <div className="description">
-        A list of all currently pending invites for the realm
+        A list of all currently pending invites for the realm.
       </div>
-      <table className="invite-grid">
-        <thead>
-          <tr>
-            <th>Created</th>
-            <th>Expires</th>
-            <th>Invite URL</th>
-            <th>Label</th>
-            <th>Created By</th>
-          </tr>
-        </thead>
-        <tbody>
-          {invites.map((invite) => (
-            <tr key={invite.invite_url}>
-              <td>{format(new Date(invite.issued_at), "MMM d, yyyy")}</td>
-              <td>{format(new Date(invite.expires_at), "MMM d, yyyy")}</td>
-              <td>{invite.invite_url}</td>
-              <td>{invite.label ? invite.label : ""}</td>
-              <td>{invite.own ? "You" : "Another Admin"}</td>
+      {invites?.length ? (
+        <table className="invite-grid">
+          <thead>
+            <tr>
+              <th>Created</th>
+              <th>Expires</th>
+              <th>Invite URL</th>
+              <th>Label</th>
+              <th>Created By</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {invites.map((invite) => (
+              <tr key={invite.inviteUrl}>
+                <td>{format(invite.issuedAt, "MMM d, yyyy")}</td>
+                <td>{format(invite.expiresAt, "MMM d, yyyy")}</td>
+                <td>{invite.inviteUrl}</td>
+                <td>{invite.label ? invite.label : ""}</td>
+                <td>{invite.own ? "You" : "Another Admin"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <div className="empty">
+          <p>There are no currently pending invites.</p>
+        </div>
+      )}
       <style jsx>{`
         .page {
           width: 80%;
@@ -151,7 +187,14 @@ const InvitesPanel = () => {
         }
 
         .invite-form {
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+          gap: 1em;
+          background-color: #3a3a3c;
+          border-radius: 10px;
           width: 100%;
+          padding: 20px;
         }
 
         .description {
@@ -159,17 +202,42 @@ const InvitesPanel = () => {
           font-size: var(--font-size-regular);
         }
 
+        .created-invite {
+          display: none;
+        }
+
+        .created-invite.visible {
+          display: block;
+        }
+
+         {
+          /* Apparently this will bork the table semantics in Safari for accessibility, but should work in Firefox & Chrome */
+        }
         thead,
         tbody,
         tr {
           display: contents;
         }
 
+        td,
+        .created-invite {
+          overflow-wrap: anywhere;
+        }
+
         .invite-grid {
           display: grid;
-          grid-template-columns: repeat(5, 1fr);
+          grid-template-columns: 1fr 1fr 2fr 1fr 1fr;
           row-gap: 0.8em;
-          column-gap: 1em;
+          column-gap: 0.9em;
+          background-color: #3a3a3c;
+          border-radius: 10px;
+          width: 100%;
+          padding: 20px;
+        }
+
+        .empty {
+          display: grid;
+          place-content: center;
           background-color: #3a3a3c;
           border-radius: 10px;
           width: 100%;
