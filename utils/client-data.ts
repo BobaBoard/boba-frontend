@@ -4,8 +4,13 @@ import {
   BoardNotifications,
   BoardSummary,
   CommentType,
+  DetailedRealmInvite,
   Permissions,
   PostType,
+<<<<<<< HEAD
+=======
+  RealmInvite,
+>>>>>>> 1c7eae0 (Add realm invite types)
   RealmType,
   Role,
   ThreadSummaryType,
@@ -274,4 +279,25 @@ export const makeClientData = <T>(serverData: any): T | unknown => {
     return newObject;
   }
   return serverData;
+};
+
+export const makeClientDetailedRealmInvite = (
+  serverInvite: any
+): DetailedRealmInvite => {
+  return {
+    realmId: serverInvite.realm_id,
+    inviteUrl: serverInvite.invite_url,
+    inviteeEmail: serverInvite.invitee_email,
+    own: serverInvite.own,
+    issuedAt: new Date(serverInvite.issued_at),
+    expiresAt: new Date(serverInvite.expires_at),
+    label: serverInvite.label ? serverInvite.label : "",
+  };
+};
+
+export const makeClientRealmInvite = (serverInvite: any): RealmInvite => {
+  return {
+    realmId: serverInvite.realm_id,
+    inviteUrl: serverInvite.invite_url,
+  };
 };
