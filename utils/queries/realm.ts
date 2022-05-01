@@ -1,7 +1,13 @@
-import { RealmType } from "types/Types";
+import { DetailedRealmInvite, RealmInvite, RealmType } from "types/Types";
+import {
+  makeClientData,
+  makeClientDetailedRealmInvite,
+  makeClientRealmInvite,
+  makeRealmData,
+} from "utils/client-data";
+
 import axios from "axios";
 import debug from "debug";
-import { makeRealmData } from "utils/client-data";
 
 const log = debug("bobafrontend:queries:realm-log");
 
@@ -15,19 +21,27 @@ export const getRealmData = async ({
   return makeRealmData(response.data);
 };
 
-export const getRealmInvites = async (realmId: string): Promise<any> => {
+export const getRealmInvites = async ({
+  realmId,
+}: {
+  realmId: string;
+}): Promise<DetailedRealmInvite[]> => {
   const response = await axios.get(`/realms/${realmId}/invites`);
   log(`Got realm invites from server:`);
   log(response.data);
-  return response.data;
+  return response.data?.invites.map(makeClientDetailedRealmInvite) || [];
 };
 
-export const createInvite = async (
-  realmId: string,
-  email: string,
-  label?: unknown
-): Promise<any> => {
-  const response = await axios.patch(`/realms/${realmId}/settings`, {
+export const createRealmInvite = async ({
+  realmId,
+  email,
+  label,
+}: {
+  realmId: string;
+  email: string;
+  label?: unknown;
+}): Promise<RealmInvite> => {
+  const response = await axios.post(`/realms/${realmId}/invites`, {
     email,
     label,
   });
@@ -35,6 +49,6 @@ export const createInvite = async (
     throw new Error("Error while creating invite.");
   }
   log(`created invite on the server:`);
-  log(response?.data);
-  return response?.data;
+  log(response.data);
+  return makeClientRealmInvite(response.data);
 };

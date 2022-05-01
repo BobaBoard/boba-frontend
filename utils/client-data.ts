@@ -4,8 +4,11 @@ import {
   BoardNotifications,
   BoardSummary,
   CommentType,
+  DetailedRealmInvite,
   Permissions,
   PostType,
+  RealmInvite,
+  RealmType,
   Role,
   ThreadSummaryType,
   ThreadType,
@@ -253,7 +256,7 @@ export const makeClientNotifications = (
   }, {}),
 });
 
-export const makeRealmData = (realmData: any) => {
+export const makeRealmData = (realmData: any): RealmType => {
   return {
     id: realmData.id,
     slug: realmData.slug,
@@ -283,4 +286,25 @@ export const makeClientData = <T>(serverData: any): T | unknown => {
     return newObject;
   }
   return serverData;
+};
+
+export const makeClientDetailedRealmInvite = (
+  serverInvite: any
+): DetailedRealmInvite => {
+  return {
+    realmId: serverInvite.realm_id,
+    inviteUrl: serverInvite.invite_url,
+    inviteeEmail: serverInvite.invitee_email,
+    own: serverInvite.own,
+    issuedAt: new Date(serverInvite.issued_at),
+    expiresAt: new Date(serverInvite.expires_at),
+    label: serverInvite.label ? serverInvite.label : "",
+  };
+};
+
+export const makeClientRealmInvite = (serverInvite: any): RealmInvite => {
+  return {
+    realmId: serverInvite.realm_id,
+    inviteUrl: serverInvite.invite_url,
+  };
 };
