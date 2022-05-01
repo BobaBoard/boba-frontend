@@ -300,3 +300,16 @@ export interface UserNotifications {
   realmBoards: Record<string, BoardNotifications>;
   pinnedBoards: Record<string, BoardNotifications>;
 }
+
+export interface RealmInvite {
+  realmId: string;
+  inviteUrl: string;
+}
+
+export interface DetailedRealmInvite extends RealmInvite {
+  inviteeEmail: string;
+  own: boolean;
+  issuedAt: Date;
+  expiresAt: Date;
+  label?: string;
+}
