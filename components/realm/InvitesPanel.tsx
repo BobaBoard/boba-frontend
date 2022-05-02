@@ -25,6 +25,30 @@ const InvitesPanel = () => {
   const [label, setLabel] = React.useState("");
   const [createdInvite, setCreatedInvite] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+  const [narrow, setNarrow] = React.useState(
+    // 1060px is the width where the table headers start having trouble when the sidebar is there.
+    // I'm not bothering for the moment to have it switch back to the table layout for the couple hundred pixels
+    // between when the sidebar goes away and and when it would get too narrow again
+    typeof window != "undefined" &&
+      matchMedia("only screen and (max-width: 1060px)").matches
+  );
+
+  React.useEffect(() => {
+    // I used FeedWithMenu in the ui codebase as my example for this.
+    // You had a polyfill there that we don't have the package installed on this codebase for, so I left it off for now.
+    // We can decide if it's necessary/if we want to install it here or move this component out to the ui codebase.
+    const ResizeObserver = window.ResizeObserver;
+    const resizeObserver = new ResizeObserver(() => {
+      setNarrow(matchMedia(`only screen and (max-width: 1060px)`).matches);
+    });
+
+    resizeObserver.observe(document.body);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
+
   const router = useRouter();
 
   const queryClient = useQueryClient();
@@ -138,7 +162,7 @@ const InvitesPanel = () => {
       <div className="description">
         A list of all currently pending invites for the realm.
       </div>
-      {invites?.length ? (
+      {invites?.length && !narrow && (
         <table className="invite-grid">
           <thead>
             <tr>
@@ -161,7 +185,41 @@ const InvitesPanel = () => {
             ))}
           </tbody>
         </table>
-      ) : (
+      )}
+      {invites?.length && narrow && (
+        <ul className="invite-list">
+          {invites.map((invite) => (
+            <li key={invite.inviteUrl}>
+              <ul className="invite">
+                <li>
+                  <strong>Created: </strong>
+                  {format(invite.issuedAt, "MMM d, yyyy")}
+                </li>
+                <li>
+                  <strong>Expires: </strong>
+                  {format(invite.expiresAt, "MMM d, yyyy")}
+                </li>
+                <li>
+                  <strong>Invite URL: </strong>
+                  {invite.inviteUrl}
+                </li>
+                {invite.label?.length && (
+                  <li>
+                    <strong>Label: </strong>
+                    {invite.label}
+                  </li>
+                )}
+                <li>
+                  <strong>Created By: </strong>
+                  {invite.own ? "You" : "Another Admin"}
+                </li>
+              </ul>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {!invites?.length && (
         <div className="empty">
           <p>There are no currently pending invites.</p>
         </div>
@@ -197,6 +255,26 @@ const InvitesPanel = () => {
           padding: 20px;
         }
 
+        .invite {
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+          background-color: #3a3a3c;
+          border-radius: 10px;
+          width: 100%;
+          padding: 20px;
+        }
+
+        .invite-list > li:not(:last-child) {
+          margin-bottom: 10px;
+        }
+
+        ul {
+          list-style: none;
+          padding-left: 0;
+        }
+
         .description {
           margin-bottom: 3.5rem;
           font-size: var(--font-size-regular);
@@ -220,6 +298,8 @@ const InvitesPanel = () => {
         }
 
         td,
+        th,
+        li,
         .created-invite {
           overflow-wrap: anywhere;
         }
