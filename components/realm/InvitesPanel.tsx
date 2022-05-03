@@ -58,35 +58,6 @@ const InvitesPanel = () => {
     getRealmInvites({ realmId })
   );
 
-  // const invites = [
-  //   {
-  //     realm_id: "76ef4cc3-1603-4278-95d7-99c59f481d2e",
-  //     invite_url: "https://twisted_minds.boba.social/invites/123invite_code456",
-  //     invitee_email: "ms.boba@bobaboard.com",
-  //     own: false,
-  //     issued_at: "2021-06-09T04:20:00Z",
-  //     expires_at: "2021-06-09T16:20:00Z",
-  //     label: "This is a test invite.",
-  //   },
-  //   {
-  //     realm_id: "76ef4cc3-1603-4278-95d7-99c59f481d2e",
-  //     invite_url: "https://twisted_minds.boba.social/invites/456invite_code789",
-  //     invitee_email: "nolabels@bobaboard.com",
-  //     own: true,
-  //     issued_at: "2021-06-09T04:20:00Z",
-  //     expires_at: "2021-06-09T16:20:00Z",
-  //   },
-  //   {
-  //     realm_id: "76ef4cc3-1603-4278-95d7-99c59f481d2e",
-  //     invite_url: "https://twisted_minds.boba.social/invites/789invite_code456",
-  //     invitee_email: "someone.else@bobaboard.com",
-  //     own: true,
-  //     issued_at: "2021-06-09T04:20:00Z",
-  //     expires_at: "2021-06-09T16:20:00Z",
-  //     label: "This is test invite 3",
-  //   },
-  // ];
-
   const { mutate: createInvite } = useMutation(
     (data: { realmId: string; email: string; label?: string }) =>
       createRealmInvite(data),
@@ -118,7 +89,11 @@ const InvitesPanel = () => {
       <div className="description">
         Invite Boba users to your realm. Each invite is single use.
       </div>
-      <div className="invite-form">
+      <div
+        aria-role="form"
+        aria-labelledby={AdminPanelIds.INVITE_FORM}
+        className="invite-form"
+      >
         <Input
           id="email"
           value={email}
@@ -163,7 +138,10 @@ const InvitesPanel = () => {
         A list of all currently pending invites for the realm.
       </div>
       {invites?.length && !narrow && (
-        <table className="invite-grid">
+        <table
+          aria-labelledby={AdminPanelIds.PENDING_INVITES}
+          className="invite-grid"
+        >
           <thead>
             <tr>
               <th>Created</th>
@@ -187,7 +165,10 @@ const InvitesPanel = () => {
         </table>
       )}
       {invites?.length && narrow && (
-        <ul className="invite-list">
+        <ul
+          aria-labelledby={AdminPanelIds.PENDING_INVITES}
+          className="invite-list"
+        >
           {invites.map((invite) => (
             <li key={invite.inviteUrl}>
               <ul className="invite">
