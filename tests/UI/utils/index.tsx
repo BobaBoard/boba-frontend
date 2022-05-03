@@ -109,6 +109,21 @@ export const getUserSettingsRoute = ({
   basePath: "",
 });
 
+export const getAdminPanelRoute = ({
+  adminPanel,
+}: {
+  adminPanel: string;
+}): NextRouter => ({
+  ...BASE_ROUTER,
+  pathname: "/realms/admin/[[...panelId]]",
+  route: "/realms/admin/[[...panelId]]",
+  query: {
+    panelId: [adminPanel],
+  },
+  asPath: `/realms/admin/${adminPanel}`,
+  basePath: "",
+});
+
 const oldWindow = window.location;
 export const Client = ({
   children,

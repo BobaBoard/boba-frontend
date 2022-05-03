@@ -1,4 +1,7 @@
+import { RealmPermissions } from "types/Types";
+
 export const V0_DATA = {
+  id: "v0-fake-id",
   slug: "v0",
   id: "v0-fake-id",
   settings: {
@@ -9,6 +12,7 @@ export const V0_DATA = {
     board_page: [],
     thread_page: [],
   },
+  realm_permissions: [],
   boards: [
     {
       id: "2fb151eb-c600-4fe4-a542-4662487e5496",
@@ -86,6 +90,7 @@ export const V0_DATA = {
 };
 
 export const LOGGED_IN_V0_DATA = {
+  id: "v0-fake-id",
   slug: "v0",
   id: "v0-fake-id",
   settings: {
@@ -96,6 +101,7 @@ export const LOGGED_IN_V0_DATA = {
     board_page: [],
     thread_page: [],
   },
+  realm_permissions: [RealmPermissions.CREATE_REALM_INVITE],
   boards: [
     {
       id: "2fb151eb-c600-4fe4-a542-4662487e5496",
@@ -182,4 +188,45 @@ export const LOGGED_IN_V0_DATA = {
       logged_in_only: true,
     },
   ],
+};
+
+export const V0_INVITES = {
+  invites: [
+    {
+      realm_id: LOGGED_IN_V0_DATA.id,
+      invite_url: `https://v0.boba.social/invites/123invite_code456`,
+      invitee_email: "ms.boba@bobaboard.com",
+      own: false,
+      issued_at: "2021-06-09T04:20:00Z",
+      expires_at: "2021-06-09T16:20:00Z",
+      label: "This is a test invite.",
+    },
+    {
+      realm_id: LOGGED_IN_V0_DATA.id,
+      invite_url: "https://v0.boba.social/invites/456invite_code789",
+      invitee_email: "nolabels@bobaboard.com",
+      own: true,
+      issued_at: "2021-06-09T04:20:00Z",
+      expires_at: "2021-06-09T16:20:00Z",
+    },
+    {
+      realm_id: LOGGED_IN_V0_DATA.id,
+      invite_url: "https://v0.boba.social/invites/789invite_code456",
+      invitee_email: "someone.else@bobaboard.com",
+      own: true,
+      issued_at: "2021-06-09T04:20:00Z",
+      expires_at: "2021-06-09T16:20:00Z",
+      label: "This is test invite 3",
+    },
+  ],
+};
+
+export const V0_CREATED_INVITE = {
+  realm_id: LOGGED_IN_V0_DATA.id,
+  invite_url: "https://v0.boba.social/invites/QRSnew_invite_codeXYZ",
+  invitee_email: "new.person@bobaboard.com",
+  own: true,
+  issued_at: "2021-07-09T04:20:00Z",
+  expires_at: "2021-07-09T16:20:00Z",
+  label: "Newly created invite",
 };
