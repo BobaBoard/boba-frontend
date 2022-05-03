@@ -90,7 +90,7 @@ const InvitesPanel = () => {
         Invite Boba users to your realm. Each invite is single use.
       </div>
       <div
-        aria-role="form"
+        role="form"
         aria-labelledby={AdminPanelIds.INVITE_FORM}
         className="invite-form"
       >
