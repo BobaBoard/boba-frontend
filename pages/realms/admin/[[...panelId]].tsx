@@ -74,8 +74,12 @@ function AdminPage() {
     if (!isUserPending && !isLoggedIn) {
       linkToHome.onClick();
     }
-    // This will require a more complicated check if we add realm permissions that shouldn't grant access to the Realm Admin page
-    if (!isUserPending && !userRealmPermissions.length) {
+
+    // TODO: This will require a more complicated check when we add additional realm permissions that should grant access to the Realm Admin page
+    if (
+      !isUserPending &&
+      !userRealmPermissions.includes(RealmPermissions.CREATE_REALM_INVITE)
+    ) {
       linkToHome.onClick();
     }
   }, [isLoggedIn, isUserPending, linkToHome, userRealmPermissions]);
