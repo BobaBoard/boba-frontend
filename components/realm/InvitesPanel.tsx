@@ -3,6 +3,7 @@ import {
   ButtonStyle,
   Input,
   InputStyle,
+  toast,
 } from "@bobaboard/ui-components";
 import React, { useEffect } from "react";
 import { createRealmInvite, getRealmInvites } from "utils/queries/realm";
@@ -10,9 +11,12 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import { AdminPanelIds } from "pages/realms/admin/[[...panelId]]";
 import classnames from "classnames";
+import { copyText } from "utils/text-utils";
 import debug from "debug";
+import { faCopy } from "@fortawesome/free-regular-svg-icons";
 import { format } from "date-fns";
 import { useAuth } from "components/Auth";
+import { useHotkeys } from "react-hotkeys-hook";
 import { useRealmId } from "contexts/RealmContext";
 import { useRouter } from "next/router";
 
@@ -23,6 +27,7 @@ const InvitesPanel = () => {
   const realmId = useRealmId();
   const [email, setEmail] = React.useState("");
   const [label, setLabel] = React.useState("");
+  const [errorMessage, setErrorMessage] = React.useState("");
   const [createdInvite, setCreatedInvite] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [narrow, setNarrow] = React.useState(
@@ -68,11 +73,28 @@ const InvitesPanel = () => {
         setCreatedInvite(inviteUrl);
         queryClient.invalidateQueries(REALM_INVITES_KEY);
         setLoading(false);
+        setErrorMessage("");
       },
-      onError: () => {
+      onError: (error: Error) => {
         setLoading(false);
+        toast.error(`Error while creating invite`);
+        log("failed to create invite");
+        log(error);
       },
     }
+  );
+  useHotkeys(
+    "ctrl+enter, cmd+enter",
+    () => {
+      setLoading(true);
+      createInvite({
+        realmId,
+        email,
+        label,
+      });
+    },
+    { enableOnTags: ["INPUT"] },
+    [realmId, email, label]
   );
 
   // This was in the UserSettings component that I was using as my example,
@@ -97,30 +119,38 @@ const InvitesPanel = () => {
         <Input
           id="email"
           value={email}
-          label="Email:"
+          label="Email*"
           onTextChange={setEmail}
           theme={InputStyle.DARK}
+          errorMessage={errorMessage}
         />
         <Input
           id="label"
           value={label}
-          label="Label (optional - all Realm admins will be able to see this):"
+          label="Label"
+          helper="All Realm admins will be able to see this label."
           onTextChange={setLabel}
           theme={InputStyle.DARK}
         />
-        <Button
-          onClick={() => {
-            setLoading(true);
-            createInvite({
-              realmId,
-              email,
-              label,
-            });
-          }}
-          theme={ButtonStyle.DARK}
-        >
-          Create Invite
-        </Button>
+        <div className="submit-button">
+          <Button
+            onClick={() => {
+              if (!email) {
+                setErrorMessage("Email required");
+                return;
+              }
+              setLoading(true);
+              createInvite({
+                realmId,
+                email,
+                label,
+              });
+            }}
+            theme={ButtonStyle.DARK}
+          >
+            Create Invite
+          </Button>
+        </div>
         {loading ? (
           <div>Loading...</div>
         ) : (
@@ -129,7 +159,24 @@ const InvitesPanel = () => {
               visible: createdInvite?.length > 0,
             })}
           >
-            {createdInvite}
+            <input
+              type="text"
+              value={createdInvite}
+              readOnly
+              className="invite-url"
+            />
+            <div className="copy-button">
+              <Button
+                icon={faCopy}
+                onClick={() => {
+                  copyText(createdInvite);
+                  toast.success("Invite URL copied!");
+                }}
+                theme={ButtonStyle.DARK}
+              >
+                Copy URL
+              </Button>
+            </div>
           </div>
         )}
       </div>
@@ -156,7 +203,28 @@ const InvitesPanel = () => {
               <tr key={invite.inviteUrl}>
                 <td>{format(invite.issuedAt, "MMM d, yyyy")}</td>
                 <td>{format(invite.expiresAt, "MMM d, yyyy")}</td>
-                <td>{invite.inviteUrl}</td>
+                <td className="url-row">
+                  <input
+                    type="text"
+                    value={invite.inviteUrl}
+                    readOnly
+                    className="invite-url"
+                  />
+                  <div className="copy-button">
+                    <Button
+                      icon={faCopy}
+                      onClick={() => {
+                        copyText(invite.inviteUrl);
+                        toast.success("Invite URL copied!");
+                      }}
+                      theme={ButtonStyle.DARK}
+                      compact={true}
+                      label="copy invite URL"
+                    >
+                      Copy URL
+                    </Button>
+                  </div>
+                </td>
                 <td>{invite.label ? invite.label : ""}</td>
                 <td>{invite.own ? "You" : "Another Admin"}</td>
               </tr>
@@ -180,9 +248,28 @@ const InvitesPanel = () => {
                   <strong>Expires: </strong>
                   {format(invite.expiresAt, "MMM d, yyyy")}
                 </li>
-                <li>
+                <li className="url-li">
                   <strong>Invite URL: </strong>
-                  {invite.inviteUrl}
+                  <input
+                    type="text"
+                    value={invite.inviteUrl}
+                    readOnly
+                    className="invite-url"
+                  />
+                  <div className="copy-button">
+                    <Button
+                      icon={faCopy}
+                      onClick={() => {
+                        copyText(invite.inviteUrl);
+                        toast.success("Invite URL copied!");
+                      }}
+                      theme={ButtonStyle.DARK}
+                      compact={true}
+                      label="copy invite URL"
+                    >
+                      Copy URL
+                    </Button>
+                  </div>
                 </li>
                 {invite.label?.length && (
                   <li>
@@ -236,6 +323,10 @@ const InvitesPanel = () => {
           padding: 20px;
         }
 
+        .submit-button {
+          margin-left: auto;
+        }
+
         .invite {
           box-sizing: border-box;
           display: flex;
@@ -266,7 +357,26 @@ const InvitesPanel = () => {
         }
 
         .created-invite.visible {
-          display: block;
+          display: flex;
+          flex-direction: row;
+          gap: 0.7em;
+          align-items: center;
+        }
+
+        .invite-url {
+          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          color: #fff;
+          font-size: var(--font-size-regular);
+          padding: 12px;
+          background-color: #2f2f30;
+          width: 100%;
+          max-width: 400px;
+          box-sizing: border-box;
+        }
+
+        .created-invite .copy-button {
+          min-width: 106px;
         }
 
          {
@@ -279,10 +389,16 @@ const InvitesPanel = () => {
         }
 
         td,
-        th,
-        li,
-        .created-invite {
+        li {
           overflow-wrap: anywhere;
+        }
+
+        .url-row,
+        .url-li {
+          display: flex;
+          flex-direction: row;
+          gap: 0.5em;
+          align-items: center;
         }
 
         .invite-grid {
@@ -294,6 +410,7 @@ const InvitesPanel = () => {
           border-radius: 10px;
           width: 100%;
           padding: 20px;
+          align-items: center;
         }
 
         .empty {
