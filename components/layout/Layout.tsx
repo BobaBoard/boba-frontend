@@ -23,6 +23,7 @@ import { BOARD_ACTIVITY_KEY } from "queries/board-feed";
 import LoginModal from "../LoginModal";
 import PinnedMenu from "./PinnedMenu";
 import React from "react";
+import { RealmPermissions } from "types/Types";
 import Sidemenu from "./SideMenu";
 import debug from "debug";
 import { useAuth } from "components/Auth";
@@ -53,8 +54,8 @@ const useLoggedInDropdownOptions = (openLogin: () => void) => {
         name: "User Settings",
         link: linkToPersonalSettings,
       },
-      // This will require a more complicated check if we add realm permissions that shouldn't grant access to the Realm Admin page
-      ...(userRealmPermissions.length
+      // TODO: This will require a more complicated check when we add additional realm permissions that should grant access to the Realm Admin page
+      ...(userRealmPermissions.includes(RealmPermissions.CREATE_REALM_INVITE)
         ? [
             {
               icon: faCrown,
