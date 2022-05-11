@@ -46,12 +46,8 @@ describe("InvitesPanel", () => {
     expect(
       screen.getByRole("form", { name: "Create Realm Invite" })
     ).toBeVisible();
-    expect(screen.getByLabelText("Email:")).toBeVisible();
-    expect(
-      screen.getByLabelText(
-        "Label (optional - all Realm admins will be able to see this):"
-      )
-    ).toBeVisible();
+    expect(screen.getByLabelText("Email*")).toBeVisible();
+    expect(screen.getByLabelText("Label")).toBeVisible();
     expect(screen.getByRole("button", { name: "Create Invite" })).toBeVisible();
   });
 
@@ -104,7 +100,7 @@ describe("InvitesPanel", () => {
             )
           ).toBeVisible();
           expect(
-            within(row).getByText(V0_INVITES.invites[i - 1].invite_url)
+            within(row).getByDisplayValue(V0_INVITES.invites[i - 1].invite_url)
           ).toBeVisible();
           if (V0_INVITES.invites[i - 1].label) {
             expect(
@@ -171,7 +167,7 @@ describe("InvitesPanel", () => {
           )
         ).toBeVisible();
         expect(
-          within(invite).getByText(V0_INVITES.invites[i].invite_url)
+          within(invite).getByDisplayValue(V0_INVITES.invites[i].invite_url)
         ).toBeVisible();
         if (V0_INVITES.invites[i].label) {
           expect(
@@ -237,24 +233,15 @@ describe("InvitesPanel", () => {
     );
 
     userEvent.type(
-      screen.getByLabelText("Email:"),
+      screen.getByLabelText("Email*"),
       V0_CREATED_INVITE.invitee_email
     );
-    expect(screen.getByLabelText("Email:")).toHaveValue(
+    expect(screen.getByLabelText("Email*")).toHaveValue(
       V0_CREATED_INVITE.invitee_email
     );
 
-    userEvent.type(
-      screen.getByLabelText(
-        "Label (optional - all Realm admins will be able to see this):"
-      ),
-      V0_CREATED_INVITE.label
-    );
-    expect(
-      screen.getByLabelText(
-        "Label (optional - all Realm admins will be able to see this):"
-      )
-    ).toHaveValue(V0_CREATED_INVITE.label);
+    userEvent.type(screen.getByLabelText("Label"), V0_CREATED_INVITE.label);
+    expect(screen.getByLabelText("Label")).toHaveValue(V0_CREATED_INVITE.label);
 
     userEvent.click(screen.getByRole("button", { name: "Create Invite" }));
     await waitFor(() => {
@@ -264,7 +251,7 @@ describe("InvitesPanel", () => {
       expect(
         within(
           screen.getByRole("form", { name: "Create Realm Invite" })
-        ).getByText(V0_CREATED_INVITE.invite_url)
+        ).getByDisplayValue(V0_CREATED_INVITE.invite_url)
       ).toBeVisible();
     });
     await waitFor(() => {
@@ -276,7 +263,7 @@ describe("InvitesPanel", () => {
       expect(
         within(
           screen.getByRole("table", { name: "Pending Realm Invites" })
-        ).getByText(V0_CREATED_INVITE.invite_url)
+        ).getByDisplayValue(V0_CREATED_INVITE.invite_url)
       ).toBeVisible();
     });
   });
