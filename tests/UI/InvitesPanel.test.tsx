@@ -11,6 +11,7 @@ import React from "react";
 import debug from "debug";
 import { format } from "date-fns";
 import { makeRealmData } from "utils/client-data";
+import { matchMedia } from "@shopify/jest-dom-mocks";
 import { rest } from "msw";
 import { server } from "../server-mocks";
 import userEvent from "@testing-library/user-event";
@@ -116,20 +117,8 @@ describe("InvitesPanel", () => {
   });
 
   test("renders pending realm invites list as list when screen is narrow", async () => {
-    // I feel like there has to be a more elegant way to make the media match true for this one test
-    // than setting this whole thing again at the beginning and setting it back to false at the end, but I couldn't figure it out
-    Object.defineProperty(window, "matchMedia", {
-      writable: true,
-      value: jest.fn().mockImplementation((query) => ({
-        matches: true,
-        media: query,
-        onchange: null,
-        addListener: jest.fn(), // Deprecated
-        removeListener: jest.fn(), // Deprecated
-        addEventListener: jest.fn(),
-        removeEventListener: jest.fn(),
-        dispatchEvent: jest.fn(),
-      })),
+    matchMedia.mock((mediaQuery: string) => {
+      return { media: mediaQuery, matches: true };
     });
 
     render(
@@ -179,19 +168,7 @@ describe("InvitesPanel", () => {
           : expect(within(invite).getByText("Another Admin")).toBeVisible();
       });
     });
-    Object.defineProperty(window, "matchMedia", {
-      writable: true,
-      value: jest.fn().mockImplementation((query) => ({
-        matches: false,
-        media: query,
-        onchange: null,
-        addListener: jest.fn(), // Deprecated
-        removeListener: jest.fn(), // Deprecated
-        addEventListener: jest.fn(),
-        removeEventListener: jest.fn(),
-        dispatchEvent: jest.fn(),
-      })),
-    });
+    matchMedia.restore();
   });
 
   test("doesn't render pending realm invites list if empty", async () => {
