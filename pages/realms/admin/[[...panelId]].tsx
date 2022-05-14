@@ -6,6 +6,7 @@ import Layout from "components/layout/Layout";
 import React from "react";
 import { RealmPermissions } from "types/Types";
 import { faDoorOpen } from "@fortawesome/free-solid-svg-icons";
+import { hasAdminPanelAccess } from "utils/permissions-utils";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useRealmPermissions } from "contexts/RealmContext";
@@ -75,11 +76,7 @@ function AdminPage() {
       linkToHome.onClick();
     }
 
-    // TODO: This will require a more complicated check when we add additional realm permissions that should grant access to the Realm Admin page
-    if (
-      !isUserPending &&
-      !userRealmPermissions.includes(RealmPermissions.CREATE_REALM_INVITE)
-    ) {
+    if (!isUserPending && !hasAdminPanelAccess(userRealmPermissions)) {
       linkToHome.onClick();
     }
   }, [isLoggedIn, isUserPending, linkToHome, userRealmPermissions]);

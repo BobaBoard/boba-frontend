@@ -23,9 +23,9 @@ import { BOARD_ACTIVITY_KEY } from "queries/board-feed";
 import LoginModal from "../LoginModal";
 import PinnedMenu from "./PinnedMenu";
 import React from "react";
-import { RealmPermissions } from "types/Types";
 import Sidemenu from "./SideMenu";
 import debug from "debug";
+import { hasAdminPanelAccess } from "utils/permissions-utils";
 import { useAuth } from "components/Auth";
 import { useBoardSummaryBySlug } from "queries/board";
 import { useCachedLinks } from "../hooks/useCachedLinks";
@@ -42,6 +42,10 @@ const useLoggedInDropdownOptions = (openLogin: () => void) => {
   const { linkToPersonalSettings, linkToLogs, linkToRealmAdmin } =
     useCachedLinks();
   const userRealmPermissions = useRealmPermissions();
+  // log("userRealmPermissions:", userRealmPermissions);
+  // const check = hasAdminPanelAccess(userRealmPermissions);
+  // log("check:", check);
+
   return React.useMemo(
     () => [
       {
@@ -54,8 +58,7 @@ const useLoggedInDropdownOptions = (openLogin: () => void) => {
         name: "User Settings",
         link: linkToPersonalSettings,
       },
-      // TODO: This will require a more complicated check when we add additional realm permissions that should grant access to the Realm Admin page
-      ...(userRealmPermissions.includes(RealmPermissions.CREATE_REALM_INVITE)
+      ...(hasAdminPanelAccess(userRealmPermissions)
         ? [
             {
               icon: faCrown,
