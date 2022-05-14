@@ -25,60 +25,58 @@ const CreateInvitePanel: React.FC<CreateInvitePanelProps> = ({
   createdInvite,
 }) => {
   return (
-    <>
-      <div
-        role="form"
-        aria-labelledby={AdminPanelIds.INVITE_FORM}
-        className="invite-form"
-      >
-        <Input
-          id="email"
-          value={email}
-          label="Email*"
-          onTextChange={onEmailTextChange}
-          theme={InputStyle.DARK}
-          errorMessage={errorMessage}
-        />
-        <Input
-          id="label"
-          value={label}
-          label="Label"
-          helper="All Realm admins will be able to see this label."
-          onTextChange={onLabelTextChange}
-          theme={InputStyle.DARK}
-        />
-        <div className="submit-button">
-          <Button onClick={onSubmit} theme={ButtonStyle.DARK}>
-            Create Invite
-          </Button>
-        </div>
-        {loading ? (
-          <div>Loading...</div>
-        ) : (
-          <div
-            className={classnames("created-invite", {
-              visible: createdInvite && createdInvite?.length > 0,
-            })}
-          >
-            {/* TODO: When we move this to the UI codebase, if we add a readOnly prop to our Input component, we can switch this to <Input /> */}
-            <input
-              type="text"
-              value={createdInvite}
-              readOnly
-              className="invite-url"
-            />
-            <div className="copy-button">
-              <Button
-                icon={faCopy}
-                onClick={onCopyClick}
-                theme={ButtonStyle.DARK}
-              >
-                Copy URL
-              </Button>
-            </div>
-          </div>
-        )}
+    <div
+      role="form"
+      aria-labelledby={AdminPanelIds.INVITE_FORM}
+      className="invite-form"
+    >
+      <Input
+        id="email"
+        value={email}
+        label="Email*"
+        onTextChange={onEmailTextChange}
+        theme={InputStyle.DARK}
+        errorMessage={errorMessage}
+      />
+      <Input
+        id="label"
+        value={label}
+        label="Label"
+        helper="All Realm admins will be able to see this label."
+        onTextChange={onLabelTextChange}
+        theme={InputStyle.DARK}
+      />
+      <div className="submit-button">
+        <Button onClick={onSubmit} theme={ButtonStyle.DARK}>
+          Create Invite
+        </Button>
       </div>
+      {loading ? (
+        <div>Loading...</div>
+      ) : (
+        <div
+          className={classnames("created-invite", {
+            visible: createdInvite && createdInvite?.length > 0,
+          })}
+        >
+          {/* TODO: When we move this to the UI codebase, if we add a readOnly prop to our Input component, we can switch this to <Input /> */}
+          <input
+            type="text"
+            value={createdInvite}
+            readOnly
+            className="invite-url"
+          />
+          <div className="copy-button">
+            <Button
+              icon={faCopy}
+              onClick={onCopyClick}
+              theme={ButtonStyle.DARK}
+            >
+              Copy URL
+            </Button>
+          </div>
+        </div>
+      )}
       <style jsx>{`
         .invite-form {
           box-sizing: border-box;
@@ -133,7 +131,7 @@ const CreateInvitePanel: React.FC<CreateInvitePanelProps> = ({
           min-width: 106px;
         }
       `}</style>
-    </>
+    </div>
   );
 };
 export default CreateInvitePanel;

@@ -22,7 +22,6 @@ const InvitesTable: React.FC<InviteTableProps> = ({ invites, copyUrl }) => {
     // I used FeedWithMenu in the ui codebase as my example for this.
     // You had a polyfill there that we don't have the package installed on this codebase for, so I left it off for now.
     // We can decide if it's necessary/if we want to install it here or move this component out to the ui codebase.
-    const ResizeObserver = window.ResizeObserver;
     const resizeObserver = new ResizeObserver(() => {
       setNarrow(matchMedia(`only screen and (max-width: 1060px)`).matches);
     });
@@ -186,9 +185,7 @@ const InvitesTable: React.FC<InviteTableProps> = ({ invites, copyUrl }) => {
           box-sizing: border-box;
         }
 
-         {
-          /* Apparently this will bork the table semantics in Safari for accessibility, but should work in Firefox & Chrome */
-        }
+        /* Apparently this will bork the table semantics in Safari for accessibility, but should work in Firefox & Chrome */
         thead,
         tbody,
         tr {
