@@ -1,4 +1,4 @@
-import { PostPermissions } from "types/Types";
+import { PostPermissions, RealmPermissions } from "types/Types";
 
 export const isPostEditPermission = (postPermission: PostPermissions) => {
   return [
@@ -8,4 +8,13 @@ export const isPostEditPermission = (postPermission: PostPermissions) => {
     PostPermissions.editWhisperTags,
     PostPermissions.editContentNotices,
   ].includes(postPermission);
+};
+
+const ADMIN_PERMISSIONS = [RealmPermissions.CREATE_REALM_INVITE];
+
+export const hasAdminPanelAccess = (permissions: RealmPermissions[]) => {
+  const userAdminPermissions = permissions.filter((permission) => {
+    return ADMIN_PERMISSIONS.includes(permission);
+  });
+  return !!userAdminPermissions.length;
 };
