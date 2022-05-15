@@ -42,9 +42,6 @@ const useLoggedInDropdownOptions = (openLogin: () => void) => {
   const { linkToPersonalSettings, linkToLogs, linkToRealmAdmin } =
     useCachedLinks();
   const userRealmPermissions = useRealmPermissions();
-  // log("userRealmPermissions:", userRealmPermissions);
-  // const check = hasAdminPanelAccess(userRealmPermissions);
-  // log("check:", check);
 
   return React.useMemo(
     () => [
