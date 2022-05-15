@@ -35,7 +35,7 @@ const InvitesTable: React.FC<InviteTableProps> = ({ invites, copyUrl }) => {
 
   return (
     <>
-      {invites?.length && !narrow && (
+      {!!invites?.length && !narrow && (
         <table
           aria-labelledby={AdminPanelIds.PENDING_INVITES}
           className="invite-grid"
@@ -84,7 +84,7 @@ const InvitesTable: React.FC<InviteTableProps> = ({ invites, copyUrl }) => {
           </tbody>
         </table>
       )}
-      {invites?.length && narrow && (
+      {!!invites?.length && narrow && (
         <ul
           aria-labelledby={AdminPanelIds.PENDING_INVITES}
           className="invite-list"
@@ -140,7 +140,7 @@ const InvitesTable: React.FC<InviteTableProps> = ({ invites, copyUrl }) => {
           ))}
         </ul>
       )}
-      {!invites?.length && (
+      {(!invites || !invites.length) && (
         <div className="empty">
           <p>There are no currently pending invites.</p>
         </div>
