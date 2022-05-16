@@ -39,7 +39,7 @@ export const createRealmInvite = async ({
 }: {
   realmId: string;
   email: string;
-  label?: unknown;
+  label?: string;
 }): Promise<RealmInvite> => {
   const response = await axios.post(`/realms/${realmId}/invites`, {
     email,
