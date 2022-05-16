@@ -34,11 +34,15 @@ export const getBobadex = async (): Promise<any> => {
 const inviteAxios = axios.create();
 inviteAxios.defaults.baseURL = getServerBaseUrl();
 export const acceptInvite = async (data: {
-  email: string;
-  password: string;
+  realmId: string;
   nonce: string;
+  email?: string;
+  password?: string;
 }) => {
-  const response = await inviteAxios.post(`/users/invite/accept`, data);
+  const response = await inviteAxios.post(
+    `/realms/${data.realmId}/invites/${data.nonce}`,
+    { email: data.email, password: data.password }
+  );
   log(`Returned data from invite API:`);
   log(response.data);
   return response.data;
