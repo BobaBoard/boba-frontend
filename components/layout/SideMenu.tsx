@@ -64,7 +64,11 @@ const SideMenu = () => {
       onSuccess: () => {
         log(`Successfully dismissed all notifications. Refetching...`);
         refetchNotifications();
-        refetchBoardActivity({ boardId: boardData!.id });
+
+        // TODO: figure out why boardData might be null here
+        if (boardData) {
+          refetchBoardActivity({ boardId: boardData.id });
+        }
         if (threadId) {
           // TODO: swap this with method exported from query itself
           queryClient.invalidateQueries([THREAD_QUERY_KEY, { threadId }]);

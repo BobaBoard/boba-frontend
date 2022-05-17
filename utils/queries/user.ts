@@ -68,6 +68,6 @@ export const updateUserSettings = async (
 };
 
 export const dismissAllNotifications = async () => {
-  await axios.post(`users/notifications/dismiss`);
+  await axios.delete(`/users/@me/notifications`);
   return true;
 };
