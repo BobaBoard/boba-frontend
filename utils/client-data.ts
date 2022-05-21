@@ -7,10 +7,7 @@ import {
   DetailedRealmInvite,
   Permissions,
   PostType,
-<<<<<<< HEAD
-=======
   RealmInvite,
->>>>>>> 1c7eae0 (Add realm invite types)
   RealmType,
   Role,
   ThreadSummaryType,
