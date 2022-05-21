@@ -243,8 +243,25 @@ export interface CssVariableSetting {
   value: string;
 }
 
+export interface RulesBlock {
+  id: string;
+  index: string;
+  title: string;
+  type: "block";
+  rules: {
+    index: number;
+    title: string;
+    description: string;
+    pinned: boolean;
+  }[];
+}
+
+export type UiBlocks = RulesBlock;
+
 export interface RealmType {
+  id: string;
   slug: string;
+  icon: string;
   settings: {
     root: {
       cursor?: {
@@ -255,6 +272,9 @@ export interface RealmType {
     indexPage: CssVariableSetting[];
     boardPage: CssVariableSetting[];
     threadPage: CssVariableSetting[];
+  };
+  homepage: {
+    blocks: UiBlocks[];
   };
   boards: BoardSummary[];
 }

@@ -1,4 +1,5 @@
 import { BoardsDisplay, PostQuote, useBoos } from "@bobaboard/ui-components";
+import { useRealmBoards, useRealmHomepage } from "contexts/RealmContext";
 
 import Layout from "components/layout/Layout";
 import Link from "next/link";
@@ -14,7 +15,6 @@ import { isStaging } from "utils/location-utils";
 import { makeClientPost } from "utils/client-data";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useNotifications } from "queries/notifications";
-import { useRealmBoards } from "contexts/RealmContext";
 
 const error = debug("bobafrontend:HomePage-error");
 
@@ -100,7 +100,10 @@ const HomePage: NextPage<{
   const { styles } = useBoos({ startActive: true });
   const { getLinkToBoard } = useCachedLinks();
   const boards = useRealmBoards();
+  const realmHomepage = useRealmHomepage();
   const { realmBoardsNotifications } = useNotifications();
+
+  console.log(realmHomepage);
 
   const boardsToDisplay = React.useMemo(() => {
     return boards
