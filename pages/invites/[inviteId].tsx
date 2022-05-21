@@ -23,9 +23,16 @@ const InvitesPage: React.FC<InvitesPageProps> = ({
   realmId,
   inviteStatus,
 }) => {
+  const [loginOpen, setLoginOpen] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [error, setError] = React.useState("");
+  const inviteStatusError =
+    inviteStatus === "used"
+      ? "This invite has already been used"
+      : inviteStatus === "expired"
+      ? "This invite has expired"
+      : "";
+  const [error, setError] = React.useState(inviteStatusError);
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
   const { isPending: isUserPending, isLoggedIn, attemptLogin } = useAuth();
@@ -72,20 +79,35 @@ const InvitesPage: React.FC<InvitesPageProps> = ({
   // }, [isLoggedIn, isUserPending]);
 
   return (
-    <Layout title={`Invites`}>
+    <Layout
+      title={`Invites`}
+      loginOpen={loginOpen}
+      onLoginClose={() => setLoginOpen(false)}
+    >
       <Layout.MainContent>
         <div className="page">
           <div className="invite-signup">
             <div className="hero">
+              {/* TODO: Make this the realm icon */}
               <img src="/bobatan.png" />
               <h1>You've been invited to join {realmName}!</h1>
             </div>
-            <div className="rules">Realm rules component to go here</div>
+            <div className="rules">
+              {/* TODO: Insert Rules component here */}
+              Realm rules component to go here
+            </div>
             {!isLoggedIn && (
               <div className="boba-welcome">
+                <img src="/bobatan.png" />
                 <p className="intro">
                   Hello, and (almost) welcome to BobaBoard. Just one last step
-                  before you can join in the fun: time to choose a password!
+                  before you can join in the fun: time to create an account!
+                </p>
+                <p>
+                  Already have a Boba account?{" "}
+                  <Button onClick={() => setLoginOpen(!isUserPending)}>
+                    Login
+                  </Button>
                 </p>
                 <p>
                   In order to protect your precious invite, it's been betrothed
@@ -146,6 +168,7 @@ const InvitesPage: React.FC<InvitesPageProps> = ({
               </div>
               <div className="buttons">
                 <Button
+                  disabled={inviteStatus === "pending" ? false : true}
                   onClick={() => {
                     setLoading(true);
                     if (!isLoggedIn) {
@@ -172,8 +195,10 @@ const InvitesPage: React.FC<InvitesPageProps> = ({
                 ) : (
                   <span>
                     No worries, we hope you find a realm that suits in future.
-                    In the meantime, you can follow Bobaboard's development at{" "}
-                    <a href=""></a>
+                    In the meantime, you can follow Bobaboard's development on{" "}
+                    <a href="https://twitter.com/BobaBoard">Twitter</a>,{" "}
+                    <a href="https://bobaboard.tumblr.com/">Tumblr</a>, and{" "}
+                    <a href="https://bobaboard.com/">BobaBoard.com</a>!
                   </span>
                 )}
               </p>
@@ -211,6 +236,13 @@ const InvitesPage: React.FC<InvitesPageProps> = ({
               font-size: 24px;
               font-weight: 300;
               line-height: 1.3em;
+            }
+
+            .boba-welcome > img {
+              max-width: 200px;
+              float: left;
+              shape-outside: circle(50%);
+              border-radius: 50%;
             }
             .inputs {
               margin: 0 auto;
