@@ -169,7 +169,7 @@ function useTitleLink() {
 const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const { linkToHome } = useCachedLinks();
   const { isPending: isUserPending, user, isLoggedIn } = useAuth();
-  const [loginOpen, setLoginOpen] = React.useState(false);
+  const [loginOpen, setLoginOpen] = React.useState(props.loginOpen || false);
   const layoutRef = React.useRef<{ closeSideMenu: () => void }>(null);
   const { slug } = usePageDetails();
   const titleLink = useTitleLink();
@@ -180,13 +180,12 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
     onRouteChange: layoutRef.current?.closeSideMenu,
   });
   const { forceHideIdentity } = useForceHideIdentity();
-  const loggedInMenuOptions = useLoggedInDropdownOptions(
-    React.useCallback(() => setLoginOpen(true), [])
-  );
   const { id: realmId } = useRealmContext();
   const { hasNotifications, notificationsOutdated } = useNotifications({
     realmId,
   });
+  const openLogin = React.useCallback(() => setLoginOpen(true), []);
+  const loggedInMenuOptions = useLoggedInDropdownOptions(openLogin);
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   useServerCssVariables(containerRef);
@@ -208,7 +207,12 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
       {loginOpen && (
         <LoginModal
           isOpen={loginOpen}
-          onCloseModal={() => setLoginOpen(false)}
+          onCloseModal={() => {
+            setLoginOpen(false);
+            if (props.onLoginClose) {
+              props.onLoginClose();
+            }
+          }}
           color={currentBoardSummary?.accentColor || "#f96680"}
         />
       )}
@@ -252,7 +256,9 @@ export interface LayoutProps {
   loading?: boolean;
   title: string;
   forceHideTitle?: boolean;
+  loginOpen?: boolean;
   onCompassClick?: () => void;
+  onLoginClose?: () => void;
 }
 
 Layout.ActionButton = ActionButton;
