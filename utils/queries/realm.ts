@@ -32,6 +32,30 @@ export const getRealmInvites = async ({
   return response.data?.invites.map(makeClientDetailedRealmInvite) || [];
 };
 
+export const getInviteStatusByNonce = async ({
+  realmId,
+  nonce,
+}: {
+  realmId: string;
+  nonce: string;
+}): Promise<{
+  realmId: string;
+  realmSlug: string;
+  inviteStatus: "pending" | "used" | "expired";
+}> => {
+  const response = await axios.get(`/realms/${realmId}/invites/${nonce}`);
+  if (response.status !== 200) {
+    throw new Error(response.data?.message);
+  }
+  log(`Got invite status from server:`);
+  log(response.data);
+  return makeClientData(response.data) as {
+    realmId: string;
+    realmSlug: string;
+    inviteStatus: "pending" | "used" | "expired";
+  };
+};
+
 export const createRealmInvite = async ({
   realmId,
   email,
