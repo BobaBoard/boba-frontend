@@ -3,22 +3,28 @@ import {
   ButtonStyle,
   Input,
   InputStyle,
+  toast,
 } from "@bobaboard/ui-components";
+import { NextPage, NextPageContext } from "next";
 import React, { useEffect } from "react";
+import { useRealmId, useRealmPermissions } from "contexts/RealmContext";
 
 import Layout from "components/layout/Layout";
 import { PERSONAL_SETTINGS_PATH } from "utils/router-utils";
+import { PageContextWithQueryClient } from "additional";
 import { acceptInvite } from "utils/queries/user";
 import classnames from "classnames";
 import debug from "debug";
+import { getCurrentRealmSlug } from "utils/location-utils";
+import { getInviteStatusByNonce } from "utils/queries/realm";
 import { useAuth } from "components/Auth";
 import { useMutation } from "react-query";
-import { useRealmId } from "contexts/RealmContext";
 import { useRouter } from "next/router";
 
 const log = debug("bobafrontend:index-log");
+const error = debug("bobafrontend:index-error");
 
-const InvitesPage: React.FC<InvitesPageProps> = ({
+const InvitesPage: NextPage<InvitesPageProps> = ({
   realmSlug,
   realmId,
   inviteStatus,
@@ -26,12 +32,13 @@ const InvitesPage: React.FC<InvitesPageProps> = ({
   const [loginOpen, setLoginOpen] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const inviteStatusError =
-    inviteStatus === "used"
-      ? "This invite has already been used"
-      : inviteStatus === "expired"
-      ? "This invite has expired"
-      : "";
+  const getInviteStatusError = (inviteStatus: string) => {
+    if (inviteStatus === "pending") return "";
+    if (inviteStatus === "used") return "This invite has already been used.";
+    if (inviteStatus === "expired") return "This invite has expired.";
+    return inviteStatus;
+  };
+  const inviteStatusError = getInviteStatusError(inviteStatus);
   const [error, setError] = React.useState(inviteStatusError);
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
@@ -39,6 +46,9 @@ const InvitesPage: React.FC<InvitesPageProps> = ({
   const realmName = realmSlug
     .replace(/^(.)/, (c) => c.toUpperCase())
     .replace(/[-](.)/g, (_, c) => " " + c.toUpperCase());
+  const clientRealmId = useRealmId();
+  const realmIdToUse = realmId ? realmId : clientRealmId;
+  const alreadyRealmMember = !!useRealmPermissions().length;
 
   const { mutate: updateData } = useMutation(
     (data: {
@@ -64,19 +74,13 @@ const InvitesPage: React.FC<InvitesPageProps> = ({
     }
   );
 
-  // useEffect(() => {
-  //   if (!isUserPending && isLoggedIn) {
-  //     router
-  //       .push(
-  //         PERSONAL_SETTINGS_PATH + "?inviteSuccess",
-  //         PERSONAL_SETTINGS_PATH + "?inviteSuccess",
-  //         {
-  //           shallow: true,
-  //         }
-  //       )
-  //       .then(() => window.scrollTo(0, 0));
-  //   }
-  // }, [isLoggedIn, isUserPending]);
+  useEffect(() => {
+    if (!isUserPending && alreadyRealmMember) {
+      toast.success(`You are already a member of ${realmName}`);
+      router.push("/");
+      // .then(() => window.scrollTo(0, 0));
+    }
+  }, [alreadyRealmMember, isUserPending, router, realmName]);
 
   return (
     <Layout
@@ -98,17 +102,24 @@ const InvitesPage: React.FC<InvitesPageProps> = ({
             </div>
             {!isLoggedIn && (
               <div className="boba-welcome">
-                <img src="/bobatan.png" />
-                <p className="intro">
-                  Hello, and (almost) welcome to BobaBoard. Just one last step
-                  before you can join in the fun: time to create an account!
-                </p>
-                <p>
-                  Already have a Boba account?{" "}
-                  <Button onClick={() => setLoginOpen(!isUserPending)}>
-                    Login
-                  </Button>
-                </p>
+                <div className="welcome-header">
+                  <img src="/bobatan.png" />
+                  <div className="intro-wrapper">
+                    <p className="intro">
+                      Hello, and (almost) welcome to BobaBoard.
+                    </p>
+                    <p className="intro">
+                      Just one last step before you can join in the fun: time to
+                      create an account!
+                    </p>
+                    <p>
+                      Already have a Boba account?{" "}
+                      <Button onClick={() => setLoginOpen(!isUserPending)}>
+                        Login
+                      </Button>
+                    </p>
+                  </div>
+                </div>
                 <p>
                   In order to protect your precious invite, it's been betrothed
                   to your precious email. Make sure what you enter matches what
@@ -178,18 +189,18 @@ const InvitesPage: React.FC<InvitesPageProps> = ({
                       nonce: router.query.inviteId as string,
                       email,
                       password,
-                      realmId,
+                      realmId: realmIdToUse,
                     });
                   }}
                   theme={ButtonStyle.DARK}
                 >
-                  Join
+                  Join {realmName}
                 </Button>
               </div>
             </div>
             <div className="ps">
               <p>
-                Not interested in this realm?{" "}
+                Not interested in the {realmName} realm?{" "}
                 {isLoggedIn ? (
                   <a href="http://v0.boba.social">Go back to V0</a>
                 ) : (
@@ -216,38 +227,55 @@ const InvitesPage: React.FC<InvitesPageProps> = ({
               color: #f96680;
             }
             .invite-signup {
-              max-width: 500px;
+              max-width: 800px;
               margin: 50px auto 70px;
             }
 
             .hero > img {
-              max-width: 350px;
+              width: 100%;
+              max-width: 300px;
               display: block;
               margin: 0 auto;
               border-radius: 50%;
             }
 
             .hero > h1 {
-              font-size: 24px;
-              font-weight: 300;
+              font-size: 36px;
+              font-weight: 700;
               line-height: 1.3em;
+              margin: 1em auto;
+              text-align: center;
             }
+
+            .rules {
+              background-color: black;
+              width: 75%;
+              height: 300px;
+              margin: 0 auto;
+              border-radius: 15px;
+            }
+
+            .welcome-header {
+              display: flex;
+              align-items: center;
+              margin-top: 2em;
+            }
+
             .intro {
               font-size: 24px;
               font-weight: 300;
               line-height: 1.3em;
             }
 
-            .boba-welcome > img {
+            .welcome-header > img {
               max-width: 200px;
-              float: left;
-              shape-outside: circle(50%);
+              max-height: 200px;
+              margin-right: 1.3em;
               border-radius: 50%;
             }
             .inputs {
-              margin: 0 auto;
-              margin-bottom: 15px;
-              width: 100%;
+              margin: 35px auto 45px;
+              width: 75%;
             }
             .inputs > div:first-child {
               margin-bottom: 5px;
@@ -265,6 +293,11 @@ const InvitesPage: React.FC<InvitesPageProps> = ({
             .error.hidden {
               visibility: hidden;
             }
+
+            .ps {
+              margin: 0 auto;
+              text-align: center;
+            }
           `}</style>
         </div>
       </Layout.MainContent>
@@ -275,7 +308,41 @@ const InvitesPage: React.FC<InvitesPageProps> = ({
 export default InvitesPage;
 
 export interface InvitesPageProps {
-  realmId: string;
+  realmId?: string;
   realmSlug: string;
-  inviteStatus: "pending" | "used" | "expired";
+  inviteStatus: string;
 }
+
+InvitesPage.getInitialProps = async (ctx: NextPageContext) => {
+  try {
+    if (typeof ctx.query.inviteId !== "string") {
+      throw new Error("Invalid invite URL");
+    }
+    const nonce = ctx.query.inviteId;
+    log(`Fetching status for invite with nonce: ${nonce}`);
+    const invite = await getInviteStatusByNonce({
+      realmId: "placeholderId",
+      nonce,
+    });
+    if (!invite) {
+      throw new Error("An error occured while finding invite");
+    }
+    const urlRealmSlug = getCurrentRealmSlug({
+      serverHostname: ctx.req?.headers.host,
+    });
+    if (urlRealmSlug !== invite.realmSlug) {
+      ctx.res?.writeHead(302, {
+        location: `http://${invite.realmSlug}.boba.social/invites/${nonce}`,
+      });
+      ctx.res?.end();
+      return invite;
+    }
+    return invite;
+  } catch (e) {
+    error(e);
+    const urlRealmSlug = getCurrentRealmSlug({
+      serverHostname: ctx.req?.headers.host,
+    });
+    return { realmSlug: urlRealmSlug, inviteStatus: e };
+  }
+};
