@@ -169,7 +169,7 @@ function useTitleLink() {
 const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const { linkToHome } = useCachedLinks();
   const { isPending: isUserPending, user, isLoggedIn } = useAuth();
-  const [loginOpen, setLoginOpen] = React.useState(props.loginOpen || false);
+  const [loginOpen, setLoginOpen] = React.useState(false);
   const layoutRef = React.useRef<{ closeSideMenu: () => void }>(null);
   const { slug } = usePageDetails();
   const titleLink = useTitleLink();
@@ -206,9 +206,6 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
           isOpen={loginOpen}
           onCloseModal={() => {
             setLoginOpen(false);
-            if (props.onLoginClose) {
-              props.onLoginClose();
-            }
           }}
           color={currentBoardSummary?.accentColor || "#f96680"}
         />
@@ -253,9 +250,7 @@ export interface LayoutProps {
   loading?: boolean;
   title: string;
   forceHideTitle?: boolean;
-  loginOpen?: boolean;
   onCompassClick?: () => void;
-  onLoginClose?: () => void;
 }
 
 Layout.ActionButton = ActionButton;
