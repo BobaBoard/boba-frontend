@@ -7,6 +7,7 @@ import {
 } from "@bobaboard/ui-components";
 import { NextPage, NextPageContext } from "next";
 import React, { useEffect } from "react";
+import { getInviteStatusByNonce, getRealmData } from "utils/queries/realm";
 import { useRealmId, useRealmPermissions } from "contexts/RealmContext";
 
 import Layout from "components/layout/Layout";
@@ -16,7 +17,6 @@ import { acceptInvite } from "utils/queries/user";
 import classnames from "classnames";
 import debug from "debug";
 import { getCurrentRealmSlug } from "utils/location-utils";
-import { getInviteStatusByNonce } from "utils/queries/realm";
 import { useAuth } from "components/Auth";
 import { useMutation } from "react-query";
 import { useRouter } from "next/router";
@@ -29,7 +29,6 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
   realmId,
   inviteStatus,
 }) => {
-  const [loginOpen, setLoginOpen] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const getInviteStatusError = (inviteStatus: string) => {
@@ -47,7 +46,6 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
     .replace(/^(.)/, (c) => c.toUpperCase())
     .replace(/[-](.)/g, (_, c) => " " + c.toUpperCase());
   const clientRealmId = useRealmId();
-  const realmIdToUse = realmId ? realmId : clientRealmId;
   const alreadyRealmMember = !!useRealmPermissions().length;
 
   const { mutate: updateData } = useMutation(
@@ -83,11 +81,7 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
   }, [alreadyRealmMember, isUserPending, router, realmName]);
 
   return (
-    <Layout
-      title={`Invites`}
-      loginOpen={loginOpen}
-      onLoginClose={() => setLoginOpen(false)}
-    >
+    <Layout title={`Invites`}>
       <Layout.MainContent>
         <div className="page">
           <div className="invite-signup">
@@ -112,12 +106,19 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
                       Just one last step before you can join in the fun: time to
                       create an account!
                     </p>
-                    <p>
+                    <div>
                       Already have a Boba account?{" "}
-                      <Button onClick={() => setLoginOpen(!isUserPending)}>
-                        Login
-                      </Button>
-                    </p>
+                      <span className="login-button">
+                        <Button
+                          onClick={() => {
+                            console.log("clicked login button");
+                          }}
+                          theme={ButtonStyle.DARK}
+                        >
+                          Login
+                        </Button>
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <p>
@@ -148,9 +149,9 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
                 </p>
               </div>
             )}
-            <div className={classnames("inputs", { pending: isUserPending })}>
+            <div className={classnames("form", { pending: isUserPending })}>
               {!isLoggedIn && (
-                <div>
+                <div className="inputs">
                   <div>
                     <Input
                       id={"email"}
@@ -189,7 +190,7 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
                       nonce: router.query.inviteId as string,
                       email,
                       password,
-                      realmId: realmIdToUse,
+                      realmId: realmId ?? clientRealmId,
                     });
                   }}
                   theme={ButtonStyle.DARK}
@@ -202,7 +203,7 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
               <p>
                 Not interested in the {realmName} realm?{" "}
                 {isLoggedIn ? (
-                  <a href="http://v0.boba.social">Go back to V0</a>
+                  <a href="https://v0.boba.social">Go back to V0</a>
                 ) : (
                   <span>
                     No worries, we hope you find a realm that suits in future.
@@ -243,7 +244,7 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
               font-size: 36px;
               font-weight: 700;
               line-height: 1.3em;
-              margin: 1em auto;
+              margin: 1.3em auto 1.5em;
               text-align: center;
             }
 
@@ -258,27 +259,39 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
             .welcome-header {
               display: flex;
               align-items: center;
-              margin-top: 2em;
+              margin-top: 40px;
+              margin-bottom: 24px;
+              gap: 21px;
             }
 
             .intro {
               font-size: 24px;
               font-weight: 300;
               line-height: 1.3em;
+               {
+                /* margin: 0; */
+              }
             }
 
             .welcome-header > img {
+               {
+                /* grid-row: 1/4; */
+              }
               max-width: 200px;
               max-height: 200px;
-              margin-right: 1.3em;
+               {
+                /* margin-right: 1.3em; */
+              }
               border-radius: 50%;
             }
-            .inputs {
-              margin: 35px auto 45px;
+
+            .form {
+              margin: 0 auto 45px;
               width: 75%;
             }
             .inputs > div:first-child {
               margin-bottom: 5px;
+              margin-top: 35px;
             }
             .buttons {
               display: flex;
@@ -297,6 +310,16 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
             .ps {
               margin: 0 auto;
               text-align: center;
+            }
+
+            @media (max-width: 720px) {
+              .welcome-header {
+                flex-direction: column;
+              }
+              .form,
+              .rules {
+                width: 100%;
+              }
             }
           `}</style>
         </div>
@@ -319,18 +342,22 @@ InvitesPage.getInitialProps = async (ctx: NextPageContext) => {
       throw new Error("Invalid invite URL");
     }
     const nonce = ctx.query.inviteId;
+    const urlRealmSlug = getCurrentRealmSlug({
+      serverHostname: ctx.req?.headers.host,
+    });
+    const urlRealmId = (await getRealmData({ realmSlug: urlRealmSlug })).id;
     log(`Fetching status for invite with nonce: ${nonce}`);
     const invite = await getInviteStatusByNonce({
-      realmId: "placeholderId",
+      realmId: urlRealmId ?? "placeholderId",
       nonce,
     });
     if (!invite) {
       throw new Error("An error occured while finding invite");
     }
-    const urlRealmSlug = getCurrentRealmSlug({
-      serverHostname: ctx.req?.headers.host,
-    });
     if (urlRealmSlug !== invite.realmSlug) {
+      log(
+        `URL Realm does not match invite Realm. Rerouting to to invite realm ${invite.realmSlug}`
+      );
       ctx.res?.writeHead(302, {
         location: `http://${invite.realmSlug}.boba.social/invites/${nonce}`,
       });
@@ -343,6 +370,6 @@ InvitesPage.getInitialProps = async (ctx: NextPageContext) => {
     const urlRealmSlug = getCurrentRealmSlug({
       serverHostname: ctx.req?.headers.host,
     });
-    return { realmSlug: urlRealmSlug, inviteStatus: e };
+    return { realmSlug: urlRealmSlug, inviteStatus: `${e.name}: ${e.message}` };
   }
 };
