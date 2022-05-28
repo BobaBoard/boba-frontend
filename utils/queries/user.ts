@@ -29,17 +29,13 @@ export const getBobadex = async (): Promise<any> => {
   return response.data;
 };
 
-// We create a new axios so we don't have the interceptor for error
-// displaying them in a toast. These will be displayed directly in the UI.
-const inviteAxios = axios.create();
-inviteAxios.defaults.baseURL = getServerBaseUrl();
 export const acceptInvite = async (data: {
   realmId: string;
   nonce: string;
   email?: string;
   password?: string;
 }) => {
-  const response = await inviteAxios.post(
+  const response = await axios.post(
     `/realms/${data.realmId}/invites/${data.nonce}`,
     { email: data.email, password: data.password }
   );
