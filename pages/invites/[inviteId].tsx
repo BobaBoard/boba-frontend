@@ -7,16 +7,15 @@ import {
 } from "@bobaboard/ui-components";
 import { NextPage, NextPageContext } from "next";
 import React, { useEffect } from "react";
+import { getCurrentRealmSlug, isLocalhost } from "utils/location-utils";
 import { getInviteStatusByNonce, getRealmData } from "utils/queries/realm";
 import { useRealmId, useRealmPermissions } from "contexts/RealmContext";
 
 import Layout from "components/layout/Layout";
-import { PERSONAL_SETTINGS_PATH } from "utils/router-utils";
-import { PageContextWithQueryClient } from "additional";
+import LoginModal from "components/LoginModal";
 import { acceptInvite } from "utils/queries/user";
 import classnames from "classnames";
 import debug from "debug";
-import { getCurrentRealmSlug } from "utils/location-utils";
 import { useAuth } from "components/Auth";
 import { useMutation } from "react-query";
 import { useRouter } from "next/router";
@@ -40,8 +39,13 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
   const inviteStatusError = getInviteStatusError(inviteStatus);
   const [error, setError] = React.useState(inviteStatusError);
   const [loading, setLoading] = React.useState(false);
-  const router = useRouter();
   const { isPending: isUserPending, isLoggedIn, attemptLogin } = useAuth();
+  const [loginOpen, setLoginOpen] = React.useState(false);
+  const openLoginModal = React.useCallback(() => {
+    setLoginOpen(!isUserPending);
+    console.log("clicked login button");
+  }, [isUserPending]);
+  const router = useRouter();
   const realmName = realmSlug
     .replace(/^(.)/, (c) => c.toUpperCase())
     .replace(/[-](.)/g, (_, c) => " " + c.toUpperCase());
@@ -56,11 +60,12 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
       nonce: string;
     }) => acceptInvite(data),
     {
-      onSuccess: () => {
-        if (!isLoggedIn) {
-          attemptLogin!(email, password);
+      onSuccess: async (data) => {
+        console.log(data);
+        if (!isLoggedIn && !isUserPending) {
+          await attemptLogin!(email, password);
         }
-        router.push("/");
+        router.push("/").then(() => window.scrollTo(0, 0));
       },
       onError: (e) => {
         log(`Error while accepting invite:`);
@@ -72,17 +77,63 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
     }
   );
 
+  const onSubmit = React.useCallback(async () => {
+    try {
+      if (inviteStatus !== "pending") {
+        return;
+      }
+      if (!isLoggedIn && (email.trim().length == 0 || password.length == 0)) {
+        setError("Email and password required.");
+        return;
+      }
+      if (isUserPending) {
+        return;
+      }
+      setLoading(true);
+      if (!isLoggedIn) {
+        await attemptLogin!(email, password);
+      }
+      updateData({
+        nonce: router.query.inviteId as string,
+        email,
+        password,
+        realmId: realmId ?? clientRealmId,
+      });
+    } catch (e) {
+      setError(`${e.name}: ${e.message}`);
+    }
+  }, [
+    router,
+    email,
+    password,
+    realmId,
+    attemptLogin,
+    updateData,
+    isLoggedIn,
+    clientRealmId,
+    inviteStatus,
+    isUserPending,
+  ]);
+
   useEffect(() => {
     if (!isUserPending && alreadyRealmMember) {
       toast.success(`You are already a member of ${realmName}`);
-      router.push("/");
-      // .then(() => window.scrollTo(0, 0));
+      router.push("/").then(() => window.scrollTo(0, 0));
     }
   }, [alreadyRealmMember, isUserPending, router, realmName]);
 
   return (
     <Layout title={`Invites`}>
       <Layout.MainContent>
+        {loginOpen && (
+          <LoginModal
+            isOpen={loginOpen}
+            onCloseModal={() => {
+              setLoginOpen(false);
+            }}
+            color={"#f96680"}
+          />
+        )}
         <div className="page">
           <div className="invite-signup">
             <div className="hero">
@@ -110,9 +161,7 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
                       Already have a Boba account?{" "}
                       <span className="login-button">
                         <Button
-                          onClick={() => {
-                            console.log("clicked login button");
-                          }}
+                          onClick={openLoginModal}
                           theme={ButtonStyle.DARK}
                         >
                           Login
@@ -158,6 +207,7 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
                       value={email}
                       label={"Email"}
                       onTextChange={(text: string) => setEmail(text)}
+                      onEnter={onSubmit}
                       disabled={loading}
                       theme={InputStyle.DARK}
                     />
@@ -168,6 +218,7 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
                       value={password}
                       label={"Password"}
                       onTextChange={(text: string) => setPassword(text)}
+                      onEnter={onSubmit}
                       password
                       disabled={loading}
                       theme={InputStyle.DARK}
@@ -180,19 +231,13 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
               </div>
               <div className="buttons">
                 <Button
-                  disabled={inviteStatus === "pending" ? false : true}
-                  onClick={() => {
-                    setLoading(true);
-                    if (!isLoggedIn) {
-                      attemptLogin!(email, password);
-                    }
-                    updateData({
-                      nonce: router.query.inviteId as string,
-                      email,
-                      password,
-                      realmId: realmId ?? clientRealmId,
-                    });
-                  }}
+                  disabled={
+                    (inviteStatus === "pending" ? false : true) ||
+                    (!isLoggedIn &&
+                      (email.trim().length == 0 || password.length == 0)) ||
+                    isUserPending
+                  }
+                  onClick={onSubmit}
                   theme={ButtonStyle.DARK}
                 >
                   Join {realmName}
@@ -234,7 +279,7 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
 
             .hero > img {
               width: 100%;
-              max-width: 300px;
+              max-width: 250px;
               display: block;
               margin: 0 auto;
               border-radius: 50%;
@@ -249,11 +294,8 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
             }
 
             .rules {
-              background-color: black;
               width: 75%;
-              height: 300px;
               margin: 0 auto;
-              border-radius: 15px;
             }
 
             .welcome-header {
@@ -268,20 +310,11 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
               font-size: 24px;
               font-weight: 300;
               line-height: 1.3em;
-               {
-                /* margin: 0; */
-              }
             }
 
             .welcome-header > img {
-               {
-                /* grid-row: 1/4; */
-              }
               max-width: 200px;
               max-height: 200px;
-               {
-                /* margin-right: 1.3em; */
-              }
               border-radius: 50%;
             }
 
@@ -358,10 +391,17 @@ InvitesPage.getInitialProps = async (ctx: NextPageContext) => {
       log(
         `URL Realm does not match invite Realm. Rerouting to to invite realm ${invite.realmSlug}`
       );
-      ctx.res?.writeHead(302, {
-        location: `http://${invite.realmSlug}.boba.social/invites/${nonce}`,
-      });
-      ctx.res?.end();
+      if (isLocalhost(ctx.req?.headers.host)) {
+        ctx.res?.writeHead(302, {
+          location: `http://${invite.realmSlug}_boba.local:3000/invites/${nonce}`,
+        });
+        ctx.res?.end();
+      } else {
+        ctx.res?.writeHead(302, {
+          location: `https://${invite.realmSlug}.boba.social/invites/${nonce}`,
+        });
+        ctx.res?.end();
+      }
       return invite;
     }
     return invite;
