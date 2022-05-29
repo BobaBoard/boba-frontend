@@ -1,4 +1,9 @@
-import { BoardsDisplay, PostQuote, useBoos } from "@bobaboard/ui-components";
+import {
+  BoardsDisplay,
+  PostQuote,
+  RulesBlock,
+  useBoos,
+} from "@bobaboard/ui-components";
 import { useRealmBoards, useRealmHomepage } from "contexts/RealmContext";
 
 import Layout from "components/layout/Layout";
@@ -131,6 +136,15 @@ const HomePage: NextPage<{
               <div className="tagline">
                 "Where the bugs are funny and the people are cool" — Outdated
                 Meme
+              </div>
+              <div className="rules-block">
+                <RulesBlock
+                  seeAllLink={{}}
+                  title={realmHomepage.blocks[0].title}
+                  rules={realmHomepage.blocks[0].rules.filter(
+                    (rule) => rule.pinned
+                  )}
+                />
               </div>
               {isStaging() && <StagingWarning />}
               <p>
