@@ -291,6 +291,7 @@ export interface BoardNotifications {
 export interface UserNotifications {
   hasNotifications: boolean;
   isOutdatedNotifications: boolean;
+  realmId: string;
   realmBoards: Record<string, BoardNotifications>;
   pinnedBoards: Record<string, BoardNotifications>;
 }
