@@ -46,8 +46,10 @@ export const pinBoard = async ({
 
 export const dismissBoardNotifications = async ({
   boardId,
+  realmId,
 }: {
   boardId: string;
+  realmId: string;
 }) => {
   await axios.post(`boards/${boardId}/notifications/dismiss`);
   return true;
