@@ -8,3 +8,9 @@ export const copyText = (text: string) => {
   document.execCommand("copy");
   document.body.removeChild(tempInput);
 };
+
+export const getRealmNameFromSlug = (realmSlug: string) => {
+  return realmSlug
+    .replace(/^(.)/, (c) => c.toUpperCase())
+    .replace(/[-](.)/g, (_, c) => " " + c.toUpperCase());
+};

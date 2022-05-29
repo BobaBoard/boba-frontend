@@ -19,6 +19,7 @@ import debug from "debug";
 import { useAuth } from "components/Auth";
 import { useMutation } from "react-query";
 import { useRouter } from "next/router";
+import { getRealmNameFromSlug } from "utils/text-utils";
 
 const log = debug("bobafrontend:index-log");
 const error = debug("bobafrontend:index-error");
@@ -51,9 +52,7 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
     console.log("clicked login button");
   }, [isUserPending]);
   const router = useRouter();
-  const realmName = realmSlug
-    .replace(/^(.)/, (c) => c.toUpperCase())
-    .replace(/[-](.)/g, (_, c) => " " + c.toUpperCase());
+  const realmName = getRealmNameFromSlug(realmSlug);
   const clientRealmId = useRealmId();
 
   // This assumes that only realm members will have realm permissions.
