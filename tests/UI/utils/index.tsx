@@ -124,6 +124,21 @@ export const getAdminPanelRoute = ({
   basePath: "",
 });
 
+export const getInvitesPageRoute = ({
+  nonce,
+}: {
+  nonce: string;
+}): NextRouter => ({
+  ...BASE_ROUTER,
+  pathname: "/invites/[inviteId]",
+  route: "/invites/[inviteId]",
+  query: {
+    inviteId: nonce,
+  },
+  asPath: `/invites/${nonce}`,
+  basePath: "",
+});
+
 const oldWindow = window.location;
 export const Client = ({
   children,
@@ -182,6 +197,82 @@ export const Client = ({
             isPending: false,
             user: userData,
             refreshUserData: setUserData,
+          }}
+        >
+          <ImageUploaderContext.Provider
+            value={{ onImageUploadRequest: jest.fn() }}
+          >
+            <ToastContainer />
+            <RealmContextProvider serverHostname={undefined}>
+              {children}
+            </RealmContextProvider>
+          </ImageUploaderContext.Provider>
+        </AuthContext.Provider>
+      </QueryClientProvider>
+    </QueryParamProvider>
+  );
+};
+
+export const LoggedOutClient = ({
+  children,
+  router,
+  initialData,
+}: {
+  children: React.ReactNode;
+  router: NextRouter;
+  initialData?: {
+    realm?: RealmType;
+  };
+}) => {
+  const [userData, setUserData] = React.useState<{
+    username: string;
+    avatarUrl: string;
+  }>({
+    username: "",
+    avatarUrl: "",
+  });
+  usePageDataListener(router, undefined);
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        cacheTime: Infinity,
+      },
+    },
+  });
+
+  useRouter.mockImplementationOnce(() => router);
+  queryClient.setQueryData(
+    [
+      REALM_QUERY_KEY,
+      {
+        realmSlug: initialData?.realm?.slug || V0_DATA.slug,
+        isLoggedIn: false,
+      },
+    ],
+    initialData?.realm || makeRealmData(V0_DATA)
+  );
+
+  Object.defineProperty(window, "location", {
+    value: {
+      ...oldWindow,
+      hostname: "v0_boba.social",
+    },
+    writable: true,
+  });
+
+  const mockAttemptLogin = jest.fn();
+
+  return (
+    <QueryParamProvider router={router}>
+      <QueryClientProvider client={queryClient}>
+        <AuthContext.Provider
+          value={{
+            isLoggedIn: false,
+            isPending: false,
+            user: undefined,
+            refreshUserData: setUserData,
+            attemptLogin: mockAttemptLogin,
           }}
         >
           <ImageUploaderContext.Provider
