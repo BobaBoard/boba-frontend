@@ -39,7 +39,12 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
   const inviteStatusError = getInviteStatusError(inviteStatus);
   const [error, setError] = React.useState(inviteStatusError);
   const [loading, setLoading] = React.useState(false);
-  const { isPending: isUserPending, isLoggedIn, attemptLogin } = useAuth();
+  const {
+    isPending: isUserPending,
+    isLoggedIn,
+    attemptLogin,
+    authError,
+  } = useAuth();
   const [loginOpen, setLoginOpen] = React.useState(false);
   const openLoginModal = React.useCallback(() => {
     setLoginOpen(!isUserPending);
@@ -50,6 +55,10 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
     .replace(/^(.)/, (c) => c.toUpperCase())
     .replace(/[-](.)/g, (_, c) => " " + c.toUpperCase());
   const clientRealmId = useRealmId();
+
+  // This assumes that only realm members will have realm permissions.
+  // If that changes this can be changed to specifically check for whatever we call the permission
+  // that members will get to allow them to post and etc on the realm.
   const alreadyRealmMember = !!useRealmPermissions().length;
 
   const { mutate: updateData } = useMutation(
@@ -78,30 +87,26 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
   );
 
   const onSubmit = React.useCallback(async () => {
-    try {
-      if (inviteStatus !== "pending") {
-        return;
-      }
-      if (!isLoggedIn && (email.trim().length == 0 || password.length == 0)) {
-        setError("Email and password required.");
-        return;
-      }
-      if (isUserPending) {
-        return;
-      }
-      setLoading(true);
-      if (!isLoggedIn) {
-        await attemptLogin!(email, password);
-      }
-      updateData({
-        nonce: router.query.inviteId as string,
-        email,
-        password,
-        realmId: realmId ?? clientRealmId,
-      });
-    } catch (e) {
-      setError(`${e.name}: ${e.message}`);
+    if (inviteStatus !== "pending") {
+      return;
     }
+    if (!isLoggedIn && (email.trim().length == 0 || password.length == 0)) {
+      setError("Email and password required.");
+      return;
+    }
+    if (isUserPending) {
+      return;
+    }
+    setLoading(true);
+    if (!isLoggedIn) {
+      await attemptLogin!(email, password);
+    }
+    updateData({
+      nonce: router.query.inviteId as string,
+      email,
+      password,
+      realmId: realmId ?? clientRealmId,
+    });
   }, [
     router,
     email,
@@ -121,6 +126,19 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
       router.push("/").then(() => window.scrollTo(0, 0));
     }
   }, [alreadyRealmMember, isUserPending, router, realmName]);
+
+  useEffect(() => {
+    // This shows the authError if the user exists but enters the wrong password,
+    // but doesn't show an error if the email doesn't belong to an existing account.
+    if (
+      authError &&
+      authError !==
+        "There is no user record corresponding to this identifier. The user may have been deleted."
+    ) {
+      setError(authError);
+      console.log(authError);
+    }
+  }, [authError]);
 
   return (
     <Layout title={`Invites`}>
@@ -276,7 +294,6 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
               max-width: 800px;
               margin: 50px auto 70px;
             }
-
             .hero > img {
               width: 100%;
               max-width: 250px;
@@ -284,7 +301,6 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
               margin: 0 auto;
               border-radius: 50%;
             }
-
             .hero > h1 {
               font-size: 36px;
               font-weight: 700;
@@ -292,12 +308,10 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
               margin: 1.3em auto 1.5em;
               text-align: center;
             }
-
             .rules {
               width: 75%;
               margin: 0 auto;
             }
-
             .welcome-header {
               display: flex;
               align-items: center;
@@ -305,19 +319,16 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
               margin-bottom: 24px;
               gap: 21px;
             }
-
             .intro {
               font-size: 24px;
               font-weight: 300;
               line-height: 1.3em;
             }
-
             .welcome-header > img {
               max-width: 200px;
               max-height: 200px;
               border-radius: 50%;
             }
-
             .form {
               margin: 0 auto 45px;
               width: 75%;
@@ -339,12 +350,10 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
             .error.hidden {
               visibility: hidden;
             }
-
             .ps {
               margin: 0 auto;
               text-align: center;
             }
-
             @media (max-width: 720px) {
               .welcome-header {
                 flex-direction: column;
@@ -385,7 +394,7 @@ InvitesPage.getInitialProps = async (ctx: NextPageContext) => {
       nonce,
     });
     if (!invite) {
-      throw new Error("An error occured while finding invite");
+      throw new Error("An error occurred while finding invite");
     }
     if (urlRealmSlug !== invite.realmSlug) {
       log(
