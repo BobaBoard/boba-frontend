@@ -51,7 +51,7 @@ export const dismissBoardNotifications = async ({
   boardId: string;
   realmId: string;
 }) => {
-  await axios.post(`boards/${boardId}/notifications/dismiss`);
+  await axios.delete(`boards/${boardId}/notifications`);
   return true;
 };
 
