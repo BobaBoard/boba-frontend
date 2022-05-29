@@ -45,4 +45,34 @@ export default [
       })
     );
   }),
+  rest.get(
+    `/realms/${LOGGED_IN_V0_DATA.id}/invites/QRSnew_invite_codeXYZ`,
+    (req, res, ctx) => {
+      log("fetching invite status for invite with nonce QRSnew_invite_codeXYZ");
+      return res(
+        ctx.status(200),
+        ctx.json({
+          realm_id: V0_CREATED_INVITE.realm_id,
+          realm_slug: LOGGED_IN_V0_DATA.slug,
+          invite_status: "pending",
+        })
+      );
+    }
+  ),
+  rest.post<{
+    email?: string;
+    password?: string;
+  }>(
+    `/realms/${LOGGED_IN_V0_DATA.id}/invites/QRSnew_invite_codeXYZ`,
+    (req, res, ctx) => {
+      log("accepting invite with nonce QRSnew_invite_codeXYZ");
+      return res(
+        ctx.status(200),
+        ctx.json({
+          realm_id: V0_CREATED_INVITE.realm_id,
+          realm_slug: LOGGED_IN_V0_DATA.slug,
+        })
+      );
+    }
+  ),
 ];
