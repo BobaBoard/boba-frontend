@@ -247,7 +247,7 @@ export interface RulesBlock {
   id: string;
   index: string;
   title: string;
-  type: "block";
+  type: "rules";
   rules: {
     index: number;
     title: string;
