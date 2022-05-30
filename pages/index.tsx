@@ -108,8 +108,6 @@ const HomePage: NextPage<{
   const realmHomepage = useRealmHomepage();
   const { realmBoardsNotifications } = useNotifications();
 
-  console.log(realmHomepage);
-
   const boardsToDisplay = React.useMemo(() => {
     return boards
       .filter((board) => !board.delisted)
@@ -123,6 +121,10 @@ const HomePage: NextPage<{
         link: getLinkToBoard(board.slug),
       }));
   }, [boards, realmBoardsNotifications, getLinkToBoard]);
+
+  const rulesBlock = realmHomepage.blocks.find(
+    (block) => block.type === "rules"
+  );
 
   return (
     <div className="main">
@@ -138,13 +140,13 @@ const HomePage: NextPage<{
                 Meme
               </div>
               <div className="rules-block">
-                <RulesBlock
-                  seeAllLink={{}}
-                  title={realmHomepage.blocks[0].title}
-                  rules={realmHomepage.blocks[0].rules.filter(
-                    (rule) => rule.pinned
-                  )}
-                />
+                {!!rulesBlock && (
+                  <RulesBlock
+                    seeAllLink={{}}
+                    title={rulesBlock.title}
+                    rules={rulesBlock.rules.filter((rule) => rule.pinned)}
+                  />
+                )}
               </div>
               {isStaging() && <StagingWarning />}
               <p>
