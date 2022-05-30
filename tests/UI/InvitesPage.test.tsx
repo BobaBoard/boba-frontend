@@ -1,33 +1,26 @@
-import {
-  Client,
-  getAdminPanelRoute,
-  getInvitesPageRoute,
-  LoggedOutClient,
-} from "./utils";
+import { Client, LoggedOutClient, getInvitesPageRoute } from "./utils";
 import {
   LOGGED_IN_V0_DATA,
   V0_CREATED_INVITE,
+  V0_CREATED_INVITE_NONCE,
   V0_DATA,
-  V0_INVITES,
 } from "../server-mocks/data/realm";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 
-import AdminPage from "pages/realms/admin/[[...panelId]]";
 import InvitesPage from "pages/invites/[inviteId]";
 import React from "react";
+import { acceptInvite } from "utils/queries/user";
 import debug from "debug";
-import { format } from "date-fns";
-import { makeRealmData } from "utils/client-data";
-import { matchMedia } from "@shopify/jest-dom-mocks";
-import { rest } from "msw";
-import { server } from "../server-mocks";
-import userEvent from "@testing-library/user-event";
 import { getRealmNameFromSlug } from "utils/text-utils";
+import { makeRealmData } from "utils/client-data";
+import userEvent from "@testing-library/user-event";
 
 const log = debug("bobafrontend:tests:UI:InvitesPage");
 
+// const original = jest.requireActual("../utils/queries/user");
+
 const INVITES_ROUTER = getInvitesPageRoute({
-  nonce: "QRSnew_invite_codeXYZ",
+  nonce: V0_CREATED_INVITE_NONCE,
 });
 
 const V0_REALM_NAME = getRealmNameFromSlug(V0_DATA.slug);
@@ -62,12 +55,13 @@ describe("InvitesPanel", () => {
     expect(
       screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
     ).toBeDisabled();
-    const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(4);
-    expect(links[0]).toHaveTextContent("Welcome Guide");
-    expect(links[1]).toHaveTextContent("Twitter");
-    expect(links[2]).toHaveTextContent("Tumblr");
-    expect(links[3]).toHaveTextContent("BobaBoard.com");
+    expect(screen.getByRole("link", { name: "Welcome Guide" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Twitter" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Tumblr" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "BobaBoard.com" })).toBeVisible();
+    expect(
+      screen.queryByRole("link", { name: "Go back to V0" })
+    ).not.toBeInTheDocument();
   });
 
   test("renders logged in invite page", async () => {
@@ -95,16 +89,26 @@ describe("InvitesPanel", () => {
     expect(
       screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
     ).toBeVisible();
-    const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(1);
-    expect(links[0]).toHaveTextContent("Go back to V0");
+    expect(
+      screen.queryByRole("link", { name: "Welcome Guide" })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Twitter" })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Tumblr" })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "BobaBoard.com" })
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Go back to V0" })).toBeVisible();
   });
 
   test("Redirects when user is logged in and already a member of the realm", async () => {
     render(
       <Client
         router={INVITES_ROUTER}
-        initialData={{ realm: makeRealmData(V0_DATA) }}
+        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) }}
       >
         <InvitesPage
           realmSlug={V0_DATA.slug}
@@ -114,7 +118,16 @@ describe("InvitesPanel", () => {
       </Client>
     );
 
-    // TODO: fill this
+    await waitFor(() => {
+      // I can't figure out how to test that the redirects are working.
+      // If I try it with the commented out expects below, jest gives me
+      // Matcher error: received value must be a mock or spy function
+      // but if I'm understanding what is happening in /tests/UI/utils/index.tsx
+      // isn't it being spied on there?
+      // expect(INVITES_ROUTER.push).toHaveBeenCalledWith("/");
+      // expect(INVITES_ROUTER.push).toHaveReturnedWith(true);
+      expect(screen.getByText(`You are already a member of ${V0_REALM_NAME}`));
+    });
   });
 
   test("Correctly renders error message if invite used", async () => {
@@ -206,7 +219,14 @@ describe("InvitesPanel", () => {
       </Client>
     );
 
-    // TODO: fill this
+    userEvent.click(
+      screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
+    );
+
+    // await waitFor(() => {
+    //   expect(INVITES_ROUTER.push).toHaveBeenCalledWith("/");
+    //   expect(INVITES_ROUTER.push).toHaveReturnedWith(true);
+    // });
   });
 
   test("Correctly accepts invite when logged out", async () => {
@@ -223,6 +243,32 @@ describe("InvitesPanel", () => {
       </LoggedOutClient>
     );
 
-    // TODO: fill this
+    expect(
+      screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
+    ).toBeDisabled();
+
+    userEvent.type(
+      screen.getByLabelText("Email"),
+      V0_CREATED_INVITE.invitee_email
+    );
+    expect(screen.getByLabelText("Email")).toHaveValue(
+      V0_CREATED_INVITE.invitee_email
+    );
+    const NEW_USER_PASSWORD = "ThIsIsReAlLySeCuRe";
+    userEvent.type(screen.getByLabelText("Password"), NEW_USER_PASSWORD);
+    expect(screen.getByLabelText("Password")).toHaveValue(NEW_USER_PASSWORD);
+
+    expect(
+      screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
+    ).toBeEnabled();
+
+    userEvent.click(
+      screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
+    );
+
+    // await waitFor(() => {
+    //   expect(INVITES_ROUTER.push).toHaveBeenCalledWith("/");
+    //   expect(INVITES_ROUTER.push).toHaveReturnedWith(true);
+    // });
   });
 });

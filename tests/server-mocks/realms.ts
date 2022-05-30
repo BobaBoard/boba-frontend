@@ -1,4 +1,9 @@
-import { LOGGED_IN_V0_DATA, V0_CREATED_INVITE, V0_INVITES } from "./data/realm";
+import {
+  LOGGED_IN_V0_DATA,
+  V0_CREATED_INVITE,
+  V0_CREATED_INVITE_NONCE,
+  V0_INVITES,
+} from "./data/realm";
 
 import debug from "debug";
 import { rest } from "msw";
@@ -46,9 +51,11 @@ export default [
     );
   }),
   rest.get(
-    `/realms/${LOGGED_IN_V0_DATA.id}/invites/QRSnew_invite_codeXYZ`,
+    `/realms/${LOGGED_IN_V0_DATA.id}/invites/${V0_CREATED_INVITE_NONCE}`,
     (req, res, ctx) => {
-      log("fetching invite status for invite with nonce QRSnew_invite_codeXYZ");
+      log(
+        `fetching invite status for invite with nonce ${V0_CREATED_INVITE_NONCE}`
+      );
       return res(
         ctx.status(200),
         ctx.json({
@@ -63,9 +70,9 @@ export default [
     email?: string;
     password?: string;
   }>(
-    `/realms/${LOGGED_IN_V0_DATA.id}/invites/QRSnew_invite_codeXYZ`,
+    `/realms/${LOGGED_IN_V0_DATA.id}/invites/${V0_CREATED_INVITE_NONCE}`,
     (req, res, ctx) => {
-      log("accepting invite with nonce QRSnew_invite_codeXYZ");
+      log(`accepting invite with nonce ${V0_CREATED_INVITE_NONCE}`);
       return res(
         ctx.status(200),
         ctx.json({

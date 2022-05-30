@@ -53,6 +53,11 @@ Object.defineProperty(window, "scroll", {
   value: jest.fn().mockImplementation(() => ({})),
 });
 
+Object.defineProperty(window, "scrollTo", {
+  writable: true,
+  value: jest.fn().mockImplementation(() => ({})),
+});
+
 Object.defineProperty(window, "requestIdleCallback", {
   writable: true,
   value: jest.fn().mockImplementation((fn) => {
