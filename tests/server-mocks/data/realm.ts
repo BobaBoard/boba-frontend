@@ -230,3 +230,5 @@ export const V0_CREATED_INVITE = {
   expires_at: "2021-07-09T16:20:00Z",
   label: "Newly created invite",
 };
+
+export const V0_CREATED_INVITE_NONCE = "QRSnew_invite_codeXYZ";

@@ -16,10 +16,10 @@ import LoginModal from "components/LoginModal";
 import { acceptInvite } from "utils/queries/user";
 import classnames from "classnames";
 import debug from "debug";
+import { getRealmNameFromSlug } from "utils/text-utils";
 import { useAuth } from "components/Auth";
 import { useMutation } from "react-query";
 import { useRouter } from "next/router";
-import { getRealmNameFromSlug } from "utils/text-utils";
 
 const log = debug("bobafrontend:index-log");
 const error = debug("bobafrontend:index-error");
@@ -49,7 +49,6 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
   const [loginOpen, setLoginOpen] = React.useState(false);
   const openLoginModal = React.useCallback(() => {
     setLoginOpen(!isUserPending);
-    console.log("clicked login button");
   }, [isUserPending]);
   const router = useRouter();
   const realmName = getRealmNameFromSlug(realmSlug);
@@ -69,7 +68,6 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
     }) => acceptInvite(data),
     {
       onSuccess: async (data) => {
-        console.log(data);
         if (!isLoggedIn && !isUserPending) {
           await attemptLogin!(email, password);
         }
@@ -86,26 +84,30 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
   );
 
   const onSubmit = React.useCallback(async () => {
-    if (inviteStatus !== "pending") {
-      return;
+    try {
+      if (inviteStatus !== "pending") {
+        return;
+      }
+      if (!isLoggedIn && (email.trim().length == 0 || password.length == 0)) {
+        setError("Email and password required.");
+        return;
+      }
+      if (isUserPending) {
+        return;
+      }
+      setLoading(true);
+      if (!isLoggedIn) {
+        await attemptLogin!(email, password);
+      }
+      updateData({
+        nonce: router.query.inviteId as string,
+        email,
+        password,
+        realmId: realmId ?? clientRealmId,
+      });
+    } catch (e) {
+      log(e);
     }
-    if (!isLoggedIn && (email.trim().length == 0 || password.length == 0)) {
-      setError("Email and password required.");
-      return;
-    }
-    if (isUserPending) {
-      return;
-    }
-    setLoading(true);
-    if (!isLoggedIn) {
-      await attemptLogin!(email, password);
-    }
-    updateData({
-      nonce: router.query.inviteId as string,
-      email,
-      password,
-      realmId: realmId ?? clientRealmId,
-    });
   }, [
     router,
     email,
