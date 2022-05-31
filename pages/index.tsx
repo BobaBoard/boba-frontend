@@ -4,6 +4,7 @@ import {
   RulesBlock,
   useBoos,
 } from "@bobaboard/ui-components";
+import React, { useState } from "react";
 import { useRealmBoards, useRealmHomepage } from "contexts/RealmContext";
 
 import Layout from "components/layout/Layout";
@@ -11,7 +12,6 @@ import Link from "next/link";
 import { NextPage } from "next";
 import { PageContextWithQueryClient } from "additional";
 import { PostType } from "types/Types";
-import React from "react";
 import { THREAD_PATH } from "utils/router-utils";
 import debug from "debug";
 import { formatDistanceToNow } from "date-fns";
@@ -126,6 +126,8 @@ const HomePage: NextPage<{
     (block) => block.type === "rules"
   );
 
+  const [seeAll, setSeeAll] = useState(false);
+
   return (
     <div className="main">
       <Layout title={`Hello!`}>
@@ -142,9 +144,13 @@ const HomePage: NextPage<{
               <div className="rules-block">
                 {!!rulesBlock && (
                   <RulesBlock
-                    seeAllLink={{}}
+                    seeAllLink={{ onClick: (e) => setSeeAll(!seeAll) }}
                     title={rulesBlock.title}
-                    rules={rulesBlock.rules.filter((rule) => rule.pinned)}
+                    rules={
+                      seeAll
+                        ? rulesBlock.rules
+                        : rulesBlock.rules.filter((rule) => rule.pinned)
+                    }
                   />
                 )}
               </div>
