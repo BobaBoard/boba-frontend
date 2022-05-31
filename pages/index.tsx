@@ -126,7 +126,7 @@ const HomePage: NextPage<{
     (block) => block.type === "rules"
   );
 
-  const [seeAll, setSeeAll] = useState(false);
+  const [showAllRules, setShowAllRules] = useState(false);
 
   return (
     <div className="main">
@@ -144,10 +144,12 @@ const HomePage: NextPage<{
               <div className="rules-block">
                 {!!rulesBlock && (
                   <RulesBlock
-                    seeAllLink={{ onClick: (e) => setSeeAll(!seeAll) }}
+                    seeAllLink={{
+                      onClick: () => setShowAllRules(!showAllRules),
+                    }}
                     title={rulesBlock.title}
                     rules={
-                      seeAll
+                      showAllRules
                         ? rulesBlock.rules
                         : rulesBlock.rules.filter((rule) => rule.pinned)
                     }
