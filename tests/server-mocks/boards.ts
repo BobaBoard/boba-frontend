@@ -140,8 +140,8 @@ export default [
       return res(ctx.status(204));
     }
   ),
-  rest.post(
-    "/boards/c6d3d10e-8e49-4d73-b28a-9d652b41beec/notifications/dismiss",
+  rest.delete(
+    "/boards/c6d3d10e-8e49-4d73-b28a-9d652b41beec/notifications",
     (req, res, ctx) => {
       log("removing notifications from board gore");
 
