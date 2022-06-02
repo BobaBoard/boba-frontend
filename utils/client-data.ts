@@ -6,6 +6,7 @@ import {
   CommentType,
   Permissions,
   PostType,
+  RealmType,
   Role,
   ThreadSummaryType,
   ThreadType,
@@ -254,16 +255,7 @@ export const makeClientNotifications = (
 });
 
 export const makeRealmData = (realmData: any) => {
-  return {
-    slug: realmData.slug,
-    settings: {
-      root: realmData.settings.root,
-      indexPage: realmData.settings.index_page,
-      boardPage: realmData.settings.board_page,
-      threadPage: realmData.settings.thread_page,
-    },
-    boards: realmData.boards.map(makeClientBoardSummary),
-  };
+  return makeClientData<RealmType>(realmData);
 };
 
 export const makeClientData = <T>(serverData: any): T | unknown => {
