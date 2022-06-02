@@ -1,11 +1,17 @@
-import { BoardsDisplay, PostQuote, useBoos } from "@bobaboard/ui-components";
+import {
+  BoardsDisplay,
+  PostQuote,
+  RulesBlock,
+  useBoos,
+} from "@bobaboard/ui-components";
+import React, { useState } from "react";
+import { useRealmBoards, useRealmHomepage } from "contexts/RealmContext";
 
 import Layout from "components/layout/Layout";
 import Link from "next/link";
 import { NextPage } from "next";
 import { PageContextWithQueryClient } from "additional";
 import { PostType } from "types/Types";
-import React from "react";
 import { THREAD_PATH } from "utils/router-utils";
 import debug from "debug";
 import { formatDistanceToNow } from "date-fns";
@@ -14,7 +20,6 @@ import { isStaging } from "utils/location-utils";
 import { makeClientPost } from "utils/client-data";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useNotifications } from "queries/notifications";
-import { useRealmBoards } from "contexts/RealmContext";
 
 const error = debug("bobafrontend:HomePage-error");
 
@@ -100,6 +105,7 @@ const HomePage: NextPage<{
   const { styles } = useBoos({ startActive: true });
   const { getLinkToBoard } = useCachedLinks();
   const boards = useRealmBoards();
+  const realmHomepage = useRealmHomepage();
   const { realmBoardsNotifications } = useNotifications();
 
   const boardsToDisplay = React.useMemo(() => {
@@ -116,6 +122,12 @@ const HomePage: NextPage<{
       }));
   }, [boards, realmBoardsNotifications, getLinkToBoard]);
 
+  const rulesBlock = realmHomepage.blocks.find(
+    (block) => block.type === "rules"
+  );
+
+  const [showAllRules, setShowAllRules] = useState(false);
+
   return (
     <div className="main">
       <Layout title={`Hello!`}>
@@ -128,6 +140,21 @@ const HomePage: NextPage<{
               <div className="tagline">
                 "Where the bugs are funny and the people are cool" — Outdated
                 Meme
+              </div>
+              <div className="rules-block">
+                {!!rulesBlock && (
+                  <RulesBlock
+                    seeAllLink={{
+                      onClick: () => setShowAllRules(!showAllRules),
+                    }}
+                    title={rulesBlock.title}
+                    rules={
+                      showAllRules
+                        ? rulesBlock.rules
+                        : rulesBlock.rules.filter((rule) => rule.pinned)
+                    }
+                  />
+                )}
               </div>
               {isStaging() && <StagingWarning />}
               <p>

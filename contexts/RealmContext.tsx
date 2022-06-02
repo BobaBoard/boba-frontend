@@ -58,6 +58,16 @@ const useRealmBoards = () => {
   return context.realmData.boards;
 };
 
+const useRealmHomepage = () => {
+  const context = React.useContext(RealmContext);
+  if (context === undefined) {
+    throw new Error(
+      "useRealmHomepage must be used within a RealmContextProvider"
+    );
+  }
+  return context.realmData.homepage;
+};
+
 const useBoardSummary = ({ boardId }: { boardId?: string | null }) => {
   const context = React.useContext(RealmContext);
   if (context === undefined) {
@@ -141,6 +151,7 @@ export {
   useRealmContext,
   useRealmSettings,
   useRealmBoards,
+  useRealmHomepage,
   useRealmContextUpdatedAt,
   useBoardSummary,
 };
