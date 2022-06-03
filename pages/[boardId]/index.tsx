@@ -7,6 +7,7 @@ import {
 import { FeedWithMenu, PostingActionButton } from "@bobaboard/ui-components";
 import { REALM_QUERY_KEY, useRealmBoardId } from "contexts/RealmContext";
 import { RealmType, ThreadSummaryType } from "types/Types";
+import { getCurrentHost, getCurrentRealmSlug } from "utils/location-utils";
 import { prefetchBoardMetadata, useBoardMetadata } from "queries/board";
 
 import { BoardSidebar } from "components/boards/Sidebar";
@@ -18,7 +19,6 @@ import React from "react";
 import ThreadPreview from "components/ThreadPreview";
 import axios from "axios";
 import debug from "debug";
-import { getCurrentRealmSlug } from "utils/location-utils";
 import { useAuth } from "components/Auth";
 import { useBoardActivity } from "queries/board-feed";
 import { withEditors } from "components/editors/withEditors";
@@ -263,6 +263,15 @@ MemoizedBoardPage.getInitialProps = async (ctx: PageContextWithQueryClient) => {
       (board) => `!${board.slug}` === ctx.query.boardId
     )?.id;
     if (!boardId) {
+      // We should use 302 redirect here rather than 301 because
+      // 301 will be cached by the client and trap us forever until
+      // the cache is cleared.
+
+      // TODO: add port or this won't work
+      ctx.res?.writeHead(302, {
+        location: `http://${getCurrentHost(ctx?.req?.headers?.host, true)}/404`,
+      });
+      ctx.res?.end();
       return {};
     }
     await prefetchBoardMetadata(ctx.queryClient, { boardId });
