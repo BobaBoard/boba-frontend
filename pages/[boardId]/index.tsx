@@ -5,19 +5,22 @@ import {
   useEditorsDispatch,
 } from "components/editors/EditorsContext";
 import { FeedWithMenu, PostingActionButton } from "@bobaboard/ui-components";
+import { REALM_QUERY_KEY, useRealmBoardId } from "contexts/RealmContext";
+import { RealmType, ThreadSummaryType } from "types/Types";
+import { prefetchBoardMetadata, useBoardMetadata } from "queries/board";
 
 import { BoardSidebar } from "components/boards/Sidebar";
 import Layout from "components/layout/Layout";
 import LoadingSpinner from "components/LoadingSpinner";
+import { NextPage } from "next";
+import { PageContextWithQueryClient } from "additional";
 import React from "react";
 import ThreadPreview from "components/ThreadPreview";
-import { ThreadSummaryType } from "types/Types";
 import axios from "axios";
 import debug from "debug";
+import { getCurrentRealmSlug } from "utils/location-utils";
 import { useAuth } from "components/Auth";
 import { useBoardActivity } from "queries/board-feed";
-import { useBoardMetadata } from "queries/board";
-import { useRealmBoardId } from "contexts/RealmContext";
 import { withEditors } from "components/editors/withEditors";
 
 const log = debug("bobafrontend:BoardPage-log");
@@ -241,4 +244,30 @@ function BoardPage() {
     </div>
   );
 }
-export default React.memo(BoardPage);
+
+const MemoizedBoardPage: NextPage = React.memo(BoardPage);
+export default MemoizedBoardPage;
+
+MemoizedBoardPage.getInitialProps = async (ctx: PageContextWithQueryClient) => {
+  try {
+    const realmSlug = getCurrentRealmSlug({
+      serverHostname: ctx.req?.headers.host,
+    });
+
+    const realmData = await ctx.queryClient.getQueryData<RealmType>([
+      REALM_QUERY_KEY,
+      { realmSlug, isLoggedIn: false },
+    ]);
+    const boardId = realmData?.boards.find(
+      // TODO: rename boardId to boardSlug
+      (board) => `!${board.slug}` === ctx.query.boardId
+    )?.id;
+    if (!boardId) {
+      return {};
+    }
+    await prefetchBoardMetadata(ctx.queryClient, { boardId });
+    return {};
+  } catch (e) {
+    return {};
+  }
+};

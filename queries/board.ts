@@ -145,6 +145,16 @@ export const useBoardMetadata = ({ boardId }: { boardId: string | null }) => {
         if (!boardId) {
           return;
         }
+        // TODO: get rid of this hack once the server can immediately know whether
+        // the user is logged in or not.
+        const loggedOutMetadata = queryClient.getQueryData<BoardMetadata>([
+          BOARD_METADATA_KEY,
+          { boardId, isLoggedIn: false },
+        ]);
+        if (loggedOutMetadata) {
+          return loggedOutMetadata;
+        }
+
         const boardSummary = getBoardSummaryInCache(queryClient, { boardId });
         if (!boardSummary) {
           return undefined;
@@ -163,6 +173,16 @@ export const useBoardMetadata = ({ boardId }: { boardId: string | null }) => {
   return React.useMemo(
     () => ({ boardMetadata, isFetched }),
     [boardMetadata, isFetched]
+  );
+};
+
+export const prefetchBoardMetadata = async (
+  queryClient: QueryClient,
+  { boardId }: { boardId: string }
+) => {
+  await queryClient.setQueryData(
+    [BOARD_METADATA_KEY, { boardId, isLoggedIn: false }],
+    await getBoardMetadata({ boardId })
   );
 };
 

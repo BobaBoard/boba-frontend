@@ -126,6 +126,7 @@ function BobaBoardApp({ Component, router, ...props }: AppPropsWithPropsType) {
   // TODO: figure out how to remove this from here or at least not have to pass it router.
   const imageUploader = useImageUploader(router);
 
+  console.log(props.dehydratedState);
   return (
     <>
       <Head>
@@ -219,7 +220,6 @@ BobaBoardApp.getInitialProps = async (
   const realmBody = await getRealmData({
     realmSlug,
   });
-  const appProps = await App.getInitialProps(appContext);
   if (Array.isArray(ctx.query.boardId)) {
     throw new Error("Expected single board id");
   }
@@ -230,6 +230,7 @@ BobaBoardApp.getInitialProps = async (
     realmData
   );
   log(`Returning initial props`);
+  const appProps = await App.getInitialProps(appContext);
   return {
     serverHostname: ctx?.req?.headers?.host,
     boardSlug: ctx.query.boardId?.slice(1),
