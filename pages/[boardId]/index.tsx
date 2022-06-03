@@ -266,8 +266,6 @@ MemoizedBoardPage.getInitialProps = async (ctx: PageContextWithQueryClient) => {
       // We should use 302 redirect here rather than 301 because
       // 301 will be cached by the client and trap us forever until
       // the cache is cleared.
-
-      // TODO: add port or this won't work
       ctx.res?.writeHead(302, {
         location: `http://${getCurrentHost(ctx?.req?.headers?.host, true)}/404`,
       });
