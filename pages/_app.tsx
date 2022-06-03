@@ -126,7 +126,6 @@ function BobaBoardApp({ Component, router, ...props }: AppPropsWithPropsType) {
   // TODO: figure out how to remove this from here or at least not have to pass it router.
   const imageUploader = useImageUploader(router);
 
-  console.log(props.dehydratedState);
   return (
     <>
       <Head>
