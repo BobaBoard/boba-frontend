@@ -87,11 +87,8 @@ export default [
       );
     }
   ),
-  rest.get(
-    `/realms/${LOGGED_IN_V0_DATA.realm_id}/notifications`,
-    (req, res, ctx) => {
-      log("fetching bobatan's notification data");
-      return res(ctx.status(200), ctx.json(BOBATAN_NOTIFICATIONS_DATA));
-    }
-  ),
+  rest.get(`/realms/${LOGGED_IN_V0_DATA.id}/notifications`, (req, res, ctx) => {
+    log("fetching bobatan's notification data");
+    return res(ctx.status(200), ctx.json(BOBATAN_NOTIFICATIONS_DATA));
+  }),
 ];

@@ -3,7 +3,7 @@ import { RealmPermissions } from "types/Types";
 export const V0_DATA = {
   id: "v0-fake-id",
   slug: "v0",
-  realm_id: "de624caa-621d-4143-863c-9b9ff2c688d6",
+  id: "de624caa-621d-4143-863c-9b9ff2c688d6",
   settings: {
     root: {
       cursor: {},
@@ -90,13 +90,8 @@ export const V0_DATA = {
 };
 
 export const LOGGED_IN_V0_DATA = {
-  id: "v0-fake-id",
   slug: "v0",
-<<<<<<< HEAD
-  id: "v0-fake-id",
-=======
-  realm_id: "de624caa-621d-4143-863c-9b9ff2c688d6",
->>>>>>> 838f0fc (change notifications endpoint for tests to include realm id)
+  id: "de624caa-621d-4143-863c-9b9ff2c688d6",
   settings: {
     root: {
       cursor: {},
