@@ -16,6 +16,7 @@ import {
   useInvalidateNotifications,
   useNotifications,
 } from "queries/notifications";
+import { useRealmContext, useRealmSettings } from "contexts/RealmContext";
 
 import { BOARD_ACTIVITY_KEY } from "queries/board-feed";
 import LoginModal from "../LoginModal";
@@ -29,7 +30,6 @@ import { useCachedLinks } from "../hooks/useCachedLinks";
 import { useForceHideIdentity } from "../hooks/useForceHideIdentity";
 import { useIsChangingRoute } from "../hooks/useIsChangingRoute";
 import { useQueryClient } from "react-query";
-import { useRealmSettings } from "contexts/RealmContext";
 import { useServerCssVariables } from "../hooks/useServerCssVariables";
 
 // const log = debug("bobafrontend:Layout-log");
@@ -164,7 +164,8 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const loggedInMenuOptions = useLoggedInDropdownOptions(
     React.useCallback(() => setLoginOpen(true), [])
   );
-  const { hasNotifications, notificationsOutdated } = useNotifications();
+  const {id : realmId} = useRealmContext();
+  const { hasNotifications, notificationsOutdated } = useNotifications({realmId});
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   useServerCssVariables(containerRef);

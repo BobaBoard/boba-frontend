@@ -10,12 +10,12 @@ import { useAuth } from "components/Auth";
 // const log = debug("bobafrontend:hooks:queries:notifications-log");
 
 const NOTIFICATIONS_QUERY_KEY = "notificationsKey";
-export const useNotifications = () => {
+export const useNotifications = ({realmId}: {realmId: string}) => {
   const { isLoggedIn } = useAuth();
   const { data, isFetched } = useQuery<UserNotifications | null>(
-    NOTIFICATIONS_QUERY_KEY,
+    [NOTIFICATIONS_QUERY_KEY, {realmId}],
     async () => {
-      const data = (await axios.get("/users/@me/notifications")).data;
+      const data = (await axios.get(`/realms/${realmId}/notifications`)).data;
       if (!data) {
         return null;
       }
