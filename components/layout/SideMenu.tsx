@@ -9,18 +9,18 @@ import {
   useNotifications,
 } from "queries/notifications";
 import { useMutation, useQueryClient } from "react-query";
+import { useRealmBoards, useRealmContext } from "contexts/RealmContext";
 
 import { SideMenu as LibrarySideMenu } from "@bobaboard/ui-components";
 import React from "react";
 import { THREAD_QUERY_KEY } from "queries/thread";
 import debug from "debug";
-import { dismissAllNotifications } from "utils/queries/user";
+import { dismissRealmNotifications } from "utils/queries/user";
 import { processBoardsUpdates } from "utils/boards-utils";
 import { useAuth } from "components/Auth";
 import { useBoardSummaryBySlug } from "queries/board";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { usePageDetails } from "utils/router-utils";
-import { useRealmBoards } from "contexts/RealmContext";
 import { useRefetchBoardActivity } from "queries/board-feed";
 
 const log = debug("bobafrontend:SideMenu-log");
@@ -59,7 +59,7 @@ const SideMenu = () => {
   const refetchBoardActivity = useRefetchBoardActivity();
   const refetchNotifications = useInvalidateNotifications();
   const { mutate: dismissNotifications } = useMutation(
-    dismissAllNotifications,
+    dismissRealmNotifications,
     {
       onSuccess: () => {
         log(`Successfully dismissed all notifications. Refetching...`);
@@ -76,7 +76,8 @@ const SideMenu = () => {
       },
     }
   );
-  const { realmBoardsNotifications, notificationsFetched } = useNotifications();
+  const {id: realmId} = useRealmContext();
+  const { realmBoardsNotifications, notificationsFetched } = useNotifications({realmId});
   const realmBoards = useRealmBoards();
   const { getLinkToBoard } = useCachedLinks();
   const { recentBoards, allBoards } = React.useMemo(() => {
@@ -128,11 +129,11 @@ const SideMenu = () => {
                 {
                   icon: faCommentSlash,
                   name: "Dismiss notifications",
-                  link: { onClick: () => dismissNotifications() },
+                  link: { onClick: () => dismissNotifications({realmId}) },
                 },
               ]
             : [],
-        [isLoggedIn, dismissNotifications]
+        [isLoggedIn, dismissNotifications, realmId]
       )}
       showPinned={isUserPending || isLoggedIn}
       onFilterChange={setBoardsFilter}

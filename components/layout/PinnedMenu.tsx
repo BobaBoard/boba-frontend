@@ -4,6 +4,7 @@ import {
   useInvalidateNotifications,
   useNotifications,
 } from "queries/notifications";
+import { useRealmBoards, useRealmContext } from "contexts/RealmContext";
 
 import { PinnedMenu as LibraryPinnedMenu } from "@bobaboard/ui-components";
 import React from "react";
@@ -11,7 +12,6 @@ import debug from "debug";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "../hooks/useCachedLinks";
 import { usePinnedBoards } from "queries/pinned-boards";
-import { useRealmBoards } from "contexts/RealmContext";
 import { useRefetchBoardActivity } from "queries/board-feed";
 
 const log = debug("bobafrontend:PinnedMenu-log");
@@ -20,7 +20,8 @@ const PinnedMenu = () => {
   const { getLinkToBoard, linkToFeed } = useCachedLinks();
   const { data: pinnedBoards } = usePinnedBoards();
   const refetchNotifications = useInvalidateNotifications();
-  const { pinnedBoardsNotifications } = useNotifications();
+  const {id : realmId} = useRealmContext();
+  const { pinnedBoardsNotifications } = useNotifications({realmId});
   const refetchBoardActivity = useRefetchBoardActivity();
   // TODO: see if we can add board id to page details
   const { slug, pageType } = usePageDetails();

@@ -240,6 +240,7 @@ export const makeClientNotifications = (
 ): UserNotifications => ({
   hasNotifications: userNotifications.has_notifications,
   isOutdatedNotifications: userNotifications.is_outdated_notifications,
+  realmId: userNotifications.realm_id,
   realmBoards: Object.values(userNotifications.realm_boards).reduce<
     Record<string, BoardNotifications>
   >((agg, curr: any) => {

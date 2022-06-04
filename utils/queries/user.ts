@@ -67,7 +67,7 @@ export const updateUserSettings = async (
   return response?.data;
 };
 
-export const dismissAllNotifications = async () => {
-  await axios.delete(`/users/@me/notifications`);
+export const dismissRealmNotifications = async ({realmId} : {realmId: string}) => {
+  await axios.delete(`/realms/${realmId}/notifications`);
   return true;
 };

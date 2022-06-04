@@ -5,7 +5,7 @@ import {
   useBoos,
 } from "@bobaboard/ui-components";
 import React, { useState } from "react";
-import { useRealmBoards, useRealmHomepage } from "contexts/RealmContext";
+import { useRealmBoards, useRealmContext, useRealmHomepage } from "contexts/RealmContext";
 
 import Layout from "components/layout/Layout";
 import Link from "next/link";
@@ -106,7 +106,8 @@ const HomePage: NextPage<{
   const { getLinkToBoard } = useCachedLinks();
   const boards = useRealmBoards();
   const realmHomepage = useRealmHomepage();
-  const { realmBoardsNotifications } = useNotifications();
+  const {id: realmId} = useRealmContext();
+  const { realmBoardsNotifications } = useNotifications({realmId});
 
   const boardsToDisplay = React.useMemo(() => {
     return boards
