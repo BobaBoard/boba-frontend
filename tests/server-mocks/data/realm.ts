@@ -3,7 +3,7 @@ import { RealmPermissions } from "types/Types";
 export const V0_DATA = {
   id: "v0-fake-id",
   slug: "v0",
-  id: "de624caa-621d-4143-863c-9b9ff2c688d6",
+  id: "v0-fake-id",
   settings: {
     root: {
       cursor: {},
@@ -91,7 +91,7 @@ export const V0_DATA = {
 
 export const LOGGED_IN_V0_DATA = {
   slug: "v0",
-  id: "de624caa-621d-4143-863c-9b9ff2c688d6",
+  id: "v0-fake-id",
   settings: {
     root: {
       cursor: {},
