@@ -73,6 +73,7 @@ export const dismissRealmNotifications = async ({
   realmId: string;
 }) => {
   await axios.delete(`/realms/${realmId}/notifications`);
+  return true;
 };
 
 // export const getRealmInvites = async (): Promise<any> => {
