@@ -11,10 +11,6 @@ import { server } from ".";
 const log = debug("bobafrontend:tests:server-mocks:users");
 
 export default [
-  rest.get("/users/@me/notifications", (req, res, ctx) => {
-    log("fetching bobatan's notification data");
-    return res(ctx.status(200), ctx.json(BOBATAN_NOTIFICATIONS_DATA));
-  }),
   rest.get("/users/@me", (req, res, ctx) => {
     log("fetching bobatan's user data");
     return res(ctx.status(200), ctx.json(BOBATAN_USER_DATA));
