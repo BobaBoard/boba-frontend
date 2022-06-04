@@ -25,6 +25,7 @@ const useRealmContext = () => {
       "useRealmContext must be used within a RealmContextProvider"
     );
   }
+
   return context.realmData;
 };
 
