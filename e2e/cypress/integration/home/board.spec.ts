@@ -36,21 +36,21 @@ describe("Board", () => {
   });
 
   it("should unpin and-repin board", () => {
-    cy.get(".pinned-boards .pinned-section:nth-child(2)")
+    cy.get(".pinned-boards section:nth-child(2)")
       .find(".pinned-item")
       .should("have.length", 2);
 
     cy.get(".preview-options button").click();
     cy.get(".popover-content").contains("Unpin").click();
 
-    cy.get(".pinned-boards .pinned-section:nth-child(2)")
+    cy.get(".pinned-boards section:nth-child(2)")
       .find(".pinned-item")
       .should("have.length", 1);
 
     cy.get(".preview-options button").click();
     cy.get(".popover-content").contains("Pin").click();
 
-    cy.get(".pinned-boards .pinned-section:nth-child(2)")
+    cy.get(".pinned-boards section:nth-child(2)")
       .find(".pinned-item")
       .should("have.length", 2);
   });
