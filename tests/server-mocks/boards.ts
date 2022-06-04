@@ -146,34 +146,37 @@ export default [
       log("removing notifications from board gore");
 
       server.use(
-        rest.get("/users/@me/notifications", (req, res, ctx) => {
-          log("fetching bobatan's notification data (gore update dismissed)");
-          BOBATAN_NOTIFICATIONS_DATA;
-          return res(
-            ctx.status(200),
-            ctx.json({
-              ...BOBATAN_NOTIFICATIONS_DATA,
-              pinned_boards: {
-                ...BOBATAN_NOTIFICATIONS_DATA.pinned_boards,
-                [BOBATAN_GORE_METADATA.id]: {
-                  ...BOBATAN_NOTIFICATIONS_DATA.pinned_boards[
-                    BOBATAN_GORE_METADATA.id
-                  ],
-                  has_updates: false,
+        rest.get(
+          `/realms/${BOBATAN_GORE_METADATA.realm_id}/notifications`,
+          (req, res, ctx) => {
+            log("fetching bobatan's notification data (gore update dismissed)");
+            BOBATAN_NOTIFICATIONS_DATA;
+            return res(
+              ctx.status(200),
+              ctx.json({
+                ...BOBATAN_NOTIFICATIONS_DATA,
+                pinned_boards: {
+                  ...BOBATAN_NOTIFICATIONS_DATA.pinned_boards,
+                  [BOBATAN_GORE_METADATA.id]: {
+                    ...BOBATAN_NOTIFICATIONS_DATA.pinned_boards[
+                      BOBATAN_GORE_METADATA.id
+                    ],
+                    has_updates: false,
+                  },
                 },
-              },
-              realm_boards: {
-                ...BOBATAN_NOTIFICATIONS_DATA.realm_boards,
-                [BOBATAN_GORE_METADATA.id]: {
-                  ...BOBATAN_NOTIFICATIONS_DATA.realm_boards[
-                    BOBATAN_GORE_METADATA.id
-                  ],
-                  has_updates: false,
+                realm_boards: {
+                  ...BOBATAN_NOTIFICATIONS_DATA.realm_boards,
+                  [BOBATAN_GORE_METADATA.id]: {
+                    ...BOBATAN_NOTIFICATIONS_DATA.realm_boards[
+                      BOBATAN_GORE_METADATA.id
+                    ],
+                    has_updates: false,
+                  },
                 },
-              },
-            })
-          );
-        })
+              })
+            );
+          }
+        )
       );
       return res(ctx.status(204));
     }

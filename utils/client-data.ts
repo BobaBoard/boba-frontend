@@ -256,6 +256,7 @@ export const makeClientNotifications = (
 });
 
 export const makeRealmData = (realmData: any) => {
+  console.log(realmData);
   return makeClientData<RealmType>(realmData);
 };
 
