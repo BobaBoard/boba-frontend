@@ -21,8 +21,8 @@ import { useAuth } from "components/Auth";
 import { useMutation } from "react-query";
 import { useRouter } from "next/router";
 
-const log = debug("bobafrontend:index-log");
-const error = debug("bobafrontend:index-error");
+const log = debug("bobafrontend:invites-log");
+const error = debug("bobafrontend:invites-error");
 
 const InvitesPage: NextPage<InvitesPageProps> = ({
   realmSlug,
@@ -72,6 +72,7 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
           await attemptLogin!(email, password);
         }
         router.push("/").then(() => window.scrollTo(0, 0));
+        // log("push redirected to / from success");
       },
       onError: (e) => {
         log(`Error while accepting invite:`);
@@ -125,6 +126,7 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
     if (!isUserPending && alreadyRealmMember) {
       toast.success(`You are already a member of ${realmName}`);
       router.push("/").then(() => window.scrollTo(0, 0));
+      // log("push redirected to / from alreadyRealmMember check");
     }
   }, [alreadyRealmMember, isUserPending, router, realmName]);
 
