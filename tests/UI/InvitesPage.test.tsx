@@ -224,7 +224,6 @@ describe("InvitesPanel", () => {
 
   test("Correctly opens login modal", async () => {
     log("testing: Correctly opens login modal");
-    jest.setTimeout(7000);
     render(
       <LoggedOutClient
         router={INVITES_ROUTER}
@@ -246,17 +245,15 @@ describe("InvitesPanel", () => {
 
     expect(screen.getByRole("button", { name: `Login` })).toBeVisible();
     userEvent.click(screen.getByRole("button", { name: `Login` }));
-    await waitFor(() => {
-      expect(screen.getByRole("dialog")).toBeVisible();
-      expect(screen.getByRole("button", { name: `Cancel` })).toBeVisible();
-      userEvent.click(screen.getByRole("button", { name: `Cancel` }));
-    });
-    await waitFor(() => {
-      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-      expect(
-        screen.queryByRole("button", { name: `Cancel` })
-      ).not.toBeInTheDocument();
-    });
+
+    expect(screen.getByRole("dialog")).toBeVisible();
+    expect(screen.getByRole("button", { name: `Cancel` })).toBeVisible();
+    userEvent.click(screen.getByRole("button", { name: `Cancel` }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: `Cancel` })
+    ).not.toBeInTheDocument();
   });
 
   test("Correctly accepts invite when logged in", async () => {
@@ -296,56 +293,56 @@ describe("InvitesPanel", () => {
   // Something is wrong with how the LoggedOutClient is working. It renders the DOM elements fine, but isn't passing the query param.
   // The INVITES_ROUTER logs show that the correct query is there, but when the InvitesPage goes to use router.query.inviteId, router errors as undefined.
   // It works on all the tests using the regular Client so there's something wrong with what I changed to make the LoggedOutClient, but fuck if I know what's wrong.
-  // test("Correctly accepts invite when logged out", async () => {
-  //   log("testing: Correctly accepts invite when logged out");
-  //   log("router: %o", INVITES_ROUTER);
+  test.skip("Correctly accepts invite when logged out", async () => {
+    log("testing: Correctly accepts invite when logged out");
+    log("router: %o", INVITES_ROUTER);
 
-  //   render(
-  //     <LoggedOutClient
-  //       router={INVITES_ROUTER}
-  //       initialData={{ realm: makeRealmData(V0_DATA) }}
-  //     >
-  //       <InvitesPage
-  //         realmSlug={V0_DATA.slug}
-  //         realmId={V0_CREATED_INVITE.realm_id}
-  //         inviteStatus="pending"
-  //       />
-  //     </LoggedOutClient>
-  //   );
-  //   expect(INVITES_ROUTER.query).toStrictEqual({
-  //     inviteId: V0_CREATED_INVITE_NONCE,
-  //   });
-  //   expect(INVITES_ROUTER.query.inviteId).toStrictEqual(
-  //     V0_CREATED_INVITE_NONCE
-  //   );
+    render(
+      <LoggedOutClient
+        router={INVITES_ROUTER}
+        initialData={{ realm: makeRealmData(V0_DATA) }}
+      >
+        <InvitesPage
+          realmSlug={V0_DATA.slug}
+          realmId={V0_CREATED_INVITE.realm_id}
+          inviteStatus="pending"
+        />
+      </LoggedOutClient>
+    );
+    expect(INVITES_ROUTER.query).toStrictEqual({
+      inviteId: V0_CREATED_INVITE_NONCE,
+    });
+    expect(INVITES_ROUTER.query.inviteId).toStrictEqual(
+      V0_CREATED_INVITE_NONCE
+    );
 
-  //   expect(
-  //     screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
-  //   ).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
+    ).toBeDisabled();
 
-  //   userEvent.type(
-  //     screen.getByLabelText("Email"),
-  //     V0_CREATED_INVITE.invitee_email
-  //   );
-  //   expect(screen.getByLabelText("Email")).toHaveValue(
-  //     V0_CREATED_INVITE.invitee_email
-  //   );
-  //   const NEW_USER_PASSWORD = "ThIsIsReAlLySeCuRe";
-  //   userEvent.type(screen.getByLabelText("Password"), NEW_USER_PASSWORD);
-  //   expect(screen.getByLabelText("Password")).toHaveValue(NEW_USER_PASSWORD);
+    userEvent.type(
+      screen.getByLabelText("Email"),
+      V0_CREATED_INVITE.invitee_email
+    );
+    expect(screen.getByLabelText("Email")).toHaveValue(
+      V0_CREATED_INVITE.invitee_email
+    );
+    const NEW_USER_PASSWORD = "ThIsIsReAlLySeCuRe";
+    userEvent.type(screen.getByLabelText("Password"), NEW_USER_PASSWORD);
+    expect(screen.getByLabelText("Password")).toHaveValue(NEW_USER_PASSWORD);
 
-  //   expect(
-  //     screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
-  //   ).toBeEnabled();
+    expect(
+      screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
+    ).toBeEnabled();
 
-  //   userEvent.click(
-  //     screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
-  //   );
+    userEvent.click(
+      screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
+    );
 
-  //   await waitFor(() => {
-  //     expect(spiedPush).toHaveBeenCalledWith("/");
-  //     expect(spiedPush).toHaveBeenCalledTimes(1);
-  //     expect(spiedPush).toHaveReturnedWith(true);
-  //   });
-  // });
+    await waitFor(() => {
+      expect(spiedPush).toHaveBeenCalledWith("/");
+      expect(spiedPush).toHaveBeenCalledTimes(1);
+      expect(spiedPush).toHaveReturnedWith(true);
+    });
+  });
 });
