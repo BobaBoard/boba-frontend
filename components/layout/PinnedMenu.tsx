@@ -20,8 +20,8 @@ const PinnedMenu = () => {
   const { getLinkToBoard, linkToFeed } = useCachedLinks();
   const { data: pinnedBoards } = usePinnedBoards();
   const refetchNotifications = useInvalidateNotifications();
-  const {id : realmId} = useRealmContext();
-  const { pinnedBoardsNotifications } = useNotifications({realmId});
+  const { id: realmId } = useRealmContext();
+  const { pinnedBoardsNotifications } = useNotifications({ realmId });
   const refetchBoardActivity = useRefetchBoardActivity();
   // TODO: see if we can add board id to page details
   const { slug, pageType } = usePageDetails();
@@ -50,6 +50,7 @@ const PinnedMenu = () => {
       return [];
     }
     return Object.values(pinnedBoards)
+      .filter((board) => board.realmId === realmId)
       .map((board) => {
         return {
           slug: board.slug.replace("_", " "),
@@ -64,7 +65,13 @@ const PinnedMenu = () => {
         };
       })
       .sort((b1, b2) => (b1.pinnedOrder || 0) - (b2.pinnedOrder || 0));
-  }, [pinnedBoards, pinnedBoardsNotifications, getLinkToBoard, onBoardChange]);
+  }, [
+    pinnedBoards,
+    pinnedBoardsNotifications,
+    getLinkToBoard,
+    onBoardChange,
+    realmId,
+  ]);
   return (
     <LibraryPinnedMenu>
       {isLoggedIn && (
