@@ -9,7 +9,8 @@ export const getBoardActivityData = async (
   {
     boardId,
     categoryFilter,
-  }: { boardId: string | null; categoryFilter: string | null },
+    realmId,
+  }: { boardId: string | null; categoryFilter: string | null; realmId: string },
   cursor?: string
 ): Promise<FeedType | undefined> => {
   log(`Fetching board activity for board with id ${boardId}.`);
@@ -19,7 +20,7 @@ export const getBoardActivityData = async (
     throw new Error("Attempted to fetch board activity with no id");
   }
   const response = await axios.get(`feeds/boards/${boardId}`, {
-    params: { cursor, categoryFilter },
+    params: { cursor, categoryFilter, realmId },
   });
   log(
     `Got response for board activity with id ${boardId}. Status: ${response.status}`
@@ -40,6 +41,7 @@ export const getUserActivityData = async (
   params: {
     ownOnly?: boolean;
     updatedOnly?: boolean;
+    realmId: string;
   },
   cursor: string
 ): Promise<FeedType | undefined> => {

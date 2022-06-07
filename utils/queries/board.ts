@@ -46,10 +46,8 @@ export const pinBoard = async ({
 
 export const dismissBoardNotifications = async ({
   boardId,
-  realmId,
 }: {
   boardId: string;
-  realmId: string;
 }) => {
   await axios.delete(`boards/${boardId}/notifications`);
   return true;
