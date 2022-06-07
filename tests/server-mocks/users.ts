@@ -4,6 +4,7 @@ import {
   BOBATAN_USER_DATA,
 } from "./data/user";
 
+import { LOGGED_IN_V0_DATA } from "./data/realm";
 import debug from "debug";
 import { rest } from "msw";
 import { server } from ".";
@@ -47,7 +48,7 @@ export default [
       })
     );
   }),
-  rest.get("/users/@me/bobadex", (req, res, ctx) => {
+  rest.get(`/realms/${LOGGED_IN_V0_DATA.id}/bobadex`, (req, res, ctx) => {
     log("fetching bobatan's bobadex");
     return res(ctx.status(200), ctx.json(BOBATAN_BOBADEX));
   }),

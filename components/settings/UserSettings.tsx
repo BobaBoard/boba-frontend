@@ -9,6 +9,7 @@ import { SettingPageIds } from "pages/users/settings/[[...settingId]]";
 import debug from "debug";
 import { makeClientData } from "utils/client-data";
 import { useAuth } from "components/Auth";
+import { useRealmContext } from "contexts/RealmContext";
 import { useRouter } from "next/router";
 
 const log = debug("bobafrontend:settings:UserSettings-log");
@@ -67,8 +68,9 @@ const UserSettings = () => {
     }
   );
 
+  const {id: realmId} = useRealmContext();
   const { data } = useQuery(["bobadex"], async () => {
-    return makeClientData(await getBobadex()) as {
+    return makeClientData(await getBobadex({realmId})) as {
       seasons: BobadexSeasonType[];
     };
   });

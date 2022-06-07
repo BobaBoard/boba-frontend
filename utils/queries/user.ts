@@ -22,8 +22,8 @@ export const updateUserData = async (data: {
   };
 };
 
-export const getBobadex = async (): Promise<any> => {
-  const response = await axios.get(`/users/@me/bobadex`);
+export const getBobadex = async ({realmId} : {realmId: string}): Promise<any> => {
+  const response = await axios.get(`/realms/${realmId}/bobadex`);
   log(`Updated user data on server:`);
   log(response.data);
   return response.data;
