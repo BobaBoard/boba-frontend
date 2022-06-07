@@ -19,7 +19,6 @@ const InvitesPanel = () => {
   const onEmailTextChange = React.useCallback((email) => setEmail(email), []);
   const [label, setLabel] = React.useState("");
   const onLabelTextChange = React.useCallback((label) => setLabel(label), []);
-  const [errorMessage, setErrorMessage] = React.useState("");
   const [createdInvite, setCreatedInvite] = React.useState("");
   const [loading, setLoading] = React.useState(false);
 
@@ -40,7 +39,6 @@ const InvitesPanel = () => {
         setCreatedInvite(inviteUrl);
         queryClient.invalidateQueries(REALM_INVITES_KEY);
         setLoading(false);
-        setErrorMessage("");
       },
       onError: (error: Error) => {
         setLoading(false);
@@ -52,10 +50,6 @@ const InvitesPanel = () => {
   );
 
   const onSubmit = React.useCallback(() => {
-    if (!email) {
-      setErrorMessage("Email required");
-      return;
-    }
     setLoading(true);
     createInvite({
       realmId,
@@ -80,7 +74,7 @@ const InvitesPanel = () => {
       <section>
         <h2 id={AdminPanelIds.INVITE_FORM}>Create Realm Invite</h2>
         <div className="description">
-          Invite Boba users to your realm. Each invite is single use.
+          Invite users to your realm. Each invite is single use.
         </div>
         <CreateInvitePanel
           onEmailTextChange={onEmailTextChange}
@@ -90,7 +84,6 @@ const InvitesPanel = () => {
           loading={loading}
           email={email}
           label={label}
-          errorMessage={errorMessage}
           createdInvite={createdInvite}
         />
       </section>

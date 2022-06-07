@@ -307,9 +307,9 @@ export interface RealmInvite {
 }
 
 export interface DetailedRealmInvite extends RealmInvite {
-  inviteeEmail: string;
   own: boolean;
   issuedAt: Date;
   expiresAt: Date;
+  inviteeEmail?: string;
   label?: string;
 }
