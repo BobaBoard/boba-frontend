@@ -8,11 +8,11 @@ import { format } from "date-fns";
 
 const InvitesTable: React.FC<InviteTableProps> = ({ invites, copyUrl }) => {
   const [narrow, setNarrow] = React.useState(
-    // 1060px is the width where the table headers start having trouble when the sidebar is there.
+    // 1110px is the width where the table layout starts getting wonky.
     // I'm not bothering for the moment to have it switch back to the table layout for the couple hundred pixels
     // between when the sidebar goes away and and when it would get too narrow again
     typeof window != "undefined" &&
-      matchMedia("only screen and (max-width: 1060px)").matches
+      matchMedia("only screen and (max-width: 1110px)").matches
   );
 
   React.useEffect(() => {
@@ -20,7 +20,7 @@ const InvitesTable: React.FC<InviteTableProps> = ({ invites, copyUrl }) => {
     // You had a polyfill there that we don't have the package installed on this codebase for, so I left it off for now.
     // We can decide if it's necessary/if we want to install it here or move this component out to the ui codebase.
     const resizeObserver = new ResizeObserver(() => {
-      setNarrow(matchMedia(`only screen and (max-width: 1060px)`).matches);
+      setNarrow(matchMedia(`only screen and (max-width: 1110px)`).matches);
     });
 
     resizeObserver.observe(document.body);
@@ -42,6 +42,7 @@ const InvitesTable: React.FC<InviteTableProps> = ({ invites, copyUrl }) => {
               <th>Created</th>
               <th>Expires</th>
               <th>Invite URL</th>
+              <th>Email Locked</th>
               <th>Label</th>
               <th>Created By</th>
             </tr>
@@ -57,7 +58,7 @@ const InvitesTable: React.FC<InviteTableProps> = ({ invites, copyUrl }) => {
                     type="text"
                     value={invite.inviteUrl}
                     readOnly
-                    className="invite-url"
+                    className="input-row"
                   />
                   <div className="copy-button">
                     <Button
@@ -73,6 +74,22 @@ const InvitesTable: React.FC<InviteTableProps> = ({ invites, copyUrl }) => {
                       Copy URL
                     </Button>
                   </div>
+                </td>
+                {/* I think this is the best compromise to balance privacy: You can only see the actual email if you entered it, other admins just see that one is required */}
+                <td>
+                  {/* TODO: When we move this to the UI codebase, if we add a readOnly prop to our Input component, we can switch this to <Input /> */}
+                  <input
+                    type="text"
+                    value={
+                      !invite.inviteeEmail
+                        ? "No"
+                        : invite.own
+                        ? invite.inviteeEmail
+                        : "Yes"
+                    }
+                    readOnly
+                    className="input-row"
+                  />
                 </td>
                 <td>{invite.label ? invite.label : ""}</td>
                 <td>{invite.own ? "You" : "Another Admin"}</td>
@@ -105,7 +122,7 @@ const InvitesTable: React.FC<InviteTableProps> = ({ invites, copyUrl }) => {
                     type="text"
                     value={invite.inviteUrl}
                     readOnly
-                    className="invite-url"
+                    className="input-row"
                   />
                   <div className="copy-button">
                     <Button
@@ -122,7 +139,15 @@ const InvitesTable: React.FC<InviteTableProps> = ({ invites, copyUrl }) => {
                     </Button>
                   </div>
                 </li>
-                {invite.label?.length && (
+                <li>
+                  <strong>Email Locked: </strong>
+                  {!invite.inviteeEmail
+                    ? "No"
+                    : invite.own
+                    ? invite.inviteeEmail
+                    : "Yes"}{" "}
+                </li>
+                {!!invite.label?.length && (
                   <li>
                     <strong>Label: </strong>
                     {invite.label}
@@ -170,7 +195,7 @@ const InvitesTable: React.FC<InviteTableProps> = ({ invites, copyUrl }) => {
           padding-left: 0;
         }
 
-        .invite-url {
+        .input-row {
           border-radius: 8px;
           border: 1px solid rgba(255, 255, 255, 0.3);
           color: #fff;
@@ -203,7 +228,7 @@ const InvitesTable: React.FC<InviteTableProps> = ({ invites, copyUrl }) => {
 
         .invite-grid {
           display: grid;
-          grid-template-columns: 1fr 1fr 2fr 1fr 1fr;
+          grid-template-columns: 1fr 1fr 2fr 1fr 1fr 1fr;
           row-gap: 0.8em;
           column-gap: 0.9em;
           background-color: #3a3a3c;

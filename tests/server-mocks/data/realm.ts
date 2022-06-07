@@ -216,12 +216,21 @@ export const V0_INVITES = {
       expires_at: "2021-06-09T16:20:00Z",
       label: "This is test invite 3",
     },
+    {
+      realm_id: LOGGED_IN_V0_DATA.id,
+      invite_url: "https://v0.boba.social/invites/456invite_code321",
+      own: true,
+      issued_at: "2021-06-09T04:20:00Z",
+      expires_at: "2021-06-09T16:20:00Z",
+      label: "This invite is not locked to an email",
+    },
   ],
 };
 
+export const V0_CREATED_INVITE_NONCE = "QRSnew_invite_codeXYZ";
 export const V0_CREATED_INVITE = {
   realm_id: LOGGED_IN_V0_DATA.id,
-  invite_url: "https://v0.boba.social/invites/QRSnew_invite_codeXYZ",
+  invite_url: `https://v0.boba.social/invites/${V0_CREATED_INVITE_NONCE}`,
   invitee_email: "new.person@bobaboard.com",
   own: true,
   issued_at: "2021-07-09T04:20:00Z",
@@ -229,4 +238,12 @@ export const V0_CREATED_INVITE = {
   label: "Newly created invite",
 };
 
-export const V0_CREATED_INVITE_NONCE = "QRSnew_invite_codeXYZ";
+export const V0_CREATED_INVITE_NO_EMAIL_NONCE = "ABCnew_invite_codeDEF";
+export const V0_CREATED_INVITE_NO_EMAIL = {
+  realm_id: LOGGED_IN_V0_DATA.id,
+  invite_url: `https://v0.boba.social/invites/${V0_CREATED_INVITE_NO_EMAIL_NONCE}`,
+  own: true,
+  issued_at: "2021-07-09T04:20:00Z",
+  expires_at: "2021-07-09T16:20:00Z",
+  label: "Newly created invite (no email)",
+};

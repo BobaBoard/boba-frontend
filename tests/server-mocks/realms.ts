@@ -26,15 +26,11 @@ export default [
     return res(ctx.status(200), ctx.json(V0_INVITES));
   }),
   rest.post<{
-    email: string;
+    email?: string;
     label?: string;
   }>(`/realms/${LOGGED_IN_V0_DATA.id}/invites`, (req, res, ctx) => {
     log("creating invite for twisted-minds realm");
-    if (!req.body?.email) {
-      log("invalid request body");
-      throw new Error("invalid request");
-    }
-
+    
     // Now include new invite when get all invites is called again
     server.use(
       rest.get(`/realms/${LOGGED_IN_V0_DATA.id}/invites`, (_, res, ctx) => {

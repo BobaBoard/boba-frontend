@@ -85,6 +85,7 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
   );
 
   const onSubmit = React.useCallback(async () => {
+    setError("");
     try {
       if (inviteStatus !== "pending") {
         return;

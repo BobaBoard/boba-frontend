@@ -18,7 +18,6 @@ const CreateInvitePanel: React.FC<CreateInvitePanelProps> = ({
   loading,
   email,
   label,
-  errorMessage,
   createdInvite,
 }) => {
   return (
@@ -30,16 +29,16 @@ const CreateInvitePanel: React.FC<CreateInvitePanelProps> = ({
       <Input
         id="email"
         value={email}
-        label="Email*"
+        label="Email"
+        helper="Optionally lock invite to a specific email. Must be the same email the invitee uses to login to Bobaboard."
         onTextChange={onEmailTextChange}
         theme={InputStyle.DARK}
-        errorMessage={errorMessage}
       />
       <Input
         id="label"
         value={label}
         label="Label"
-        helper="All Realm admins will be able to see this label."
+        helper="All Realm admins will be able to see this optional label."
         onTextChange={onLabelTextChange}
         theme={InputStyle.DARK}
       />
@@ -141,6 +140,5 @@ export interface CreateInvitePanelProps {
   email: string;
   label: string;
   loading?: boolean;
-  errorMessage?: string;
   createdInvite?: string;
 }

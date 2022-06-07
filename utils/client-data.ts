@@ -284,11 +284,11 @@ export const makeClientDetailedRealmInvite = (
   return {
     realmId: serverInvite.realm_id,
     inviteUrl: serverInvite.invite_url,
-    inviteeEmail: serverInvite.invitee_email,
     own: serverInvite.own,
     issuedAt: new Date(serverInvite.issued_at),
     expiresAt: new Date(serverInvite.expires_at),
-    label: serverInvite.label ? serverInvite.label : "",
+    inviteeEmail: serverInvite.invitee_email ?? "",
+    label: serverInvite.label ?? "",
   };
 };
 
