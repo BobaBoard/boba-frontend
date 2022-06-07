@@ -9,5 +9,5 @@ export const getRealmData = async ({
 }): Promise<RealmType> => {
   const response = await axios.get(`/realms/slug/${realmSlug}`);
 
-  return makeRealmData(response.data);
+  return makeRealmData(response.data) as RealmType;
 };
