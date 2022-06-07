@@ -213,7 +213,7 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
                 <p>
                   If you have concerns, no matter how small, the webmaster's
                   door is always open. In doubt, consult our{" "}
-                  <a href="https://www.notion.so/BobaBoard-s-Welcome-Packet-b0641466bfdf4a1cab8575083459d6a2">
+                  <a href="https://docs.bobaboard.com/docs/users/intro">
                     Welcome Guide
                   </a>{" "}
                   or ask your questions on the boards!

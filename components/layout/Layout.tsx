@@ -72,7 +72,7 @@ const useLoggedInDropdownOptions = (openLogin: () => void) => {
         icon: faBook,
         name: "Welcome Guide",
         link: {
-          href: "https://www.notion.so/BobaBoard-s-Welcome-Packet-b0641466bfdf4a1cab8575083459d6a2",
+          href: "https://docs.bobaboard.com/docs/users/intro",
         },
       },
       {
