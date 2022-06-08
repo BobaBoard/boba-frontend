@@ -247,20 +247,30 @@ export interface CssVariableSetting {
   value: string;
 }
 
-export interface RulesBlock {
+interface BaseBlock {
   id: string;
-  index: string;
   title: string;
+  index: number;
+  type: "rules" | "subscription";
+}
+
+export interface RulesBlock extends BaseBlock {
   type: "rules";
   rules: {
-    index: number;
     title: string;
     description: string;
     pinned: boolean;
+    index: number;
   }[];
 }
 
-export type UiBlocks = RulesBlock;
+export interface SubscriptionBlock extends BaseBlock {
+  id: string;
+  type: "subscription";
+  subscriptionId: string;
+}
+
+export type UiBlocks = RulesBlock | SubscriptionBlock;
 
 export interface RealmType {
   id: string;
@@ -312,4 +322,18 @@ export interface DetailedRealmInvite extends RealmInvite {
   issuedAt: Date;
   expiresAt: Date;
   label?: string;
+}
+
+interface Subscription {
+  id: string;
+  name: string;
+  last_activity_at: string | null;
+}
+
+export interface SubscriptionFeed {
+  cursor: {
+    next: string | null;
+  };
+  subscription: Subscription;
+  activity: PostType[];
 }
