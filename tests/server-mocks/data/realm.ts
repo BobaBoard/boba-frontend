@@ -3,7 +3,6 @@ import { RealmPermissions } from "types/Types";
 export const V0_DATA = {
   id: "v0-fake-id",
   slug: "v0",
-  id: "v0-fake-id",
   settings: {
     root: {
       cursor: {},

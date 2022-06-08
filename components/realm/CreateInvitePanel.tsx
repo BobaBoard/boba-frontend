@@ -8,10 +8,7 @@ import {
 import { AdminPanelIds } from "pages/realms/admin/[[...panelId]]";
 import React from "react";
 import classnames from "classnames";
-import debug from "debug";
 import { faCopy } from "@fortawesome/free-regular-svg-icons";
-
-const log = debug("bobafrontend:realms:RealmAdmin-log");
 
 const CreateInvitePanel: React.FC<CreateInvitePanelProps> = ({
   onEmailTextChange,

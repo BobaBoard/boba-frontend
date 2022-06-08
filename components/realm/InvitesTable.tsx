@@ -3,11 +3,8 @@ import { Button, ButtonStyle, toast } from "@bobaboard/ui-components";
 import { AdminPanelIds } from "pages/realms/admin/[[...panelId]]";
 import { DetailedRealmInvite } from "types/Types";
 import React from "react";
-import debug from "debug";
 import { faCopy } from "@fortawesome/free-regular-svg-icons";
 import { format } from "date-fns";
-
-const log = debug("bobafrontend:realms:RealmAdmin-log");
 
 const InvitesTable: React.FC<InviteTableProps> = ({ invites, copyUrl }) => {
   const [narrow, setNarrow] = React.useState(

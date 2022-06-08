@@ -224,7 +224,7 @@ export const LoggedOutClient = ({
     realm?: RealmType;
   };
 }) => {
-  const [userData, setUserData] = React.useState<{
+  const [, setUserData] = React.useState<{
     username: string;
     avatarUrl: string;
   }>({

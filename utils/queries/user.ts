@@ -1,7 +1,6 @@
 import { SettingType } from "@bobaboard/ui-components";
 import axios from "axios";
 import debug from "debug";
-import { getServerBaseUrl } from "../location-utils";
 import { makeClientData } from "utils/client-data";
 
 const log = debug("bobafrontend:queries:user-log");

@@ -1,7 +1,7 @@
-import { RealmPermissions, RealmType } from "types/Types";
 import { useQuery, useQueryClient } from "react-query";
 
 import React from "react";
+import { RealmType } from "types/Types";
 import debug from "debug";
 import { getCurrentRealmSlug } from "utils/location-utils";
 import { getRealmData } from "utils/queries/realm";
