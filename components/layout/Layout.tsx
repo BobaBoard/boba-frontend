@@ -17,15 +17,11 @@ import {
   useInvalidateNotifications,
   useNotifications,
 } from "queries/notifications";
-<<<<<<< HEAD
-import { useRealmContext, useRealmSettings } from "contexts/RealmContext";
-=======
 import {
   useRealmContext,
   useRealmPermissions,
   useRealmSettings,
 } from "contexts/RealmContext";
->>>>>>> 2bd1490 (update dismiss notification endpoints to include realm id)
 
 import { BOARD_ACTIVITY_KEY } from "queries/board-feed";
 import LoginModal from "../LoginModal";
@@ -194,13 +190,6 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   });
   const openLogin = React.useCallback(() => setLoginOpen(true), []);
   const loggedInMenuOptions = useLoggedInDropdownOptions(openLogin);
-<<<<<<< HEAD
-=======
-  const { id: realmId } = useRealmContext();
-  const { hasNotifications, notificationsOutdated } = useNotifications({
-    realmId,
-  });
->>>>>>> 2bd1490 (update dismiss notification endpoints to include realm id)
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   useServerCssVariables(containerRef);

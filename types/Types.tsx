@@ -251,11 +251,7 @@ export interface RulesBlock {
   id: string;
   index: string;
   title: string;
-<<<<<<< HEAD
   type: "rules";
-=======
-  type: "block";
->>>>>>> f9487fa (Pipe new server realm data down to frontend)
   rules: {
     index: number;
     title: string;
@@ -284,7 +280,7 @@ export interface RealmType {
   homepage: {
     blocks: UiBlocks[];
   };
-  realmPermissions?: RealmPermissions[];
+  realmPermissions: RealmPermissions[];
   boards: BoardSummary[];
 }
 
