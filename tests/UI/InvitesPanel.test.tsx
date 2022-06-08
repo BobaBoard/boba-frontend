@@ -31,6 +31,9 @@ jest.mock("utils/image-upload", () => ({
   ),
 }));
 describe("InvitesPanel", () => {
+  afterEach(() => {
+    matchMedia.restore();
+  });
   test("renders create realm invite form", async () => {
     render(
       <Client
@@ -168,7 +171,6 @@ describe("InvitesPanel", () => {
           : expect(within(invite).getByText("Another Admin")).toBeVisible();
       });
     });
-    matchMedia.restore();
   });
 
   test("doesn't render pending realm invites list if empty", async () => {
