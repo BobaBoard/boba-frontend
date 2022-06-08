@@ -87,6 +87,14 @@ const useRealmHomepage = () => {
   return context.realmData.homepage;
 };
 
+const useRealmIcon = () => {
+  const context = React.useContext(RealmContext);
+  if (context === undefined) {
+    throw new Error("useRealmIcon must be used within a RealmContextProvider");
+  }
+  return context.realmData.icon;
+};
+
 const useBoardSummary = ({ boardId }: { boardId?: string | null }) => {
   const context = React.useContext(RealmContext);
   if (context === undefined) {
@@ -173,6 +181,7 @@ export {
   useRealmPermissions,
   useRealmBoards,
   useRealmHomepage,
+  useRealmIcon,
   useRealmContextUpdatedAt,
   useBoardSummary,
 };
