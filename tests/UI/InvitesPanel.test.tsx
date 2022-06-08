@@ -16,6 +16,7 @@ import { matchMedia } from "@shopify/jest-dom-mocks";
 import { rest } from "msw";
 import { server } from "../server-mocks";
 import userEvent from "@testing-library/user-event";
+import { RealmType } from "types/Types";
 
 const log = debug("bobafrontend:tests:UI:InvitesPanel");
 
@@ -36,7 +37,7 @@ describe("InvitesPanel", () => {
     render(
       <Client
         router={ADMIN_ROUTER}
-        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) }}
+        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) as RealmType }}
       >
         <AdminPage />
       </Client>
@@ -57,7 +58,7 @@ describe("InvitesPanel", () => {
     render(
       <Client
         router={ADMIN_ROUTER}
-        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) }}
+        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) as RealmType }}
       >
         <AdminPage />
       </Client>
@@ -135,7 +136,7 @@ describe("InvitesPanel", () => {
     render(
       <Client
         router={ADMIN_ROUTER}
-        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) }}
+        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) as RealmType }}
       >
         <AdminPage />
       </Client>
@@ -198,7 +199,7 @@ describe("InvitesPanel", () => {
     render(
       <Client
         router={ADMIN_ROUTER}
-        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) }}
+        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) as RealmType }}
       >
         <AdminPage />
       </Client>
@@ -221,7 +222,7 @@ describe("InvitesPanel", () => {
     render(
       <Client
         router={ADMIN_ROUTER}
-        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) }}
+        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) as RealmType }}
       >
         <AdminPage />
       </Client>
@@ -300,7 +301,7 @@ describe("InvitesPanel", () => {
     render(
       <Client
         router={ADMIN_ROUTER}
-        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) }}
+        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) as RealmType }}
       >
         <AdminPage />
       </Client>

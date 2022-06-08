@@ -11,11 +11,11 @@ import { render, screen, waitFor } from "@testing-library/react";
 
 import InvitesPage from "pages/invites/[inviteId]";
 import React from "react";
-import { acceptInvite } from "utils/queries/user";
 import debug from "debug";
 import { getRealmNameFromSlug } from "utils/text-utils";
 import { makeRealmData } from "utils/client-data";
 import userEvent from "@testing-library/user-event";
+import { RealmType } from "types/Types";
 
 const log = debug("bobafrontend:tests:UI:InvitesPage");
 
@@ -57,7 +57,7 @@ describe("InvitesPanel", () => {
     render(
       <LoggedOutClient
         router={INVITES_ROUTER}
-        initialData={{ realm: makeRealmData(V0_DATA) }}
+        initialData={{ realm: makeRealmData(V0_DATA) as RealmType }}
       >
         <InvitesPage
           realmSlug={V0_DATA.slug}
@@ -100,7 +100,7 @@ describe("InvitesPanel", () => {
     render(
       <Client
         router={INVITES_ROUTER}
-        initialData={{ realm: makeRealmData(V0_DATA) }}
+        initialData={{ realm: makeRealmData(V0_DATA) as RealmType }}
       >
         <InvitesPage
           realmSlug={V0_DATA.slug}
@@ -149,7 +149,7 @@ describe("InvitesPanel", () => {
     render(
       <Client
         router={INVITES_ROUTER}
-        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) }}
+        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) as RealmType }}
       >
         <InvitesPage
           realmSlug={V0_DATA.slug}
@@ -179,7 +179,7 @@ describe("InvitesPanel", () => {
     render(
       <Client
         router={INVITES_ROUTER}
-        initialData={{ realm: makeRealmData(V0_DATA) }}
+        initialData={{ realm: makeRealmData(V0_DATA) as RealmType }}
       >
         <InvitesPage
           realmSlug={V0_DATA.slug}
@@ -210,7 +210,7 @@ describe("InvitesPanel", () => {
     render(
       <Client
         router={INVITES_ROUTER}
-        initialData={{ realm: makeRealmData(V0_DATA) }}
+        initialData={{ realm: makeRealmData(V0_DATA) as RealmType }}
       >
         <InvitesPage
           realmSlug={V0_DATA.slug}
@@ -240,7 +240,7 @@ describe("InvitesPanel", () => {
     render(
       <LoggedOutClient
         router={INVITES_ROUTER}
-        initialData={{ realm: makeRealmData(V0_DATA) }}
+        initialData={{ realm: makeRealmData(V0_DATA) as RealmType }}
       >
         <InvitesPage
           realmSlug={V0_DATA.slug}
@@ -275,7 +275,7 @@ describe("InvitesPanel", () => {
     render(
       <Client
         router={INVITES_ROUTER}
-        initialData={{ realm: makeRealmData(V0_DATA) }}
+        initialData={{ realm: makeRealmData(V0_DATA) as RealmType }}
       >
         <InvitesPage
           realmSlug={V0_DATA.slug}
@@ -313,7 +313,7 @@ describe("InvitesPanel", () => {
     render(
       <LoggedOutClient
         router={INVITES_ROUTER}
-        initialData={{ realm: makeRealmData(V0_DATA) }}
+        initialData={{ realm: makeRealmData(V0_DATA) as RealmType }}
       >
         <InvitesPage
           realmSlug={V0_DATA.slug}
@@ -365,7 +365,7 @@ describe("InvitesPanel", () => {
     render(
       <Client
         router={INVITES_ROUTER_NO_EMAIL}
-        initialData={{ realm: makeRealmData(V0_DATA) }}
+        initialData={{ realm: makeRealmData(V0_DATA) as RealmType }}
       >
         <InvitesPage
           realmSlug={V0_DATA.slug}
@@ -403,7 +403,7 @@ describe("InvitesPanel", () => {
     render(
       <LoggedOutClient
         router={INVITES_ROUTER_NO_EMAIL}
-        initialData={{ realm: makeRealmData(V0_DATA) }}
+        initialData={{ realm: makeRealmData(V0_DATA) as RealmType }}
       >
         <InvitesPage
           realmSlug={V0_DATA.slug}
