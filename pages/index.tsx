@@ -4,23 +4,35 @@ import {
   RulesBlock,
   useBoos,
 } from "@bobaboard/ui-components";
-import React, { useState } from "react";
 import {
+  PostType,
+  RealmType,
+  RulesBlock as RulesBlockType,
+  SubscriptionBlock,
+  UiBlocks,
+} from "types/Types";
+import {
+  REALM_QUERY_KEY,
   useRealmBoards,
   useRealmContext,
   useRealmHomepage,
 } from "contexts/RealmContext";
+import React, { useState } from "react";
+import { getCurrentRealmSlug, isStaging } from "utils/location-utils";
+import {
+  prefetchSubscriptionData,
+  useSubscription,
+} from "queries/subscriptions";
 
 import Layout from "components/layout/Layout";
 import Link from "next/link";
 import { NextPage } from "next";
 import { PageContextWithQueryClient } from "additional";
-import { PostType } from "types/Types";
 import { THREAD_PATH } from "utils/router-utils";
+import ca from "date-fns/esm/locale/ca/index.js";
 import debug from "debug";
 import { formatDistanceToNow } from "date-fns";
 import { getLatestSubscriptionUpdate } from "utils/queries/subscription";
-import { isStaging } from "utils/location-utils";
 import { makeClientPost } from "utils/client-data";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useNotifications } from "queries/notifications";
@@ -50,16 +62,22 @@ const StagingWarning = () => {
   );
 };
 
-const UpdatesDisplay = (props: { lastUpdate: PostType }) => {
-  const updatesThreadUrl = `${process.env.NEXT_PUBLIC_RELEASE_THREAD_URL}/${props?.lastUpdate?.postId}`;
+const UpdatesDisplay = ({ subscriptionId, title }: SubscriptionBlock) => {
+  const data = useSubscription({ subscriptionId });
 
+  if (!data) {
+    return <div>Loading</div>;
+  }
+
+  const subscriptionPost = data.activity[0];
+  const updatesThreadUrl = `${process.env.NEXT_PUBLIC_RELEASE_THREAD_URL}/${subscriptionPost?.postId}`;
   return (
     <div className="updates">
-      <h2>New Stuff </h2>
-      {props?.lastUpdate && (
+      <h2>{title}</h2>
+      {data && (
         <div className="last">
           [Last Updated:{" "}
-          {new Date(props?.lastUpdate.created).toLocaleDateString()}.{" "}
+          {new Date(subscriptionPost.created).toLocaleDateString()}.{" "}
           <Link
             href={THREAD_PATH}
             as={
@@ -73,14 +91,14 @@ const UpdatesDisplay = (props: { lastUpdate: PostType }) => {
           ]
           <PostQuote
             createdTime={formatDistanceToNow(
-              new Date(props?.lastUpdate.created),
+              new Date(subscriptionPost.created),
               { addSuffix: true }
             )}
             createdTimeLink={{
               href: updatesThreadUrl,
             }}
-            text={props?.lastUpdate.content}
-            secretIdentity={props.lastUpdate.secretIdentity}
+            text={subscriptionPost.content}
+            secretIdentity={subscriptionPost.secretIdentity}
           />
         </div>
       )}
@@ -103,17 +121,41 @@ const UpdatesDisplay = (props: { lastUpdate: PostType }) => {
   );
 };
 
-const HomePage: NextPage<{
-  lastUpdate: PostType | null;
-}> = (props) => {
+const RulesBlockWithShowAll = (rulesBlock: RulesBlockType) => {
+  const [showAllRules, setShowAllRules] = useState(false);
+  return (
+    <div className="rules-block">
+      <RulesBlock
+        seeAllLink={{
+          onClick: () => setShowAllRules(!showAllRules),
+        }}
+        title={rulesBlock.title}
+        rules={
+          showAllRules
+            ? rulesBlock.rules
+            : rulesBlock.rules.filter((rule) => rule.pinned)
+        }
+      />
+    </div>
+  );
+};
+
+const UiBlock = (props: UiBlocks) => {
+  switch (props.type) {
+    case "rules":
+      return <RulesBlockWithShowAll {...props} />;
+    case "subscription":
+      return <UpdatesDisplay {...props} />;
+  }
+};
+
+const HomePage: NextPage = () => {
   const { styles } = useBoos({ startActive: true });
   const { getLinkToBoard } = useCachedLinks();
   const boards = useRealmBoards();
   const realmHomepage = useRealmHomepage();
   const { id: realmId } = useRealmContext();
   const { realmBoardsNotifications } = useNotifications({ realmId });
-
-  console.log(realmHomepage);
 
   const boardsToDisplay = React.useMemo(() => {
     return boards
@@ -129,12 +171,6 @@ const HomePage: NextPage<{
       }));
   }, [boards, realmBoardsNotifications, getLinkToBoard]);
 
-  const rulesBlock = realmHomepage.blocks.find(
-    (block) => block.type === "rules"
-  );
-
-  const [showAllRules, setShowAllRules] = useState(false);
-
   return (
     <div className="main">
       <Layout title={`Hello!`}>
@@ -148,21 +184,6 @@ const HomePage: NextPage<{
                 "Where the bugs are funny and the people are cool" — Outdated
                 Meme
               </div>
-              <div className="rules-block">
-                {!!rulesBlock && (
-                  <RulesBlock
-                    seeAllLink={{
-                      onClick: () => setShowAllRules(!showAllRules),
-                    }}
-                    title={rulesBlock.title}
-                    rules={
-                      showAllRules
-                        ? rulesBlock.rules
-                        : rulesBlock.rules.filter((rule) => rule.pinned)
-                    }
-                  />
-                )}
-              </div>
               {isStaging() && <StagingWarning />}
               <p>
                 Remember: this is the experimental version of an experimental
@@ -175,9 +196,9 @@ const HomePage: NextPage<{
                 channel, the <code>!bobaland</code> board or the (even more)
                 anonymous feedback form in the user menu.
               </p>
-              {props.lastUpdate && (
-                <UpdatesDisplay lastUpdate={props.lastUpdate} />
-              )}
+              {realmHomepage.blocks.map((block) => (
+                <UiBlock key={block.id} {...block} />
+              ))}
             </div>
             <div className="display">
               <BoardsDisplay boards={boardsToDisplay} />
@@ -280,16 +301,27 @@ export default HomePage;
 
 HomePage.getInitialProps = async (ctx: PageContextWithQueryClient) => {
   try {
-    const subscription = await getLatestSubscriptionUpdate({
-      subscriptionId: isStaging(ctx?.req?.headers?.host)
-        ? process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID_STAGING!
-        : process.env.NEXT_PUBLIC_RELEASE_SUBSCRIPTION_STRING_ID!,
+    const realmSlug = getCurrentRealmSlug({
+      serverHostname: ctx.req?.headers.host,
     });
-    return {
-      lastUpdate: subscription
-        ? makeClientPost(subscription?.activity[0])
-        : null,
-    };
+    const realmData = await ctx.queryClient.getQueryData<RealmType>([
+      REALM_QUERY_KEY,
+      { realmSlug, isLoggedIn: false },
+    ]);
+
+    // Preload all subscriptions
+    await Promise.all(
+      realmData?.homepage.blocks
+        .filter((b): b is SubscriptionBlock => b.type == "subscription")
+        .map(
+          async (s) =>
+            await prefetchSubscriptionData(ctx.queryClient, {
+              subscriptionId: s.subscriptionId,
+            })
+        ) || []
+    );
+
+    return {};
   } catch (e) {
     error(`Error retrieving lastUpdate.`);
     return {
