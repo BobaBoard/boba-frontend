@@ -3,13 +3,19 @@ import {
   ButtonStyle,
   Input,
   InputStyle,
+  RulesBlock,
   toast,
 } from "@bobaboard/ui-components";
 import { NextPage, NextPageContext } from "next";
 import React, { useEffect } from "react";
 import { getCurrentRealmSlug, isLocalhost } from "utils/location-utils";
 import { getInviteStatusByNonce, getRealmData } from "utils/queries/realm";
-import { useRealmId, useRealmPermissions } from "contexts/RealmContext";
+import {
+  useRealmHomepage,
+  useRealmIcon,
+  useRealmId,
+  useRealmPermissions,
+} from "contexts/RealmContext";
 
 import Layout from "components/layout/Layout";
 import LoginModal from "components/LoginModal";
@@ -53,6 +59,13 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
   const router = useRouter();
   const realmName = getRealmNameFromSlug(realmSlug);
   const clientRealmId = useRealmId();
+  const realmHomepage = useRealmHomepage();
+  const realmIcon = useRealmIcon();
+  const rulesBlock = realmHomepage.blocks.find(
+    (block) => block.type === "rules"
+  );
+
+  const [showAllRules, setShowAllRules] = React.useState(false);
 
   // This assumes that only realm members will have realm permissions.
   // If that changes this can be changed to specifically check for whatever we call the permission
@@ -67,7 +80,7 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
       nonce: string;
     }) => acceptInvite(data),
     {
-      onSuccess: async (data) => {
+      onSuccess: async () => {
         if (!isLoggedIn && !isUserPending) {
           await attemptLogin!(email, password);
         }
@@ -159,13 +172,23 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
         <div className="page">
           <div className="invite-signup">
             <div className="hero">
-              {/* TODO: Make this the realm icon */}
-              <img src="/bobatan.png" />
+              <img src={realmIcon} />
               <h1>You've been invited to join {realmName}!</h1>
             </div>
             <div className="rules">
-              {/* TODO: Insert Rules component here */}
-              Realm rules component to go here
+              {!!rulesBlock && (
+                <RulesBlock
+                  seeAllLink={{
+                    onClick: () => setShowAllRules(!showAllRules),
+                  }}
+                  title={rulesBlock.title}
+                  rules={
+                    showAllRules
+                      ? rulesBlock.rules
+                      : rulesBlock.rules.filter((rule) => rule.pinned)
+                  }
+                />
+              )}
             </div>
             {!isLoggedIn && (
               <div className="boba-welcome">
