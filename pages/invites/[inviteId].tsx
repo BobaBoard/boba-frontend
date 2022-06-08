@@ -219,7 +219,7 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
                 </p>
               </div>
             )}
-            <form className={classnames({ pending: isUserPending })}>
+            <div className={classnames("form", { pending: isUserPending })}>
               {!isLoggedIn && (
                 <div className="inputs">
                   <div>
@@ -264,7 +264,7 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
                   Join {realmName}
                 </Button>
               </div>
-            </form>
+            </div>
             <div className="ps">
               <p>
                 Not interested in the {realmName} realm?{" "}
@@ -391,13 +391,9 @@ InvitesPage.getInitialProps = async (ctx: NextPageContext) => {
       serverHostname: ctx.req?.headers.host,
     });
     const urlRealmId = (await getRealmData({ realmSlug: urlRealmSlug })).id;
-    if (!urlRealmId) {
-      throw new Error("Invalid invite realm");
-    }
-
     log(`Fetching status for invite with nonce: ${nonce}`);
     const invite = await getInviteStatusByNonce({
-      realmId: urlRealmId,
+      realmId: urlRealmId ?? "placeholderId",
       nonce,
     });
     if (!invite) {
