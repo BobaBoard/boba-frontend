@@ -207,7 +207,9 @@ export default BobaBoardApp;
 
 BobaBoardApp.getInitialProps = async (
   appContext: AppContextWithQueryClient
-): Promise<GlobalAppProps | Record<string, never>> => {
+): Promise<
+  (GlobalAppProps & { favicon: string | null }) | Record<string, never>
+> => {
   const { ctx } = appContext;
   if (!isAllowedSandboxLocation(ctx)) {
     // We should use 302 redirect here rather than 301 because
@@ -248,7 +250,7 @@ BobaBoardApp.getInitialProps = async (
   return {
     serverHostname: ctx?.req?.headers?.host,
     boardSlug: ctx.query.boardId?.slice(1),
-    favicon: realmData.favicon,
+    favicon: realmData.favicon || null,
     ...appProps,
     dehydratedState: dehydrate(queryClient),
     summary: appProps.pageProps.summary,
