@@ -19,6 +19,7 @@ import {
 
 import Layout from "components/layout/Layout";
 import LoginModal from "components/LoginModal";
+import { RulesBlock as RulesBlockType } from "types/Types";
 import { acceptInvite } from "utils/queries/user";
 import classnames from "classnames";
 import debug from "debug";
@@ -34,6 +35,7 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
   realmSlug,
   realmId,
   inviteStatus,
+  requiresEmail,
 }) => {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -48,11 +50,10 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
   const [loading, setLoading] = React.useState(false);
   const {
     isPending: isUserPending,
-    isLoggedIn: realIsLoggedIn,
+    isLoggedIn,
     attemptLogin,
     authError,
   } = useAuth();
-  const isLoggedIn = false;
   const [loginOpen, setLoginOpen] = React.useState(false);
   const openLoginModal = React.useCallback(() => {
     setLoginOpen(!isUserPending);
@@ -63,7 +64,7 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
   const realmHomepage = useRealmHomepage();
   const realmIcon = useRealmIcon();
   const rulesBlock = realmHomepage.blocks.find(
-    (block) => block.type === "rules"
+    (block): block is RulesBlockType => block.type === "rules"
   );
 
   const [showAllRules, setShowAllRules] = React.useState(false);
@@ -234,11 +235,13 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
                       disabled={loading}
                       theme={InputStyle.DARK}
                     />
-                    <p className="helper-text">
-                      In order to protect your precious invite, it's been
-                      betrothed to your precious email. Make sure what you enter
-                      matches what was given.
-                    </p>
+                    {requiresEmail && (
+                      <p className="helper-text">
+                        In order to protect your precious invite, it's been
+                        betrothed to your precious email. Make sure what you
+                        enter matches what was given.
+                      </p>
+                    )}
                   </div>
                   <div>
                     <Input
@@ -528,6 +531,7 @@ export interface InvitesPageProps {
   realmId?: string;
   realmSlug: string;
   inviteStatus: string;
+  requiresEmail: boolean;
 }
 
 InvitesPage.getInitialProps = async (ctx: NextPageContext) => {
@@ -546,7 +550,11 @@ InvitesPage.getInitialProps = async (ctx: NextPageContext) => {
       nonce,
     });
     if (!invite) {
-      throw new Error("An error occurred while finding invite");
+      ctx.res?.writeHead(302, {
+        location: `http://${urlRealmSlug}_boba.local:3000/404`,
+      });
+      ctx.res?.end();
+      throw new Error("Invalid invite URL");
     }
     if (urlRealmSlug !== invite.realmSlug) {
       log(
@@ -571,6 +579,10 @@ InvitesPage.getInitialProps = async (ctx: NextPageContext) => {
     const urlRealmSlug = getCurrentRealmSlug({
       serverHostname: ctx.req?.headers.host,
     });
-    return { realmSlug: urlRealmSlug, inviteStatus: `${e.name}: ${e.message}` };
+    return {
+      realmSlug: urlRealmSlug,
+      inviteStatus: `${e.name}: ${e.message}`,
+      requiresEmail: false,
+    };
   }
 };

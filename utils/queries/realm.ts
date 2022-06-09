@@ -42,6 +42,7 @@ export const getInviteStatusByNonce = async ({
   realmId: string;
   realmSlug: string;
   inviteStatus: "pending" | "used" | "expired";
+  requiresEmail: boolean;
 }> => {
   const response = await axios.get(`/realms/${realmId}/invites/${nonce}`);
   if (response.status !== 200) {
@@ -53,6 +54,7 @@ export const getInviteStatusByNonce = async ({
     realmId: string;
     realmSlug: string;
     inviteStatus: "pending" | "used" | "expired";
+    requiresEmail: boolean;
   };
 };
 
