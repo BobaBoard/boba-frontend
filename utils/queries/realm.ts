@@ -10,6 +10,7 @@ import axios from "axios";
 import debug from "debug";
 
 const log = debug("bobafrontend:queries:realm-log");
+const error = debug("bobafrontend:queries:realm-error");
 
 export const getRealmData = async ({
   realmSlug,
@@ -43,19 +44,22 @@ export const getInviteStatusByNonce = async ({
   realmSlug: string;
   inviteStatus: "pending" | "used" | "expired";
   requiresEmail: boolean;
-}> => {
-  const response = await axios.get(`/realms/${realmId}/invites/${nonce}`);
-  if (response.status !== 200) {
-    throw new Error(response.data?.message);
+} | null> => {
+  try {
+    const response = await axios.get(`/realms/${realmId}/invites/${nonce}`);
+    console.log("response");
+    log(`Got invite status from server:`);
+    log(response.data);
+    return makeClientData(response.data) as {
+      realmId: string;
+      realmSlug: string;
+      inviteStatus: "pending" | "used" | "expired";
+      requiresEmail: boolean;
+    };
+  } catch (e) {
+    error(e);
+    return null;
   }
-  log(`Got invite status from server:`);
-  log(response.data);
-  return makeClientData(response.data) as {
-    realmId: string;
-    realmSlug: string;
-    inviteStatus: "pending" | "used" | "expired";
-    requiresEmail: boolean;
-  };
 };
 
 export const createRealmInvite = async ({
