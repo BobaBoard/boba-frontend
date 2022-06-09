@@ -48,10 +48,11 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
   const [loading, setLoading] = React.useState(false);
   const {
     isPending: isUserPending,
-    isLoggedIn,
+    isLoggedIn: realIsLoggedIn,
     attemptLogin,
     authError,
   } = useAuth();
+  const isLoggedIn = false;
   const [loginOpen, setLoginOpen] = React.useState(false);
   const openLoginModal = React.useCallback(() => {
     setLoginOpen(!isUserPending);
@@ -170,81 +171,58 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
           />
         )}
         <div className="page">
-          <div className="invite-signup">
-            <div className="hero">
+          <div className="invite-signup"></div>
+          <div className="hero">
+            <h1>
+              <div className="subtitle">Youʼve been invited to join</div>{" "}
               <img src={realmIcon} />
-              <h1>You've been invited to join {realmName}!</h1>
-            </div>
-            <div className="rules">
-              {!!rulesBlock && (
-                <RulesBlock
-                  seeAllLink={{
-                    onClick: () => setShowAllRules(!showAllRules),
-                  }}
-                  title={rulesBlock.title}
-                  rules={
-                    showAllRules
-                      ? rulesBlock.rules
-                      : rulesBlock.rules.filter((rule) => rule.pinned)
-                  }
-                />
-              )}
-            </div>
-            {!isLoggedIn && (
-              <div className="boba-welcome">
-                <div className="welcome-header">
-                  <img src="/bobatan.png" />
-                  <div className="intro-wrapper">
-                    <p className="intro">
-                      Hello, and (almost) welcome to BobaBoard.
-                    </p>
-                    <p className="intro">
-                      Just one last step before you can join in the fun: time to
-                      create an account!
-                    </p>
-                    <div>
-                      Already have a Boba account?{" "}
-                      <span className="login-button">
-                        <Button
-                          onClick={openLoginModal}
-                          theme={ButtonStyle.DARK}
-                        >
-                          Login
-                        </Button>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <p>
-                  In order to protect your precious invite, it's been betrothed
-                  to your precious email. Make sure what you enter matches what
-                  was given.
-                </p>
-                <p>
-                  <strong>Remember:</strong> keeping BobaBoard a safe and
-                  respectful community is everyone's job! Especially in these
-                  early stages, you have real power to influence the developing
-                  culture on this platform. Be as nasty as your heart desires
-                  towards fictional characters, but excellent to other boobies.
-                </p>
-                <p>
-                  Communicate with care, assume good intentions, and remember
-                  that leaving a derailing conversation to take a breather can
-                  go a long way. Make generous use of the "hide thread" button,
-                  and stay tuned for better filtering tools!
-                </p>
-                <p>
-                  If you have concerns, no matter how small, the webmaster's
-                  door is always open. In doubt, consult our{" "}
-                  <a href="https://docs.bobaboard.com/docs/users/intro">
-                    Welcome Guide
-                  </a>{" "}
-                  or ask your questions on the boards!
-                </p>
-              </div>
+              {realmName}
+            </h1>
+          </div>
+          <div className="rules">
+            {!!rulesBlock && (
+              <RulesBlock
+                seeAllLink={{
+                  onClick: () => setShowAllRules(!showAllRules),
+                }}
+                title={rulesBlock.title}
+                rules={
+                  showAllRules
+                    ? rulesBlock.rules
+                    : rulesBlock.rules.filter((rule) => rule.pinned)
+                }
+              />
             )}
-            <div className={classnames("form", { pending: isUserPending })}>
-              {!isLoggedIn && (
+          </div>
+          {!isLoggedIn && (
+            <div className="boba-welcome">
+              <div className="welcome-header">
+                <img src="/bobatan.png" />
+                <div className="intro-wrapper">
+                  <p className="intro">
+                    Hello, and (almost) welcome to BobaBoard.
+                  </p>
+                  <p className="intro">
+                    Just one last step before you can join in the fun: time to
+                    create an account!
+                  </p>
+                </div>
+              </div>
+              <div className="login-card">
+                <span className="title">Already have a BobaBoard account?</span>
+                <div className="login-button">
+                  <Button onClick={openLoginModal} theme={ButtonStyle.DARK}>
+                    Login
+                  </Button>
+                </div>
+              </div>
+              <div className="or">or</div>
+              <div
+                className={classnames("form signup-card", {
+                  pending: isUserPending,
+                })}
+              >
+                <div className="title">Create a new account</div>
                 <div className="inputs">
                   <div>
                     <Input
@@ -256,6 +234,11 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
                       disabled={loading}
                       theme={InputStyle.DARK}
                     />
+                    <p className="helper-text">
+                      In order to protect your precious invite, it's been
+                      betrothed to your precious email. Make sure what you enter
+                      matches what was given.
+                    </p>
                   </div>
                   <div>
                     <Input
@@ -270,41 +253,82 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
                     />
                   </div>
                 </div>
+                <div className={classnames("error", { hidden: !error })}>
+                  {error || "Hidden error field!"}
+                </div>
+                <div className="reminder">
+                  <p className="title">Reminder</p>
+                  <p>
+                    Keeping BobaBoard a safe and respectful community is
+                    everyone's job! Especially in these early stages, you have
+                    real power to influence the developing culture on this
+                    platform. Be as nasty as your heart desires towards
+                    fictional characters, but excellent to other boobies.
+                  </p>
+                  <p>
+                    Communicate with care, assume good intentions, and remember
+                    that leaving a derailing conversation to take a breather can
+                    go a long way. Make generous use of the "hide thread"
+                    button, and stay tuned for better filtering tools!
+                  </p>
+                  <p>
+                    If you have concerns, no matter how small, the webmaster's
+                    door is always open. In doubt, consult our{" "}
+                    <a href="https://docs.bobaboard.com/docs/users/intro">
+                      Welcome Guide
+                    </a>{" "}
+                    or ask your questions on the boards!
+                  </p>
+                </div>
+                <div className="buttons signup-button">
+                  <Button
+                    disabled={
+                      (inviteStatus === "pending" ? false : true) ||
+                      (!isLoggedIn &&
+                        (email.trim().length == 0 || password.length == 0)) ||
+                      isUserPending
+                    }
+                    onClick={onSubmit}
+                    theme={ButtonStyle.DARK}
+                  >
+                    Join {realmName}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {isLoggedIn && (
+            <div className="buttons signup-button">
+              <Button
+                disabled={
+                  (inviteStatus === "pending" ? false : true) ||
+                  (!isLoggedIn &&
+                    (email.trim().length == 0 || password.length == 0)) ||
+                  isUserPending
+                }
+                onClick={onSubmit}
+                theme={ButtonStyle.DARK}
+              >
+                Join {realmName}
+              </Button>
+            </div>
+          )}
+          <div className="ps">
+            <p>
+              Not interested in the {realmName} realm?{" "}
+              {isLoggedIn ? (
+                <a href="https://v0.boba.social">Go back to V0</a>
+              ) : (
+                <span>
+                  No worries, we hope you find a realm that suits in future. In
+                  the meantime, you can follow Bobaboard's development on{" "}
+                  <a href="https://twitter.com/BobaBoard">Twitter</a>,{" "}
+                  <a href="https://bobaboard.tumblr.com/">Tumblr</a>, and{" "}
+                  <a href="https://bobaboard.com/">BobaBoard.com</a>!
+                </span>
               )}
-              <div className={classnames("error", { hidden: !error })}>
-                {error || "Hidden error field!"}
-              </div>
-              <div className="buttons">
-                <Button
-                  disabled={
-                    (inviteStatus === "pending" ? false : true) ||
-                    (!isLoggedIn &&
-                      (email.trim().length == 0 || password.length == 0)) ||
-                    isUserPending
-                  }
-                  onClick={onSubmit}
-                  theme={ButtonStyle.DARK}
-                >
-                  Join {realmName}
-                </Button>
-              </div>
-            </div>
-            <div className="ps">
-              <p>
-                Not interested in the {realmName} realm?{" "}
-                {isLoggedIn ? (
-                  <a href="https://v0.boba.social">Go back to V0</a>
-                ) : (
-                  <span>
-                    No worries, we hope you find a realm that suits in future.
-                    In the meantime, you can follow Bobaboard's development on{" "}
-                    <a href="https://twitter.com/BobaBoard">Twitter</a>,{" "}
-                    <a href="https://bobaboard.tumblr.com/">Tumblr</a>, and{" "}
-                    <a href="https://bobaboard.com/">BobaBoard.com</a>!
-                  </span>
-                )}
-              </p>
-            </div>
+            </p>
           </div>
           <style jsx>{`
             .page {
@@ -317,77 +341,178 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
             a {
               color: #f96680;
             }
-            .invite-signup {
-              max-width: 800px;
-              margin: 50px auto 70px;
-            }
-            .hero > img {
-              width: 100%;
-              max-width: 250px;
-              display: block;
-              margin: 0 auto;
-              border-radius: 50%;
-            }
+
             .hero > h1 {
               font-size: 36px;
               font-weight: 700;
               line-height: 1.3em;
-              margin: 1.3em auto 1.5em;
+              margin-top: 4rem;
+              margin-bottom: 0;
               text-align: center;
             }
-            .rules {
-              width: 75%;
+            .hero > h1 .subtitle {
+              font-size: 24px;
+              font-weight: 400;
+              line-height: 30px;
+            }
+            .hero > h1 img {
+              width: 100%;
+              max-width: 140px;
+              display: block;
               margin: 0 auto;
+              border-radius: 50%;
+            }
+            .rules {
+              max-width: 700px;
+              margin: 8rem auto 0 auto;
             }
             .welcome-header {
               display: flex;
               align-items: center;
-              margin-top: 40px;
-              margin-bottom: 24px;
               gap: 21px;
+              max-width: 940px;
+              margin: 6rem auto 0 auto;
+            }
+            .intro-wrapper {
+              border: 1px solid white;
+              padding: 30px;
+              border-radius: 30px;
             }
             .intro {
               font-size: 24px;
               font-weight: 300;
               line-height: 1.3em;
+              margin: 0;
+            }
+            .intro + .intro {
+              margin-top: 2rem;
             }
             .welcome-header > img {
               max-width: 200px;
               max-height: 200px;
               border-radius: 50%;
             }
-            .form {
-              margin: 0 auto 45px;
-              width: 75%;
+            .login-card,
+            .signup-card {
+              background-color: rgb(36, 36, 36);
+              border-radius: 24px;
+              padding: 20px;
+              max-width: 700px;
+              margin: 6rem auto 0 auto;
             }
-            .inputs > div:first-child {
-              margin-bottom: 5px;
-              margin-top: 35px;
+            .login-card {
+              display: flex;
+              gap: 2rem;
+              justify-content: space-between;
+              align-items: center;
+            }
+            .login-card > .title,
+            .signup-card > .title {
+              font-size: 2.2rem;
+              line-height: 3rem;
+            }
+
+            .or {
+              text-transform: uppercase;
+              margin: 3rem auto;
+              text-align: center;
+            }
+            .signup-card {
+              margin-top: 0;
+              padding-bottom: 4rem;
+            }
+            .signup-card > .title {
+              margin-top: 0.5rem;
+            }
+
+            .inputs {
+              margin-top: 3rem;
+              display: flex;
+              gap: 2rem;
+            }
+
+            .inputs > div {
+              flex: 1;
+            }
+            .inputs > div + div {
+            }
+
+            .login-button {
+              display: flex;
+              align-items: center;
+            }
+            .login-button :global(div.button),
+            .signup-button :global(div.button) {
+              font-size: 2rem !important;
+            }
+            .login-button :global(button),
+            .signup-button :global(button) {
+              padding: 1rem 1.8rem !important;
+            }
+
+            .helper-text {
+              font-size: 14px;
+              color: rgb(190, 190, 190);
+              margin: 1rem 0 0 0;
             }
             .buttons {
               display: flex;
-              justify-content: flex-end;
+              justify-content: center;
+              margin-top: 4rem;
             }
             .error {
               color: red;
               margin-top: 10px;
               margin-left: 20px;
               font-size: small;
+              display: block;
             }
             .error.hidden {
-              visibility: hidden;
+              display: none;
+            }
+            .reminder {
+              margin-top: 3rem;
+            }
+
+            .reminder > .title {
+              font-weight: bold;
             }
             .ps {
-              margin: 0 auto;
+              margin: 8rem auto;
               text-align: center;
             }
             @media (max-width: 720px) {
               .welcome-header {
                 flex-direction: column;
               }
-              .form,
-              .rules {
-                width: 100%;
+
+              .inputs {
+                flex-direction: column;
+              }
+            }
+
+            @media (max-width: 460px) {
+              .intro-wrapper {
+                padding: 20px;
+              }
+              .intro {
+                font-size: 20px;
+              }
+
+              .login-card {
+                flex-direction: column;
+              }
+
+              .signup-card {
+                padding-bottom: 20px;
+              }
+              .login-button,
+              .login-button :global(div.button),
+              .login-button :global(button),
+              .signup-button :global(div.button),
+              .signup-button :global(button) {
+                width: 100% !important;
+                justify-content: center;
               }
             }
           `}</style>
