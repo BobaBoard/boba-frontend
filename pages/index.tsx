@@ -126,6 +126,7 @@ const HomePage: NextPage = () => {
         description: board.tagline,
         color: board.accentColor,
         updates: !!realmBoardsNotifications[board.id]?.hasUpdates,
+        outdated: !!realmBoardsNotifications[board.id]?.isOutdated,
         muted: board.muted,
         link: getLinkToBoard(board.slug),
       }));
