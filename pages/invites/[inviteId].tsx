@@ -287,8 +287,6 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
                   <Button
                     disabled={
                       (inviteStatus === "pending" ? false : true) ||
-                      (!isLoggedIn &&
-                        (email.trim().length == 0 || password.length == 0)) ||
                       isUserPending
                     }
                     onClick={onSubmit}
