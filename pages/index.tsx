@@ -1,16 +1,9 @@
 import {
   BoardsDisplay,
-  PostQuote,
   RulesBlock,
+  SubscriptionBlock,
   useBoos,
 } from "@bobaboard/ui-components";
-import {
-  PostType,
-  RealmType,
-  RulesBlock as RulesBlockType,
-  SubscriptionBlock,
-  UiBlocks,
-} from "types/Types";
 import {
   REALM_QUERY_KEY,
   useRealmBoards,
@@ -18,6 +11,12 @@ import {
   useRealmHomepage,
 } from "contexts/RealmContext";
 import React, { useState } from "react";
+import {
+  RealmType,
+  RulesBlock as RulesBlockType,
+  SubscriptionBlock as SubscriptionBlockType,
+  UiBlocks,
+} from "types/Types";
 import { getCurrentRealmSlug, isStaging } from "utils/location-utils";
 import {
   prefetchSubscriptionData,
@@ -25,15 +24,9 @@ import {
 } from "queries/subscriptions";
 
 import Layout from "components/layout/Layout";
-import Link from "next/link";
 import { NextPage } from "next";
 import { PageContextWithQueryClient } from "additional";
-import { THREAD_PATH } from "utils/router-utils";
-import ca from "date-fns/esm/locale/ca/index.js";
 import debug from "debug";
-import { formatDistanceToNow } from "date-fns";
-import { getLatestSubscriptionUpdate } from "utils/queries/subscription";
-import { makeClientPost } from "utils/client-data";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useNotifications } from "queries/notifications";
 
@@ -62,7 +55,10 @@ const StagingWarning = () => {
   );
 };
 
-const UpdatesDisplay = ({ subscriptionId, title }: SubscriptionBlock) => {
+const SubscriptionBlockWithData = ({
+  subscriptionId,
+  title,
+}: SubscriptionBlockType) => {
   const data = useSubscription({ subscriptionId });
 
   if (!data) {
@@ -70,73 +66,37 @@ const UpdatesDisplay = ({ subscriptionId, title }: SubscriptionBlock) => {
   }
 
   const subscriptionPost = data.activity[0];
-  const updatesThreadUrl = `${process.env.NEXT_PUBLIC_RELEASE_THREAD_URL}/${subscriptionPost?.postId}`;
+  const updatesThreadUrl = `${subscriptionPost.threadId}/${subscriptionPost?.postId}`;
   return (
-    <div className="updates">
-      <h2>{title}</h2>
-      {data && (
-        <div className="last">
-          [Last Updated:{" "}
-          {new Date(subscriptionPost.created).toLocaleDateString()}.{" "}
-          <Link
-            href={THREAD_PATH}
-            as={
-              isStaging()
-                ? process.env.NEXT_PUBLIC_RELEASE_THREAD_URL_STAGING
-                : process.env.NEXT_PUBLIC_RELEASE_THREAD_URL || ""
-            }
-          >
-            <a>Older logs.</a>
-          </Link>
-          ]
-          <PostQuote
-            createdTime={formatDistanceToNow(
-              new Date(subscriptionPost.created),
-              { addSuffix: true }
-            )}
-            createdTimeLink={{
-              href: updatesThreadUrl,
-            }}
-            text={subscriptionPost.content}
-            secretIdentity={subscriptionPost.secretIdentity}
-          />
-        </div>
-      )}
-      <style jsx>{`
-        .updates {
-          background-color: #1c1c1c;
-          padding: 15px;
-          border-radius: 25px;
-          position: relative;
-        }
-        .updates .last {
-          font-size: small;
-          margin-bottom: 5px;
-        }
-        .updates :global(.expand-overlay) :global(svg) {
-          margin-top: 15px;
-        }
-      `}</style>
-    </div>
+    <SubscriptionBlock
+      title={title}
+      showOlderLink={{
+        href: updatesThreadUrl,
+      }}
+      lastUpdatedTime={new Date(subscriptionPost.created).toLocaleDateString()}
+      lastUpdatedTimeLink={{
+        href: updatesThreadUrl,
+      }}
+      post={subscriptionPost.content}
+      secretIdentity={subscriptionPost.secretIdentity}
+    />
   );
 };
 
 const RulesBlockWithShowAll = (rulesBlock: RulesBlockType) => {
   const [showAllRules, setShowAllRules] = useState(false);
   return (
-    <div className="rules-block">
-      <RulesBlock
-        seeAllLink={{
-          onClick: () => setShowAllRules(!showAllRules),
-        }}
-        title={rulesBlock.title}
-        rules={
-          showAllRules
-            ? rulesBlock.rules
-            : rulesBlock.rules.filter((rule) => rule.pinned)
-        }
-      />
-    </div>
+    <RulesBlock
+      seeAllLink={{
+        onClick: () => setShowAllRules(!showAllRules),
+      }}
+      title={rulesBlock.title}
+      rules={
+        showAllRules
+          ? rulesBlock.rules
+          : rulesBlock.rules.filter((rule) => rule.pinned)
+      }
+    />
   );
 };
 
@@ -145,7 +105,7 @@ const UiBlock = (props: UiBlocks) => {
     case "rules":
       return <RulesBlockWithShowAll {...props} />;
     case "subscription":
-      return <UpdatesDisplay {...props} />;
+      return <SubscriptionBlockWithData {...props} />;
   }
 };
 
@@ -244,7 +204,6 @@ const HomePage: NextPage = () => {
         }
         .content {
           color: white;
-          text-align: center;
           margin: 0 auto;
           padding: 20px;
           width: 100%;
@@ -312,7 +271,7 @@ HomePage.getInitialProps = async (ctx: PageContextWithQueryClient) => {
     // Preload all subscriptions
     await Promise.all(
       realmData?.homepage.blocks
-        .filter((b): b is SubscriptionBlock => b.type == "subscription")
+        .filter((b): b is SubscriptionBlockType => b.type == "subscription")
         .map(
           async (s) =>
             await prefetchSubscriptionData(ctx.queryClient, {
