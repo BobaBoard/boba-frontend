@@ -46,6 +46,7 @@ const useLoggedInDropdownOptions = (openLogin: () => void) => {
   const { linkToPersonalSettings, linkToLogs, linkToRealmAdmin } =
     useCachedLinks();
   const userRealmPermissions = useRealmPermissions();
+  const realmData = useRealmContext();
 
   return React.useMemo(
     () => [
@@ -79,7 +80,9 @@ const useLoggedInDropdownOptions = (openLogin: () => void) => {
         icon: faComments,
         name: "Leave Feedback!",
         link: {
-          href: "https://docs.google.com/forms/d/e/1FAIpQLSfyMENg9eDNmRj-jIvIG5_ElJFwpGZ_VPvzAskarqu5kf0MSA/viewform",
+          href:
+            realmData.feedbackFormUrl ||
+            "https://docs.google.com/forms/d/e/1FAIpQLSfyMENg9eDNmRj-jIvIG5_ElJFwpGZ_VPvzAskarqu5kf0MSA/viewform",
         },
       },
       {
@@ -103,6 +106,7 @@ const useLoggedInDropdownOptions = (openLogin: () => void) => {
       linkToRealmAdmin,
       toggleForceHideIdentity,
       userRealmPermissions,
+      realmData.feedbackFormUrl,
     ]
   );
 };
