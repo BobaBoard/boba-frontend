@@ -1,38 +1,44 @@
-import { BoardData, BoardSummary } from "types/Types";
+import { BoardData, BoardSummary, RealmType } from "types/Types";
 
 import Head from "next/head";
 import React from "react";
 import { getDeltaSummary } from "@bobaboard/ui-components";
 import { useBoardSummaryBySlug } from "queries/board";
+import { useRealmContext } from "contexts/RealmContext";
 
 export const getTitle = (
   currentBoardData: BoardSummary | BoardData | undefined | null,
-  threadSummary: ReturnType<typeof getDeltaSummary> | undefined
+  threadSummary: ReturnType<typeof getDeltaSummary> | undefined,
+  realmData: RealmType
 ) => {
   const currentSlugString = currentBoardData
     ? `!${currentBoardData.slug} — `
     : "";
   if (threadSummary?.title) {
-    return `${threadSummary.title} — ${currentSlugString}BobaBoard v0`;
+    return `${threadSummary.title} — ${currentSlugString}BobaBoard ${realmData.slug}`;
   }
-  return `${currentSlugString}BobaBoard v0 — Where the bugs are funny and the people are cool!`;
+  return `${currentSlugString}BobaBoard ${realmData.slug} — ${realmData.title}`;
 };
 
 const getImage = (
   currentBoardData: BoardSummary | BoardData | undefined | null,
-  threadSummary: ReturnType<typeof getDeltaSummary> | undefined
+  threadSummary: ReturnType<typeof getDeltaSummary> | undefined,
+  realmData: RealmType
 ) => {
   if (threadSummary?.images?.length) {
     return threadSummary.images[0];
   }
   return currentBoardData
     ? currentBoardData.avatarUrl
+    : realmData.icon
+    ? realmData.icon
     : "https://v0.boba.social/bobatan.png";
 };
 
 const getDescription = (
   currentBoardData: BoardSummary | BoardData | undefined | null,
-  threadSummary: ReturnType<typeof getDeltaSummary> | undefined
+  threadSummary: ReturnType<typeof getDeltaSummary> | undefined,
+  realmData: RealmType
 ) => {
   if (threadSummary?.text) {
     let summaryText = threadSummary.text;
@@ -43,6 +49,8 @@ const getDescription = (
   }
   return currentBoardData
     ? currentBoardData.tagline
+    : realmData.description
+    ? realmData.description
     : `BobaBoard is an upcoming commmunity (and platform) aiming to balance the freedom and wonder of the early 00s web with a modern user experience and ethos. Feel free to look around, but remember: what you see is Work in Progress! Read more (and get involved) at www.bobaboard.com.`;
 };
 
@@ -54,35 +62,36 @@ const OpenGraphMeta = ({
   threadSummary: ReturnType<typeof getDeltaSummary> | undefined;
 }) => {
   const boardSummary = useBoardSummaryBySlug(slug || null);
+  const realmData = useRealmContext();
   return (
     <Head>
-      <title>{getTitle(boardSummary, threadSummary)}</title>
+      <title>{getTitle(boardSummary, threadSummary, realmData)}</title>
       <meta
         property="og:title"
-        content={getTitle(boardSummary, threadSummary)}
+        content={getTitle(boardSummary, threadSummary, realmData)}
       />
       <meta property="og:type" content="website" />
       <meta
         property="og:description"
-        content={getDescription(boardSummary, threadSummary)}
+        content={getDescription(boardSummary, threadSummary, realmData)}
       />
       <meta
         property="og:image"
-        content={getImage(boardSummary, threadSummary)}
+        content={getImage(boardSummary, threadSummary, realmData)}
       />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@BobaBoard" />
       <meta
         name="twitter:title"
-        content={getTitle(boardSummary, threadSummary)}
+        content={getTitle(boardSummary, threadSummary, realmData)}
       />
       <meta
         name="twitter:description"
-        content={getDescription(boardSummary, threadSummary)}
+        content={getDescription(boardSummary, threadSummary, realmData)}
       />
       <meta
         name="twitter:image"
-        content={getImage(boardSummary, threadSummary)}
+        content={getImage(boardSummary, threadSummary, realmData)}
       />
     </Head>
   );

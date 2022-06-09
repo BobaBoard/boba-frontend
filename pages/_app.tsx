@@ -117,7 +117,37 @@ const editorContext = {
 
 const queryClient = new QueryClient();
 
-function BobaBoardApp({ Component, router, ...props }: AppPropsWithPropsType) {
+const DefaultFavicon = () => {
+  return (
+    <>
+      <link rel="icon" type="image/svg+xml" href="/icons/logo-compact.svg" />
+      <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/icons/apple-touch-icon.png"
+      />
+      <link
+        rel="alternate icon"
+        type="image/png"
+        sizes="32x32"
+        href="/icons/favicon-32x32.png"
+      />
+      <link
+        rel="alternate icon"
+        type="image/png"
+        sizes="16x16"
+        href="/icons/favicon-16x16.png"
+      />
+      <link rel="manifest" href="/icons/site.webmanifest"></link>
+    </>
+  );
+};
+
+function BobaBoardApp({
+  Component,
+  router,
+  ...props
+}: AppPropsWithPropsType & { favicon: string | null }) {
   log(`Re-rendering app`);
   useFromBackButton(router);
   usePageDataListener(router, props.serverHostname);
@@ -133,26 +163,11 @@ function BobaBoardApp({ Component, router, ...props }: AppPropsWithPropsType) {
           name="viewport"
           content="width=device-width, initial-scale=1, user-scalable=1.0"
         ></meta>
-
-        <link rel="icon" type="image/svg+xml" href="/icons/logo-compact.svg" />
-        <link
-          rel="apple-touch-icon"
-          sizes="180x180"
-          href="/icons/apple-touch-icon.png"
-        />
-        <link
-          rel="alternate icon"
-          type="image/png"
-          sizes="32x32"
-          href="/icons/favicon-32x32.png"
-        />
-        <link
-          rel="alternate icon"
-          type="image/png"
-          sizes="16x16"
-          href="/icons/favicon-16x16.png"
-        />
-        <link rel="manifest" href="/icons/site.webmanifest"></link>
+        {props.favicon ? (
+          <link rel="icon" type="image/x-icon" href={props.favicon} />
+        ) : (
+          <DefaultFavicon />
+        )}
       </Head>
       <ToastContainer />
       <ErrorBoundary fallback={<CustomErrorPage />}>
@@ -233,6 +248,7 @@ BobaBoardApp.getInitialProps = async (
   return {
     serverHostname: ctx?.req?.headers?.host,
     boardSlug: ctx.query.boardId?.slice(1),
+    favicon: realmData.favicon,
     ...appProps,
     dehydratedState: dehydrate(queryClient),
     summary: appProps.pageProps.summary,

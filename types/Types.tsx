@@ -276,6 +276,10 @@ export interface RealmType {
   id: string;
   slug: string;
   icon: string;
+  favicon: string | null;
+  title: string | null;
+  description: string | null;
+  feedbackFormUrl: string | null;
   settings: {
     root: {
       cursor?: {
