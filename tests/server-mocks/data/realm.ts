@@ -11,6 +11,9 @@ export const V0_DATA = {
     board_page: [],
     thread_page: [],
   },
+  homepage: {
+    blocks: [],
+  },
   realm_permissions: [],
   boards: [
     {
@@ -98,6 +101,9 @@ export const LOGGED_IN_V0_DATA = {
     index_page: [],
     board_page: [],
     thread_page: [],
+  },
+  homepage: {
+    blocks: [],
   },
   realm_permissions: [RealmPermissions.CREATE_REALM_INVITE],
   boards: [

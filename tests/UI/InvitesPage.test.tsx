@@ -11,11 +11,11 @@ import { render, screen, waitFor } from "@testing-library/react";
 
 import InvitesPage from "pages/invites/[inviteId]";
 import React from "react";
+import { RealmType } from "types/Types";
 import debug from "debug";
 import { getRealmNameFromSlug } from "utils/text-utils";
 import { makeRealmData } from "utils/client-data";
 import userEvent from "@testing-library/user-event";
-import { RealmType } from "types/Types";
 
 const log = debug("bobafrontend:tests:UI:InvitesPage");
 
@@ -63,6 +63,7 @@ describe("InvitesPanel", () => {
           realmSlug={V0_DATA.slug}
           realmId={V0_CREATED_INVITE.realm_id}
           inviteStatus="pending"
+          requiresEmail={false}
         />
       </LoggedOutClient>
     );
@@ -74,7 +75,7 @@ describe("InvitesPanel", () => {
     );
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      `You've been invited to join ${V0_REALM_NAME}!`
+      `Youʼve been invited to join ${V0_REALM_NAME}`
     );
     expect(screen.getByLabelText("Email")).toBeVisible();
     expect(screen.getByLabelText("Password")).toBeVisible();
@@ -82,9 +83,6 @@ describe("InvitesPanel", () => {
     expect(
       screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
     ).toBeVisible();
-    expect(
-      screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
-    ).toBeDisabled();
     expect(screen.getByRole("link", { name: "Welcome Guide" })).toBeVisible();
     expect(screen.getByRole("link", { name: "Twitter" })).toBeVisible();
     expect(screen.getByRole("link", { name: "Tumblr" })).toBeVisible();
@@ -106,6 +104,7 @@ describe("InvitesPanel", () => {
           realmSlug={V0_DATA.slug}
           realmId={V0_CREATED_INVITE.realm_id}
           inviteStatus="pending"
+          requiresEmail={false}
         />
       </Client>
     );
@@ -117,7 +116,7 @@ describe("InvitesPanel", () => {
     );
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      `You've been invited to join ${V0_REALM_NAME}!`
+      `Youʼve been invited to join ${V0_REALM_NAME}`
     );
     expect(screen.queryByLabelText("Email")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Password")).not.toBeInTheDocument();
@@ -155,6 +154,7 @@ describe("InvitesPanel", () => {
           realmSlug={V0_DATA.slug}
           realmId={V0_CREATED_INVITE.realm_id}
           inviteStatus="pending"
+          requiresEmail={false}
         />
       </Client>
     );
@@ -185,6 +185,7 @@ describe("InvitesPanel", () => {
           realmSlug={V0_DATA.slug}
           realmId={V0_CREATED_INVITE.realm_id}
           inviteStatus="used"
+          requiresEmail={false}
         />
       </Client>
     );
@@ -216,6 +217,7 @@ describe("InvitesPanel", () => {
           realmSlug={V0_DATA.slug}
           realmId={V0_CREATED_INVITE.realm_id}
           inviteStatus="expired"
+          requiresEmail={false}
         />
       </Client>
     );
@@ -246,6 +248,7 @@ describe("InvitesPanel", () => {
           realmSlug={V0_DATA.slug}
           realmId={V0_CREATED_INVITE.realm_id}
           inviteStatus="pending"
+          requiresEmail={false}
         />
       </LoggedOutClient>
     );
@@ -281,6 +284,7 @@ describe("InvitesPanel", () => {
           realmSlug={V0_DATA.slug}
           realmId={V0_CREATED_INVITE.realm_id}
           inviteStatus="pending"
+          requiresEmail={false}
         />
       </Client>
     );
@@ -319,6 +323,7 @@ describe("InvitesPanel", () => {
           realmSlug={V0_DATA.slug}
           realmId={V0_CREATED_INVITE.realm_id}
           inviteStatus="pending"
+          requiresEmail={false}
         />
       </LoggedOutClient>
     );
@@ -371,6 +376,7 @@ describe("InvitesPanel", () => {
           realmSlug={V0_DATA.slug}
           realmId={V0_CREATED_INVITE_NO_EMAIL.realm_id}
           inviteStatus="pending"
+          requiresEmail={false}
         />
       </Client>
     );
@@ -409,6 +415,7 @@ describe("InvitesPanel", () => {
           realmSlug={V0_DATA.slug}
           realmId={V0_CREATED_INVITE_NO_EMAIL.realm_id}
           inviteStatus="pending"
+          requiresEmail={false}
         />
       </LoggedOutClient>
     );

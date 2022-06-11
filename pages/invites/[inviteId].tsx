@@ -301,6 +301,9 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
 
           {isLoggedIn && (
             <div className="buttons signup-button">
+              <div className={classnames("error", { hidden: !error })}>
+                {error || "Hidden error field!"}
+              </div>
               <Button
                 disabled={
                   (inviteStatus === "pending" ? false : true) ||
