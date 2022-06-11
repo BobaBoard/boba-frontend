@@ -66,7 +66,8 @@ const SubscriptionBlockWithData = ({
   }
 
   const subscriptionPost = data.activity[0];
-  const updatesThreadUrl = `${subscriptionPost.threadId}/${subscriptionPost?.postId}`;
+  const updatesThreadUrl = `https://fandom-coders.boba.social/!fancoders/thread/9e329ac4-9225-4261-a849-e8a92d6652c3`;
+  const lastestReleaseUrl = `${updatesThreadUrl}/${subscriptionPost.postId}`;
   return (
     <SubscriptionBlock
       title={title}
@@ -75,7 +76,7 @@ const SubscriptionBlockWithData = ({
       }}
       lastUpdatedTime={new Date(subscriptionPost.created).toLocaleDateString()}
       lastUpdatedTimeLink={{
-        href: updatesThreadUrl,
+        href: lastestReleaseUrl,
       }}
       post={subscriptionPost.content}
       secretIdentity={subscriptionPost.secretIdentity}
