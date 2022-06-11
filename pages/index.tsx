@@ -87,6 +87,7 @@ const RulesBlockWithShowAll = (rulesBlock: RulesBlockType) => {
   const [showAllRules, setShowAllRules] = useState(false);
   return (
     <RulesBlock
+      headerLinkLabel={showAllRules ? "Hide" : "See All"}
       seeAllLink={{
         onClick: () => setShowAllRules(!showAllRules),
       }}
