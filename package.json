@@ -42,8 +42,8 @@
     "fast-memoize": "^2.5.2",
     "firebase": "^7.14.6",
     "firebase-admin": "^8.12.1",
-    "next": "9.5",
-    "next-transpile-modules": "4",
+    "next": "11",
+    "next-transpile-modules": "8",
     "noop-ts": "^1.0.3",
     "normalize.css": "^8.0.1",
     "query-string": "^6.13.7",
@@ -69,8 +69,8 @@
     "@types/debug": "^4.1.5",
     "@types/jest": "^27.0.2",
     "@types/node": "^14.0.3",
-    "@types/react": "^16.9.35",
-    "@types/react-dom": "^16.9.8",
+    "@types/react": "17.0.2",
+    "@types/react-dom": "17.0.2",
     "@types/requestidlecallback": "^0.3.1",
     "@types/smoothscroll-polyfill": "^0.3.1",
     "@types/styled-jsx": "^2.2.8",
@@ -94,17 +94,17 @@
     "jest-extended": "^2.0.0",
     "msw": "^0.35.0",
     "multicast-dns": "^7.2.4",
-    "react": "16.13.1",
-    "react-dom": "16.13.1",
-    "react-test-renderer": "16.13.1",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-test-renderer": "17.0.2",
     "start-server-and-test": "^1.14.0",
     "ts-jest": "^26.3.0",
     "typescript": "4"
   },
   "peerDependencies": {
     "@bobaboard/ui-components": "^0.0.1",
-    "react": "16.13.1",
-    "react-dom": "16.13.1"
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
   },
   "resolutions": {
     "@fortawesome/fontawesome-common-types": "^0.3.0"
