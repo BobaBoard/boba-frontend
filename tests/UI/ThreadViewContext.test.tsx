@@ -9,11 +9,10 @@ import {
   ThreadContextType,
   useThreadContext,
 } from "components/thread/ThreadContext";
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react-hooks/native";
 
 import React from "react";
 import _ from "cypress/types/lodash";
-import { mocked } from "ts-jest/utils";
 import { useQueryParams } from "use-query-params";
 
 jest.mock("components/thread/ThreadContext.tsx");
@@ -28,9 +27,9 @@ const mockThreadContext = () => {
     defaultView: null,
     chronologicalPostsSequence: [],
   };
-  mocked(useThreadContext).mockImplementation(
-    () => mockThreadContext as ThreadContextType
-  );
+  jest
+    .mocked(useThreadContext)
+    .mockImplementation(() => mockThreadContext as ThreadContextType);
   return mockThreadContext;
 };
 
@@ -74,10 +73,9 @@ const getThreadViewContextWrapper = () => {
 
 const mockQueryParams = (initialState?: Record<string, any>) => {
   const setQueryParams = jest.fn();
-  mocked(useQueryParams).mockImplementation(() => [
-    initialState || {},
-    setQueryParams,
-  ]);
+  jest
+    .mocked(useQueryParams)
+    .mockImplementation(() => [initialState || {}, setQueryParams]);
 
   return setQueryParams;
 };

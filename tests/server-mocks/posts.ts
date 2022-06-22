@@ -41,7 +41,33 @@ export default [
     (req, res, ctx) => {
       const { contents, reply_to_comment_id } = req!.body! as any;
 
+      console.log("here");
+      console.log("here");
+      console.log("here");
+      console.log("here");
+      console.log("here");
+      console.log("here");
+      console.log("here");
+      console.log("here");
+      console.log("here");
+      console.log("here");
+      console.log("here");
+      console.log("here");
+      try {
+        const chainId = uuid();
+      } catch (e) {
+        console.log(e);
+      }
       const chainId = uuid();
+
+      console.log("chainId");
+      console.log("chainId");
+      console.log("chainId");
+      console.log("chainId");
+      console.log("chainId");
+      console.log("chainId");
+      console.log("chainId");
+      console.log("chainId");
       const comments = contents.map((content: string, index: number) => ({
         ...NEW_COMMENT_BASE,
         id: index == 0 ? chainId : uuid(),
