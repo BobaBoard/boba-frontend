@@ -1415,10 +1415,17 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@stefanprobst/next-error-boundary@^1.0.8":
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/@stefanprobst/next-error-boundary/-/next-error-boundary-1.0.8.tgz#93fed5da8aace64c912463e34658d77a65a09214"
-  integrity sha512-bfzw1YmGIXlLuGZh1X/EbsxRWfCFKBlURirORg0iG6pY1TZnLMgXJIQEwRBH/vyjC+h5OkTDFE4TuiMkhcfWBA==
+"@stefanprobst/assert@^1.0.1":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@stefanprobst/assert/-/assert-1.0.3.tgz#a60e49dbdd7280582950120f54aad76cfdab93cf"
+  integrity sha512-3FkU7sHtfCpgO3+YqNWDRc3b220LO/ZtdxUtiVhP0+2xqZ+E9LNe3hXaiFeVCeSUmi3y8V333L4+x6ME2vzpHg==
+
+"@stefanprobst/next-error-boundary@^3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@stefanprobst/next-error-boundary/-/next-error-boundary-3.0.2.tgz#40f69f7a896a5babdd3ef71ebe62d041edc03d58"
+  integrity sha512-8IScHyhmvZgYBGHkE827f93dweG4p7ZR1L41QMWlo26DFrZfpHnkwY8HOX8QRmAf/DUJilCE3aSm5FGIQGmF8g==
+  dependencies:
+    "@stefanprobst/assert" "^1.0.1"
 
 "@testing-library/cypress@^8.0.1":
   version "8.0.3"
@@ -1931,10 +1938,10 @@
     "@typescript-eslint/types" "5.29.0"
     eslint-visitor-keys "^3.3.0"
 
-"@welldone-software/why-did-you-render@^6.0.5":
-  version "6.2.3"
-  resolved "https://registry.yarnpkg.com/@welldone-software/why-did-you-render/-/why-did-you-render-6.2.3.tgz#cdd5e27cf25b7e767c1c0b0e8808f67d3f6be833"
-  integrity sha512-FQgi90jvC9uw2aALlonJfqaWOvU5UUBBVvdAnS2iryXwCc4YJkKsPJY5Y/LzaND3OIyk8XGUn1vTRn6hcem28Q==
+"@welldone-software/why-did-you-render@^7.0.1":
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/@welldone-software/why-did-you-render/-/why-did-you-render-7.0.1.tgz#09f487d84844bd8e66435843c2e0305702e61efb"
+  integrity sha512-Qe/8Xxa2G+LMdI6VoazescPzjjkHYduCDa8aHOJR50e9Bgs8ihkfMBY+ev7B4oc3N59Zm547Sgjf8h5y0FOyoA==
   dependencies:
     lodash "^4"
 
@@ -4389,10 +4396,10 @@ hmac-drbg@^1.0.1:
     minimalistic-assert "^1.0.0"
     minimalistic-crypto-utils "^1.0.1"
 
-hotkeys-js@3.8.1:
-  version "3.8.1"
-  resolved "https://registry.yarnpkg.com/hotkeys-js/-/hotkeys-js-3.8.1.tgz#fa7051f73bf1dc92a8b8d580a40b247f91966376"
-  integrity sha512-YlhVQtyG9f1b7GhtzdhR0Pl+cImD1ZrKI6zYUa7QLd0zuThiL7RzZ+ANJyy7z+kmcCpNYBf5PjBa3CjiQ5PFpw==
+hotkeys-js@3.9.3:
+  version "3.9.3"
+  resolved "https://registry.yarnpkg.com/hotkeys-js/-/hotkeys-js-3.9.3.tgz#4b755cc695b388d7f93a83aff4b0c2a45719996c"
+  integrity sha512-s+f0xyvDmf6+DyrFQ2SY+eA7lbvMbjqkqi0I0SpMgnN5tZx7DeH8nsWhkJR4KEq3pxDPHJppDUhdt1rZFW5LeQ==
 
 html-encoding-sniffer@^3.0.0:
   version "3.0.0"
@@ -6619,10 +6626,10 @@ qs@~6.5.2:
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.3.tgz#3aeeffc91967ef6e35c0e488ef46fb296ab76aad"
   integrity sha512-qxXIEh4pCGfHICj1mAJQ2/2XVZkjCDTcEgfoSQxc/fYivUZxTkk7L3bDBJSoNrEzXI17oUO5Dp07ktqE5KzczA==
 
-query-string@^6.13.7:
-  version "6.14.1"
-  resolved "https://registry.yarnpkg.com/query-string/-/query-string-6.14.1.tgz#7ac2dca46da7f309449ba0f86b1fd28255b0c86a"
-  integrity sha512-XDxAeVmpfu1/6IjyT/gXHOl+S0vQ9owggJ30hhWKdHAsNPOcasn5o9BW0eejZqL2e4vMjhAxoW3jVHcD6mbcYw==
+query-string@^7.1.1:
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/query-string/-/query-string-7.1.1.tgz#754620669db978625a90f635f12617c271a088e1"
+  integrity sha512-MplouLRDHBZSG9z7fpuAAcI7aAYjDLhtsiVZsevsfaHWDS2IDdORKbSd1kWUA+V4zyva/HZoSfpwnYMMQDhb0w==
   dependencies:
     decode-uri-component "^0.2.0"
     filter-obj "^1.1.0"
@@ -6697,12 +6704,12 @@ react-error-boundary@^3.1.0:
   dependencies:
     "@babel/runtime" "^7.12.5"
 
-react-hotkeys-hook@^2.1.4:
-  version "2.4.1"
-  resolved "https://registry.yarnpkg.com/react-hotkeys-hook/-/react-hotkeys-hook-2.4.1.tgz#9e495cbe9872a2bcf9b0f8ff776f031064d33968"
-  integrity sha512-IsQEOdY26vu2xlsXFN0B6xytDa3y8VL53yY49Qq4f1zXefNqtGRzWnmyHSc84K/ZGozcz38xgn9SmwZsbW0nRg==
+react-hotkeys-hook@^3.4.6:
+  version "3.4.6"
+  resolved "https://registry.yarnpkg.com/react-hotkeys-hook/-/react-hotkeys-hook-3.4.6.tgz#21eda8e97121583a14056479e3eea9e51d2e2a69"
+  integrity sha512-SiGKHnauaAQglRA7qeiW5LTa0KoT2ssv8YGYKZQoM3P9v5JFEHJdXOSFml1N6K86oKQ8dLCLlxqBqGlSJWGmxQ==
   dependencies:
-    hotkeys-js "3.8.1"
+    hotkeys-js "3.9.3"
 
 react-is@17.0.2, react-is@^17.0.1, react-is@^17.0.2:
   version "17.0.2"

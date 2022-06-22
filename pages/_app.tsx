@@ -34,7 +34,7 @@ import {
 
 import App from "next/app";
 import { CustomErrorPage } from "./_error";
-import ErrorBoundary from "@stefanprobst/next-error-boundary";
+import { ErrorBoundary } from "@stefanprobst/next-error-boundary";
 import Head from "next/head";
 import OpenGraphMeta from "components/OpenGraphMeta";
 import { QueryParamProvider } from "components/QueryParamNextProvider";
