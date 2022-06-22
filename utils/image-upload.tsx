@@ -1,10 +1,15 @@
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadString,
+} from "@firebase/storage";
+
 import { NextRouter } from "next/router";
 import React from "react";
 import debug from "debug";
-import firebase from "firebase/app";
 import { getPageDetails } from "./router-utils";
 import loadImage from "blueimp-load-image";
-import noop from "noop-ts";
 import { v4 as uuidv4 } from "uuid";
 
 const error = debug("bobafrontend:postEditor-error");
@@ -18,20 +23,16 @@ export const uploadImage = ({
   extension: string;
   imageData: string;
 }): Promise<string> => {
-  const ref = firebase.storage().ref(baseUrl).child(`${uuidv4()}${extension}`);
+  const imageRef = ref(getStorage(), `${baseUrl}/${uuidv4()}${extension}`);
 
   return new Promise((onSuccess, onReject) => {
-    ref
-      .putString(imageData, "data_url")
-      .on(firebase.storage.TaskEvent.STATE_CHANGED, {
-        complete: () => {
-          ref.getDownloadURL().then((url) => onSuccess(url));
-        },
-        next: noop,
-        error: (e) => {
-          error(e);
-          onReject(e);
-        },
+    uploadString(imageRef, imageData, "data_url")
+      .then(() => {
+        getDownloadURL(imageRef).then((url) => onSuccess(url));
+      })
+      .catch((e) => {
+        error(e);
+        onReject(e);
       });
   });
 };
