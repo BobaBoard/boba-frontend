@@ -27,6 +27,9 @@ export const BASE_ROUTER: NextRouter = {
   route: "/",
   pathname: "/",
   query: {},
+  isLocaleDomain: false,
+  isReady: true,
+  isPreview: false,
   push: async (...args) => {
     routerInfo("push", args);
     return true;
