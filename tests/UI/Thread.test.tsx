@@ -4,7 +4,6 @@ import { act, render, screen, waitFor } from "@testing-library/react";
 import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../server-mocks/data/thread";
 import React from "react";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
-import { mocked } from "ts-jest/utils";
 import { useReadThread } from "queries/thread";
 
 jest.mock("components/hooks/usePreventPageChange");
@@ -122,7 +121,7 @@ describe("Threads test", () => {
       </Client>
     );
 
-    mocked(markAsRead).mockClear();
+    jest.mocked(markAsRead).mockClear();
     act(() => {
       jest.runOnlyPendingTimers();
     });

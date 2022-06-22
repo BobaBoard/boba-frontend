@@ -12,7 +12,6 @@ import React from "react";
 import { TagMatcher } from "./utils/matchers";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
 import { copyText } from "utils/text-utils";
-import { mocked } from "ts-jest/utils";
 
 jest.mock("components/hooks/usePreventPageChange");
 jest.mock("components/hooks/useIsChangingRoute");
@@ -60,7 +59,7 @@ describe("Post Options (Thread)", () => {
         optionText: "Copy thread link",
         postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.starter.id,
       });
-      mocked(copyText);
+      jest.mocked(copyText);
       fireEvent.click(option);
       await waitFor(() => {
         expect(screen.getByText("Link copied!")).toBeInTheDocument();

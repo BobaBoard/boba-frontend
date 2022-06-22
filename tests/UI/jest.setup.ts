@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom/extend-expect";
 import "jest-canvas-mock";
 
+import crypto from "crypto";
 import { ensureMocksReset } from "@shopify/jest-dom-mocks";
 import { server } from "../server-mocks/index";
 
@@ -26,6 +27,12 @@ Object.defineProperty(window, "matchMedia", {
     removeEventListener: jest.fn(),
     dispatchEvent: jest.fn(),
   })),
+});
+
+Object.defineProperty(global, "crypto", {
+  value: {
+    getRandomValues: (arr: any) => crypto.randomBytes(arr.length),
+  },
 });
 
 Object.defineProperty(window, "ResizeObserver", {

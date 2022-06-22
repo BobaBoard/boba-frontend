@@ -31,7 +31,7 @@ module.exports = {
     "<rootDir>/e2e/",
   ],
   transformIgnorePatterns: [
-    "/node_modules/",
+    "/node_modules/(?!uuid)",
     "^.+\\.module\\.(css|sass|scss)$",
   ],
   setupFilesAfterEnv: ["jest-extended/all", "<rootDir>/tests/UI/jest.setup.ts"],
