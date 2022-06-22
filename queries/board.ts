@@ -54,6 +54,7 @@ export const useMuteBoard = () => {
         );
         log(`Error while marking board ${boardId} as muted:`);
         log(error);
+        setBoardMutedInCache(queryClient, { boardId, mute: !mute });
       },
       onSuccess: (data: boolean, { boardId, mute }) => {
         log(
