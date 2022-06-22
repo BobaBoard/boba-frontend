@@ -77,6 +77,7 @@ const AxiosInterceptor = () => {
           } id token ${idToken ? `(${idToken.substr(0, 5)}...)` : ""}.`
         );
         log(idToken);
+        config.headers = config.headers ?? {};
         config.headers.authorization = idToken;
         return config;
       });

@@ -1,12 +1,14 @@
-import "firebase/auth";
-import "firebase/storage";
+import "@firebase/storage";
+
+import { getApps, initializeApp } from "@firebase/app";
+import { getAuth, signInWithEmailAndPassword } from "@firebase/auth";
 
 import React from "react";
+import type { User } from "@firebase/auth";
 import axios from "axios";
 import debug from "debug";
-import firebase from "firebase/app";
 
-if (!firebase.apps.length) {
+if (!getApps().length) {
   const firebaseConfig = {
     apiKey: "AIzaSyA8UreGu624GJbczXgT3xmeYBqoX9Z6wZA",
     authDomain: "bobaboard-fb.firebaseapp.com",
@@ -16,7 +18,7 @@ if (!firebase.apps.length) {
     messagingSenderId: "148314730930",
     appId: "1:148314730930:web:3e9d2e94a0e94bf1b0b4ab",
   };
-  firebase.initializeApp(firebaseConfig);
+  initializeApp(firebaseConfig);
 }
 
 interface LoggedOutAuthContextType {
@@ -70,9 +72,9 @@ export const DEFAULT_USER_AVATAR = "/bobatan.png";
 // In any case, an operation based on knowing the current state of the user
 // (like getting the id token or making a new post) cannot be performed
 // until this promise is resolved.
-let resolveFirebaseUserPromise: (user: firebase.User | null) => void;
+let resolveFirebaseUserPromise: (user: User | null) => void;
 const newFirebaseUserPromise = () =>
-  new Promise<firebase.User | null>((resolve) => {
+  new Promise<User | null>((resolve) => {
     resolveFirebaseUserPromise = resolve;
   });
 let firebaseUserPromise = newFirebaseUserPromise();
@@ -95,7 +97,7 @@ const AuthProvider: React.FC<{
   });
 
   React.useEffect(() => {
-    firebase.auth().onAuthStateChanged((user) => {
+    getAuth().onAuthStateChanged((user) => {
       if (!user) {
         log(`Firebase user state has changed to logged out.`);
         resolveFirebaseUserPromise(null);
@@ -130,7 +132,7 @@ const AuthProvider: React.FC<{
       });
     });
 
-    firebase.auth().onIdTokenChanged((user) => {
+    getAuth().onIdTokenChanged((user) => {
       logRefresh(`Refresh status change at ${new Date()}`);
       logRefresh(user);
       user?.getIdTokenResult().then((token) => logRefresh(token.issuedAtTime));
@@ -168,9 +170,7 @@ const AuthProvider: React.FC<{
         isPending: true,
       });
       firebaseUserPromise = newFirebaseUserPromise();
-      return firebase
-        .auth()
-        .signInWithEmailAndPassword(username, password)
+      return signInWithEmailAndPassword(getAuth(), username, password)
         .then((user) => {
           log(`Login succesful, found user:`);
           log(user);
@@ -194,7 +194,7 @@ const AuthProvider: React.FC<{
   const attemptLogout = React.useCallback(() => {
     firebaseUserPromise = newFirebaseUserPromise();
     log(`Attempting to log out user...`);
-    return firebase.auth().signOut();
+    return getAuth().signOut();
   }, []);
 
   return (
