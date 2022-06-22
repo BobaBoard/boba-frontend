@@ -42,11 +42,13 @@ export const scrollToComment = (commentId: string, color: string) => {
   if (!element) {
     return;
   }
-  const observer = new IntersectionObserver((observed) => {
-    if (observed[0].isIntersecting) {
-      commentHandlers.get(commentId)?.highlight(color), observer.disconnect();
+  const observer: IntersectionObserver = new IntersectionObserver(
+    (observed) => {
+      if (observed[0].isIntersecting) {
+        commentHandlers.get(commentId)?.highlight(color), observer.disconnect();
+      }
     }
-  });
+  );
   observer.observe(element);
   element.classList.add("outline-hidden");
   window.scroll({

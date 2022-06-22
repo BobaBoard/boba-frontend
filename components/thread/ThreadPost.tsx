@@ -69,15 +69,17 @@ export const scrollToPost = (postId: string, color: string | undefined) => {
     log(`...post not found!`);
     return;
   }
-  const observer = new IntersectionObserver((observed) => {
-    if (observed[0].isIntersecting) {
-      log(`Beam done, highlighting!`);
-      postHandlers
-        .get(postId)
-        ?.highlight(color || DefaultTheme.DEFAULT_ACCENT_COLOR),
-        observer.disconnect();
+  const observer: IntersectionObserver = new IntersectionObserver(
+    (observed) => {
+      if (observed[0].isIntersecting) {
+        log(`Beam done, highlighting!`);
+        postHandlers
+          .get(postId)
+          ?.highlight(color || DefaultTheme.DEFAULT_ACCENT_COLOR),
+          observer.disconnect();
+      }
     }
-  });
+  );
   observer.observe(element);
   element.classList.add("outline-hidden");
   window.scroll({

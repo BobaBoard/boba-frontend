@@ -1,4 +1,4 @@
-import { NextPageContext } from "next/dist/next-server/lib/utils";
+import { NextPageContext } from "next/dist/shared/lib/utils";
 
 export const getCurrentHost = (
   serverHost: string | undefined,
@@ -25,7 +25,6 @@ export const getCurrentSearchParams = () => {
 const REALM_SLUG_SEPARATOR_LOCAL = "_";
 const SUBDOMAIN_REGEX = /(?:http[s]*:\/\/)*(?<sub>.*?)\.(?=[^/]*\..{2,5})/i;
 const getRealmFromHostname = (hostname: string) => {
-  return "twisted-minds";
   if (isLocalhost(hostname)) {
     return hostname.substring(0, hostname.indexOf(REALM_SLUG_SEPARATOR_LOCAL));
   }
