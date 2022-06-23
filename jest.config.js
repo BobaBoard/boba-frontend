@@ -31,7 +31,7 @@ module.exports = {
     "<rootDir>/e2e/",
   ],
   transformIgnorePatterns: [
-    "/node_modules/(?!uuid)",
+    "/node_modules/(?!uuid|@firebase)",
     "^.+\\.module\\.(css|sass|scss)$",
   ],
   setupFilesAfterEnv: ["jest-extended/all", "<rootDir>/tests/UI/jest.setup.ts"],
