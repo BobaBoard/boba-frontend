@@ -24,12 +24,3 @@ declare type AppPropsWithPropsType<P = unknown> = {
   pageProps: P;
 } & Omit<AppProps<P>, "pageProps"> &
   GlobalAppProps;
-
-// TODO: this suddenly became necessary after upgrade to Next11.
-// Revisit later.
-declare module "react" {
-  interface StyleHTMLAttributes<T> extends React.HTMLAttributes<T> {
-    jsx?: boolean;
-    global?: boolean;
-  }
-}
