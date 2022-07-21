@@ -1,7 +1,8 @@
-import React from "react";
-import { toast, Button } from "@bobaboard/ui-components";
-import { useError } from "@stefanprobst/next-error-boundary";
+import { Button, toast } from "@bobaboard/ui-components";
+
 import { NextPage } from "next";
+import React from "react";
+import { useError } from "@stefanprobst/next-error-boundary";
 
 interface ErrorPageProps {
   err?: string;
@@ -88,5 +89,6 @@ export default ErrorPage;
 
 export function CustomErrorPage() {
   const { error } = useError();
+  // @ts-expect-error
   return <ErrorPage err={error.message} stack={error.stack} />;
 }

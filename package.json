@@ -25,7 +25,8 @@
     "test:watch": "cross-env DEBUG=bobafrontend:*-log jest --watch"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-common-types": "6.1.1",
+    "@bobaboard/ui-components": "^0.2.0",
+    "@fortawesome/fontawesome-common-types": "^6.1.1",
     "@fortawesome/fontawesome-svg-core": "6.1.1",
     "@fortawesome/free-regular-svg-icons": "6.1.1",
     "@fortawesome/free-solid-svg-icons": "6.1.1",
@@ -102,15 +103,12 @@
     "typescript": "4"
   },
   "resolutions": {
-    "**/@types/react": "^17.0.2"
+    "@fortawesome/fontawesome-common-types": "^0.3.0"
   },
   "peerDependencies": {
     "@bobaboard/ui-components": "*",
     "react": "17.0.2",
     "react-dom": "17.0.2"
-  },
-  "resolutions": {
-    "@fortawesome/fontawesome-common-types": "^0.3.0"
   },
   "msw": {
     "workerDirectory": "public"

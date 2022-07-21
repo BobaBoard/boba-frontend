@@ -188,7 +188,6 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
                   onClick: () => setShowAllRules(!showAllRules),
                 }}
                 title={rulesBlock.title}
-                headerLinkLabel={showAllRules ? "Hide" : "See all"}
                 rules={
                   showAllRules
                     ? rulesBlock.rules
