@@ -26,10 +26,10 @@
   },
   "dependencies": {
     "@bobaboard/ui-components": "^0.1.0",
-    "@fortawesome/fontawesome-common-types": "0.2.34",
-    "@fortawesome/fontawesome-svg-core": "1.2.34",
+    "@fortawesome/fontawesome-svg-core": "1.3.0",
     "@fortawesome/free-regular-svg-icons": "^5.15.4",
     "@fortawesome/free-solid-svg-icons": "^5.15.1",
+    "@fortawesome/react-fontawesome": "0.1.15",
     "@stefanprobst/next-error-boundary": "^1.0.8",
     "@welldone-software/why-did-you-render": "^6.0.5",
     "axios": "^0.19.2",
@@ -105,6 +105,9 @@
     "@bobaboard/ui-components": "^0.0.1",
     "react": "16.13.1",
     "react-dom": "16.13.1"
+  },
+  "resolutions": {
+    "@fortawesome/fontawesome-common-types": "^0.3.0"
   },
   "msw": {
     "workerDirectory": "public"
