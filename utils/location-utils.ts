@@ -28,7 +28,10 @@ const getRealmFromHostname = (hostname: string) => {
   if (isLocalhost(hostname)) {
     return hostname.substring(0, hostname.indexOf(REALM_SLUG_SEPARATOR_LOCAL));
   }
-  // TODO: this will need work for staging
+  if (isStaging(hostname)) {
+    // Everything is staging is fixed to v0.
+    return "v0";
+  }
   return hostname.match(SUBDOMAIN_REGEX)?.groups?.["sub"] || "v0";
 };
 const getClientSideRealm = () => {
