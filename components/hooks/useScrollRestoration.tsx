@@ -1,21 +1,31 @@
 import { NextRouter } from "next/router";
 import React from "react";
+import debug from "debug";
 
+const log = debug("bobafrontend:useScrollRestoration-log");
+
+// This is set or not set at the beginning of a route change,
+// and stores the position to be scrolled to when the that change is completed
 let toRestore: {
   page: string;
   scrollPosition: { x: number; y: number };
 } | null = null;
+// This is set when the back or forward button is used
+// and stores the scroll position of the page you are leaving when we can't save it to the history state
+// It may then be used to save it to the history state at the beginning of the next navigation before toRestore is set
 let previousScroll: {
   location: string;
   scroll: { x: number; y: number };
 } | null = null;
+// This stores the location last navigated to at the end of a route change
+// and may be used during the next navigation to set the location of previousScroll.
 let previousLocation: string | null = null;
 export const useScrollRestoration = (router: NextRouter) => {
   React.useEffect(() => {
     const saveScrollPosition = (nextRoute: string) => {
-      console.log("routeChangeStart triggered to ", nextRoute);
-      console.log("window location.toString", window.location.toString());
-      console.log(window.history.state);
+      log("routeChangeStart triggered to ", nextRoute);
+      log("window location.toString", window.location.toString());
+      log(window.history.state);
       // Next.js renders dynamic routes twice, see https://github.com/vercel/next.js/issues/12010
       // To avoid the second rendering from prematurely clearing our scheduled restore,
       // we need to bypass the duplicate trigger
@@ -23,7 +33,7 @@ export const useScrollRestoration = (router: NextRouter) => {
         window.history.state.as === nextRoute &&
         nextRoute === toRestore?.page
       ) {
-        console.log("reloading, keeping current restore");
+        log("reloading, keeping current restore");
         return;
       }
       if (nextRoute !== toRestore?.page) {
@@ -33,14 +43,14 @@ export const useScrollRestoration = (router: NextRouter) => {
       // We need to inject the saved scroll position from the previous location here if it matches the location we're going to,
       // so that it can be picked up when we schedule our restore.
       if (previousScroll) {
-        console.log("previousScroll detected");
+        log("previousScroll detected");
         if (window.location.toString() === previousScroll.location) {
           saveCachedScrollPosition(previousScroll.scroll);
         } else {
-          console.log("did not substitute scroll position");
+          log("did not substitute scroll position");
         }
         previousScroll = null;
-        console.log("previousScroll cleared");
+        log("previousScroll cleared");
       }
       if (window.history.state.cachedScrollPosition) {
         scheduleRestore();
@@ -52,24 +62,20 @@ export const useScrollRestoration = (router: NextRouter) => {
     };
 
     const onComplete = () => {
-      console.log("routeChangeComplete triggered", window.history);
+      log("routeChangeComplete triggered", window.history);
       maybeRestoreScrollPosition();
       previousLocation = window.location.toString();
-      console.log("saved previousLocation", previousLocation);
+      log("saved previousLocation", previousLocation);
     };
 
     const maybeRestoreScrollPosition = () => {
       if (toRestore) {
         const { x, y } = toRestore.scrollPosition;
         window.scrollTo(x, y);
-        console.log("scroll restored to", toRestore.scrollPosition);
-        console.log("on page", window.location);
+        log("scroll restored to", toRestore.scrollPosition);
+        log("on page", window.location);
       } else {
-        console.log("didn't restore scroll, toRestore", toRestore);
-        console.log(
-          "didn't restore scroll, cachedScrollPosition",
-          window.history.state["cachedScrollPosition"]
-        );
+        log("didn't restore scroll, toRestore", toRestore);
       }
     };
 
@@ -79,13 +85,13 @@ export const useScrollRestoration = (router: NextRouter) => {
         scrollPosition: { x: 0, y: 0 },
       };
       toRestore.scrollPosition = window.history.state.cachedScrollPosition;
-      console.log("Restore scrollPosition set to", toRestore.scrollPosition);
-      console.log("for page", toRestore.page);
+      log("set Restore scrollPosition to", toRestore.scrollPosition);
+      log("for page", toRestore.page);
     };
 
     const clearRestore = () => {
       toRestore = null;
-      console.log("toRestore cleared", toRestore);
+      log("toRestore cleared", toRestore);
     };
 
     const saveCachedScrollPosition = (scrollPosition: {
@@ -99,7 +105,7 @@ export const useScrollRestoration = (router: NextRouter) => {
         },
         ""
       );
-      console.log(
+      log(
         "saved cachedScrollPosition as ",
         window.history.state.cachedScrollPosition
       );
@@ -110,14 +116,14 @@ export const useScrollRestoration = (router: NextRouter) => {
     // This lets us know that a history navigation occurred and saves the scroll position to be injected on the next route change
     // if the back or forward button is used again to return to the same location.
     const onPopState = () => {
-      console.log("Popstate triggered");
+      log("Popstate triggered");
       if (previousLocation) {
         previousScroll = {
           location: previousLocation,
           scroll: { x: window.scrollX, y: window.scrollY },
         };
-        console.log("saved previous scroll", previousScroll.scroll);
-        console.log("for location", previousScroll.location);
+        log("saved previous scroll", previousScroll.scroll);
+        log("for location", previousScroll.location);
       }
     };
 
