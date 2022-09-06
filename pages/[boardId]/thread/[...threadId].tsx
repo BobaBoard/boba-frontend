@@ -15,7 +15,11 @@ import ThreadContextProvider, {
   useThreadContext,
 } from "components/thread/ThreadContext";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
-import { useBoardSummary, useRealmBoardId } from "contexts/RealmContext";
+import {
+  useBoardSummary,
+  useRealmBoardId,
+  useRealmPermissions,
+} from "contexts/RealmContext";
 import { useThreadEditors, withEditors } from "components/editors/withEditors";
 
 import GalleryThreadView from "components/thread/GalleryThreadView";
@@ -24,6 +28,7 @@ import LoadingSpinner from "components/LoadingSpinner";
 import { NextPage } from "next";
 import { PageContextWithQueryClient } from "additional";
 import React from "react";
+import { RealmPermissions } from "types/Types";
 import ThreadSidebar from "components/thread/ThreadSidebar";
 //import { useHotkeys } from "react-hotkeys-hook";
 import ThreadView from "components/thread/ThreadView";
@@ -134,6 +139,7 @@ const useMarkThreadReadOnDelay = (threadId: string, slug: string) => {
 function ThreadPage() {
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
   const boardId = useRealmBoardId({ realmSlug: "v0", boardSlug: slug });
+  const realmPermissions = useRealmPermissions();
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const { getLinkToBoard } = useCachedLinks();
   const currentBoardData = useBoardSummary({ boardId });
@@ -174,14 +180,18 @@ function ThreadPage() {
   // );
 
   React.useEffect(() => {
-    if (currentBoardData?.loggedInOnly && !isAuthPending && !isLoggedIn) {
+    if (
+      currentBoardData?.loggedInOnly &&
+      !isAuthPending &&
+      !realmPermissions.includes(RealmPermissions.ACCESS_LOCKED_BOARDS_ON_REALM)
+    ) {
       // TODO: this happens after the thread has already 403'd
       getLinkToBoard(slug).onClick?.();
     }
-  }, [currentBoardData, isAuthPending, isLoggedIn, getLinkToBoard, slug]);
+  }, [currentBoardData, isAuthPending, realmPermissions, getLinkToBoard, slug]);
 
   const canTopLevelPost =
-    isLoggedIn &&
+    realmPermissions.includes(RealmPermissions.POST_ON_REALM) &&
     (currentThreadViewMode == THREAD_VIEW_MODE.MASONRY ||
       currentThreadViewMode == THREAD_VIEW_MODE.TIMELINE);
   return (

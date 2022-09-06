@@ -4,7 +4,11 @@ import {
   DefaultTheme,
   NewCommentsThread,
 } from "@bobaboard/ui-components";
-import { CommentType, ThreadCommentInfoType } from "types/Types";
+import {
+  CommentType,
+  RealmPermissions,
+  ThreadCommentInfoType,
+} from "types/Types";
 
 import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
 import React from "react";
@@ -13,6 +17,7 @@ import { faComment } from "@fortawesome/free-regular-svg-icons";
 import { formatDistanceToNow } from "date-fns";
 import { useAuth } from "components/Auth";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
+import { useRealmPermissions } from "contexts/RealmContext";
 import { useThreadContext } from "./ThreadContext";
 import { useThreadEditors } from "components/editors/withEditors";
 
@@ -74,6 +79,7 @@ const ThreadComment: React.FC<{
   disableMotionEffect?: boolean;
 }> = ({ rootComment, parentPostId, onBoundaryRef, disableMotionEffect }) => {
   const { isLoggedIn } = useAuth();
+  const realmPermissions = useRealmPermissions();
   const { forceHideIdentity } = useForceHideIdentity();
   const { onNewComment } = useThreadEditors();
   const { postCommentsMap, opIdentity } = useThreadContext();
@@ -109,7 +115,7 @@ const ThreadComment: React.FC<{
   );
   const options = React.useMemo(
     () =>
-      isLoggedIn
+      realmPermissions.includes(RealmPermissions.COMMENT_ON_REALM)
         ? [
             {
               name: "Reply",
@@ -118,7 +124,7 @@ const ThreadComment: React.FC<{
             },
           ]
         : undefined,
-    [replyToLast, isLoggedIn]
+    [replyToLast, realmPermissions]
   );
 
   return (
@@ -133,7 +139,11 @@ const ThreadComment: React.FC<{
       comments={chainInfo}
       new={isLoggedIn && rootComment.isNew}
       op={rootComment.secretIdentity.name == opIdentity?.name}
-      onExtraAction={isLoggedIn ? replyToLast : undefined}
+      onExtraAction={
+        realmPermissions.includes(RealmPermissions.COMMENT_ON_REALM)
+          ? replyToLast
+          : undefined
+      }
       options={options}
       forceHideIdentity={forceHideIdentity}
       disableMotionOnScroll={disableMotionEffect}
