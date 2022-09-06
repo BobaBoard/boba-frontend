@@ -30,6 +30,7 @@ import {
   getRedirectToSandboxLocation,
   getServerBaseUrl,
   isAllowedSandboxLocation,
+  isClientContext,
 } from "utils/location-utils";
 
 import App from "next/app";
@@ -116,6 +117,7 @@ const editorContext = {
   fetchers: embedsFetchers,
 };
 
+// TODO: does this need to be moved within App?
 const queryClient = new QueryClient();
 
 const DefaultFavicon = () => {
@@ -212,6 +214,16 @@ BobaBoardApp.getInitialProps = async (
   (GlobalAppProps & { favicon: string | null }) | Record<string, never>
 > => {
   const { ctx } = appContext;
+  if (isClientContext(ctx)) {
+    // BUG: This is necessary because running `getInitialProps` on the client (which
+    // happens automatically) will cause the page to scroll back to the top when the
+    // function returns.
+    // I suspect this is due to a mismatch between queries in server-side queryClient
+    // and client-side queryClient. We should revisit removing this when:
+    // a) we can check logged in status from both server and client
+    // b) NextJS' Layout RFC lands & we use a compatible version.
+    return {};
+  }
   if (!isAllowedSandboxLocation(ctx)) {
     // We should use 302 redirect here rather than 301 because
     // 301 will be cached by the client and trap us forever until

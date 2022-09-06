@@ -7,7 +7,11 @@ import {
 import { FeedWithMenu, PostingActionButton } from "@bobaboard/ui-components";
 import { REALM_QUERY_KEY, useRealmBoardId } from "contexts/RealmContext";
 import { RealmType, ThreadSummaryType } from "types/Types";
-import { getCurrentHost, getCurrentRealmSlug } from "utils/location-utils";
+import {
+  getCurrentHost,
+  getCurrentRealmSlug,
+  isClientContext,
+} from "utils/location-utils";
 import { prefetchBoardMetadata, useBoardMetadata } from "queries/board";
 
 import { BoardSidebar } from "components/boards/Sidebar";
@@ -249,6 +253,10 @@ const MemoizedBoardPage: NextPage = React.memo(BoardPage);
 export default MemoizedBoardPage;
 
 MemoizedBoardPage.getInitialProps = async (ctx: PageContextWithQueryClient) => {
+  if (isClientContext(ctx)) {
+    // See _app.tsx on why this is necessary
+    return {};
+  }
   try {
     const realmSlug = getCurrentRealmSlug({
       serverHostname: ctx.req?.headers.host,

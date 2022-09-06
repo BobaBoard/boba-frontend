@@ -31,6 +31,7 @@ import TimelineThreadView from "components/thread/TimelineThreadView";
 import classnames from "classnames";
 import debug from "debug";
 import { getThreadData } from "utils/queries/thread";
+import { isClientContext } from "utils/location-utils";
 import { useAuth } from "components/Auth";
 import { useBeamToNew } from "components/hooks/useBeamToNew";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
@@ -310,6 +311,10 @@ const ThreadWithEditors: NextPage = withEditors(ThreadPageWithContext);
 export default ThreadWithEditors;
 
 ThreadWithEditors.getInitialProps = async (ctx: PageContextWithQueryClient) => {
+  if (isClientContext(ctx)) {
+    // See _app.tsx on why this is necessary
+    return {};
+  }
   try {
     if (!ctx.query.threadId?.length) {
       return {};

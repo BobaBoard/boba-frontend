@@ -159,3 +159,7 @@ export const getServerBaseUrl = (context?: NextPageContext) => {
     ? `http://${backendLocation}:4200/`
     : `https://${backendLocation}/`;
 };
+
+export const isClientContext = (context: NextPageContext) => {
+  return !context.req;
+};

@@ -17,7 +17,11 @@ import {
   SubscriptionBlock as SubscriptionBlockType,
   UiBlocks,
 } from "types/Types";
-import { getCurrentRealmSlug, isStaging } from "utils/location-utils";
+import {
+  getCurrentRealmSlug,
+  isClientContext,
+  isStaging,
+} from "utils/location-utils";
 import {
   prefetchSubscriptionData,
   useSubscription,
@@ -262,6 +266,10 @@ const HomePage: NextPage = () => {
 export default HomePage;
 
 HomePage.getInitialProps = async (ctx: PageContextWithQueryClient) => {
+  if (isClientContext(ctx)) {
+    // See _app.tsx on why this is necessary
+    return {};
+  }
   try {
     const realmSlug = getCurrentRealmSlug({
       serverHostname: ctx.req?.headers.host,
