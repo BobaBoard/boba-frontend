@@ -134,6 +134,10 @@ export interface Permissions {
 
 export enum RealmPermissions {
   CREATE_REALM_INVITE = "create_realm_invite",
+  POST_ON_REALM = "post_on_realm",
+  COMMENT_ON_REALM = "comment_on_realm",
+  CREATE_THREAD_ON_REALM = "create_thread_on_realm",
+  ACCESS_LOCKED_BOARDS_ON_REALM = "access_locked_boards_on_realm",
 }
 
 export interface BoardData {
