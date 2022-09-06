@@ -14,7 +14,7 @@ TO_REGISTER.forEach((server) => {
 
   service.on("up", () => {
     registeredServices = registeredServices + 1;
-    console.log(`Service ${server} is up!`);
+    console.log(`Service http://${server}:3000/ is up!`);
     if (registeredServices == TO_REGISTER.length) {
       console.log("All services are up!");
     }
