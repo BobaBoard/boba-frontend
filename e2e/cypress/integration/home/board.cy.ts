@@ -1,34 +1,28 @@
 const GORE_BOARD_ID = "c6d3d10e-8e49-4d73-b28a-9d652b41beec";
 const interceptPin = ({ boardId }: { boardId: string }) => {
   const alias = `pinBoard_${boardId}`;
-  cy.intercept(
-    "POST",
-    `http://twisted-minds_boba.local:4200/boards/${boardId}/pin`
-  ).as(alias);
+  cy.intercept("POST", `http://localhost:4200/boards/${boardId}/pin`).as(alias);
   return `@${alias}`;
 };
 const interceptUnpin = ({ boardId }: { boardId: string }) => {
   const alias = `unpinBoard_${boardId}`;
-  cy.intercept(
-    "DELETE",
-    `http://twisted-minds_boba.local:4200/boards/${boardId}/pin`
-  ).as(alias);
+  cy.intercept("DELETE", `http://localhost:4200/boards/${boardId}/pin`).as(
+    alias
+  );
   return `@${alias}`;
 };
 const interceptMute = ({ boardId }: { boardId: string }) => {
   const alias = `muteBoard_${boardId}`;
-  cy.intercept(
-    "POST",
-    `http://twisted-minds_boba.local:4200/boards/${boardId}/mute`
-  ).as(alias);
+  cy.intercept("POST", `http://localhost:4200/boards/${boardId}/mute`).as(
+    alias
+  );
   return `@${alias}`;
 };
 const interceptUnmute = ({ boardId }: { boardId: string }) => {
   const alias = `unmuteBoard_${boardId}`;
-  cy.intercept(
-    "DELETE",
-    `http://twisted-minds_boba.local:4200/boards/${boardId}/mute`
-  ).as(alias);
+  cy.intercept("DELETE", `http://localhost:4200/boards/${boardId}/mute`).as(
+    alias
+  );
   return `@${alias}`;
 };
 
@@ -48,11 +42,11 @@ describe("Board", () => {
     // Ensure gore board is muted and pinned as that is the test baseline
     // cy.request(
     //   "POST",
-    //   `http://twisted-minds_boba.local:4200/boards/${GORE_BOARD_ID}/pin`
+    //   `http://localhost:4200/boards/${GORE_BOARD_ID}/pin`
     // );
     // cy.request(
     //   "DELETE",
-    //   `http://twisted-minds_boba.local:4200/boards/${GORE_BOARD_ID}/mute`
+    //   `http://localhost:4200/boards/${GORE_BOARD_ID}/mute`
     // );
     // cy.wait(`@${interceptPin({ boardId: GORE_BOARD_ID })}`);
     // cy.wait(`@${interceptUnmute({ boardId: GORE_BOARD_ID })}`);
@@ -65,7 +59,7 @@ describe("Board", () => {
   it("should dismiss board notifications", () => {
     cy.intercept(
       "DELETE",
-      "http://twisted-minds_boba.local:4200/boards/c6d3d10e-8e49-4d73-b28a-9d652b41beec/notifications"
+      "http://localhost:4200/boards/c6d3d10e-8e49-4d73-b28a-9d652b41beec/notifications"
     ).as("dismissNotifications");
     cy.get(".preview-options button").click();
     cy.get(".popover-content").contains("Dismiss notifications").click();
