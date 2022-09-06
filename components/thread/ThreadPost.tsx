@@ -7,14 +7,15 @@ import {
   TagsType,
 } from "@bobaboard/ui-components";
 import { PostOptions, usePostOptions } from "../options/usePostOptions";
+import { PostType, RealmPermissions } from "types/Types";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import {
   getTotalContributions,
   getTotalNewContributions,
 } from "utils/thread-utils";
+import { useRealmBoardId, useRealmPermissions } from "contexts/RealmContext";
 
 import { PostProps } from "@bobaboard/ui-components/dist/post/Post";
-import { PostType } from "types/Types";
 import React from "react";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { formatDistanceToNow } from "date-fns";
@@ -22,7 +23,6 @@ import { getCurrentSearchParams } from "utils/location-utils";
 import { log } from "debug";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
-import { useRealmBoardId } from "contexts/RealmContext";
 import { useThreadContext } from "./ThreadContext";
 import { useThreadViewContext } from "contexts/ThreadViewContext";
 
@@ -144,6 +144,7 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
     boardSlug: slug,
     realmSlug: "v0",
   });
+  const realmPermissions = useRealmPermissions();
 
   const tagOptions = React.useCallback(
     (tag: TagsType) => {
@@ -263,7 +264,12 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
           ? getTotalNewContributions(post, parentChildrenMap)
           : 0,
         tags: post.tags,
-        answerable: isLoggedIn,
+        canComment: realmPermissions.includes(
+          RealmPermissions.COMMENT_ON_REALM
+        ),
+        canContribute: realmPermissions.includes(
+          RealmPermissions.POST_ON_REALM
+        ),
         menuOptions: options,
         op: post.secretIdentity.name == opIdentity?.name,
         getOptionsForTag: tagOptions,

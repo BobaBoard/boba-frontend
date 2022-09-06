@@ -5,8 +5,12 @@ import {
   useEditorsDispatch,
 } from "components/editors/EditorsContext";
 import { FeedWithMenu, PostingActionButton } from "@bobaboard/ui-components";
-import { REALM_QUERY_KEY, useRealmBoardId } from "contexts/RealmContext";
-import { RealmType, ThreadSummaryType } from "types/Types";
+import {
+  REALM_QUERY_KEY,
+  useRealmBoardId,
+  useRealmPermissions,
+} from "contexts/RealmContext";
+import { RealmPermissions, RealmType, ThreadSummaryType } from "types/Types";
 import {
   getCurrentHost,
   getCurrentRealmSlug,
@@ -67,6 +71,7 @@ function BoardPage() {
   const { slug } = usePageDetails<BoardPageDetails>();
   const { isPending: isAuthPending, isLoggedIn } = useAuth();
   const boardId = useRealmBoardId({ boardSlug: slug, realmSlug: "v0" });
+  const realmPermissions = useRealmPermissions();
   const { boardMetadata, isFetched: isBoardMetadataFetched } = useBoardMetadata(
     { boardId }
   );
@@ -124,7 +129,11 @@ function BoardPage() {
   );
 
   const showLockedMessage =
-    !isAuthPending && !isLoggedIn && boardMetadata?.loggedInOnly;
+    !isAuthPending &&
+    !realmPermissions?.includes(
+      RealmPermissions.ACCESS_LOCKED_BOARDS_ON_REALM
+    ) &&
+    boardMetadata?.loggedInOnly;
   const showEmptyMessage =
     !showLockedMessage &&
     !isFetchingBoardActivity &&
@@ -170,7 +179,7 @@ function BoardPage() {
                 {showLockedMessage && (
                   <div className="locked">
                     <img src={"/locked.png"} />
-                    <p>This board is restricted to logged-in users.</p>
+                    <p>This board is restricted to realm members.</p>
                   </div>
                 )}
                 {showEmptyMessage && (
@@ -204,7 +213,7 @@ function BoardPage() {
             </FeedWithMenu.FeedContent>
           </FeedWithMenu>
         </Layout.MainContent>
-        {isLoggedIn && (
+        {realmPermissions.includes(RealmPermissions.CREATE_THREAD_ON_REALM) && (
           <Layout.ActionButton>
             <NewThreadButton boardId={boardId} />
           </Layout.ActionButton>
