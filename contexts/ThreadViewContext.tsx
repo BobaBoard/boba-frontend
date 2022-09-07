@@ -87,6 +87,11 @@ const getQueryParamsGalleryViewMode = (
   };
 };
 
+/**
+ * Returns the query corresponding to the "updatedViews" params.
+ * This method not make choices about the next view, but simply reflect how
+ * the query params should look given the updatedView in the params.
+ */
 const getUpdatedQuery = ({
   currentParams,
   defaultView,
@@ -105,20 +110,22 @@ const getUpdatedQuery = ({
   if (threadViewMode == THREAD_VIEW_MODE.MASONRY) {
     specialViewParams = {
       // The only case when all should be specified is when it's been asked for explicitly.
-      all: "all" in currentParams ? currentParams.all : false,
-      new:
-        galleryViewMode.mode == GALLERY_VIEW_SUB_MODE.NEW ||
-        (!galleryViewMode && "new" in currentParams && currentParams.new),
-      showCover:
-        typeof galleryViewMode.showCover === "undefined"
-          ? "showCover" in currentParams && currentParams.showCover
-          : galleryViewMode.showCover,
+      all:
+        galleryViewMode.mode == GALLERY_VIEW_SUB_MODE.ALL &&
+        "all" in currentParams
+          ? currentParams.all
+          : false,
+      new: galleryViewMode.mode == GALLERY_VIEW_SUB_MODE.NEW,
+      showCover: galleryViewMode.showCover,
     } as GalleryViewSpecialParamsType;
   }
   if (threadViewMode == THREAD_VIEW_MODE.TIMELINE) {
     specialViewParams = {
       // The only case when all should be specified is when it's been asked for explicitly.
-      all: "all" in currentParams ? currentParams.all : false,
+      all:
+        timelineViewMode == TIMELINE_VIEW_SUB_MODE.ALL && "all" in currentParams
+          ? currentParams.all
+          : false,
       new: timelineViewMode == TIMELINE_VIEW_SUB_MODE.NEW,
       latest: timelineViewMode == TIMELINE_VIEW_SUB_MODE.LATEST,
     } as TimelineViewSpecialParamsType;
@@ -256,11 +263,15 @@ const useViewQueryParamsUpdater = () => {
 };
 
 export const ThreadViewContextProvider: React.FC = ({ children }) => {
-  const { defaultView, hasNewReplies, threadRoot } = useThreadContext();
+  const { defaultView, hasNewReplies, threadRoot, postCommentsMap } =
+    useThreadContext();
   const { viewQueryParams, updateViewQueryParams } =
     useViewQueryParamsUpdater();
 
   const isNew = !!threadRoot?.isNew;
+  const hasRootUpdates = threadRoot
+    ? threadRoot.isNew || !!postCommentsMap.get(threadRoot.postId)?.new
+    : false;
   const hasUpdates = !!threadRoot?.isNew || hasNewReplies;
   const [currentView, setCurrentView] = React.useState(
     getInitialView({
@@ -315,8 +326,14 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
   const setGalleryViewMode = React.useCallback(
     (viewMode: NonNullable<ThreadViewMode["galleryViewMode"]>) => {
       setCurrentView((currentView) => {
-        if (viewMode.showCover == undefined) {
-          viewMode.showCover = isNew;
+        if (viewMode.showCover === undefined) {
+          // If the next view mode does not explicitly tell us what showCover's value is, we:
+          // a) keep the existing value if we're alredady in gallery mode
+          // b) check for updates to the "cover" if we're switching to gallery mode
+          viewMode.showCover =
+            currentView.threadViewMode == THREAD_VIEW_MODE.MASONRY
+              ? currentView.galleryViewMode.showCover
+              : hasRootUpdates;
         }
         const nextView: ThreadViewMode & ThreadFilters = {
           ...currentView,
@@ -329,7 +346,7 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
         return nextView;
       });
     },
-    [setCurrentView, updateViewQueryParams, isNew]
+    [setCurrentView, updateViewQueryParams, hasRootUpdates]
   );
 
   const setActiveFilter = React.useCallback(
