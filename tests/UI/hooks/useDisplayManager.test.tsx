@@ -7,7 +7,7 @@ import React from "react";
 import ThreadContextProvider from "components/thread/ThreadContext";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
 
-jest.mock("components/thread/ThreadViewContext.tsx");
+jest.mock("contexts/ThreadViewContext.tsx");
 
 const getMockCollapseManager = () => ({
   onCollapseLevel: jest.fn(),

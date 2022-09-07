@@ -8,7 +8,7 @@ import {
 import {
   THREAD_VIEW_MODES,
   useThreadViewContext,
-} from "components/thread/ThreadViewContext";
+} from "contexts/ThreadViewContext";
 
 import { DisplayManager } from "components/hooks/useDisplayMananger";
 import React from "react";

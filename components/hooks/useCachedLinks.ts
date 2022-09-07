@@ -8,7 +8,7 @@ import {
 } from "utils/router-utils";
 
 import { PostData } from "types/Types";
-import { ThreadViewQueryParams } from "../thread/ThreadViewContext";
+import { ThreadViewQueryParams } from "contexts/ThreadViewContext";
 import { encodeQueryParams } from "use-query-params";
 import { isSandbox } from "utils/location-utils";
 import { stringify } from "query-string";

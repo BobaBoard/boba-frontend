@@ -4,7 +4,7 @@ import {
   TIMELINE_VIEW_MODE,
   ThreadViewContextProvider,
   useThreadViewContext,
-} from "components/thread/ThreadViewContext";
+} from "contexts/ThreadViewContext";
 import {
   ThreadContextType,
   useThreadContext,

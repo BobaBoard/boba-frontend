@@ -11,7 +11,7 @@ import {
   THREAD_VIEW_MODES,
   TIMELINE_VIEW_MODE,
   useThreadViewContext,
-} from "../thread/ThreadViewContext";
+} from "contexts/ThreadViewContext";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import {
   UNCATEGORIZED_LABEL,

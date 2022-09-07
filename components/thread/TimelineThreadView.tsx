@@ -1,5 +1,8 @@
 import { NewThread, SegmentedButton } from "@bobaboard/ui-components";
-import { TIMELINE_VIEW_MODE, useThreadViewContext } from "./ThreadViewContext";
+import {
+  TIMELINE_VIEW_MODE,
+  useThreadViewContext,
+} from "contexts/ThreadViewContext";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import ThreadPost, { scrollToPost } from "./ThreadPost";
 import {
@@ -18,6 +21,7 @@ import { useBoardSummaryBySlug } from "queries/board";
 import { useStemOptions } from "components/hooks/useStemOptions";
 import { useThreadContext } from "components/thread/ThreadContext";
 import { useThreadEditors } from "components/editors/withEditors";
+
 //import { useHotkeys } from "react-hotkeys-hook";
 
 // import debug from "debug";

@@ -1,4 +1,7 @@
-import { GALLERY_VIEW_MODE, useThreadViewContext } from "./ThreadViewContext";
+import {
+  GALLERY_VIEW_MODE,
+  useThreadViewContext,
+} from "contexts/ThreadViewContext";
 import {
   MasonryView,
   NewThread,

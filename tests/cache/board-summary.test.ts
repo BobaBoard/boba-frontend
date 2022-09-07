@@ -13,7 +13,7 @@ import {
 import { expect, test } from "@jest/globals";
 
 import { QueryClient } from "react-query";
-import { REALM_QUERY_KEY } from "../../contexts/RealmContext";
+import { REALM_QUERY_KEY } from "contexts/RealmContext";
 
 const getV0QueryKey = () => {
   return [REALM_QUERY_KEY, { realmSlug: "v0" }];

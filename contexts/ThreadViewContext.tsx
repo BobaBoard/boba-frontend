@@ -1,6 +1,6 @@
 import { ArrayParam, DecodedValueMap, useQueryParams } from "use-query-params";
 
-import { ExistanceParam } from "../QueryParamNextProvider";
+import { ExistanceParam } from "../components/QueryParamNextProvider";
 import { Optional } from "utility-types";
 import React from "react";
 import { ThreadType } from "types/Types";
@@ -447,7 +447,7 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
     </ThreadViewContext.Provider>
   );
 };
-// ThreadViewContextProvider.whyDidYouRender = true;
+ThreadViewContextProvider.whyDidYouRender = true;
 
 export const useThreadViewContext = () => {
   const context = React.useContext<ThreadViewContextType | null>(
