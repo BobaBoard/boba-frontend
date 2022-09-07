@@ -1,15 +1,24 @@
-import { BOBATAN_BOBADEX, BOBATAN_USER_DATA } from "./data/user";
+import {
+  BOBATAN_BOBADEX,
+  BOBATAN_USER_DATA,
+  BOBATAN_V0_PINNED_BOARDS,
+} from "./data/user";
 
 import debug from "debug";
 import { rest } from "msw";
 import { server } from ".";
+import { V0_DATA } from "./data/realm";
 
 const log = debug("bobafrontend:tests:server-mocks:users");
 
 export default [
-  rest.get("/users/@me", (req, res, ctx) => {
+  rest.get(`/users/@me`, (req, res, ctx) => {
     log("fetching bobatan's user data");
     return res(ctx.status(200), ctx.json(BOBATAN_USER_DATA));
+  }),
+  rest.get(`/users/@me/pins/realms/${V0_DATA.id}`, (req, res, ctx) => {
+    log("fetching bobatan's pinned boards");
+    return res(ctx.status(200), ctx.json(BOBATAN_V0_PINNED_BOARDS));
   }),
   rest.patch<{
     username: string;
@@ -21,10 +30,10 @@ export default [
       throw new Error("invalid request");
     }
 
-    // Now return the created post when the board feed is called again.
+    // Now return the updated user data when the user data route is called again.
     server.use(
-      rest.get("/users/@me", (_, res, ctx) => {
-        log("fetching data for gore feed with new post");
+      rest.get(`/users/@me`, (_, res, ctx) => {
+        log("fetching updated user data");
         return res(
           ctx.status(200),
           ctx.json({

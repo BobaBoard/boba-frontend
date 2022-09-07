@@ -1,8 +1,12 @@
-import { BOBATAN_NOTIFICATIONS_DATA, BOBATAN_USER_DATA } from "./data/user";
+import {
+  BOBATAN_NOTIFICATIONS_DATA,
+  BOBATAN_V0_PINNED_BOARDS,
+} from "./data/user";
 
 import { BOBATAN_GORE_METADATA } from "./data/board-metadata";
 import { GORE_FEED } from "./data/feed-board";
 import { NEW_THREAD_BASE } from "./data/thread";
+import { V0_DATA } from "./data/realm";
 import debug from "debug";
 import { rest } from "msw";
 import { server } from ".";
@@ -124,13 +128,13 @@ export default [
             );
           }
         ),
-        rest.get("/users/@me", (req, res, ctx) => {
-          log("fetching bobatan's user data (gore unpinned)");
-          const { gore, ...otherBoards } = BOBATAN_USER_DATA.pinned_boards;
+        rest.get(`/users/@me/pins/realms/${V0_DATA.id}`, (req, res, ctx) => {
+          log("fetching bobatan's pinned boards (gore unpinned)");
+          const { gore, ...otherBoards } =
+            BOBATAN_V0_PINNED_BOARDS.pinned_boards;
           return res(
             ctx.status(200),
             ctx.json({
-              ...BOBATAN_USER_DATA,
               pinned_boards: otherBoards,
             })
           );

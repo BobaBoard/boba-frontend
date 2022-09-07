@@ -105,7 +105,13 @@ export const LOGGED_IN_V0_DATA = {
   homepage: {
     blocks: [],
   },
-  realm_permissions: [RealmPermissions.CREATE_REALM_INVITE],
+  realm_permissions: [
+    RealmPermissions.CREATE_REALM_INVITE,
+    RealmPermissions.ACCESS_LOCKED_BOARDS_ON_REALM,
+    RealmPermissions.COMMENT_ON_REALM,
+    RealmPermissions.CREATE_THREAD_ON_REALM,
+    RealmPermissions.POST_ON_REALM,
+  ],
   boards: [
     {
       id: "2fb151eb-c600-4fe4-a542-4662487e5496",

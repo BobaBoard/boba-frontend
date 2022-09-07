@@ -74,26 +74,3 @@ export const dismissRealmNotifications = async ({
   await axios.delete(`/realms/${realmId}/notifications`);
   return true;
 };
-
-// export const getRealmInvites = async (): Promise<any> => {
-//   const response = await axios.get(`/realms/${realm_id}/invites`);
-//   log(`Got realm invites from server:`);
-//   log(response.data);
-//   return response.data;
-// };
-
-// export const createInvite = async (
-//   email: string,
-//   label?: unknown
-// ): Promise<any> => {
-//   const response = await axios.patch(`/realms/${realm_id}/settings`, {
-//     email,
-//     label,
-//   });
-//   if (response.status !== 200) {
-//     throw new Error("Error while creating invite.");
-//   }
-//   log(`created invite on the server:`);
-//   log(response?.data);
-//   return response?.data;
-// };
