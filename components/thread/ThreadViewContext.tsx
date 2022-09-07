@@ -5,7 +5,6 @@ import { Optional } from "utility-types";
 import React from "react";
 import { ThreadType } from "types/Types";
 import equal from "fast-deep-equal";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useThreadContext } from "components/thread/ThreadContext";
 
 export enum THREAD_VIEW_MODES {
@@ -93,6 +92,8 @@ const getViewTypeFromString = (
       return THREAD_VIEW_MODES.TIMELINE;
     case "thread":
       return THREAD_VIEW_MODES.THREAD;
+    default:
+      throw new Error(`Found unknown view type string: ${viewString}`);
   }
 };
 
@@ -341,7 +342,19 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
   if (typeof window !== "undefined" && !isFetching) {
     // On the client, if aren't fetching, check whether this re-render means
     // we need to update our query params.
-    updateViewQueryParams(currentView);
+    const nextView = getNextView({
+      nextViewMode:
+        getQueryParamsViewMode(viewQueryParams) ??
+        getViewTypeFromString(defaultView)!,
+      queryParams: viewQueryParams,
+      isNew,
+      hasUpdates,
+    });
+
+    if (!equal(currentView, nextView)) {
+      updateViewQueryParams(nextView);
+      setCurrentView(nextView);
+    }
   }
 
   const setThreadViewMode = React.useCallback(
