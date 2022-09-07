@@ -1,5 +1,9 @@
 export const BOBATAN_USER_DATA = {
   avatar_url: "/bobatan.png",
+  username: "bobatan",
+};
+
+export const BOBATAN_V0_PINNED_BOARDS = {
   pinned_boards: {
     anime: {
       accent_color: "#24d282",
@@ -28,7 +32,6 @@ export const BOBATAN_USER_DATA = {
       tagline: "Blood! Blood! Blood!",
     },
   },
-  username: "bobatan",
 };
 
 export const BOBATAN_NOTIFICATIONS_DATA = {

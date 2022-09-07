@@ -4,6 +4,7 @@ import { BoardSummary } from "types/Types";
 import axios from "axios";
 import { makeClientBoardSummary } from "utils/client-data";
 import { useAuth } from "components/Auth";
+import { useRealmId } from "contexts/RealmContext";
 
 // import debug from "debug";
 // const error = debug("bobafrontend:hooks:queries:PinnedBoards-error");
@@ -16,12 +17,13 @@ export interface PinnedBoardType extends BoardSummary {
 export const PINNED_BOARDS_QUERY_KEY = "pinnedBoardsKey";
 export const usePinnedBoards = () => {
   const { isLoggedIn } = useAuth();
+  const realmId = useRealmId();
   const { data, isFetching, isFetched } = useQuery<
     Record<string, PinnedBoardType>
   >(
     PINNED_BOARDS_QUERY_KEY,
     async () => {
-      const data = await axios.get("/users/@me");
+      const data = await axios.get(`/users/@me/pins/realms/${realmId}`);
 
       const pinnedBoards = data.data.pinned_boards;
       return Object.values(pinnedBoards).reduce<
