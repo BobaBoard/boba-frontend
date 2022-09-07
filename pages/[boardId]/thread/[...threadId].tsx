@@ -6,7 +6,7 @@ import {
 } from "@bobaboard/ui-components";
 import { THREAD_QUERY_KEY, useReadThread } from "queries/thread";
 import {
-  THREAD_VIEW_MODES,
+  THREAD_VIEW_MODE,
   ThreadViewContextProvider,
   useThreadViewContext,
 } from "contexts/ThreadViewContext";
@@ -189,8 +189,8 @@ function ThreadPage() {
 
   const canTopLevelPost =
     isLoggedIn &&
-    (currentThreadViewMode == THREAD_VIEW_MODES.MASONRY ||
-      currentThreadViewMode == THREAD_VIEW_MODES.TIMELINE);
+    (currentThreadViewMode == THREAD_VIEW_MODE.MASONRY ||
+      currentThreadViewMode == THREAD_VIEW_MODE.TIMELINE);
   return (
     <div className="main">
       <Layout
@@ -226,13 +226,13 @@ function ThreadPage() {
                 })}
               >
                 <div className="view-modes">
-                  {currentThreadViewMode == THREAD_VIEW_MODES.THREAD ||
+                  {currentThreadViewMode == THREAD_VIEW_MODE.THREAD ||
                   postId ? (
                     <MemoizedThreadView
                       displayManager={displayManager}
                       collapseManager={collapseManager}
                     />
-                  ) : currentThreadViewMode == THREAD_VIEW_MODES.MASONRY ? (
+                  ) : currentThreadViewMode == THREAD_VIEW_MODE.MASONRY ? (
                     <MemoizedGalleryThreadView
                       displayManager={displayManager}
                     />
@@ -249,7 +249,7 @@ function ThreadPage() {
                   // Check whether there's more posts to display
                   displayManager.hasMore()
                     ? "..."
-                    : currentThreadViewMode == THREAD_VIEW_MODES.THREAD
+                    : currentThreadViewMode == THREAD_VIEW_MODE.THREAD
                     ? ""
                     : "Nothing more to load."
                 }
@@ -259,7 +259,7 @@ function ThreadPage() {
           </FeedWithMenu>
         </Layout.MainContent>
         <Layout.ActionButton>
-          {currentThreadViewMode == THREAD_VIEW_MODES.THREAD && hasBeamToNew ? (
+          {currentThreadViewMode == THREAD_VIEW_MODE.THREAD && hasBeamToNew ? (
             <CycleNewButton
               text="Next New"
               onNext={onNewAnswersButtonClick}

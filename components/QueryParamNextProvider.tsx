@@ -1,6 +1,7 @@
-import { NextRouter } from "next/router";
 import React, { memo, useMemo } from "react";
+
 import { QueryParamProvider as ContextProvider } from "use-query-params";
+import { NextRouter } from "next/router";
 
 export const QueryParamProviderComponent = (props: {
   children?: React.ReactNode;
@@ -49,6 +50,6 @@ export const QueryParamProvider = memo(QueryParamProviderComponent);
 export const ExistanceParam = {
   encode: (exists: boolean | null | undefined) => (exists ? null : undefined),
 
-  decode: (value: string | string[] | null | undefined) =>
+  decode: (value: string | (string | null)[] | null | undefined) =>
     typeof value == "string" || value === null ? true : false,
 };

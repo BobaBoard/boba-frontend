@@ -1,142 +1,88 @@
-import { ArrayParam, DecodedValueMap, useQueryParams } from "use-query-params";
+import {
+  GALLERY_VIEW_SUB_MODE,
+  GalleryViewMode,
+  GalleryViewQueryParamsType,
+  GalleryViewSpecialParamsType,
+  THREAD_VIEW_MODE,
+  TIMELINE_VIEW_SUB_MODE,
+  ThreadFilters,
+  ThreadViewMode,
+  TimelineViewQueryParamsType,
+  TimelineViewSpecialParamsType,
+  VIEW_QUERY_PARAMS,
+  ViewQueryParamsType,
+  getThreadViewTypeFromString,
+  isGalleryViewQueryParams,
+  isTimelineViewQueryParams,
+} from "types/ThreadQueryParams";
 
-import { ExistanceParam } from "../components/QueryParamNextProvider";
 import { Optional } from "utility-types";
 import React from "react";
-import { ThreadType } from "types/Types";
+import { useQueryParams } from "use-query-params";
 import { useThreadContext } from "components/thread/ThreadContext";
 
-export enum THREAD_VIEW_MODES {
-  THREAD = "THREAD",
-  MASONRY = "MASONRY",
-  TIMELINE = "TIMELINE",
-}
-
-export enum TIMELINE_VIEW_MODE {
-  NEW = "NEW",
-  LATEST = "LATEST",
-  ALL = "ALL",
-}
-
-export enum GALLERY_VIEW_MODE {
-  NEW = "NEW",
-  ALL = "ALL",
-}
-
-export interface GalleryViewMode {
-  mode: GALLERY_VIEW_MODE;
-  showCover: boolean;
-}
-
-export const ThreadViewQueryParams = {
-  gallery: ExistanceParam,
-  timeline: ExistanceParam,
-  thread: ExistanceParam,
-};
-
-const FilterParams = {
-  filter: ArrayParam,
-  excludedNotices: ArrayParam,
-};
-
-const TimelineViewQueryParams = {
-  new: ExistanceParam,
-  latest: ExistanceParam,
-  all: ExistanceParam,
-};
-
-const GalleryViewQueryParams = {
-  new: ExistanceParam,
-  all: ExistanceParam,
-  showCover: ExistanceParam,
-};
-
-// All the query params that this context keeps track of.
-const VIEW_QUERY_PARAMS = {
-  ...ThreadViewQueryParams,
-  ...TimelineViewQueryParams,
-  ...GalleryViewQueryParams,
-  ...FilterParams,
-};
-
-type ViewQueryParamsType = DecodedValueMap<typeof VIEW_QUERY_PARAMS>;
+// Re-export view modes for consumption of other code
+export { THREAD_VIEW_MODE, GALLERY_VIEW_SUB_MODE, TIMELINE_VIEW_SUB_MODE };
+export type { ThreadViewMode };
 
 interface ThreadViewContextType {
-  currentThreadViewMode: THREAD_VIEW_MODES;
-  timelineViewMode: TIMELINE_VIEW_MODE;
-  galleryViewMode: GalleryViewMode;
+  currentThreadViewMode: THREAD_VIEW_MODE;
+  timelineViewMode: TIMELINE_VIEW_SUB_MODE;
+  galleryViewMode: GalleryViewMode["galleryViewMode"];
   activeFilters: string[] | null;
   excludedNotices: string[] | null;
   setActiveFilter: (filter: string | null) => void;
   setExcludedNotices: (notices: string[] | null) => void;
-  setThreadViewMode: (view: THREAD_VIEW_MODES) => void;
-  setGalleryViewMode: (view: Optional<GalleryViewMode, "showCover">) => void;
-  setTimelineViewMode: (view: TIMELINE_VIEW_MODE) => void;
+  setThreadViewMode: (view: THREAD_VIEW_MODE) => void;
+  setGalleryViewMode: (
+    view: Optional<GalleryViewMode["galleryViewMode"], "showCover">
+  ) => void;
+  setTimelineViewMode: (view: TIMELINE_VIEW_SUB_MODE) => void;
 }
 
 const ThreadViewContext = React.createContext<ThreadViewContextType | null>(
   null
 );
 
-const getViewTypeFromString = (
-  viewString: ThreadType["defaultView"] | null
-) => {
-  if (!viewString) {
-    return null;
-  }
-  switch (viewString) {
-    case "gallery":
-      return THREAD_VIEW_MODES.MASONRY;
-    case "timeline":
-      return THREAD_VIEW_MODES.TIMELINE;
-    case "thread":
-      return THREAD_VIEW_MODES.THREAD;
-  }
-};
-
 // Returns the THREAD_VIEW_MODE set in the page params.
-const getQueryParamsViewMode = (
-  query: DecodedValueMap<typeof ThreadViewQueryParams>
-) => {
+const getQueryParamsViewMode = (query: ViewQueryParamsType) => {
   if (query.gallery) {
-    return THREAD_VIEW_MODES.MASONRY;
+    return THREAD_VIEW_MODE.MASONRY;
   } else if (query.timeline) {
-    return THREAD_VIEW_MODES.TIMELINE;
+    return THREAD_VIEW_MODE.TIMELINE;
   } else if (query.thread) {
-    return THREAD_VIEW_MODES.THREAD;
+    return THREAD_VIEW_MODE.THREAD;
   }
   return null;
 };
 
-// Returns the TIMELINE_VIEW_MODE set in the page params.
+// Returns the TIMELINE_VIEW_SUB_MODE set in the page params.
 const getQueryParamsTimelineViewMode = (
-  timelineQuery: DecodedValueMap<typeof TimelineViewQueryParams>
-) => {
+  timelineQuery: TimelineViewQueryParamsType
+): ThreadViewMode["timelineViewMode"] => {
   if (timelineQuery.new) {
-    return TIMELINE_VIEW_MODE.NEW;
+    return TIMELINE_VIEW_SUB_MODE.NEW;
   } else if (timelineQuery.latest) {
-    return TIMELINE_VIEW_MODE.LATEST;
+    return TIMELINE_VIEW_SUB_MODE.LATEST;
   } else if (timelineQuery.all) {
-    return TIMELINE_VIEW_MODE.ALL;
+    return TIMELINE_VIEW_SUB_MODE.ALL;
   }
   return null;
 };
 
-// Returns the GALLERY_VIEW_MODE set in the page params.
+// Returns the GALLERY_VIEW_SUB_MODE set in the page params.
 const getQueryParamsGalleryViewMode = (
-  galleryQuery: DecodedValueMap<typeof GalleryViewQueryParams>
-): {
-  mode: GALLERY_VIEW_MODE | null;
-  showCover: boolean;
-} => {
+  galleryQuery: GalleryViewQueryParamsType
+): Partial<ThreadViewMode["galleryViewMode"]> => {
   if (!galleryQuery.all && !galleryQuery.new) {
     return {
-      mode: null,
       showCover: galleryQuery.showCover,
     };
   }
   return {
-    mode: galleryQuery.all ? GALLERY_VIEW_MODE.ALL : GALLERY_VIEW_MODE.NEW,
+    mode: galleryQuery.all
+      ? GALLERY_VIEW_SUB_MODE.ALL
+      : GALLERY_VIEW_SUB_MODE.NEW,
     showCover: galleryQuery.showCover,
   };
 };
@@ -147,49 +93,45 @@ const getUpdatedQuery = ({
   updatedViews,
 }: {
   currentParams: ViewQueryParamsType;
-  defaultView: THREAD_VIEW_MODES | null;
-  updatedViews: {
-    threadViewMode: THREAD_VIEW_MODES;
-    timelineViewMode: TIMELINE_VIEW_MODE | null;
-    galleryViewMode: GalleryViewMode | null;
-  };
+  defaultView: THREAD_VIEW_MODE | null;
+  updatedViews: ThreadViewMode;
 }) => {
   const { threadViewMode, timelineViewMode, galleryViewMode } = updatedViews;
   // Thread mode has no params, only timeline & gallery mode must reckon with special ones.
-  let specialViewParams = {};
-  if (threadViewMode == THREAD_VIEW_MODES.MASONRY) {
+  let specialViewParams:
+    | GalleryViewSpecialParamsType
+    | TimelineViewSpecialParamsType
+    | Record<string, never> = {};
+  if (threadViewMode == THREAD_VIEW_MODE.MASONRY) {
     specialViewParams = {
       // The only case when all should be specified is when it's been asked for explicitly.
-      all: !!currentParams.all,
+      all: "all" in currentParams ? currentParams.all : false,
       new:
-        galleryViewMode?.mode == GALLERY_VIEW_MODE.NEW ||
-        (!galleryViewMode && currentParams.new),
+        galleryViewMode.mode == GALLERY_VIEW_SUB_MODE.NEW ||
+        (!galleryViewMode && "new" in currentParams && currentParams.new),
       showCover:
-        typeof galleryViewMode?.showCover === "undefined"
-          ? currentParams.showCover
-          : galleryViewMode?.showCover,
-    };
+        typeof galleryViewMode.showCover === "undefined"
+          ? "showCover" in currentParams && currentParams.showCover
+          : galleryViewMode.showCover,
+    } as GalleryViewSpecialParamsType;
   }
-  if (threadViewMode == THREAD_VIEW_MODES.TIMELINE) {
+  if (threadViewMode == THREAD_VIEW_MODE.TIMELINE) {
     specialViewParams = {
       // The only case when all should be specified is when it's been asked for explicitly.
-      all: !!currentParams.all,
-      new:
-        timelineViewMode == TIMELINE_VIEW_MODE.NEW ||
-        (!timelineViewMode && currentParams.new),
-      latest:
-        timelineViewMode == TIMELINE_VIEW_MODE.LATEST ||
-        (!timelineViewMode && currentParams.latest),
-    };
+      all: "all" in currentParams ? currentParams.all : false,
+      new: timelineViewMode == TIMELINE_VIEW_SUB_MODE.NEW,
+      latest: timelineViewMode == TIMELINE_VIEW_SUB_MODE.LATEST,
+    } as TimelineViewSpecialParamsType;
   }
 
   const isDefaultView = defaultView
     ? threadViewMode == defaultView
-    : threadViewMode == THREAD_VIEW_MODES.THREAD;
+    : threadViewMode == THREAD_VIEW_MODE.THREAD;
   return {
-    gallery: !isDefaultView && threadViewMode == THREAD_VIEW_MODES.MASONRY,
-    timeline: !isDefaultView && threadViewMode == THREAD_VIEW_MODES.TIMELINE,
-    thread: !isDefaultView && threadViewMode == THREAD_VIEW_MODES.THREAD,
+    // We don't add the query param to the URL when the view is default
+    gallery: !isDefaultView && threadViewMode == THREAD_VIEW_MODE.MASONRY,
+    timeline: !isDefaultView && threadViewMode == THREAD_VIEW_MODE.TIMELINE,
+    thread: !isDefaultView && threadViewMode == THREAD_VIEW_MODE.THREAD,
     filter: currentParams.filter,
     excludedNotices: currentParams.excludedNotices,
     ...specialViewParams,
@@ -202,38 +144,12 @@ const getNextView = ({
   isNew,
   hasUpdates,
 }: {
-  nextViewMode: THREAD_VIEW_MODES;
+  nextViewMode: THREAD_VIEW_MODE;
   queryParams: ViewQueryParamsType;
   isNew: boolean;
   hasUpdates: boolean;
-}) => {
-  let timelineViewMode = null;
-  let galleryViewMode: GalleryViewMode | null = null;
-  if (nextViewMode == THREAD_VIEW_MODES.MASONRY) {
-    const updatedGalleryViewMode = {
-      ...getQueryParamsGalleryViewMode(queryParams),
-    };
-    if (updatedGalleryViewMode.mode == null) {
-      updatedGalleryViewMode.mode = hasUpdates
-        ? GALLERY_VIEW_MODE.NEW
-        : GALLERY_VIEW_MODE.ALL;
-    }
-    if (!updatedGalleryViewMode.showCover) {
-      updatedGalleryViewMode.showCover = isNew;
-    }
-    galleryViewMode = updatedGalleryViewMode as GalleryViewMode | null;
-  } else if (nextViewMode == THREAD_VIEW_MODES.TIMELINE) {
-    timelineViewMode = getQueryParamsTimelineViewMode(queryParams);
-    if (timelineViewMode == null) {
-      timelineViewMode = hasUpdates
-        ? TIMELINE_VIEW_MODE.NEW
-        : TIMELINE_VIEW_MODE.ALL;
-    }
-  }
-  return {
-    threadViewMode: nextViewMode,
-    galleryViewMode,
-    timelineViewMode,
+}): ThreadViewMode & ThreadFilters => {
+  const filters = {
     activeFilters:
       queryParams.filter?.filter(
         (category): category is string => category !== null
@@ -243,6 +159,50 @@ const getNextView = ({
         (notice): notice is string => notice !== null
       ) || null,
   };
+
+  switch (nextViewMode) {
+    case THREAD_VIEW_MODE.THREAD:
+      return {
+        threadViewMode: THREAD_VIEW_MODE.THREAD,
+        galleryViewMode: null,
+        timelineViewMode: null,
+        ...filters,
+      };
+    case THREAD_VIEW_MODE.MASONRY: {
+      const currentMode = isGalleryViewQueryParams(queryParams)
+        ? getQueryParamsGalleryViewMode(queryParams)?.mode
+        : null;
+      const currentShowCover = isGalleryViewQueryParams(queryParams)
+        ? getQueryParamsGalleryViewMode(queryParams)?.showCover
+        : null;
+      return {
+        threadViewMode: THREAD_VIEW_MODE.MASONRY,
+        galleryViewMode: {
+          mode:
+            currentMode ?? hasUpdates
+              ? GALLERY_VIEW_SUB_MODE.NEW
+              : GALLERY_VIEW_SUB_MODE.ALL,
+          showCover: currentShowCover || isNew,
+        },
+        timelineViewMode: null,
+        ...filters,
+      };
+    }
+    case THREAD_VIEW_MODE.TIMELINE: {
+      const currentViewMode = isTimelineViewQueryParams(queryParams)
+        ? getQueryParamsTimelineViewMode(queryParams)
+        : null;
+      return {
+        threadViewMode: THREAD_VIEW_MODE.TIMELINE,
+        galleryViewMode: null,
+        timelineViewMode:
+          currentViewMode ?? hasUpdates
+            ? TIMELINE_VIEW_SUB_MODE.NEW
+            : TIMELINE_VIEW_SUB_MODE.ALL,
+        ...filters,
+      };
+    }
+  }
 };
 
 const getInitialView = ({
@@ -251,20 +211,14 @@ const getInitialView = ({
   isNew,
   hasUpdates,
 }: {
-  defaultView: THREAD_VIEW_MODES | null;
+  defaultView: THREAD_VIEW_MODE | null;
   queryParams: ViewQueryParamsType;
   isNew: boolean;
   hasUpdates: boolean;
-}): {
-  threadViewMode: THREAD_VIEW_MODES;
-  timelineViewMode: TIMELINE_VIEW_MODE | null;
-  galleryViewMode: GalleryViewMode | null;
-  activeFilters: string[] | null;
-  excludedNotices: string[] | null;
-} => {
+}): ThreadViewMode & ThreadFilters => {
   const queryParamsViewMode = getQueryParamsViewMode(queryParams);
   const currentViewMode =
-    queryParamsViewMode || defaultView || THREAD_VIEW_MODES.THREAD;
+    queryParamsViewMode || defaultView || THREAD_VIEW_MODE.THREAD;
 
   return getNextView({
     nextViewMode: currentViewMode,
@@ -281,19 +235,13 @@ const useViewQueryParamsUpdater = () => {
 
   return React.useMemo(
     () => ({
-      viewQueryParams,
-      updateViewQueryParams: (nextView: {
-        threadViewMode: THREAD_VIEW_MODES;
-        timelineViewMode: TIMELINE_VIEW_MODE | null;
-        galleryViewMode: GalleryViewMode | null;
-        activeFilters: string[] | null;
-        excludedNotices: string[] | null;
-      }) => {
+      viewQueryParams: viewQueryParams as ViewQueryParamsType,
+      updateViewQueryParams: (nextView: ThreadViewMode & ThreadFilters) => {
         setViewQueryParams(
           {
             ...getUpdatedQuery({
-              currentParams: viewQueryParams,
-              defaultView: getViewTypeFromString(defaultView),
+              currentParams: viewQueryParams as ViewQueryParamsType,
+              defaultView: getThreadViewTypeFromString(defaultView),
               updatedViews: nextView,
             }),
             filter: nextView.activeFilters || undefined,
@@ -316,7 +264,7 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
   const hasUpdates = !!threadRoot?.isNew || hasNewReplies;
   const [currentView, setCurrentView] = React.useState(
     getInitialView({
-      defaultView: getViewTypeFromString(defaultView),
+      defaultView: getThreadViewTypeFromString(defaultView),
       queryParams: viewQueryParams,
       isNew,
       hasUpdates,
@@ -329,7 +277,7 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
   }, []);
 
   const setThreadViewMode = React.useCallback(
-    (viewMode: THREAD_VIEW_MODES) => {
+    (viewMode: THREAD_VIEW_MODE) => {
       setCurrentView((currentView) => {
         const nextView = {
           ...currentView,
@@ -348,11 +296,11 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
   );
 
   const setTimelineViewMode = React.useCallback(
-    (viewMode: TIMELINE_VIEW_MODE) => {
+    (viewMode: TIMELINE_VIEW_SUB_MODE) => {
       setCurrentView((currentView) => {
-        const nextView = {
+        const nextView: ThreadViewMode & ThreadFilters = {
           ...currentView,
-          threadViewMode: THREAD_VIEW_MODES.TIMELINE,
+          threadViewMode: THREAD_VIEW_MODE.TIMELINE,
           timelineViewMode: viewMode,
           galleryViewMode: null,
         };
@@ -365,14 +313,14 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
   );
 
   const setGalleryViewMode = React.useCallback(
-    (viewMode: GalleryViewMode) => {
+    (viewMode: NonNullable<ThreadViewMode["galleryViewMode"]>) => {
       setCurrentView((currentView) => {
         if (viewMode.showCover == undefined) {
           viewMode.showCover = isNew;
         }
-        const nextView = {
+        const nextView: ThreadViewMode & ThreadFilters = {
           ...currentView,
-          threadViewMode: THREAD_VIEW_MODES.MASONRY,
+          threadViewMode: THREAD_VIEW_MODE.MASONRY,
           timelineViewMode: null,
           galleryViewMode: viewMode,
         };
@@ -420,11 +368,11 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
         () => ({
           currentThreadViewMode: currentView.threadViewMode,
           galleryViewMode: currentView.galleryViewMode || {
-            mode: GALLERY_VIEW_MODE.ALL,
+            mode: GALLERY_VIEW_SUB_MODE.ALL,
             showCover: false,
           },
           timelineViewMode:
-            currentView.timelineViewMode || TIMELINE_VIEW_MODE.ALL,
+            currentView.timelineViewMode || TIMELINE_VIEW_SUB_MODE.ALL,
           activeFilters: currentView.activeFilters,
           excludedNotices: currentView.excludedNotices,
           setActiveFilter,

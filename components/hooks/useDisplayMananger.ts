@@ -6,10 +6,10 @@ import {
   isPost,
 } from "types/Types";
 import {
-  GALLERY_VIEW_MODE,
-  GalleryViewMode,
-  THREAD_VIEW_MODES,
-  TIMELINE_VIEW_MODE,
+  GALLERY_VIEW_SUB_MODE,
+  THREAD_VIEW_MODE,
+  TIMELINE_VIEW_SUB_MODE,
+  ThreadViewMode,
   useThreadViewContext,
 } from "contexts/ThreadViewContext";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
@@ -85,39 +85,39 @@ const getDisplayPostsForView = (
   chronologicalPostsSequence: PostType[],
   postCommentsMap: Map<string, ThreadCommentInfoType>,
   viewMode: {
-    currentThreadViewMode: THREAD_VIEW_MODES;
-    timelineViewMode: TIMELINE_VIEW_MODE;
-    galleryViewMode: GalleryViewMode;
+    currentThreadViewMode: THREAD_VIEW_MODE;
+    timelineViewMode: TIMELINE_VIEW_SUB_MODE;
+    galleryViewMode: ThreadViewMode["galleryViewMode"];
   }
 ) => {
   switch (viewMode.currentThreadViewMode) {
-    case THREAD_VIEW_MODES.THREAD:
+    case THREAD_VIEW_MODE.THREAD:
       return chronologicalPostsSequence;
-    case THREAD_VIEW_MODES.TIMELINE: {
+    case THREAD_VIEW_MODE.TIMELINE: {
       switch (viewMode.timelineViewMode) {
-        case TIMELINE_VIEW_MODE.ALL:
+        case TIMELINE_VIEW_SUB_MODE.ALL:
           return chronologicalPostsSequence;
-        case TIMELINE_VIEW_MODE.LATEST:
+        case TIMELINE_VIEW_SUB_MODE.LATEST:
           return [...chronologicalPostsSequence].reverse();
-        case TIMELINE_VIEW_MODE.NEW:
+        case TIMELINE_VIEW_SUB_MODE.NEW:
           return chronologicalPostsSequence.filter(
             (post) => post.isNew || !!postCommentsMap.get(post.postId)?.new
           );
       }
       break;
     }
-    case THREAD_VIEW_MODES.MASONRY: {
+    case THREAD_VIEW_MODE.MASONRY: {
       const [coverPost, ...allGalleryPosts] = chronologicalPostsSequence;
-      switch (viewMode.galleryViewMode.mode) {
-        case GALLERY_VIEW_MODE.ALL:
-          return viewMode.galleryViewMode.showCover
+      switch (viewMode.galleryViewMode!.mode) {
+        case GALLERY_VIEW_SUB_MODE.ALL:
+          return viewMode.galleryViewMode!.showCover
             ? chronologicalPostsSequence
             : allGalleryPosts;
-        case GALLERY_VIEW_MODE.NEW: {
+        case GALLERY_VIEW_SUB_MODE.NEW: {
           const newPosts = allGalleryPosts.filter(
             (post) => post.isNew || !!postCommentsMap.get(post.postId)?.new
           );
-          if (viewMode.galleryViewMode.showCover) {
+          if (viewMode.galleryViewMode!.showCover) {
             newPosts.unshift(coverPost);
           }
           return newPosts;
@@ -152,7 +152,7 @@ const useThreadViewDisplay = () => {
       {
         currentThreadViewMode: !postId
           ? currentThreadViewMode
-          : THREAD_VIEW_MODES.THREAD,
+          : THREAD_VIEW_MODE.THREAD,
         timelineViewMode,
         galleryViewMode,
       }
@@ -183,7 +183,7 @@ const useThreadViewDisplay = () => {
         }
       });
 
-      if (currentThreadViewMode !== THREAD_VIEW_MODES.THREAD) {
+      if (currentThreadViewMode !== THREAD_VIEW_MODE.THREAD) {
         return finalDisplayPosts;
       }
       // Add all parents of posts, even if they don't have categories.
@@ -277,7 +277,7 @@ export const useDisplayManager = (
   );
 
   React.useEffect(() => {
-    if (isFetching || currentThreadViewMode != THREAD_VIEW_MODES.THREAD) {
+    if (isFetching || currentThreadViewMode != THREAD_VIEW_MODE.THREAD) {
       return;
     }
     const idleCallback = () => {

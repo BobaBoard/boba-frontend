@@ -1,6 +1,6 @@
 import { NewThread, SegmentedButton } from "@bobaboard/ui-components";
 import {
-  TIMELINE_VIEW_MODE,
+  TIMELINE_VIEW_SUB_MODE,
   useThreadViewContext,
 } from "contexts/ThreadViewContext";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
@@ -74,20 +74,26 @@ const TimelineView: React.FC<TimelineViewProps> = (props) => {
   const viewChangeOptions = React.useMemo(
     () => [
       {
-        id: TIMELINE_VIEW_MODE.NEW,
+        id: TIMELINE_VIEW_SUB_MODE.NEW,
         label: "New",
         updates: newRepliesCount > 0 ? newRepliesCount : undefined,
-        link: { onClick: () => setTimelineViewMode(TIMELINE_VIEW_MODE.NEW) },
+        link: {
+          onClick: () => setTimelineViewMode(TIMELINE_VIEW_SUB_MODE.NEW),
+        },
       },
       {
-        id: TIMELINE_VIEW_MODE.LATEST,
+        id: TIMELINE_VIEW_SUB_MODE.LATEST,
         label: "Latest",
-        link: { onClick: () => setTimelineViewMode(TIMELINE_VIEW_MODE.LATEST) },
+        link: {
+          onClick: () => setTimelineViewMode(TIMELINE_VIEW_SUB_MODE.LATEST),
+        },
       },
       {
-        id: TIMELINE_VIEW_MODE.ALL,
+        id: TIMELINE_VIEW_SUB_MODE.ALL,
         label: `All (${chronologicalPostsSequence.length})`,
-        link: { onClick: () => setTimelineViewMode(TIMELINE_VIEW_MODE.ALL) },
+        link: {
+          onClick: () => setTimelineViewMode(TIMELINE_VIEW_SUB_MODE.ALL),
+        },
       },
     ],
     [newRepliesCount, setTimelineViewMode, chronologicalPostsSequence.length]

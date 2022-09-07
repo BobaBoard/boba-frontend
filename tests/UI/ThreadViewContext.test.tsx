@@ -1,7 +1,7 @@
 import {
-  GALLERY_VIEW_MODE,
-  THREAD_VIEW_MODES,
-  TIMELINE_VIEW_MODE,
+  GALLERY_VIEW_SUB_MODE,
+  THREAD_VIEW_MODE,
+  TIMELINE_VIEW_SUB_MODE,
   ThreadViewContextProvider,
   useThreadViewContext,
 } from "contexts/ThreadViewContext";
@@ -99,7 +99,7 @@ describe("useThreadViewContext", () => {
       expect.objectContaining(NEUTRAL_QUERY_PARAMS_STATE),
       "replace"
     );
-    expect(result.current.currentThreadViewMode).toBe(THREAD_VIEW_MODES.THREAD);
+    expect(result.current.currentThreadViewMode).toBe(THREAD_VIEW_MODE.THREAD);
   });
 
   it("Returns default view mode if none is specified in query params", async () => {
@@ -109,11 +109,9 @@ describe("useThreadViewContext", () => {
       wrapper: getThreadViewContextWrapper(),
     });
 
-    expect(result.current.currentThreadViewMode).toBe(
-      THREAD_VIEW_MODES.MASONRY
-    );
+    expect(result.current.currentThreadViewMode).toBe(THREAD_VIEW_MODE.MASONRY);
     expect(result.current.galleryViewMode).toStrictEqual({
-      mode: GALLERY_VIEW_MODE.ALL,
+      mode: GALLERY_VIEW_SUB_MODE.ALL,
       showCover: false,
     });
     expect(setQueryParams).toHaveBeenCalledOnce();
@@ -132,9 +130,9 @@ describe("useThreadViewContext", () => {
     });
 
     expect(result.current.currentThreadViewMode).toBe(
-      THREAD_VIEW_MODES.TIMELINE
+      THREAD_VIEW_MODE.TIMELINE
     );
-    expect(result.current.timelineViewMode).toBe(TIMELINE_VIEW_MODE.ALL);
+    expect(result.current.timelineViewMode).toBe(TIMELINE_VIEW_SUB_MODE.ALL);
     expect(setQueryParams).toHaveBeenCalledOnce();
     expect(setQueryParams).toHaveBeenLastCalledWith(
       {
@@ -155,9 +153,9 @@ describe("useThreadViewContext", () => {
       });
 
       expect(result.current.currentThreadViewMode).toBe(
-        THREAD_VIEW_MODES.TIMELINE
+        THREAD_VIEW_MODE.TIMELINE
       );
-      expect(result.current.timelineViewMode).toBe(TIMELINE_VIEW_MODE.NEW);
+      expect(result.current.timelineViewMode).toBe(TIMELINE_VIEW_SUB_MODE.NEW);
 
       expect(setQueryParams).toHaveBeenCalledOnce();
       expect(setQueryParams).toHaveBeenCalledWith(
@@ -178,10 +176,10 @@ describe("useThreadViewContext", () => {
       });
 
       expect(result.current.currentThreadViewMode).toBe(
-        THREAD_VIEW_MODES.MASONRY
+        THREAD_VIEW_MODE.MASONRY
       );
       expect(result.current.galleryViewMode).toEqual({
-        mode: GALLERY_VIEW_MODE.NEW,
+        mode: GALLERY_VIEW_SUB_MODE.NEW,
         showCover: false,
       });
       expect(setQueryParams).toHaveBeenCalledOnce();
@@ -205,10 +203,10 @@ describe("useThreadViewContext", () => {
       });
 
       expect(result.current.currentThreadViewMode).toBe(
-        THREAD_VIEW_MODES.MASONRY
+        THREAD_VIEW_MODE.MASONRY
       );
       expect(result.current.galleryViewMode).toEqual({
-        mode: GALLERY_VIEW_MODE.NEW,
+        mode: GALLERY_VIEW_SUB_MODE.NEW,
         showCover: true,
       });
       expect(setQueryParams).toHaveBeenCalledOnce();
@@ -233,12 +231,12 @@ describe("useThreadViewContext", () => {
 
       act(() => {
         result.current.setGalleryViewMode({
-          mode: GALLERY_VIEW_MODE.NEW,
+          mode: GALLERY_VIEW_SUB_MODE.NEW,
           showCover: true,
         });
       });
       expect(result.current.currentThreadViewMode).toBe(
-        THREAD_VIEW_MODES.MASONRY
+        THREAD_VIEW_MODE.MASONRY
       );
 
       expect(setQueryParams).toHaveBeenCalledTimes(2);
@@ -265,11 +263,11 @@ describe("useThreadViewContext", () => {
 
       act(() => {
         result.current.setGalleryViewMode({
-          mode: GALLERY_VIEW_MODE.NEW,
+          mode: GALLERY_VIEW_SUB_MODE.NEW,
         });
       });
       expect(result.current.currentThreadViewMode).toBe(
-        THREAD_VIEW_MODES.MASONRY
+        THREAD_VIEW_MODE.MASONRY
       );
 
       expect(setQueryParams).toHaveBeenCalledTimes(2);
@@ -293,12 +291,12 @@ describe("useThreadViewContext", () => {
 
       act(() => {
         result.current.setGalleryViewMode({
-          mode: GALLERY_VIEW_MODE.NEW,
+          mode: GALLERY_VIEW_SUB_MODE.NEW,
           showCover: false,
         });
       });
       expect(result.current.currentThreadViewMode).toBe(
-        THREAD_VIEW_MODES.MASONRY
+        THREAD_VIEW_MODE.MASONRY
       );
 
       expect(setQueryParams).toHaveBeenCalledTimes(2);
@@ -319,7 +317,7 @@ describe("useThreadViewContext", () => {
       });
 
       act(() => {
-        result.current.setTimelineViewMode(TIMELINE_VIEW_MODE.NEW);
+        result.current.setTimelineViewMode(TIMELINE_VIEW_SUB_MODE.NEW);
       });
 
       expect(setQueryParams).toHaveBeenCalledTimes(2);
@@ -341,7 +339,7 @@ describe("useThreadViewContext", () => {
       });
 
       act(() => {
-        result.current.setThreadViewMode(THREAD_VIEW_MODES.THREAD);
+        result.current.setThreadViewMode(THREAD_VIEW_MODE.THREAD);
       });
 
       expect(setQueryParams).toHaveBeenCalledTimes(2);
