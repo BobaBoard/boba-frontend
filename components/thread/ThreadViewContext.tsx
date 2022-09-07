@@ -4,6 +4,7 @@ import { ExistanceParam } from "../QueryParamNextProvider";
 import { Optional } from "utility-types";
 import React from "react";
 import { ThreadType } from "types/Types";
+import equal from "fast-deep-equal";
 import { useThreadContext } from "components/thread/ThreadContext";
 
 export enum THREAD_VIEW_MODES {
@@ -168,6 +169,9 @@ const getUpdatedQuery = ({
         typeof galleryViewMode?.showCover === "undefined"
           ? currentParams.showCover
           : galleryViewMode?.showCover,
+      // TODO: we add this so we always have all the params available for object
+      // diff when deciding whether to update params. This is a bit of a copout.
+      latest: false,
     };
   }
   if (threadViewMode == THREAD_VIEW_MODES.TIMELINE) {
@@ -180,6 +184,9 @@ const getUpdatedQuery = ({
       latest:
         timelineViewMode == TIMELINE_VIEW_MODE.LATEST ||
         (!timelineViewMode && currentParams.latest),
+      // TODO: we add this so we always have all the params available for object
+      // diff when deciding whether to update params. This is a bit of a copout.
+      showCover: false,
     };
   }
 
@@ -289,18 +296,19 @@ const useViewQueryParamsUpdater = () => {
         activeFilters: string[] | null;
         excludedNotices: string[] | null;
       }) => {
-        setViewQueryParams(
-          {
-            ...getUpdatedQuery({
-              currentParams: viewQueryParams,
-              defaultView: getViewTypeFromString(defaultView),
-              updatedViews: nextView,
-            }),
-            filter: nextView.activeFilters || undefined,
-            excludedNotices: nextView.excludedNotices || undefined,
-          },
-          "replace"
-        );
+        const newQueryParams = {
+          ...getUpdatedQuery({
+            currentParams: viewQueryParams,
+            defaultView: getViewTypeFromString(defaultView),
+            updatedViews: nextView,
+          }),
+          filter: nextView.activeFilters || undefined,
+          excludedNotices: nextView.excludedNotices || undefined,
+        };
+        if (equal(viewQueryParams, newQueryParams)) {
+          return;
+        }
+        setViewQueryParams(newQueryParams, "replace");
       },
     }),
     [viewQueryParams, defaultView, setViewQueryParams]
@@ -308,7 +316,8 @@ const useViewQueryParamsUpdater = () => {
 };
 
 export const ThreadViewContextProvider: React.FC = ({ children }) => {
-  const { defaultView, hasNewReplies, threadRoot } = useThreadContext();
+  const { defaultView, hasNewReplies, threadRoot, isFetching } =
+    useThreadContext();
   const { viewQueryParams, updateViewQueryParams } =
     useViewQueryParamsUpdater();
 
@@ -323,10 +332,11 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
     })
   );
 
-  React.useEffect(() => {
+  if (typeof window !== "undefined" && !isFetching) {
+    // On the client, if aren't fetching, check whether this re-render means
+    // we need to update our query params.
     updateViewQueryParams(currentView);
-    // This should only run the first time to ensure the query params are correctly updated.
-  }, []);
+  }
 
   const setThreadViewMode = React.useCallback(
     (viewMode: THREAD_VIEW_MODES) => {
