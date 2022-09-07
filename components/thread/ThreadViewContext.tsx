@@ -5,6 +5,7 @@ import { Optional } from "utility-types";
 import React from "react";
 import { ThreadType } from "types/Types";
 import equal from "fast-deep-equal";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useThreadContext } from "components/thread/ThreadContext";
 
 export enum THREAD_VIEW_MODES {
@@ -157,7 +158,12 @@ const getUpdatedQuery = ({
 }) => {
   const { threadViewMode, timelineViewMode, galleryViewMode } = updatedViews;
   // Thread mode has no params, only timeline & gallery mode must reckon with special ones.
-  let specialViewParams = {};
+  let specialViewParams = {
+    all: false,
+    new: false,
+    showCover: false,
+    latest: false,
+  };
   if (threadViewMode == THREAD_VIEW_MODES.MASONRY) {
     specialViewParams = {
       // The only case when all should be specified is when it's been asked for explicitly.

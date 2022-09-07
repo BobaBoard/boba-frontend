@@ -50,6 +50,11 @@ const NEUTRAL_QUERY_PARAMS_STATE = {
 };
 const NEUTRAL_QUERY_PARAMS_STATE_WITH_THREAD = {
   ...NEUTRAL_QUERY_PARAMS_STATE,
+  // TODO: these should be removed when we improve the logic to check whether two states correspond to the same view
+  all: false,
+  new: false,
+  showCover: false,
+  latest: false,
 };
 
 const NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY = {
@@ -57,6 +62,7 @@ const NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY = {
   all: false,
   new: false,
   showCover: false,
+  // TODO: these should be removed when we improve the logic to check whether two states correspond to the same view
   latest: false,
 };
 const NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE = {
@@ -64,6 +70,7 @@ const NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE = {
   all: false,
   new: false,
   latest: false,
+  // TODO: these should be removed when we improve the logic to check whether two states correspond to the same view
   showCover: false,
 };
 
