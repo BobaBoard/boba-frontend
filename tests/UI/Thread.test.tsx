@@ -14,7 +14,7 @@ jest.mock("queries/thread", () => ({
   useReadThread: jest.fn().mockReturnValue(jest.fn()),
 }));
 
-//jest.mock("components/thread/ThreadViewContext.tsx");
+//jest.mock("contexts/ThreadViewContext.tsx");
 
 beforeAll(() => {
   jest.useFakeTimers();

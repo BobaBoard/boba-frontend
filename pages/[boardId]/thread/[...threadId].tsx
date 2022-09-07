@@ -9,7 +9,7 @@ import {
   THREAD_VIEW_MODES,
   ThreadViewContextProvider,
   useThreadViewContext,
-} from "components/thread/ThreadViewContext";
+} from "contexts/ThreadViewContext";
 import ThreadContextProvider, {
   useInvalidateThreadData,
   useThreadContext,

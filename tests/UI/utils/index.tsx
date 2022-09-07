@@ -1,9 +1,6 @@
 import { ImageUploaderContext, ToastContainer } from "@bobaboard/ui-components";
 import { QueryClient, QueryClientProvider } from "react-query";
-import {
-  REALM_QUERY_KEY,
-  RealmContextProvider,
-} from "../../../contexts/RealmContext";
+import { REALM_QUERY_KEY, RealmContextProvider } from "contexts/RealmContext";
 
 import { AuthContext } from "components/Auth";
 import { NextRouter } from "next/router";

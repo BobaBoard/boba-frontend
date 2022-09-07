@@ -1,18 +1,16 @@
-import React from "react";
 import {
   GALLERY_VIEW_MODE,
   THREAD_VIEW_MODES,
   TIMELINE_VIEW_MODE,
   useThreadViewContext,
-} from "./ThreadViewContext";
+} from "contexts/ThreadViewContext";
+
+import React from "react";
 import { useAuth } from "components/Auth";
 
 const EmptyGalleryView = () => {
-  const {
-    galleryViewMode,
-    timelineViewMode,
-    currentThreadViewMode,
-  } = useThreadViewContext();
+  const { galleryViewMode, timelineViewMode, currentThreadViewMode } =
+    useThreadViewContext();
   const { isLoggedIn } = useAuth();
   const isNewMode =
     (currentThreadViewMode === THREAD_VIEW_MODES.MASONRY &&

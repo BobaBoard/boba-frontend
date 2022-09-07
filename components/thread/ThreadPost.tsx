@@ -24,7 +24,7 @@ import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { useRealmBoardId } from "contexts/RealmContext";
 import { useThreadContext } from "./ThreadContext";
-import { useThreadViewContext } from "./ThreadViewContext";
+import { useThreadViewContext } from "contexts/ThreadViewContext";
 
 interface ThreadPostProps
   // This type can add any prop from the original post type

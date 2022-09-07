@@ -38,7 +38,8 @@
       "components/*": ["components/*"],
       "utils/*": ["utils/*"],
       "pages/*": ["pages/*"],
-      "types/*": ["types/*"]
+      "types/*": ["types/*"],
+      "contexts/*": ["contexts/*"]
     },
     "skipLibCheck": true,
     "strict": false,
