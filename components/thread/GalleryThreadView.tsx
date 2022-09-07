@@ -1,5 +1,5 @@
 import {
-  GALLERY_VIEW_MODE,
+  GALLERY_VIEW_SUB_MODE,
   useThreadViewContext,
 } from "contexts/ThreadViewContext";
 import {
@@ -202,18 +202,18 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
         <SegmentedButton
           options={[
             {
-              id: GALLERY_VIEW_MODE.NEW,
+              id: GALLERY_VIEW_SUB_MODE.NEW,
               label: "New & Updated",
               updates: newRepliesCount > 0 ? newRepliesCount : undefined,
               link: {
                 onClick: () =>
                   setGalleryViewMode({
-                    mode: GALLERY_VIEW_MODE.NEW,
+                    mode: GALLERY_VIEW_SUB_MODE.NEW,
                   }),
               },
             },
             {
-              id: GALLERY_VIEW_MODE.ALL,
+              id: GALLERY_VIEW_SUB_MODE.ALL,
               label: `All Posts (${
                 chronologicalPostsSequence.length -
                 (galleryViewMode.showCover ? 0 : 1)
@@ -221,7 +221,7 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
               link: {
                 onClick: () =>
                   setGalleryViewMode({
-                    mode: GALLERY_VIEW_MODE.ALL,
+                    mode: GALLERY_VIEW_SUB_MODE.ALL,
                   }),
               },
             },

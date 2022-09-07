@@ -1,7 +1,7 @@
 import {
-  GALLERY_VIEW_MODE,
-  THREAD_VIEW_MODES,
-  TIMELINE_VIEW_MODE,
+  GALLERY_VIEW_SUB_MODE,
+  THREAD_VIEW_MODE,
+  TIMELINE_VIEW_SUB_MODE,
   useThreadViewContext,
 } from "contexts/ThreadViewContext";
 
@@ -13,10 +13,10 @@ const EmptyGalleryView = () => {
     useThreadViewContext();
   const { isLoggedIn } = useAuth();
   const isNewMode =
-    (currentThreadViewMode === THREAD_VIEW_MODES.MASONRY &&
-      galleryViewMode.mode === GALLERY_VIEW_MODE.NEW) ||
-    (currentThreadViewMode === THREAD_VIEW_MODES.TIMELINE &&
-      timelineViewMode === TIMELINE_VIEW_MODE.NEW);
+    (currentThreadViewMode === THREAD_VIEW_MODE.MASONRY &&
+      galleryViewMode.mode === GALLERY_VIEW_SUB_MODE.NEW) ||
+    (currentThreadViewMode === THREAD_VIEW_MODE.TIMELINE &&
+      timelineViewMode === TIMELINE_VIEW_SUB_MODE.NEW);
   const emptyMessage = !isNewMode
     ? "The gallery is empty :("
     : isLoggedIn

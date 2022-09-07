@@ -1,9 +1,9 @@
-const { THREAD_VIEW_MODES } = jest.requireActual("../ThreadViewContext");
+const { THREAD_VIEW_MODE } = jest.requireActual("../ThreadViewContext");
 
 module.exports = {
   ...jest.requireActual("../ThreadViewContext"),
   useThreadViewContext: jest.fn(() => ({
-    currentThreadViewMode: THREAD_VIEW_MODES.THREAD,
+    currentThreadViewMode: THREAD_VIEW_MODE.THREAD,
     timelineViewMode: jest.fn(),
     galleryViewMode: jest.fn(),
     activeFilters: null,

@@ -6,7 +6,7 @@ import {
   TagsFilterSection,
 } from "@bobaboard/ui-components";
 import {
-  THREAD_VIEW_MODES,
+  THREAD_VIEW_MODE,
   useThreadViewContext,
 } from "contexts/ThreadViewContext";
 
@@ -19,9 +19,9 @@ import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { useThreadContext } from "components/thread/ThreadContext";
 
 export interface ThreadSidebarProps {
-  viewMode: THREAD_VIEW_MODES;
+  viewMode: THREAD_VIEW_MODE;
   open?: boolean;
-  onViewChange: (viewType: THREAD_VIEW_MODES) => void;
+  onViewChange: (viewType: THREAD_VIEW_MODE) => void;
   displayManager: DisplayManager;
 }
 
@@ -56,27 +56,27 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
           <SegmentedButton
             options={[
               {
-                id: THREAD_VIEW_MODES.THREAD,
+                id: THREAD_VIEW_MODE.THREAD,
                 label: "Thread",
                 link: {
                   // TODO: add href here
-                  onClick: () => props.onViewChange(THREAD_VIEW_MODES.THREAD),
+                  onClick: () => props.onViewChange(THREAD_VIEW_MODE.THREAD),
                 },
               },
               {
-                id: THREAD_VIEW_MODES.MASONRY,
+                id: THREAD_VIEW_MODE.MASONRY,
                 label: "Gallery",
                 link: {
                   // TODO: add href here
-                  onClick: () => props.onViewChange(THREAD_VIEW_MODES.MASONRY),
+                  onClick: () => props.onViewChange(THREAD_VIEW_MODE.MASONRY),
                 },
               },
               {
-                id: THREAD_VIEW_MODES.TIMELINE,
+                id: THREAD_VIEW_MODE.TIMELINE,
                 label: "Timeline",
                 link: {
                   // TODO: add href here
-                  onClick: () => props.onViewChange(THREAD_VIEW_MODES.TIMELINE),
+                  onClick: () => props.onViewChange(THREAD_VIEW_MODE.TIMELINE),
                 },
               },
             ]}
