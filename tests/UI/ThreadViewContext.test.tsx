@@ -12,6 +12,7 @@ import {
 import { act, renderHook } from "@testing-library/react-hooks/native";
 
 import React from "react";
+import { ViewQueryParamsType } from "types/ThreadQueryParams";
 import _ from "cypress/types/lodash";
 import { useQueryParams } from "use-query-params";
 
@@ -71,7 +72,7 @@ const getThreadViewContextWrapper = () => {
   };
 };
 
-const mockQueryParams = (initialState?: Record<string, any>) => {
+const mockQueryParams = (initialState?: Partial<ViewQueryParamsType>) => {
   const setQueryParams = jest.fn();
   jest
     .mocked(useQueryParams)
@@ -221,7 +222,7 @@ describe("useThreadViewContext", () => {
     });
   });
 
-  describe("State updates", () => {
+  describe("View modes updates", () => {
     it("Correctly switches view mode for gallery with explicit show cover", async () => {
       mockedThreadContext.defaultView = "thread";
       const setQueryParams = mockQueryParams({ timeline: true });
@@ -238,6 +239,10 @@ describe("useThreadViewContext", () => {
       expect(result.current.currentThreadViewMode).toBe(
         THREAD_VIEW_MODE.MASONRY
       );
+      expect(result.current.galleryViewMode).toEqual({
+        mode: GALLERY_VIEW_SUB_MODE.NEW,
+        showCover: true,
+      });
 
       expect(setQueryParams).toHaveBeenCalledTimes(2);
       expect(setQueryParams).toHaveBeenLastCalledWith(
@@ -269,6 +274,10 @@ describe("useThreadViewContext", () => {
       expect(result.current.currentThreadViewMode).toBe(
         THREAD_VIEW_MODE.MASONRY
       );
+      expect(result.current.galleryViewMode).toEqual({
+        mode: GALLERY_VIEW_SUB_MODE.NEW,
+        showCover: true,
+      });
 
       expect(setQueryParams).toHaveBeenCalledTimes(2);
       expect(setQueryParams).toHaveBeenLastCalledWith(
@@ -298,6 +307,10 @@ describe("useThreadViewContext", () => {
       expect(result.current.currentThreadViewMode).toBe(
         THREAD_VIEW_MODE.MASONRY
       );
+      expect(result.current.galleryViewMode).toEqual({
+        mode: GALLERY_VIEW_SUB_MODE.NEW,
+        showCover: false,
+      });
 
       expect(setQueryParams).toHaveBeenCalledTimes(2);
       expect(setQueryParams).toHaveBeenLastCalledWith(
@@ -319,6 +332,8 @@ describe("useThreadViewContext", () => {
       act(() => {
         result.current.setTimelineViewMode(TIMELINE_VIEW_SUB_MODE.NEW);
       });
+
+      expect(result.current.timelineViewMode).toBe(TIMELINE_VIEW_SUB_MODE.NEW);
 
       expect(setQueryParams).toHaveBeenCalledTimes(2);
       expect(setQueryParams).toHaveBeenLastCalledWith(
@@ -345,6 +360,44 @@ describe("useThreadViewContext", () => {
       expect(setQueryParams).toHaveBeenCalledTimes(2);
       expect(setQueryParams).toHaveBeenLastCalledWith(
         { ...NEUTRAL_QUERY_PARAMS_STATE_WITH_THREAD, thread: true },
+        "replace"
+      );
+    });
+  });
+
+  describe("View sub modes updates", () => {
+    it("Correctly retains showCover when switching mode in gallery view", async () => {
+      mockedThreadContext.defaultView = "thread";
+      const setQueryParams = mockQueryParams({
+        gallery: true,
+        all: true,
+        showCover: true,
+      });
+      const { result } = renderHook(() => useThreadViewContext(), {
+        wrapper: getThreadViewContextWrapper(),
+      });
+
+      act(() => {
+        result.current.setGalleryViewMode({
+          mode: GALLERY_VIEW_SUB_MODE.NEW,
+        });
+      });
+      expect(result.current.currentThreadViewMode).toBe(
+        THREAD_VIEW_MODE.MASONRY
+      );
+      expect(result.current.galleryViewMode).toEqual({
+        mode: GALLERY_VIEW_SUB_MODE.NEW,
+        showCover: true,
+      });
+
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
+      expect(setQueryParams).toHaveBeenLastCalledWith(
+        {
+          ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
+          gallery: true,
+          new: true,
+          showCover: true,
+        },
         "replace"
       );
     });
