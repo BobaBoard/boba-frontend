@@ -159,7 +159,7 @@ describe("useThreadViewContext", () => {
       expect(result.current.timelineViewMode).toBe(TIMELINE_VIEW_SUB_MODE.NEW);
 
       expect(setQueryParams).toHaveBeenCalledOnce();
-      expect(setQueryParams).toHaveBeenCalledWith(
+      expect(setQueryParams).toHaveBeenLastCalledWith(
         {
           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE,
           new: true,
@@ -183,8 +183,8 @@ describe("useThreadViewContext", () => {
         mode: GALLERY_VIEW_SUB_MODE.NEW,
         showCover: false,
       });
-      expect(setQueryParams).toHaveBeenCalledOnce();
-      expect(setQueryParams).toHaveBeenCalledWith(
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
+      expect(setQueryParams).toHaveBeenLastCalledWith(
         {
           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
           new: true,
@@ -210,8 +210,9 @@ describe("useThreadViewContext", () => {
         mode: GALLERY_VIEW_SUB_MODE.NEW,
         showCover: true,
       });
-      expect(setQueryParams).toHaveBeenCalledOnce();
-      expect(setQueryParams).toHaveBeenCalledWith(
+
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
+      expect(setQueryParams).toHaveBeenLastCalledWith(
         {
           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
           new: true,
