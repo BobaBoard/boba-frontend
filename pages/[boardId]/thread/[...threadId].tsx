@@ -62,8 +62,7 @@ const useMarkThreadReadOnDelay = (threadId: string, slug: string) => {
   const refetchBoardActivity = useRefetchBoardActivity();
   const markAsRead = useReadThread({ activityOnly: true });
   const { isLoggedIn } = useAuth();
-  const { isLoading: isFetchingThread, isRefetching: isRefetchingThread } =
-    useThreadContext();
+  const { isFetching: isFetchingThread } = useThreadContext();
 
   // When we exit the thread, we must "restart" the timeout for mark has read and
   // remove the thread from the cache.
@@ -88,7 +87,6 @@ const useMarkThreadReadOnDelay = (threadId: string, slug: string) => {
   React.useEffect(() => {
     if (
       isFetchingThread ||
-      isRefetchingThread ||
       !isLoggedIn ||
       !threadId ||
       latestReadThread.current == threadId ||
@@ -127,7 +125,6 @@ const useMarkThreadReadOnDelay = (threadId: string, slug: string) => {
     refetchNotifications,
     refetchBoardActivity,
     isFetchingThread,
-    isRefetchingThread,
     isLoggedIn,
     boardId,
     threadId,
@@ -148,11 +145,7 @@ function ThreadPage() {
   );
   const { currentThreadViewMode, setThreadViewMode } = useThreadViewContext();
   const collapseManager = useThreadCollapseManager();
-  const {
-    threadRoot,
-    isLoading: isFetchingThread,
-    isRefetching: isRefetchingThread,
-  } = useThreadContext();
+  const { threadRoot, isFetching: isFetchingThread } = useThreadContext();
   const displayManager = useDisplayManager(collapseManager);
   const { displayMore } = displayManager;
   const { hasBeamToNew, onNewAnswersButtonClick, loading } = useBeamToNew(
@@ -222,7 +215,7 @@ function ThreadPage() {
             <FeedWithMenu.FeedContent>
               <div
                 className={classnames("feed", {
-                  loading: isFetchingThread || isRefetchingThread,
+                  loading: isFetchingThread,
                 })}
               >
                 <div className="view-modes">
@@ -244,7 +237,7 @@ function ThreadPage() {
                 </div>
               </div>
               <LoadingSpinner
-                loading={isFetchingThread || isRefetchingThread}
+                loading={isFetchingThread}
                 idleMessage={
                   // Check whether there's more posts to display
                   displayManager.hasMore()
