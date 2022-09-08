@@ -50,11 +50,6 @@ const NEUTRAL_QUERY_PARAMS_STATE = {
 };
 const NEUTRAL_QUERY_PARAMS_STATE_WITH_THREAD = {
   ...NEUTRAL_QUERY_PARAMS_STATE,
-  // TODO: these should be removed when we improve the logic to check whether two states correspond to the same view
-  all: false,
-  new: false,
-  showCover: false,
-  latest: false,
 };
 
 const NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY = {
@@ -62,16 +57,12 @@ const NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY = {
   all: false,
   new: false,
   showCover: false,
-  // TODO: these should be removed when we improve the logic to check whether two states correspond to the same view
-  latest: false,
 };
 const NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE = {
   ...NEUTRAL_QUERY_PARAMS_STATE,
   all: false,
   new: false,
   latest: false,
-  // TODO: these should be removed when we improve the logic to check whether two states correspond to the same view
-  showCover: false,
 };
 
 const getThreadViewContextWrapper = () => {
@@ -250,8 +241,7 @@ describe("useThreadViewContext", () => {
         THREAD_VIEW_MODES.MASONRY
       );
 
-      // TODO: figure out why this is 3
-      expect(setQueryParams).toHaveBeenCalledTimes(3);
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
       expect(setQueryParams).toHaveBeenLastCalledWith(
         {
           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
@@ -282,8 +272,7 @@ describe("useThreadViewContext", () => {
         THREAD_VIEW_MODES.MASONRY
       );
 
-      // TODO: figure out why this is 3
-      expect(setQueryParams).toHaveBeenCalledTimes(3);
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
       expect(setQueryParams).toHaveBeenLastCalledWith(
         {
           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
@@ -312,8 +301,7 @@ describe("useThreadViewContext", () => {
         THREAD_VIEW_MODES.MASONRY
       );
 
-      // TODO: figure out why this is 3
-      expect(setQueryParams).toHaveBeenCalledTimes(3);
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
       expect(setQueryParams).toHaveBeenLastCalledWith(
         {
           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
@@ -334,8 +322,7 @@ describe("useThreadViewContext", () => {
         result.current.setTimelineViewMode(TIMELINE_VIEW_MODE.NEW);
       });
 
-      // TODO: figure out why this is 3
-      expect(setQueryParams).toHaveBeenCalledTimes(3);
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
       expect(setQueryParams).toHaveBeenLastCalledWith(
         {
           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE,
@@ -357,8 +344,7 @@ describe("useThreadViewContext", () => {
         result.current.setThreadViewMode(THREAD_VIEW_MODES.THREAD);
       });
 
-      // TODO: figure out why this is 3
-      expect(setQueryParams).toHaveBeenCalledTimes(3);
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
       expect(setQueryParams).toHaveBeenLastCalledWith(
         { ...NEUTRAL_QUERY_PARAMS_STATE_WITH_THREAD, thread: true },
         "replace"
@@ -378,8 +364,7 @@ describe("useThreadViewContext", () => {
         result.current.setActiveFilter("test");
       });
 
-      // TODO: figure out why this is 3
-      expect(setQueryParams).toHaveBeenCalledTimes(3);
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
       expect(setQueryParams).toHaveBeenLastCalledWith(
         {
           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
@@ -400,8 +385,7 @@ describe("useThreadViewContext", () => {
         result.current.setActiveFilter("test");
       });
 
-      // TODO: figure out why this is 3
-      expect(setQueryParams).toHaveBeenCalledTimes(3);
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
       expect(setQueryParams).toHaveBeenLastCalledWith(
         {
           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE,
@@ -426,8 +410,7 @@ describe("useThreadViewContext", () => {
         result.current.setExcludedNotices(["test1", "test2", "test3"]);
       });
 
-      // TODO: figure out why this is 3
-      expect(setQueryParams).toHaveBeenCalledTimes(3);
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
       expect(setQueryParams).toHaveBeenLastCalledWith(
         {
           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
@@ -448,8 +431,7 @@ describe("useThreadViewContext", () => {
         result.current.setExcludedNotices(["test1", "test2", "test3"]);
       });
 
-      // TODO: figure out why this is 3
-      expect(setQueryParams).toHaveBeenCalledTimes(3);
+      expect(setQueryParams).toHaveBeenCalledTimes(2);
       expect(setQueryParams).toHaveBeenLastCalledWith(
         {
           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE,
