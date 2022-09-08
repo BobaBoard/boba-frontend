@@ -154,7 +154,7 @@ const getNextView = ({
   nextViewMode: THREAD_VIEW_MODE;
   queryParams: ViewQueryParamsType;
   isNew: boolean;
-  hasUpdates: boolean;
+  hasUpdates?: boolean;
 }): ThreadViewMode & ThreadFilters => {
   const filters = {
     activeFilters:
@@ -186,7 +186,9 @@ const getNextView = ({
         threadViewMode: THREAD_VIEW_MODE.MASONRY,
         galleryViewMode: {
           mode:
-            currentMode ?? hasUpdates
+            // We only go to "new" mode if explicitly requested or we're already in it
+            currentMode ??
+            (hasUpdates || ("new" in queryParams && queryParams.new))
               ? GALLERY_VIEW_SUB_MODE.NEW
               : GALLERY_VIEW_SUB_MODE.ALL,
           showCover: currentShowCover || isNew,
@@ -203,7 +205,9 @@ const getNextView = ({
         threadViewMode: THREAD_VIEW_MODE.TIMELINE,
         galleryViewMode: null,
         timelineViewMode:
-          currentViewMode ?? hasUpdates
+          // We only go to "new" mode if explicitly requested or we're already in it
+          currentViewMode ??
+          (hasUpdates || ("new" in queryParams && queryParams.new))
             ? TIMELINE_VIEW_SUB_MODE.NEW
             : TIMELINE_VIEW_SUB_MODE.ALL,
         ...filters,
@@ -296,19 +300,18 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
   const setThreadViewMode = React.useCallback(
     (viewMode: THREAD_VIEW_MODE) => {
       setCurrentView((currentView) => {
-        const nextView = {
+        const nextView = getNextView({
+          nextViewMode: viewMode,
+          queryParams: viewQueryParams,
+          isNew,
+        });
+        return {
           ...currentView,
-          ...getNextView({
-            nextViewMode: viewMode,
-            queryParams: viewQueryParams,
-            isNew,
-            hasUpdates,
-          }),
+          ...nextView,
         };
-        return nextView;
       });
     },
-    [viewQueryParams, hasUpdates, isNew]
+    [viewQueryParams, isNew]
   );
 
   const setTimelineViewMode = React.useCallback(
