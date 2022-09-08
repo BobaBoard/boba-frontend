@@ -263,8 +263,13 @@ const useViewQueryParamsUpdater = () => {
 };
 
 export const ThreadViewContextProvider: React.FC = ({ children }) => {
-  const { defaultView, hasNewReplies, threadRoot, postCommentsMap } =
-    useThreadContext();
+  const {
+    defaultView,
+    hasNewReplies,
+    threadRoot,
+    postCommentsMap,
+    isFetching,
+  } = useThreadContext();
   const { viewQueryParams, updateViewQueryParams } =
     useViewQueryParamsUpdater();
 
@@ -283,9 +288,10 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
   );
 
   React.useEffect(() => {
+    //Keep query params in sync when the current view changes
+    // TODO: consider changing this effect to "syncExternalStore"
     updateViewQueryParams(currentView);
-    // This should only run the first time to ensure the query params are correctly updated.
-  }, []);
+  }, [currentView, updateViewQueryParams]);
 
   const setThreadViewMode = React.useCallback(
     (viewMode: THREAD_VIEW_MODE) => {
@@ -299,11 +305,10 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
             hasUpdates,
           }),
         };
-        updateViewQueryParams(nextView);
         return nextView;
       });
     },
-    [setCurrentView, viewQueryParams, updateViewQueryParams, hasUpdates, isNew]
+    [viewQueryParams, hasUpdates, isNew]
   );
 
   const setTimelineViewMode = React.useCallback(
@@ -315,12 +320,11 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
           timelineViewMode: viewMode,
           galleryViewMode: null,
         };
-        updateViewQueryParams(nextView);
 
         return nextView;
       });
     },
-    [setCurrentView, updateViewQueryParams]
+    []
   );
 
   const setGalleryViewMode = React.useCallback(
@@ -341,43 +345,61 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
           timelineViewMode: null,
           galleryViewMode: viewMode,
         };
-        updateViewQueryParams(nextView);
 
         return nextView;
       });
     },
-    [setCurrentView, updateViewQueryParams, hasRootUpdates]
+    [hasRootUpdates]
   );
 
-  const setActiveFilter = React.useCallback(
-    (filter: string | null) => {
-      setCurrentView((currentView) => {
-        const nextView = {
-          ...currentView,
-          activeFilters: filter === null ? null : [filter],
-        };
-        updateViewQueryParams(nextView);
+  const setActiveFilter = React.useCallback((filter: string | null) => {
+    setCurrentView((currentView) => {
+      const nextView = {
+        ...currentView,
+        activeFilters: filter === null ? null : [filter],
+      };
 
-        return nextView;
+      return nextView;
+    });
+  }, []);
+
+  const setExcludedNotices = React.useCallback((notices: string[] | null) => {
+    setCurrentView((currentView) => {
+      const nextView = {
+        ...currentView,
+        excludedNotices: notices,
+      };
+
+      return nextView;
+    });
+  }, []);
+
+  const hasLoaded = React.useRef(false);
+  React.useEffect(() => {
+    if (isFetching || hasLoaded.current) {
+      return;
+    }
+    // After first load, we switch to new if there's new replies.
+    hasLoaded.current = true;
+    if (!hasNewReplies) {
+      return;
+    }
+    if (currentView.threadViewMode == THREAD_VIEW_MODE.MASONRY) {
+      setGalleryViewMode({
+        mode: GALLERY_VIEW_SUB_MODE.NEW,
+        showCover: hasRootUpdates,
       });
-    },
-    [setCurrentView, updateViewQueryParams]
-  );
-
-  const setExcludedNotices = React.useCallback(
-    (notices: string[] | null) => {
-      setCurrentView((currentView) => {
-        const nextView = {
-          ...currentView,
-          excludedNotices: notices,
-        };
-        updateViewQueryParams(nextView);
-
-        return nextView;
-      });
-    },
-    [setCurrentView, updateViewQueryParams]
-  );
+    } else if (currentView.threadViewMode == THREAD_VIEW_MODE.THREAD) {
+      setTimelineViewMode(TIMELINE_VIEW_SUB_MODE.NEW);
+    }
+  }, [
+    isFetching,
+    hasNewReplies,
+    setGalleryViewMode,
+    setTimelineViewMode,
+    currentView.threadViewMode,
+    hasRootUpdates,
+  ]);
 
   return (
     <ThreadViewContext.Provider
