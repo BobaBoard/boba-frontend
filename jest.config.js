@@ -35,4 +35,5 @@ module.exports = {
     "^.+\\.module\\.(css|sass|scss)$",
   ],
   setupFilesAfterEnv: ["jest-extended/all", "<rootDir>/tests/UI/jest.setup.ts"],
+  testTimeout: 10000,
 };
