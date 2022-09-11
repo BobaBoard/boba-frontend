@@ -392,7 +392,7 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
         mode: GALLERY_VIEW_SUB_MODE.NEW,
         showCover: hasRootUpdates,
       });
-    } else if (currentView.threadViewMode == THREAD_VIEW_MODE.THREAD) {
+    } else if (currentView.threadViewMode == THREAD_VIEW_MODE.TIMELINE) {
       setTimelineViewMode(TIMELINE_VIEW_SUB_MODE.NEW);
     }
   }, [

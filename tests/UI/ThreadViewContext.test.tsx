@@ -221,6 +221,29 @@ describe("useThreadViewContext", () => {
         "replace"
       );
     });
+
+    it("Defaults to thread for thread view mode even if there's updates", async () => {
+      mockedThreadContext.defaultView = "thread";
+      mockedThreadContext.hasNewReplies = true;
+      // @ts-expect-error
+      mockedThreadContext.threadRoot = { isNew: true };
+      const setQueryParams = mockQueryParams();
+      const { result } = renderHook(() => useThreadViewContext(), {
+        wrapper: getThreadViewContextWrapper(),
+      });
+
+      expect(result.current.currentThreadViewMode).toBe(
+        THREAD_VIEW_MODE.THREAD
+      );
+
+      expect(setQueryParams).toHaveBeenCalledTimes(1);
+      expect(setQueryParams).toHaveBeenLastCalledWith(
+        {
+          ...NEUTRAL_QUERY_PARAMS_STATE_WITH_THREAD,
+        },
+        "replace"
+      );
+    });
   });
 
   describe("View modes updates", () => {
