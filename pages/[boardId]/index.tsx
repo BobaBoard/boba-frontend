@@ -7,6 +7,7 @@ import {
 import { FeedWithMenu, PostingActionButton } from "@bobaboard/ui-components";
 import {
   REALM_QUERY_KEY,
+  useBoardSummary,
   useRealmBoardId,
   useRealmPermissions,
 } from "contexts/RealmContext";
@@ -72,6 +73,10 @@ function BoardPage() {
   const { isPending: isAuthPending, isLoggedIn } = useAuth();
   const boardId = useRealmBoardId({ boardSlug: slug, realmSlug: "v0" });
   const realmPermissions = useRealmPermissions();
+  // We need to use the broad summary from the realm data to check if the board is locked
+  // because if it is and we don't have access, the backend will send a 403 status instead of the board data
+  // when we call useBoardMetadata, and boardMetadata.loggedInOnly will never be true.
+  const locked = useBoardSummary({ boardId })?.loggedInOnly;
   const { boardMetadata, isFetched: isBoardMetadataFetched } = useBoardMetadata(
     { boardId }
   );
@@ -133,7 +138,7 @@ function BoardPage() {
     !realmPermissions?.includes(
       RealmPermissions.ACCESS_LOCKED_BOARDS_ON_REALM
     ) &&
-    boardMetadata?.loggedInOnly;
+    locked;
   const showEmptyMessage =
     !showLockedMessage &&
     !isFetchingBoardActivity &&
