@@ -1,5 +1,10 @@
 import { Client, getBoardRouter } from "./utils";
 import {
+  LOGGED_IN_V0_MEMBER_DATA,
+  LOGGED_IN_V0_NONMEMBER_DATA,
+  V0_DATA,
+} from "../server-mocks/data/realm";
+import {
   fireEvent,
   prettyDOM,
   render,
@@ -10,6 +15,8 @@ import {
 
 import BoardPage from "pages/[boardId]/index";
 import React from "react";
+import { RealmType } from "types/Types";
+import { makeRealmData } from "utils/client-data";
 
 const GORE_ROUTER = getBoardRouter({ boardSlug: "gore" });
 
@@ -74,5 +81,71 @@ describe("BoardFeed", () => {
         )
       ).toBeInTheDocument();
     });
+  });
+
+  it("renders create new thread button when user is a realm member", async () => {
+    render(
+      <Client
+        router={GORE_ROUTER}
+        initialData={{
+          realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
+        }}
+      >
+        <BoardPage />
+      </Client>
+    );
+
+    const buttons = screen.getAllByRole("button");
+
+    const createThreadButton = buttons.filter((button) => {
+      return (
+        button.querySelector(".fab") && button.querySelector(".fa-square-plus")
+      );
+    });
+    expect(createThreadButton).toHaveLength(1);
+  });
+
+  it("doesn't render create new thread button when user is not a realm member", async () => {
+    render(
+      <Client
+        router={GORE_ROUTER}
+        initialData={{
+          realm: makeRealmData(LOGGED_IN_V0_NONMEMBER_DATA) as RealmType,
+        }}
+      >
+        <BoardPage />
+      </Client>
+    );
+
+    const buttons = screen.getAllByRole("button");
+
+    const createThreadButton = buttons.filter((button) => {
+      return (
+        button.querySelector(".fab") && button.querySelector(".fa-square-plus")
+      );
+    });
+    expect(createThreadButton).toHaveLength(0);
+  });
+
+  it("doesn't render create new thread button when logged out", async () => {
+    render(
+      <Client
+        router={GORE_ROUTER}
+        initialData={{
+          realm: makeRealmData(V0_DATA) as RealmType,
+        }}
+      >
+        <BoardPage />
+      </Client>
+    );
+
+    const buttons = screen.getAllByRole("button");
+
+    const createThreadButton = buttons.filter((button) => {
+      return (
+        button.querySelector(".fab") && button.querySelector(".fa-square-plus")
+      );
+    });
+    expect(createThreadButton).toHaveLength(0);
   });
 });

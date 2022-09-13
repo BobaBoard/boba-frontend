@@ -9,7 +9,7 @@ import {
 } from "@testing-library/react";
 
 import BoardPage from "pages/[boardId]/index";
-import { LOGGED_IN_V0_DATA } from "../server-mocks/data/realm";
+import { LOGGED_IN_V0_MEMBER_DATA } from "../server-mocks/data/realm";
 import React from "react";
 import { makeRealmData } from "utils/client-data";
 
@@ -22,7 +22,7 @@ const renderSidebar = () => {
   render(
     <Client
       router={GORE_ROUTER}
-      initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) }}
+      initialData={{ realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) }}
     >
       <BoardPage />
     </Client>
