@@ -11,8 +11,11 @@ import {
 
 import BoardPage from "pages/[boardId]/index";
 import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../server-mocks/data/thread";
+import { LOGGED_IN_V0_MEMBER_DATA } from "../server-mocks/data/realm";
 import React from "react";
+import { RealmType } from "types/Types";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
+import { makeRealmData } from "utils/client-data";
 import userEvent from "@testing-library/user-event";
 
 jest.mock("components/hooks/usePreventPageChange");
@@ -31,7 +34,12 @@ export const TagMatcher = (tagText: string) => {
 describe("PostEditor", () => {
   it("renders post after creating new thread", async () => {
     render(
-      <Client router={getBoardRouter({ boardSlug: "gore" })}>
+      <Client
+        router={getBoardRouter({ boardSlug: "gore" })}
+        initialData={{
+          realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
+        }}
+      >
         <BoardPage />
       </Client>
     );
@@ -65,7 +73,12 @@ describe("PostEditor", () => {
 
   it("renders post after creating new thread (as role)", async () => {
     render(
-      <Client router={getBoardRouter({ boardSlug: "gore" })}>
+      <Client
+        router={getBoardRouter({ boardSlug: "gore" })}
+        initialData={{
+          realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
+        }}
+      >
         <BoardPage />
       </Client>
     );
@@ -109,7 +122,12 @@ describe("PostEditor", () => {
 
   it("renders post after updating tags", async () => {
     render(
-      <Client router={getBoardRouter({ boardSlug: "gore" })}>
+      <Client
+        router={getBoardRouter({ boardSlug: "gore" })}
+        initialData={{
+          realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
+        }}
+      >
         <BoardPage />
       </Client>
     );
@@ -170,6 +188,9 @@ describe("PostEditor", () => {
           boardSlug: "gore",
           threadId: FAVORITE_CHARACTER_TO_MAIM_THREAD.id,
         })}
+        initialData={{
+          realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
+        }}
       >
         <ThreadPage />
       </Client>

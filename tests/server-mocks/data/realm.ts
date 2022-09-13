@@ -91,7 +91,7 @@ export const V0_DATA = {
   ],
 };
 
-export const LOGGED_IN_V0_DATA = {
+export const LOGGED_IN_V0_MEMBER_DATA = {
   slug: "v0",
   id: "v0-fake-id",
   settings: {
@@ -200,10 +200,15 @@ export const LOGGED_IN_V0_DATA = {
   ],
 };
 
+export const LOGGED_IN_V0_NONMEMBER_DATA = {
+  ...LOGGED_IN_V0_MEMBER_DATA,
+  realm_permissions: [],
+}
+
 export const V0_INVITES = {
   invites: [
     {
-      realm_id: LOGGED_IN_V0_DATA.id,
+      realm_id: LOGGED_IN_V0_MEMBER_DATA.id,
       invite_url: `https://v0.boba.social/invites/123invite_code456`,
       invitee_email: "ms.boba@bobaboard.com",
       own: false,
@@ -212,7 +217,7 @@ export const V0_INVITES = {
       label: "This is a test invite.",
     },
     {
-      realm_id: LOGGED_IN_V0_DATA.id,
+      realm_id: LOGGED_IN_V0_MEMBER_DATA.id,
       invite_url: "https://v0.boba.social/invites/456invite_code789",
       invitee_email: "nolabels@bobaboard.com",
       own: true,
@@ -220,7 +225,7 @@ export const V0_INVITES = {
       expires_at: "2021-06-10T16:20:00Z",
     },
     {
-      realm_id: LOGGED_IN_V0_DATA.id,
+      realm_id: LOGGED_IN_V0_MEMBER_DATA.id,
       invite_url: "https://v0.boba.social/invites/789invite_code456",
       invitee_email: "someone.else@bobaboard.com",
       own: true,
@@ -229,7 +234,7 @@ export const V0_INVITES = {
       label: "This is test invite 3",
     },
     {
-      realm_id: LOGGED_IN_V0_DATA.id,
+      realm_id: LOGGED_IN_V0_MEMBER_DATA.id,
       invite_url: "https://v0.boba.social/invites/456invite_code321",
       own: true,
       issued_at: "2021-06-09T04:20:00Z",
@@ -241,7 +246,7 @@ export const V0_INVITES = {
 
 export const V0_CREATED_INVITE_NONCE = "QRSnew_invite_codeXYZ";
 export const V0_CREATED_INVITE = {
-  realm_id: LOGGED_IN_V0_DATA.id,
+  realm_id: LOGGED_IN_V0_MEMBER_DATA.id,
   invite_url: `https://v0.boba.social/invites/${V0_CREATED_INVITE_NONCE}`,
   invitee_email: "new.person@bobaboard.com",
   own: true,
@@ -252,7 +257,7 @@ export const V0_CREATED_INVITE = {
 
 export const V0_CREATED_INVITE_NO_EMAIL_NONCE = "ABCnew_invite_codeDEF";
 export const V0_CREATED_INVITE_NO_EMAIL = {
-  realm_id: LOGGED_IN_V0_DATA.id,
+  realm_id: LOGGED_IN_V0_MEMBER_DATA.id,
   invite_url: `https://v0.boba.social/invites/${V0_CREATED_INVITE_NO_EMAIL_NONCE}`,
   own: true,
   issued_at: "2021-07-09T04:20:00Z",

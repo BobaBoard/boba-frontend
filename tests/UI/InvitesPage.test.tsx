@@ -1,6 +1,6 @@
 import { Client, LoggedOutClient, getInvitesPageRoute } from "./utils";
 import {
-  LOGGED_IN_V0_DATA,
+  LOGGED_IN_V0_MEMBER_DATA,
   V0_CREATED_INVITE,
   V0_CREATED_INVITE_NONCE,
   V0_CREATED_INVITE_NO_EMAIL,
@@ -148,7 +148,9 @@ describe("InvitesPanel", () => {
     render(
       <Client
         router={INVITES_ROUTER}
-        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) as RealmType }}
+        initialData={{
+          realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
+        }}
       >
         <InvitesPage
           realmSlug={V0_DATA.slug}

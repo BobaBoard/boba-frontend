@@ -10,8 +10,11 @@ import {
 } from "@testing-library/react";
 
 import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../server-mocks/data/thread";
+import { LOGGED_IN_V0_MEMBER_DATA } from "../server-mocks/data/realm";
 import React from "react";
+import { RealmType } from "types/Types";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
+import { makeRealmData } from "utils/client-data";
 import userEvent from "@testing-library/user-event";
 
 jest.mock("components/hooks/usePreventPageChange");
@@ -26,6 +29,9 @@ describe("Comments editor", () => {
           boardSlug: "gore",
           threadId: FAVORITE_CHARACTER_TO_MAIM_THREAD.id,
         })}
+        initialData={{
+          realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
+        }}
       >
         <ThreadPage />
       </Client>
@@ -70,6 +76,9 @@ describe("Comments editor", () => {
           boardSlug: "gore",
           threadId: FAVORITE_CHARACTER_TO_MAIM_THREAD.id,
         })}
+        initialData={{
+          realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
+        }}
       >
         <ThreadPage />
       </Client>
@@ -132,6 +141,9 @@ describe("Comments editor", () => {
           boardSlug: "gore",
           threadId: FAVORITE_CHARACTER_TO_MAIM_THREAD.id,
         })}
+        initialData={{
+          realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
+        }}
       >
         <ThreadPage />
       </Client>

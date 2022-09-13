@@ -1,6 +1,6 @@
 import { Client, getAdminPanelRoute } from "./utils";
 import {
-  LOGGED_IN_V0_DATA,
+  LOGGED_IN_V0_MEMBER_DATA,
   V0_CREATED_INVITE,
   V0_CREATED_INVITE_NO_EMAIL,
   V0_INVITES,
@@ -9,6 +9,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 
 import AdminPage from "pages/realms/admin/[[...panelId]]";
 import React from "react";
+import { RealmType } from "types/Types";
 import debug from "debug";
 import { format } from "date-fns";
 import { makeRealmData } from "utils/client-data";
@@ -16,7 +17,6 @@ import { matchMedia } from "@shopify/jest-dom-mocks";
 import { rest } from "msw";
 import { server } from "../server-mocks";
 import userEvent from "@testing-library/user-event";
-import { RealmType } from "types/Types";
 
 const log = debug("bobafrontend:tests:UI:InvitesPanel");
 
@@ -37,7 +37,9 @@ describe("InvitesPanel", () => {
     render(
       <Client
         router={ADMIN_ROUTER}
-        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) as RealmType }}
+        initialData={{
+          realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
+        }}
       >
         <AdminPage />
       </Client>
@@ -58,7 +60,9 @@ describe("InvitesPanel", () => {
     render(
       <Client
         router={ADMIN_ROUTER}
-        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) as RealmType }}
+        initialData={{
+          realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
+        }}
       >
         <AdminPage />
       </Client>
@@ -136,7 +140,9 @@ describe("InvitesPanel", () => {
     render(
       <Client
         router={ADMIN_ROUTER}
-        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) as RealmType }}
+        initialData={{
+          realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
+        }}
       >
         <AdminPage />
       </Client>
@@ -192,14 +198,19 @@ describe("InvitesPanel", () => {
 
   test("doesn't render pending realm invites list if empty", async () => {
     server.use(
-      rest.get(`/realms/${LOGGED_IN_V0_DATA.id}/invites`, (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json({ invites: [] }));
-      })
+      rest.get(
+        `/realms/${LOGGED_IN_V0_MEMBER_DATA.id}/invites`,
+        (req, res, ctx) => {
+          return res(ctx.status(200), ctx.json({ invites: [] }));
+        }
+      )
     );
     render(
       <Client
         router={ADMIN_ROUTER}
-        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) as RealmType }}
+        initialData={{
+          realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
+        }}
       >
         <AdminPage />
       </Client>
@@ -222,7 +233,9 @@ describe("InvitesPanel", () => {
     render(
       <Client
         router={ADMIN_ROUTER}
-        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) as RealmType }}
+        initialData={{
+          realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
+        }}
       >
         <AdminPage />
       </Client>
@@ -274,20 +287,23 @@ describe("InvitesPanel", () => {
       rest.post<{
         email?: string;
         label?: string;
-      }>(`/realms/${LOGGED_IN_V0_DATA.id}/invites`, (req, res, ctx) => {
+      }>(`/realms/${LOGGED_IN_V0_MEMBER_DATA.id}/invites`, (req, res, ctx) => {
         log("creating invite for twisted-minds realm");
 
         // Now include new invite when get all invites is called again
         server.use(
-          rest.get(`/realms/${LOGGED_IN_V0_DATA.id}/invites`, (_, res, ctx) => {
-            log("fetching invites for twisted-minds realm with new invite");
-            return res.once(
-              ctx.status(200),
-              ctx.json({
-                invites: [...V0_INVITES.invites, V0_CREATED_INVITE_NO_EMAIL],
-              })
-            );
-          })
+          rest.get(
+            `/realms/${LOGGED_IN_V0_MEMBER_DATA.id}/invites`,
+            (_, res, ctx) => {
+              log("fetching invites for twisted-minds realm with new invite");
+              return res.once(
+                ctx.status(200),
+                ctx.json({
+                  invites: [...V0_INVITES.invites, V0_CREATED_INVITE_NO_EMAIL],
+                })
+              );
+            }
+          )
         );
         return res.once(
           ctx.status(200),
@@ -301,7 +317,9 @@ describe("InvitesPanel", () => {
     render(
       <Client
         router={ADMIN_ROUTER}
-        initialData={{ realm: makeRealmData(LOGGED_IN_V0_DATA) as RealmType }}
+        initialData={{
+          realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
+        }}
       >
         <AdminPage />
       </Client>
