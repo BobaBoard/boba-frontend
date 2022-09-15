@@ -140,7 +140,7 @@ function ThreadPage() {
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
   const boardId = useRealmBoardId({ realmSlug: "v0", boardSlug: slug });
   const realmPermissions = useRealmPermissions();
-  const { isLoggedIn, isPending: isAuthPending } = useAuth();
+  const { isPending: isAuthPending } = useAuth();
   const { getLinkToBoard } = useCachedLinks();
   const currentBoardData = useBoardSummary({ boardId });
   const [showSidebar, setShowSidebar] = React.useState(false);
