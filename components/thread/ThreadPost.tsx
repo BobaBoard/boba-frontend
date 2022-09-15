@@ -264,10 +264,10 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
           ? getTotalNewContributions(post, parentChildrenMap)
           : 0,
         tags: post.tags,
-        canComment: realmPermissions.includes(
+        allowsComment: realmPermissions.includes(
           RealmPermissions.COMMENT_ON_REALM
         ),
-        canContribute: realmPermissions.includes(
+        allowsContribution: realmPermissions.includes(
           RealmPermissions.POST_ON_REALM
         ),
         menuOptions: options,
@@ -282,6 +282,7 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
     extraProps,
     onNotesClick,
     isLoggedIn,
+    realmPermissions,
     // onNewCommentCallback,
     // onNewContributionCallback,
     // onNotesClickWithId,
