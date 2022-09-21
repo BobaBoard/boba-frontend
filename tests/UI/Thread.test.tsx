@@ -160,7 +160,8 @@ describe("Thread buttons tests", () => {
       expect(screen.getByText("Gallery")).toBeInTheDocument();
       expect(screen.getAllByText("Contribute")[0]).toBeInTheDocument();
       expect(screen.getAllByText("Comment")[0]).toBeInTheDocument();
-      // The reply-to-a-comment buttons are aria-labelled so I don't know why jest can't find this label text
+      // // TODO: Fix this
+      // // The reply-to-a-comment buttons are aria-labelled so I don't know why jest can't find this label text
       // expect(
       //   screen.getAllByLabelText("add a new comment")[0]
       // ).toBeInTheDocument();

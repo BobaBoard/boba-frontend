@@ -73,6 +73,7 @@ function BoardPage() {
   const { isPending: isAuthPending, isLoggedIn } = useAuth();
   const boardId = useRealmBoardId({ boardSlug: slug, realmSlug: "v0" });
   const realmPermissions = useRealmPermissions();
+  // TODO: make this easier:
   // We need to use the broad summary from the realm data to check if the board is locked
   // because if it is and we don't have access, the backend will send a 403 status instead of the board data
   // when we call useBoardMetadata, and boardMetadata.loggedInOnly will never be true.
