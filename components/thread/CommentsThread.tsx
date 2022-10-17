@@ -3,6 +3,7 @@ import {
   CommentHandler,
   DefaultTheme,
   NewCommentsThread,
+  toast,
 } from "@bobaboard/ui-components";
 import {
   CommentType,
@@ -18,11 +19,15 @@ import {
 
 import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
 import React from "react";
+import { copyText } from "utils/text-utils";
 import debug from "debug";
 import { faComment } from "@fortawesome/free-regular-svg-icons";
+import { faLink } from "@fortawesome/free-solid-svg-icons";
 import { formatDistanceToNow } from "date-fns";
 import { isCommentEditorState } from "components/editors/types";
 import { useAuth } from "components/Auth";
+import { useBoardMetadata } from "queries/board";
+import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useEditorsState } from "components/editors/EditorsContext";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { useThreadContext } from "./ThreadContext";
@@ -86,15 +91,18 @@ const ThreadComment: React.FC<{
   disableMotionEffect?: boolean;
 }> = ({ rootComment, parentPostId, onBoundaryRef, disableMotionEffect }) => {
   const { isLoggedIn } = useAuth();
+  const { slug, threadId } = usePageDetails<ThreadPageDetails>();
+  const boardId = useCurrentRealmBoardId({
+    boardSlug: slug,
+  });
   const realmPermissions = useRealmPermissions();
+  const { getLinkToPost } = useCachedLinks();
+  const { boardMetadata } = useBoardMetadata({ boardId });
   const { forceHideIdentity } = useForceHideIdentity();
   const { onNewComment } = useThreadEditors();
   const { postCommentsMap, opIdentity } = useThreadContext();
   const { parentChainMap } = postCommentsMap.get(parentPostId)!;
-  const { slug } = usePageDetails<ThreadPageDetails>();
-  const boardId = useCurrentRealmBoardId({
-    boardSlug: slug,
-  });
+
   const boardColor = useBoardSummary({ boardId })?.accentColor;
   const editorState = useEditorsState();
   const chainInfo = React.useMemo(
@@ -130,19 +138,46 @@ const ThreadComment: React.FC<{
     },
     [chainInfo, onBoundaryRef]
   );
-  const options = React.useMemo(
-    () =>
-      realmPermissions.includes(RealmPermissions.COMMENT_ON_REALM)
-        ? [
-            {
-              name: "Reply",
-              icon: faComment,
-              link: replyToLast,
-            },
-          ]
-        : undefined,
-    [replyToLast, realmPermissions]
-  );
+  const options = React.useMemo(() => {
+    const getCopyLinkOption = (href: string, text: string) => ({
+      icon: faLink,
+      name: text,
+      link: {
+        onClick: () => {
+          copyText(new URL(href, window.location.origin).toString());
+
+          toast.success("Link copied!");
+        },
+      },
+    });
+
+    const copyCommentOption = getCopyLinkOption(
+      getLinkToPost({
+        slug: boardMetadata!.slug,
+        postId: parentPostId,
+        threadId: threadId,
+      })?.href as string,
+      "Copy Comment Link"
+    );
+
+    const options = [copyCommentOption];
+
+    if (realmPermissions.includes(RealmPermissions.COMMENT_ON_REALM)) {
+      options.push({
+        name: "Reply",
+        icon: faComment,
+        link: replyToLast,
+      });
+    }
+    return options;
+  }, [
+    replyToLast,
+    realmPermissions,
+    boardMetadata,
+    getLinkToPost,
+    parentPostId,
+    threadId,
+  ]);
 
   return (
     <>
