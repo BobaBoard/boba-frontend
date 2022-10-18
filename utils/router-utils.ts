@@ -11,15 +11,21 @@ interface PageDetails {
   slug: string | null;
   threadId: string | null;
   postId: string | null;
+  commentId: string | null;
   threadBaseUrl: string | null;
   pageType: PageTypes | null;
 }
 
+/**
+ * The information present in the URL of either a
+ * thread, a post, or a comment page.
+ */
 export interface ThreadPageDetails {
   realmSlug: string;
   slug: string;
   threadId: string;
   postId: string | null;
+  commentId: string | null;
   threadBaseUrl: string;
   pageType: PageTypes.THREAD | PageTypes.POST;
 }
@@ -40,6 +46,7 @@ let currentPageData: PageDetails = {
   slug: null,
   threadId: null,
   postId: null,
+  commentId: null,
   threadBaseUrl: null,
   pageType: null,
 };
@@ -50,6 +57,7 @@ export enum PageTypes {
   BOARD = "BOARD",
   THREAD = "THREAD",
   POST = "POST",
+  COMMENT = "COMMENT",
   FEED = "FEED",
   SETTINGS = "SETTINGS",
   ADMIN = "ADMIN",
@@ -59,6 +67,7 @@ export enum PageTypes {
 export const BOARD_PATH = "/[boardId]";
 export const THREAD_PATH = "/[boardId]/thread/[...threadId]";
 export const POST_PATH = "/[boardId]/thread/[...threadId]";
+export const COMMENT_PATH = "/[boardId]/thread/[...threadId]";
 export const FEED_PATH = "/users/feed";
 export const PERSONAL_SETTINGS_PATH = "/users/settings";
 export const REALM_ADMIN_PATH = "/realms/admin";
@@ -91,8 +100,13 @@ const getPageType = (router: NextRouter): PageTypes | null => {
     case BOARD_PATH:
       return PageTypes.BOARD;
     // This is the same url as for single posts
-    case THREAD_PATH:
-      return router.query.threadId?.[1] ? PageTypes.POST : PageTypes.THREAD;
+    case THREAD_PATH: {
+      const postId = router.query.threadId?.[1];
+      if (postId === "comment") {
+        return PageTypes.COMMENT;
+      }
+      return postId ? PageTypes.POST : PageTypes.THREAD;
+    }
     case FEED_PATH:
       return PageTypes.FEED;
     case PERSONAL_SETTINGS_PATH:
@@ -109,10 +123,16 @@ const getPageType = (router: NextRouter): PageTypes | null => {
 export const getPageDetails = <T extends PageDetails>(router: NextRouter) => {
   const slug = (router.query.boardId as string)?.substring(1) || null;
   const threadId = (router.query.threadId?.[0] as string) || null;
+  const commentId =
+    router.query.threadId?.[1] === "comment"
+      ? router.query.threadId?.[2]
+      : null;
+  const postId = commentId === null ? router.query.threadId?.[1] : null;
   return {
     slug: slug,
     threadId,
-    postId: router.query.threadId?.[1] || null,
+    postId: postId || null,
+    commentId,
     threadBaseUrl: `/!${slug}/thread/${threadId}`,
     pageType: getPageType(router),
   } as T;

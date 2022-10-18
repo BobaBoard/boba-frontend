@@ -100,7 +100,7 @@ const ThreadComment: React.FC<{
     boardSlug: slug,
   });
   const realmPermissions = useRealmPermissions();
-  const { getLinkToPost } = useCachedLinks();
+  const { getLinkToComment } = useCachedLinks();
   const { boardMetadata } = useBoardMetadata({ boardId });
   const { forceHideIdentity } = useForceHideIdentity();
   const { onNewComment } = useThreadEditors();
@@ -156,9 +156,9 @@ const ThreadComment: React.FC<{
     });
 
     const copyCommentOption = getCopyLinkOption(
-      getLinkToPost({
+      getLinkToComment({
         slug: boardMetadata!.slug,
-        postId: parentPostId,
+        commentId: rootComment.commentId,
         threadId: threadId,
       })?.href as string,
       "Copy Comment Link"
@@ -178,9 +178,9 @@ const ThreadComment: React.FC<{
     replyToLast,
     realmPermissions,
     boardMetadata,
-    getLinkToPost,
-    parentPostId,
+    getLinkToComment,
     threadId,
+    rootComment.commentId,
   ]);
 
   return (

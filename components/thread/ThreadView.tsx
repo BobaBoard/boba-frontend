@@ -297,6 +297,8 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
   });
 
   if (!currentRoot) {
+    // TODO: display an error if the root is not found and the thread has already
+    // finished loading
     return <div />;
   }
   const { currentModeLoadedElements, currentModeDisplayElements } =
