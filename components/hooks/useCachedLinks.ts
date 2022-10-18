@@ -1,5 +1,6 @@
 import {
   BOARD_PATH,
+  COMMENT_PATH,
   FEED_PATH,
   PERSONAL_SETTINGS_PATH,
   REALM_ADMIN_PATH,
@@ -98,6 +99,30 @@ const getLinkToPost = ({
 
   return POSTS_CACHE.get(postId) as LinkWithNotNullAction;
 };
+
+const COMMENTS_CACHE = new Map<string, LinkWithNotNullAction>();
+const getLinkToComment = ({
+  slug,
+  threadId,
+  commentId,
+}: {
+  slug: string;
+  threadId: string;
+  commentId: string;
+}) => {
+  if (!COMMENTS_CACHE.has(commentId)) {
+    COMMENTS_CACHE.set(
+      commentId,
+      createLinkTo({
+        urlPattern: COMMENT_PATH,
+        url: `/!${slug}/thread/${threadId}/comment/${commentId}`,
+      })
+    );
+  }
+
+  return COMMENTS_CACHE.get(commentId) as LinkWithNotNullAction;
+};
+
 const linkToHome = createLinkTo({ url: "/" });
 const linkToCurrent = createLinkTo({
   url: typeof window === "undefined" ? "" : location.pathname,
@@ -120,6 +145,7 @@ const REGULAR_LINKS = {
   getLinkToBoard,
   getLinkToThread,
   getLinkToPost,
+  getLinkToComment,
 };
 // TODO: rename this because it's not a hook and can be used outside of a
 // component context.
