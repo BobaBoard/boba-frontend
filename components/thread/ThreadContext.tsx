@@ -11,6 +11,7 @@ import {
   extractContentNotices,
   extractNewRepliesSequence,
   extractRepliesSequence,
+  getCommentFromId,
   makeCommentsTree,
   makePostsTree,
 } from "utils/thread-utils";
@@ -72,6 +73,7 @@ export const useThreadContext = () => {
 };
 
 const ThreadContextProvider: React.FC<{
+  commentId: string | null;
   boardId: string | null;
   threadId: string;
   postId: string | null;
@@ -84,6 +86,7 @@ const ThreadContextProvider: React.FC<{
     boardId: props.boardId,
     threadId: props.threadId,
     postId: props.postId,
+    commentId: props.commentId,
     fetch: true,
   });
 
@@ -99,8 +102,10 @@ export default ThreadContextProvider;
 export const useThreadMetadata = ({
   threadData,
   postId,
+  commentId,
 }: {
   postId?: string | null;
+  commentId?: string | null;
   threadData?: ThreadType | null;
 }) => {
   const threadId = threadData?.id;
@@ -150,12 +155,28 @@ export const useThreadMetadata = ({
     };
   }, [threadData, threadId]);
 
+  let currentRoot = root;
+  if (postId && threadData) {
+    currentRoot =
+      threadData.posts.find((post) => post.postId == postId) ?? null;
+  }
+  console.log(`asjdalk`, commentId);
+  if (commentId && threadData) {
+    const comment = getCommentFromId({
+      commentId,
+      threadComments: threadData.comments,
+    });
+    console.log(threadData.posts);
+    console.log(comment?.parentPostId);
+    currentRoot =
+      threadData.posts.find((post) => post.postId == comment?.parentPostId) ??
+      null;
+    console.log(currentRoot);
+  }
+
   return {
     threadRoot: root,
-    currentRoot:
-      !!postId && threadData
-        ? (threadData.posts.find((post) => post.postId == postId) as PostType)
-        : root,
+    currentRoot,
     newRepliesSequence,
     postsInfoMap,
     threadDisplaySequence,
@@ -185,11 +206,13 @@ export const useThreadMetadata = ({
 export const useThreadWithNull = ({
   threadId,
   postId,
+  commentId,
   boardId,
   fetch,
 }: {
   threadId: string | null;
   postId: string | null;
+  commentId: string | null;
   boardId: string | null;
   fetch?: boolean;
 }): ThreadContextType => {
@@ -202,7 +225,7 @@ export const useThreadWithNull = ({
     boardId,
     fetch,
   });
-  const threadMetadata = useThreadMetadata({ threadData, postId });
+  const threadMetadata = useThreadMetadata({ threadData, postId, commentId });
 
   return {
     isLoading: isFetchingThread,
