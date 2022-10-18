@@ -160,14 +160,13 @@ export const useThreadMetadata = ({
     currentRoot =
       threadData.posts.find((post) => post.postId == postId) ?? null;
   }
-  console.log(`asjdalk`, commentId);
+
   if (commentId && threadData) {
     const comment = getCommentFromId({
       commentId,
       threadComments: threadData.comments,
     });
-    console.log(threadData.posts);
-    console.log(comment?.parentPostId);
+
     currentRoot =
       threadData.posts.find((post) => post.postId == comment?.parentPostId) ??
       null;
