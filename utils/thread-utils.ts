@@ -3,6 +3,7 @@ import {
   PostType,
   ThreadCommentInfoType,
   ThreadPostInfoType,
+  ThreadType,
   isComment,
   isPost,
 } from "types/Types";
@@ -409,4 +410,15 @@ export const findPreviousSibling = (
     return null;
   }
   return siblings[postIndex - 1];
+};
+
+export const getCommentFromId = ({
+  commentId,
+  threadComments,
+}: {
+  commentId: string;
+  threadComments: ThreadType["comments"];
+}) => {
+  const allComments = Object.values(threadComments).flatMap((c) => c);
+  return allComments.find((comment) => comment.commentId === commentId) ?? null;
 };

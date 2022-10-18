@@ -138,7 +138,8 @@ const useMarkThreadReadOnDelay = (threadId: string, slug: string) => {
 };
 
 function ThreadPage() {
-  const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
+  const { postId, slug, threadId, commentId } =
+    usePageDetails<ThreadPageDetails>();
   const boardId = useCurrentRealmBoardId({ boardSlug: slug });
   const realmPermissions = useRealmPermissions();
   const editorState = useEditorsState();
@@ -232,7 +233,8 @@ function ThreadPage() {
               >
                 <div className="view-modes">
                   {currentThreadViewMode == THREAD_VIEW_MODE.THREAD ||
-                  postId ? (
+                  postId ||
+                  commentId ? (
                     <MemoizedThreadView
                       displayManager={displayManager}
                       collapseManager={collapseManager}
@@ -297,10 +299,12 @@ function ThreadPage() {
 const ThreadPageWithContext: React.FC<{
   summary?: ReturnType<typeof getDeltaSummary>;
 }> = () => {
-  const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
+  const { postId, slug, threadId, commentId } =
+    usePageDetails<ThreadPageDetails>();
   const boardId = useCurrentRealmBoardId({ boardSlug: slug });
   return (
     <ThreadContextProvider
+      commentId={commentId}
       postId={postId}
       boardId={boardId}
       threadId={threadId}
