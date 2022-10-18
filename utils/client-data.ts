@@ -98,7 +98,9 @@ export const makeClientThread = (serverThread: any): ThreadType => {
   const clientComments: Record<string, CommentType[]> = {};
   Object.keys(serverThread.comments).forEach(
     (key) =>
-      (clientComments[key] = serverThread.comments[key].map(makeClientComment))
+      (clientComments[key] = serverThread.comments[key].map((c: any) =>
+        makeClientComment(c, c.parent_post_id)
+      ))
   );
   const starter: PostType = makeClientPost(serverThread.starter);
   let personalIdentity = clientPosts.find((post) => post.isOwn)?.secretIdentity;
