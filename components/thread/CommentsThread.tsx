@@ -77,6 +77,10 @@ export const scrollToComment = (commentId: string, color: string) => {
   });
 };
 
+/**
+ * ThreadComment displays the rootComment, and all the other comments
+ * in its chain, if any exists.
+ */
 // TODO: clear commentHandlers when changing thread
 export const commentHandlers = new Map<string, CommentHandler>();
 const ThreadComment: React.FC<{
@@ -224,6 +228,10 @@ const ThreadComment: React.FC<{
   );
 };
 
+/**
+ * CommentsThreadLevel displays the given comment, then indents all
+ * its replies (if any exists) within another CommentsThreadLevel.
+ */
 const CommentsThreadLevel: React.FC<{
   comment: CommentType;
   parentPostId: string;
@@ -238,7 +246,8 @@ const CommentsThreadLevel: React.FC<{
     [comment, parentChainMap]
   );
 
-  const children = parentChildrenMap.get(chain[chain.length - 1].commentId);
+  const lastChainCommentId = chain[chain.length - 1].commentId;
+  const replies = parentChildrenMap.get(lastChainCommentId);
   return (
     <NewCommentsThread.Item>
       {(setBoundaryElement) => (
@@ -251,11 +260,11 @@ const CommentsThreadLevel: React.FC<{
               disableMotionEffect={disableMotionEffect}
             />
           </div>
-          {children && (
+          {replies && (
             <NewCommentsThread.Indent id={comment.commentId}>
-              {children.map((comment: CommentType) => {
+              {replies.map((comment: CommentType) => {
                 return (
-                  <MemoizedThreadLevel
+                  <MemoizedCommentThreadLevel
                     key={comment.commentId}
                     comment={comment}
                     parentPostId={parentPostId}
@@ -270,7 +279,7 @@ const CommentsThreadLevel: React.FC<{
     </NewCommentsThread.Item>
   );
 };
-const MemoizedThreadLevel = React.memo(CommentsThreadLevel);
+const MemoizedCommentThreadLevel = React.memo(CommentsThreadLevel);
 
 interface CommentsThreadProps {
   parentPostId: string;
@@ -287,6 +296,7 @@ const CommentsThread: React.FC<CommentsThreadProps> = (props) => {
   }
 
   const { roots, parentChildrenMap } = postCommentsMap.get(props.parentPostId)!;
+  // TODO: check if parentCommentId is still used
   const actualRoots = props.parentCommentId
     ? parentChildrenMap.get(props.parentCommentId) || []
     : roots;
@@ -297,7 +307,7 @@ const CommentsThread: React.FC<CommentsThreadProps> = (props) => {
         return (
           <div className="comments-thread" key={comment.commentId}>
             <NewCommentsThread disableMotionEffect={props.disableMotionEffect}>
-              <MemoizedThreadLevel
+              <MemoizedCommentThreadLevel
                 key={comment.commentId}
                 comment={comment}
                 parentPostId={props.parentPostId}

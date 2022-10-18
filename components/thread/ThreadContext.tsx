@@ -37,6 +37,9 @@ export interface ThreadContextType {
   newRepliesSequence: (PostType | CommentType)[];
   parentChildrenMap: Map<string, ThreadPostInfoType>;
   postsInfoMap: Map<string, ThreadPostInfoType>;
+  /**
+   * A map from the id of a post to the data of its comments.
+   */
   postCommentsMap: Map<string, ThreadCommentInfoType>;
   categories: string[];
   contentNotices: string[];
