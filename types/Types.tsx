@@ -211,9 +211,27 @@ export interface ThreadPostInfoType {
   parent: PostType | null;
 }
 
+/**
+ * Information about a collection of comment threads.
+ */
 export interface ThreadCommentInfoType {
+  /**
+   * A list of top-level comments. All other comments
+   * must belong to a subtree that has these comments as root.
+   */
   roots: CommentType[];
+  /**
+   * A map from the id of a comment in a chain to the data of the next
+   * comment in that same chain.
+   */
   parentChainMap: Map<string, CommentType>;
+  /**
+   * A map from the id of a comment to the data of the top-level comments that
+   * are a direct reply to it.
+   *
+   * When the reply is to a chain, the key will be the id of the last comment in
+   * the chain.
+   */
   parentChildrenMap: Map<string, CommentType[]>;
   total: number;
   new: number;
