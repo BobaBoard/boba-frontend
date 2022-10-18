@@ -170,7 +170,6 @@ export const useThreadMetadata = ({
     currentRoot =
       threadData.posts.find((post) => post.postId == comment?.parentPostId) ??
       null;
-    console.log(currentRoot);
   }
 
   return {
