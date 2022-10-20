@@ -1,6 +1,5 @@
 import {
   CompactPostThread,
-  DefaultTheme,
   Post,
   PostHandler,
   TagType,
@@ -20,10 +19,10 @@ import {
 
 import { PostProps } from "@bobaboard/ui-components/dist/post/Post";
 import React from "react";
+import { addPostHandlerRef } from "utils/scroll-utils";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { formatDistanceToNow } from "date-fns";
 import { getCurrentSearchParams } from "utils/location-utils";
-import { log } from "debug";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { useThreadContext } from "./ThreadContext";
@@ -61,38 +60,6 @@ const TOP_POST_OPTIONS = [
   // make sure this is always at the end
   PostOptions.DEBUG,
 ];
-
-const postHandlers = new Map<string, PostHandler>();
-export const scrollToPost = (postId: string, color: string | undefined) => {
-  log(`Beaming up to post with id ${postId}`);
-  const element: HTMLElement | null = document.querySelector(
-    `.post[data-post-id='${postId}']`
-  );
-  if (!element) {
-    log(`...post not found!`);
-    return;
-  }
-  const observer: IntersectionObserver = new IntersectionObserver(
-    (observed) => {
-      if (observed[0].isIntersecting) {
-        log(`Beam done, highlighting!`);
-        postHandlers
-          .get(postId)
-          ?.highlight(color || DefaultTheme.DEFAULT_ACCENT_COLOR),
-          observer.disconnect();
-      }
-    }
-  );
-  observer.observe(element);
-  element.classList.add("outline-hidden");
-  window.scroll({
-    top:
-      element.getBoundingClientRect().top +
-      window.pageYOffset -
-      (DefaultTheme.HEADER_HEIGHT_PX + 20),
-    behavior: "smooth",
-  });
-};
 
 export const isPostLoaded = (postId: string): boolean => {
   return !!document.querySelector(`.post[data-post-id='${postId}']`);
@@ -221,7 +188,8 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
 
   const callbackRef = (postRef: PostHandler | undefined | null) => {
     if (postRef) {
-      postHandlers.set(post.postId, postRef);
+      // TODO: also remove this ref
+      addPostHandlerRef({ postId: post.postId, ref: postRef });
     }
     if (!extraProps.avatarRef) {
       return;
