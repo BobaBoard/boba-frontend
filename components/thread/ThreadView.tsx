@@ -11,15 +11,16 @@ import {
   READ_MORE_STEP,
 } from "components/hooks/useDisplayMananger";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
-import ThreadPost, { scrollToPost } from "./ThreadPost";
 
 import CommentsThread from "./CommentsThread";
 import Link from "next/link";
 import React from "react";
+import ThreadPost from "./ThreadPost";
 import classnames from "classnames";
 import css from "styled-jsx/css";
 import debug from "debug";
 import { getCurrentSearchParams } from "utils/location-utils";
+import { scrollToPost } from "utils/scroll-utils";
 import { useAuth } from "components/Auth";
 import { useBoardSummaryBySlug } from "queries/board";
 import { useStemOptions } from "components/hooks/useStemOptions";

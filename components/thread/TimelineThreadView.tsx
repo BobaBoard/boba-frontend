@@ -4,7 +4,6 @@ import {
   useThreadViewContext,
 } from "contexts/ThreadViewContext";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
-import ThreadPost, { scrollToPost } from "./ThreadPost";
 import {
   extractPostId,
   getCommentThreadId,
@@ -15,7 +14,9 @@ import CommentsThread from "./CommentsThread";
 import { DisplayManager } from "components/hooks/useDisplayMananger";
 import EmptyView from "./EmptyView";
 import React from "react";
+import ThreadPost from "./ThreadPost";
 import classnames from "classnames";
+import { scrollToPost } from "utils/scroll-utils";
 import { useAuth } from "components/Auth";
 import { useBoardSummaryBySlug } from "queries/board";
 import { useStemOptions } from "components/hooks/useStemOptions";

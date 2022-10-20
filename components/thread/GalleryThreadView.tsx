@@ -8,7 +8,6 @@ import {
   SegmentedButton,
 } from "@bobaboard/ui-components";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
-import ThreadPost, { scrollToPost } from "./ThreadPost";
 import {
   extractPostId,
   getCommentThreadId,
@@ -20,6 +19,8 @@ import { DisplayManager } from "components/hooks/useDisplayMananger";
 import EmptyView from "./EmptyView";
 import { PostType } from "types/Types";
 import React from "react";
+import ThreadPost from "./ThreadPost";
+import { scrollToPost } from "utils/scroll-utils";
 import { useAuth } from "components/Auth";
 import { useBoardSummaryBySlug } from "queries/board";
 import { useStemOptions } from "components/hooks/useStemOptions";
