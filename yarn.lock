@@ -6813,7 +6813,7 @@ node-releases@^2.0.6:
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-2.0.6.tgz#8a7088c63a55e493845683ebf3c828d8c51c5503"
   integrity sha512-PiVXnNuFm5+iYkLBNeq5211hvO38y63T0i2KKh2KnUs3RpzJ+JtODFjkD8yjLwnDkTYF1eKXheUwdssR+NRZdg==
 
-noop-ts@^1.0.3:
+noop-ts@^1.0.3, noop-ts@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/noop-ts/-/noop-ts-1.0.4.tgz#0f9d6fabcb484ce50d30f08020cf7ee993f01698"
   integrity sha512-+9RN4s4XO+M7HT2el0bINeJZdNLNgSD0h2i1+qmTr/ZEgYjoamkxfffmVY5dIbGrJSuMemfqroDjyLXXFYkp8w==
