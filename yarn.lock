@@ -6813,7 +6813,14 @@ node-releases@^2.0.6:
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-2.0.6.tgz#8a7088c63a55e493845683ebf3c828d8c51c5503"
   integrity sha512-PiVXnNuFm5+iYkLBNeq5211hvO38y63T0i2KKh2KnUs3RpzJ+JtODFjkD8yjLwnDkTYF1eKXheUwdssR+NRZdg==
 
-noop-ts@^1.0.3, noop-ts@^1.0.4:
+noop-ts@1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/noop-ts/-/noop-ts-1.0.3.tgz#ded86bff3f291206881b54230f3a5338aeb7181d"
+  integrity sha512-R3DfoyuFCbaVoYfaE6yS+qON0GGqBcc3FeANDvMe4Z1Dd7fuqzMJrnjJx9if9hCP72+UlTxZ/DSP4BuP6/+p8A==
+  dependencies:
+    typescript "^3.4.3"
+
+noop-ts@^1.0.3:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/noop-ts/-/noop-ts-1.0.4.tgz#0f9d6fabcb484ce50d30f08020cf7ee993f01698"
   integrity sha512-+9RN4s4XO+M7HT2el0bINeJZdNLNgSD0h2i1+qmTr/ZEgYjoamkxfffmVY5dIbGrJSuMemfqroDjyLXXFYkp8w==
@@ -8810,6 +8817,11 @@ typescript@4:
   version "4.8.4"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.8.4.tgz#c464abca159669597be5f96b8943500b238e60e6"
   integrity sha512-QCh+85mCy+h0IGff8r5XWzOVSbBO+KfeYrMQh7NJ58QujwcE22u+NUSmUxqF+un70P9GXKxa2HCNiTTMJknyjQ==
+
+typescript@^3.4.3:
+  version "3.9.10"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.10.tgz#70f3910ac7a51ed6bef79da7800690b19bf778b8"
+  integrity sha512-w6fIxVE/H1PkLKcCPsFqKE7Kv7QUwhU8qQY2MueZXWx5cPZdwFupLgKK3vntcK98BtNHZtAF4LA/yl2a7k8R6Q==
 
 uc.micro@^1.0.1, uc.micro@^1.0.5:
   version "1.0.6"
