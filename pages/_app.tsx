@@ -24,9 +24,7 @@ import { REALM_QUERY_KEY, RealmContextProvider } from "contexts/RealmContext";
 import {
   getCurrentHost,
   getCurrentRealmSlug,
-  getRedirectToSandboxLocation,
   getServerBaseUrl,
-  isAllowedSandboxLocation,
   isClientContext,
 } from "utils/location-utils";
 
@@ -219,19 +217,6 @@ BobaBoardApp.getInitialProps = async (
     // and client-side queryClient. We should revisit removing this when:
     // a) we can check logged in status from both server and client
     // b) NextJS' Layout RFC lands & we use a compatible version.
-    return {};
-  }
-  if (!isAllowedSandboxLocation(ctx)) {
-    // We should use 302 redirect here rather than 301 because
-    // 301 will be cached by the client and trap us forever until
-    // the cache is cleared.
-    ctx.res?.writeHead(302, {
-      location: `http://${getCurrentHost(
-        ctx?.req?.headers?.host,
-        true
-      )}${getRedirectToSandboxLocation(ctx)}`,
-    });
-    ctx.res?.end();
     return {};
   }
 

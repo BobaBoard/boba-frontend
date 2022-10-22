@@ -10,7 +10,6 @@ import {
 import { PostData } from "types/Types";
 import { ThreadViewQueryParams } from "types/ThreadQueryParams";
 import { encodeQueryParams } from "use-query-params";
-import { isSandbox } from "utils/location-utils";
 import { stringify } from "query-string";
 
 interface LinkWithNotNullAction {
@@ -110,28 +109,6 @@ const linkToLogs = createLinkTo({
 });
 const linkToPersonalSettings = createLinkTo({ url: PERSONAL_SETTINGS_PATH });
 const linkToRealmAdmin = createLinkTo({ url: REALM_ADMIN_PATH });
-const SANDBOXED_LINKS = {
-  linkToHome: linkToCurrent,
-  linkToFeed: linkToCurrent,
-  linkToLogs: linkToCurrent,
-  linkToPersonalSettings: linkToCurrent,
-  linkToRealmAdmin: linkToCurrent,
-  linkToCurrent,
-  getLinkToBoard: (
-    slug: string,
-    onLoad?: ((slug: string) => void) | undefined
-  ) => linkToCurrent,
-  getLinkToThread: ({
-    slug,
-    threadId,
-    view,
-  }: {
-    slug: string;
-    threadId: string;
-    view?: "thread" | "gallery" | "timeline" | undefined;
-  }) => linkToCurrent,
-  getLinkToPost,
-};
 
 const REGULAR_LINKS = {
   linkToHome,
@@ -147,8 +124,5 @@ const REGULAR_LINKS = {
 // TODO: rename this because it's not a hook and can be used outside of a
 // component context.
 export const useCachedLinks = () => {
-  if (isSandbox(undefined)) {
-    return SANDBOXED_LINKS;
-  }
   return REGULAR_LINKS;
 };

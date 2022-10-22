@@ -63,47 +63,6 @@ export const getCurrentRealmSlug = ({
   return getClientSideRealm();
 };
 
-const SANDBOX_LOCATIONS = ["tys-sandbox.boba.social"];
-export const isSandbox = (context: NextPageContext | undefined) => {
-  if (process.env.NEXT_PUBLIC_TEST_SANDBOX === "true") {
-    return true;
-  }
-  const currentHost = getCurrentHost(context?.req?.headers?.host);
-  return currentHost && SANDBOX_LOCATIONS.includes(currentHost);
-};
-
-const ALLOWED_SANDBOX_LOCATIONS = {
-  ["localhost"]: [
-    "/!gore/thread/8b2646af-2778-487e-8e44-7ae530c2549c",
-    "/!anime/thread/b27710a8-0a9f-4c09-b3a5-54668bab7051",
-  ],
-  "tys-sandbox.boba.social": [
-    "/!challenge/thread/659dc185-b10d-4dbb-84c5-641fc1a65e58",
-    "/!steamy/thread/9719a1dd-96da-497e-bd71-21634c20416c",
-  ],
-};
-export const isAllowedSandboxLocation = (
-  context: NextPageContext | undefined
-) => {
-  const currentHost = getCurrentHost(context?.req?.headers?.host);
-  if (!context || !context.asPath || !isSandbox(context) || !currentHost) {
-    return true;
-  }
-  return ALLOWED_SANDBOX_LOCATIONS[currentHost].includes(context.asPath);
-};
-
-export const getRedirectToSandboxLocation = (
-  context?: NextPageContext | undefined
-) => {
-  const currentHost = getCurrentHost(context?.req?.headers?.host);
-  if (!currentHost || !isSandbox(context)) {
-    throw new Error(
-      "No valid current host in sandbox location, or tried sandbox redirect in non-sandbox environment."
-    );
-  }
-  return ALLOWED_SANDBOX_LOCATIONS[currentHost][0];
-};
-
 export const isLocalhost = (hostName?: string | undefined) => {
   return !!(
     hostName?.startsWith("localhost") ||
