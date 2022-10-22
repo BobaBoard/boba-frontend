@@ -22,7 +22,7 @@ const getTagFilterOption = ({
   tag: TagsType;
   setActiveFilter: (tag: string) => void;
 }) => {
-  if (!tag || tag.type == TagType.CATEGORY) {
+  if (!tag || tag.type != TagType.CATEGORY) {
     return null;
   }
 
