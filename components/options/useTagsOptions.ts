@@ -38,10 +38,9 @@ const getTagFilterOption = ({
 };
 
 /**
- * Returns a function that given a tag and an option type will
- * return the menu item corresponding to that tag + option combination
- * (if the combination is valid) or null (if that option/tag type
- * combination is not available).
+ * Returns a function that, according to the tag and option passed, returns:
+ * - the menu item for that option, if the option is available for that tag
+ * - null, if the option is non available for that tag
  */
 const useGetDropdownItemFromOption = () => {
   const { setActiveFilter } = useThreadViewContext();
@@ -58,9 +57,10 @@ const useGetDropdownItemFromOption = () => {
 };
 
 /**
- * Returns a function to get a list of menu options for a given tag. This
- * list will include the option types specified by the options array in
- * input, except for the ones not available for a specific tag type.
+ * Returns a function that retrieves the menu items for a given tag.
+ * Menu items are generated according to the options array parameter.
+ * If an option type is not available for the tag, it is silently
+ * discarded.
  *
  * Note: as long as the reference to the options array is stable,
  * the returned function will also be stable.
