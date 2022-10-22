@@ -6,11 +6,18 @@ import {
 import { act, renderHook } from "@testing-library/react-hooks";
 import { animationFrame, requestIdleCallback } from "@shopify/jest-dom-mocks";
 
+import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
 import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../../server-mocks/data/thread";
 import React from "react";
 import { TagType } from "@bobaboard/ui-components";
+import { faFilter } from "@fortawesome/free-solid-svg-icons";
 
-jest.mock("contexts/ThreadViewContext.tsx");
+const mockSetActiveFilter = jest.fn();
+jest.mock("contexts/ThreadViewContext.tsx", () => ({
+  useThreadViewContext: jest.fn(() => ({
+    setActiveFilter: mockSetActiveFilter,
+  })),
+}));
 
 // const getThreadContextWrapper = (threadId: string) => {
 //   // TODO: maybe remove board slug and board id
@@ -50,31 +57,83 @@ jest.mock("contexts/ThreadViewContext.tsx");
 // });
 
 describe("useTagOptions", () => {
-  describe("when tag is of type category", async () => {
-    let getTagOptions: ReturnType<typeof useGetTagOptions>;
+  describe("when a tag is of type category", () => {
+    let categoryTagOptions: DropdownProps["options"];
     beforeEach(() => {
       const { result } = renderHook(() =>
         useGetTagOptions({ options: [TagsOptions.FILTER_BY_CATEGORY] })
       );
-      getTagOptions = result.current;
+      categoryTagOptions = result.current?.({
+        name: "a category tag",
+        type: TagType.CATEGORY,
+      });
     });
     it("displays the set filter option", () => {
-      expect(
-        getTagOptions?.({
-          name: "a category",
-          type: TagType.CATEGORY,
-        })
-      ).toBe(5);
+      expect(categoryTagOptions).toEqual([
+        {
+          icon: faFilter,
+          name: "Filter",
+          link: {
+            onClick: expect.any(Function),
+          },
+        },
+      ]);
     });
+    it("calls the filtering function on click", () => {
+      const link = categoryTagOptions?.[0]["link"];
+      if (!link) {
+        throw new Error("Link should be present in category tag options.");
+      }
+      link.onClick();
+      expect(mockSetActiveFilter).toHaveBeenCalledWith("a category tag");
+    });
+  });
 
-    // await act(() => threadFetched as Promise<void>);
-    // expect(result.current.hasMore()).toBe(false);
-    // expect(
-    //   result.current.currentModeLoadedElements.map((post) => post.postId)
-    // ).toEqual([
-    //   "11b85dac-e122-40e0-b09a-8829c5e0250e",
-    //   "619adf62-833f-4bea-b591-03e807338a8e",
-    //   "b95bb260-eae0-456c-a5d0-8ae9e52608d8",
-    // ]);
+  describe("when a tag is of type whispertag", () => {
+    let whisperTagOptions: DropdownProps["options"];
+    beforeEach(() => {
+      const { result } = renderHook(() =>
+        useGetTagOptions({ options: [TagsOptions.FILTER_BY_CATEGORY] })
+      );
+      whisperTagOptions = result.current?.({
+        name: "a whisper tag",
+        type: TagType.WHISPER,
+      });
+    });
+    it("does not displays the set filter option", () => {
+      expect(whisperTagOptions).toEqual([]);
+    });
+  });
+
+  describe("when a tag is of type index", () => {
+    let indexTagOptions: DropdownProps["options"];
+    beforeEach(() => {
+      const { result } = renderHook(() =>
+        useGetTagOptions({ options: [TagsOptions.FILTER_BY_CATEGORY] })
+      );
+      indexTagOptions = result.current?.({
+        name: "a index tag",
+        type: TagType.INDEXABLE,
+      });
+    });
+    it("does not displays the set filter option", () => {
+      expect(indexTagOptions).toEqual([]);
+    });
+  });
+
+  describe("when a tag is of type content notice", () => {
+    let contentNoticeTagOptions: DropdownProps["options"];
+    beforeEach(() => {
+      const { result } = renderHook(() =>
+        useGetTagOptions({ options: [TagsOptions.FILTER_BY_CATEGORY] })
+      );
+      contentNoticeTagOptions = result.current?.({
+        name: "a content notice tag",
+        type: TagType.CONTENT_WARNING,
+      });
+    });
+    it("does not displays the set filter option", () => {
+      expect(contentNoticeTagOptions).toEqual([]);
+    });
   });
 });
