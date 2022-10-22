@@ -13,7 +13,10 @@ import {
   getTotalContributions,
   getTotalNewContributions,
 } from "utils/thread-utils";
-import { useRealmBoardId, useRealmPermissions } from "contexts/RealmContext";
+import {
+  useCurrentRealmBoardId,
+  useRealmPermissions,
+} from "contexts/RealmContext";
 
 import { PostProps } from "@bobaboard/ui-components/dist/post/Post";
 import React from "react";
@@ -140,9 +143,8 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
     hidden,
     opIdentity,
   } = useThreadContext();
-  const boardId = useRealmBoardId({
+  const boardId = useCurrentRealmBoardId({
     boardSlug: slug,
-    realmSlug: "v0",
   });
   const realmPermissions = useRealmPermissions();
 

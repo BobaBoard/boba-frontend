@@ -13,7 +13,7 @@ import {
   isEditContribution,
   isNewThread,
 } from "./types";
-import { useRealmBoardId, useRealmBoards } from "contexts/RealmContext";
+import { useCurrentRealmBoardId, useRealmBoards } from "contexts/RealmContext";
 
 import CommentEditorModal from "./CommentEditorModal";
 import ContributionEditorModal from "./ContributionEditorModal";
@@ -153,7 +153,7 @@ export const withEditors = function <T>(WrappedComponent: React.FC<T>) {
 export const useThreadEditors = () => {
   const { slug, threadId } = usePageDetails();
   const dispatch = useEditorsDispatch();
-  const boardId = useRealmBoardId({ boardSlug: slug, realmSlug: "v0" });
+  const boardId = useCurrentRealmBoardId({ boardSlug: slug });
 
   if (!slug || !threadId) {
     throw new Error("Thread editors can only be used on thread pages.");

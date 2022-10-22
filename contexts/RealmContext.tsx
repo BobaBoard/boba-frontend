@@ -105,13 +105,11 @@ const useBoardSummary = ({ boardId }: { boardId?: string | null }) => {
   return context.realmData.boards.find((summary) => summary.id == boardId);
 };
 
-export const useRealmBoardId = ({
+export const useCurrentRealmBoardId = ({
   boardSlug,
 }: {
   boardSlug: string | null;
-  realmSlug: string;
 }) => {
-  // TODO: for now we have one realm, update this to actually pass the right realm.
   const boards = useRealmBoards();
 
   if (!boardSlug) {
