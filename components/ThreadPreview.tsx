@@ -12,8 +12,8 @@ import React from "react";
 import { formatDistanceToNow } from "date-fns";
 import noop from "noop-ts";
 import { useCachedLinks } from "./hooks/useCachedLinks";
+import { useCurrentRealmBoardId } from "contexts/RealmContext";
 import { useForceHideIdentity } from "./hooks/useForceHideIdentity";
-import { useRealmBoardId } from "contexts/RealmContext";
 import { useSetThreadHidden } from "queries/thread";
 import { withEditors } from "./editors/withEditors";
 
@@ -91,9 +91,8 @@ const ThreadPreview: React.FC<{
     threadId: thread.id,
   });
   const rootPost = thread.starter;
-  const boardId = useRealmBoardId({
+  const boardId = useCurrentRealmBoardId({
     boardSlug: thread.parentBoardSlug,
-    realmSlug: "v0",
   });
   const options = usePostOptions({
     options: THREAD_OPTIONS,

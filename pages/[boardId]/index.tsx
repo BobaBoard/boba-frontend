@@ -8,7 +8,7 @@ import { FeedWithMenu, PostingActionButton } from "@bobaboard/ui-components";
 import {
   REALM_QUERY_KEY,
   useBoardSummary,
-  useRealmBoardId,
+  useCurrentRealmBoardId,
   useRealmPermissions,
 } from "contexts/RealmContext";
 import { RealmPermissions, RealmType, ThreadSummaryType } from "types/Types";
@@ -71,7 +71,7 @@ function BoardPage() {
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
   const { slug } = usePageDetails<BoardPageDetails>();
   const { isPending: isAuthPending, isLoggedIn } = useAuth();
-  const boardId = useRealmBoardId({ boardSlug: slug, realmSlug: "v0" });
+  const boardId = useCurrentRealmBoardId({ boardSlug: slug });
   const realmPermissions = useRealmPermissions();
   // TODO: make this easier:
   // We need to use the broad summary from the realm data to check if the board is locked

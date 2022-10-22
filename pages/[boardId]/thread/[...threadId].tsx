@@ -17,7 +17,7 @@ import ThreadContextProvider, {
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import {
   useBoardSummary,
-  useRealmBoardId,
+  useCurrentRealmBoardId,
   useRealmPermissions,
 } from "contexts/RealmContext";
 import { useThreadEditors, withEditors } from "components/editors/withEditors";
@@ -57,7 +57,7 @@ const MemoizedTimelineThreadView = React.memo(TimelineThreadView);
 
 export const MARK_THREAD_READ_DELAY = 1000;
 const useMarkThreadReadOnDelay = (threadId: string, slug: string) => {
-  const boardId = useRealmBoardId({ realmSlug: "v0", boardSlug: slug });
+  const boardId = useCurrentRealmBoardId({ boardSlug: slug });
   // The latest threadId that was marked as read. When this changes, we need to
   // mark the thread as read again.
   const latestReadThread = React.useRef<string | null>(null);
@@ -138,7 +138,7 @@ const useMarkThreadReadOnDelay = (threadId: string, slug: string) => {
 
 function ThreadPage() {
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
-  const boardId = useRealmBoardId({ realmSlug: "v0", boardSlug: slug });
+  const boardId = useCurrentRealmBoardId({ boardSlug: slug });
   const realmPermissions = useRealmPermissions();
   const { isPending: isAuthPending } = useAuth();
   const { getLinkToBoard } = useCachedLinks();
@@ -296,7 +296,7 @@ const ThreadPageWithContext: React.FC<{
   summary?: ReturnType<typeof getDeltaSummary>;
 }> = () => {
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
-  const boardId = useRealmBoardId({ boardSlug: slug, realmSlug: "v0" });
+  const boardId = useCurrentRealmBoardId({ boardSlug: slug });
   return (
     <ThreadContextProvider
       postId={postId}
