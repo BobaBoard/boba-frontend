@@ -1,16 +1,12 @@
-import { Client, getThreadRequestPromise, getThreadRouter } from "../utils";
 import {
   TagsOptions,
   useGetTagOptions,
 } from "components/options/useTagsOptions";
-import { act, renderHook } from "@testing-library/react-hooks";
-import { animationFrame, requestIdleCallback } from "@shopify/jest-dom-mocks";
 
 import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
-import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../../server-mocks/data/thread";
-import React from "react";
 import { TagType } from "@bobaboard/ui-components";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
+import { renderHook } from "@testing-library/react-hooks";
 
 const mockSetActiveFilter = jest.fn();
 jest.mock("contexts/ThreadViewContext.tsx", () => ({
@@ -18,43 +14,6 @@ jest.mock("contexts/ThreadViewContext.tsx", () => ({
     setActiveFilter: mockSetActiveFilter,
   })),
 }));
-
-// const getThreadContextWrapper = (threadId: string) => {
-//   // TODO: maybe remove board slug and board id
-//   return function ContextWrapper({ children }: { children: React.ReactNode }) {
-//     return (
-//       <Client
-//         router={getThreadRouter({
-//           boardSlug: "gore",
-//           threadId,
-//         })}
-//       >
-//         <ThreadContextProvider boardId="gore" postId={null} threadId={threadId}>
-//           {children}
-//         </ThreadContextProvider>
-//       </Client>
-//     );
-//   };
-// };
-
-// beforeAll(() => {
-//   jest.useFakeTimers();
-// });
-
-// beforeEach(() => {
-//   requestIdleCallback.mock();
-//   animationFrame.mock();
-// });
-
-// afterEach(() => {
-//   requestIdleCallback.restore();
-//   animationFrame.restore();
-//   jest.clearAllTimers();
-// });
-
-// afterAll(() => {
-//   jest.useRealTimers();
-// });
 
 describe("useTagOptions", () => {
   describe("when a tag is of type category", () => {
