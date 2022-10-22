@@ -89,6 +89,5 @@ export default ErrorPage;
 
 export function CustomErrorPage() {
   const { error } = useError();
-  // @ts-expect-error
   return <ErrorPage err={error.message} stack={error.stack} />;
 }

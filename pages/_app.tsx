@@ -22,7 +22,6 @@ import {
 } from "react-query";
 import { REALM_QUERY_KEY, RealmContextProvider } from "contexts/RealmContext";
 import {
-  getCurrentHost,
   getCurrentRealmSlug,
   getServerBaseUrl,
   isClientContext,
