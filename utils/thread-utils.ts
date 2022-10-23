@@ -188,11 +188,11 @@ export const extractRepliesSequence = (
 };
 
 export const getTotalContributions = (
-  post: PostType,
+  postId: string,
   postsMap: Map<string, { children: PostType[]; parent: PostType | null }>
 ) => {
   let total = 0;
-  let next = postsMap.get(post.postId)?.children;
+  let next = postsMap.get(postId)?.children;
   while (next && next.length > 0) {
     total += next.length;
     next = next.flatMap(
@@ -203,11 +203,11 @@ export const getTotalContributions = (
 };
 
 export const getTotalNewContributions = (
-  post: PostType,
+  postId: string,
   postsMap: Map<string, { children: PostType[]; parent: PostType | null }>
 ) => {
   let total = 0;
-  let next = postsMap.get(post.postId)?.children;
+  let next = postsMap.get(postId)?.children;
   while (next && next.length > 0) {
     total += next.reduce(
       (value: number, post: PostType) => value + (post.isNew ? 1 : 0),
