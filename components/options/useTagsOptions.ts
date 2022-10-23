@@ -1,14 +1,16 @@
-import { TagType, TagsType } from "@bobaboard/ui-components";
+import { GetPropsFromForwardedRef, isNotNull } from "utils/typescript-utils";
+import type { Post, TagsType } from "@bobaboard/ui-components";
 
 import React from "react";
-import { ThreadPostProps } from "components/thread/ThreadPost";
+import { TagType } from "@bobaboard/ui-components";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
-import { isNotNull } from "utils/typescript-utils";
 import { useThreadViewContext } from "contexts/ThreadViewContext";
 
 export enum TagsOptions {
   FILTER_BY_CATEGORY = "FILTER_BY_CATEGORY",
 }
+
+type PostProps = GetPropsFromForwardedRef<typeof Post>;
 
 /**
  * Returns a dropdown menu item for filtering by category tag,
@@ -69,7 +71,7 @@ export const useGetTagOptions = ({
   options,
 }: {
   options: TagsOptions[];
-}): ThreadPostProps["getOptionsForTag"] => {
+}): PostProps["getOptionsForTag"] => {
   const getDropdownItem = useGetDropdownItemFromOption();
   return React.useCallback(
     (tag: TagsType) => {
