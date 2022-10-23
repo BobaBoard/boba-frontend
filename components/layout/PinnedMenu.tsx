@@ -87,7 +87,7 @@ const PinnedMenu = () => {
             // },
             {
               id: PageTypes.FEED,
-              icon: faInbox,
+              icon: { icon: faInbox },
               link: linkToFeed,
               accentColor: "#f96680",
             },

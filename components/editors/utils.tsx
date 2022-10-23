@@ -4,6 +4,11 @@ import {
   isEditContribution,
   isNewThread,
 } from "./types";
+import {
+  faCodeBranch,
+  faFilm,
+  faImages,
+} from "@fortawesome/free-solid-svg-icons";
 
 import { TagsType as ServerTagsType } from "types/Types";
 import { TagsType } from "@bobaboard/ui-components/dist/types";
@@ -12,9 +17,9 @@ import { useBoardMetadata } from "queries/board";
 import { useThreadWithNull } from "components/thread/ThreadContext";
 
 export const THREAD_VIEW_OPTIONS = [
-  { name: "Thread", id: "thread" },
-  { name: "Gallery", id: "gallery" },
-  { name: "Timeline", id: "timeline" },
+  { name: "Thread", id: "thread", icon: faCodeBranch },
+  { name: "Gallery", id: "gallery", icon: faImages },
+  { name: "Timeline", id: "timeline", icon: faFilm },
 ];
 
 export const getViewIdFromName = (viewName?: string) => {
