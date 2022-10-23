@@ -20,6 +20,7 @@ import {
 import {
   getCurrentRealmSlug,
   isClientContext,
+  isLocalhost,
   isStaging,
 } from "utils/location-utils";
 import {
@@ -53,6 +54,37 @@ const StagingWarning = () => {
         }
         .staging-warning a {
           color: blue;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+const LocalhostWarning = () => {
+  return (
+    <div className="staging-warning">
+      <h2>Warning</h2>
+      <p>
+        The <code>locahost:3000</code> version of BobaBoard (which you're using)
+        can only access the "twisted minds" Realm. Start the frontend with{" "}
+        <code>yarn run dev:bonjour</code>, then use the following links to
+        access the{" "}
+        <a href="http://twisted-minds_boba.local:3000/">twisted minds realm</a>{" "}
+        or <a href="http://uwu_boba.local:3000/">the uwu realm</a>.
+      </p>
+      <style jsx>{`
+        .staging-warning {
+          border: 3px dotted darkgoldenrod;
+          padding: 5px 15px;
+          border-radius: 25px;
+          text-align: center;
+          background-color: #1c1c1c;
+        }
+        .staging-warning a {
+          color: darkgoldenrod;
+        }
+        code {
+          color: darkcyan;
         }
       `}</style>
     </div>
@@ -152,6 +184,7 @@ const HomePage: NextPage = () => {
                 Meme
               </div>
               {isStaging() && <StagingWarning />}
+              {isLocalhost() && <LocalhostWarning />}
               <p>
                 Remember: this is the experimental version of an experimental
                 website. If you experience a problem, then stuff is likely to be{" "}
