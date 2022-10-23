@@ -51,7 +51,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
   const [isPostLoading, setPostLoading] = React.useState(false);
   const { isLoggedIn } = useAuth();
   const boards = useRealmBoards();
-  const currentSlug = boards.find((board) => state.boardId == board.id)?.slug;
+  const currentBoard = boards.find((board) => state.boardId == board.id);
 
   const { mutate: postContribution } = useMutation<
     PostType | ThreadType,
@@ -224,7 +224,11 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
           );
         }}
         onCancel={props.onCancel}
-        initialBoard={currentSlug}
+        initialBoard={{
+          slug: currentBoard!.slug,
+          color: currentBoard!.accentColor,
+          avatar: currentBoard!.avatarUrl,
+        }}
         availableBoards={isNewThread(state) ? allBoards : undefined}
       />
       <style jsx>{`
