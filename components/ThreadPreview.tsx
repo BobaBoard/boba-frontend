@@ -28,6 +28,7 @@ const THREAD_OPTIONS = [
   PostOptions.DEBUG,
 ];
 
+// TODO: Use THREAD_VIEW_OPTIONS from utils.
 const getThreadTypeIcon = (view: PostData["defaultView"]) => {
   switch (view) {
     case "gallery":
