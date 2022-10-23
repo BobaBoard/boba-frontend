@@ -21,7 +21,6 @@ import css from "styled-jsx/css";
 import debug from "debug";
 import { getCurrentSearchParams } from "utils/location-utils";
 import { scrollToPost } from "utils/scroll-utils";
-import { useAuth } from "components/Auth";
 import { useBoardSummaryBySlug } from "queries/board";
 import { useStemOptions } from "components/hooks/useStemOptions";
 import { useThreadContext } from "components/thread/ThreadContext";
@@ -141,11 +140,9 @@ const ThreadLevel: React.FC<{
   toDisplay: (PostType | CommentType)[];
   collapseManager: ReturnType<typeof useThreadCollapseManager>;
 }> = (props) => {
-  const { onNewComment, onNewContribution, onEditContribution } =
-    useThreadEditors();
-  const { isLoggedIn } = useAuth();
   //info(`Rendering subtree starting with post with id ${props.post.postId}`);
-  const { parentChildrenMap, postCommentsMap } = useThreadContext();
+  const { parentChildrenMap, postCommentsMap, currentRoot, threadRoot } =
+    useThreadContext();
   if (!props.toDisplay.includes(props.post)) {
     return null;
   }
@@ -178,6 +175,11 @@ const ThreadLevel: React.FC<{
 
   const hasComments = !!postCommentsMap.get(props.post.postId)?.total;
   const children = parentChildrenMap.get(props.post.postId)?.children;
+  const displayHistory = Boolean(
+    currentRoot &&
+      currentRoot != threadRoot &&
+      props.post.postId == currentRoot?.postId
+  );
   const childrenDisplay: React.ReactNode[] = [];
   for (let i = 0; i < (children?.length || 0); i++) {
     const currentPost = children![i];
@@ -216,12 +218,10 @@ const ThreadLevel: React.FC<{
             >
               <ThreadPost
                 post={props.post}
-                isLoggedIn={isLoggedIn}
-                onNewContribution={onNewContribution}
-                onNewComment={onNewComment}
-                onEditPost={onEditContribution}
                 avatarRef={setHandler}
                 onNotesClick={props.collapseManager.onToggleCollapseLevel}
+                showPostAncestors={displayHistory}
+                showThreadStarter={displayHistory}
               />
             </div>
             {!hasNestedContributions && hasComments && commentsThread}
