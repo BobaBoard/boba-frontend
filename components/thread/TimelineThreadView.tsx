@@ -36,8 +36,7 @@ const TimelineView: React.FC<TimelineViewProps> = (props) => {
   const { newRepliesCount, chronologicalPostsSequence, postCommentsMap } =
     useThreadContext();
   const { timelineViewMode, setTimelineViewMode } = useThreadViewContext();
-  const { onNewComment, onNewContribution, onEditContribution } =
-    useThreadEditors();
+  const { onNewContribution } = useThreadEditors();
   const {
     onCollapseLevel,
     onUncollapseLevel,
@@ -128,11 +127,7 @@ const TimelineView: React.FC<TimelineViewProps> = (props) => {
                     <div className="post" key={post.postId}>
                       <ThreadPost
                         post={post}
-                        isLoggedIn={isLoggedIn}
-                        onNewContribution={onNewContribution}
-                        onNewComment={onNewComment}
-                        onEditPost={onEditContribution}
-                        showThread
+                        showPostAncestors
                         avatarRef={setThreadBoundary}
                         onNotesClick={onToggleCollapseLevel}
                       />

@@ -21,7 +21,6 @@ import { PostType } from "types/Types";
 import React from "react";
 import ThreadPost from "./ThreadPost";
 import { scrollToPost } from "utils/scroll-utils";
-import { useAuth } from "components/Auth";
 import { useBoardSummaryBySlug } from "queries/board";
 import { useStemOptions } from "components/hooks/useStemOptions";
 import { useThreadContext } from "components/thread/ThreadContext";
@@ -88,9 +87,7 @@ interface GalleryThreadViewProps {
 }
 const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
   const masonryRef = React.createRef<{ reposition: () => void }>();
-  const { isLoggedIn } = useAuth();
-  const { onNewComment, onNewContribution, onEditContribution } =
-    useThreadEditors();
+  const { onNewContribution } = useThreadEditors();
   const { slug: boardSlug, threadId } = usePageDetails<ThreadPageDetails>();
   const boardData = useBoardSummaryBySlug(boardSlug);
   const { galleryViewMode, setGalleryViewMode } = useThreadViewContext();
@@ -255,10 +252,6 @@ const GalleryThreadView: React.FC<GalleryThreadViewProps> = (props) => {
                     <div className="post">
                       <ThreadPost
                         post={post}
-                        isLoggedIn={isLoggedIn}
-                        onNewContribution={onNewContribution}
-                        onNewComment={onNewComment}
-                        onEditPost={onEditContribution}
                         onNotesClick={onToggleCollapseLevel}
                         onEmbedLoaded={repositionGallery}
                         avatarRef={setThreadBoundary}
