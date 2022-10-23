@@ -25,11 +25,11 @@ export const getCurrentSearchParams = () => {
 const REALM_SLUG_SEPARATOR_LOCAL = "_";
 const SUBDOMAIN_REGEX = /(?:http[s]*:\/\/)*(?<sub>.*?)\.(?=[^/]*\..{2,5})/i;
 const getRealmFromHostname = (hostname: string) => {
-  if (isLocalhost(hostname)) {
+  if (isLocal(hostname)) {
     return hostname.substring(0, hostname.indexOf(REALM_SLUG_SEPARATOR_LOCAL));
   }
   if (isStaging(hostname)) {
-    // Everything is staging is fixed to v0.
+    // Everything in staging is fixed to v0.
     return "v0";
   }
   return hostname.match(SUBDOMAIN_REGEX)?.groups?.["sub"] || "v0";
@@ -46,11 +46,13 @@ export const getCurrentRealmSlug = ({
 }: {
   serverHostname: string | undefined;
 }) => {
-  if (
-    isStaging(serverHostname) &&
-    isLocalhost(getCurrentHost(serverHostname))
-  ) {
-    return "v0";
+  if (isLocal(getCurrentHost(serverHostname))) {
+    if (isStaging(serverHostname)) {
+      return "v0";
+    }
+    if (isLocalhost(serverHostname)) {
+      return "twisted-minds";
+    }
   }
   if (typeof window === "undefined") {
     if (serverHostname) {
@@ -63,13 +65,20 @@ export const getCurrentRealmSlug = ({
   return getClientSideRealm();
 };
 
-export const isLocalhost = (hostName?: string | undefined) => {
+export const isLocal = (hostName?: string | undefined) => {
   return !!(
     hostName?.startsWith("localhost") ||
     hostName?.startsWith("192.") ||
     hostName?.endsWith(".local") ||
     hostName?.endsWith(".local:3000")
   );
+};
+
+export const isLocalhost = (hostName?: string | undefined) => {
+  if (typeof window !== "undefined") {
+    return window.location.hostname.startsWith("localhost");
+  }
+  return hostName?.startsWith("localhost");
 };
 
 export const isStaging = (serverHostname?: string | undefined) => {
@@ -97,7 +106,7 @@ export const getServerBaseUrl = (context?: NextPageContext) => {
   }
 
   let backendLocation = "";
-  const localhost = isLocalhost(currentHost);
+  const localhost = isLocal(currentHost);
   if (localhost) {
     backendLocation = currentHost || "localhost";
   } else if (staging) {

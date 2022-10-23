@@ -8,7 +8,7 @@ import {
 } from "@bobaboard/ui-components";
 import { NextPage, NextPageContext } from "next";
 import React, { useEffect } from "react";
-import { getCurrentRealmSlug, isLocalhost } from "utils/location-utils";
+import { getCurrentRealmSlug, isLocal } from "utils/location-utils";
 import { getInviteStatusByNonce, getRealmData } from "utils/queries/realm";
 import {
   useRealmHomepage,
@@ -562,7 +562,7 @@ InvitesPage.getInitialProps = async (ctx: NextPageContext) => {
       log(
         `URL Realm does not match invite Realm. Rerouting to to invite realm ${invite.realmSlug}`
       );
-      if (isLocalhost(ctx.req?.headers.host)) {
+      if (isLocal(ctx.req?.headers.host)) {
         ctx.res?.writeHead(302, {
           location: `http://${invite.realmSlug}_boba.local:3000/invites/${nonce}`,
         });
