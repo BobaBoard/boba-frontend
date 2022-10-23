@@ -1,11 +1,10 @@
 import { CommentType, PostType, isComment, isPost } from "types/Types";
 import { isCommentLoaded, scrollToComment } from "../thread/CommentsThread";
+import { isPostLoaded, scrollToPost } from "utils/scroll-utils";
 
 import { DisplayManager } from "./useDisplayMananger";
 import React from "react";
 import debug from "debug";
-import { isPostLoaded } from "../thread/ThreadPost";
-import { scrollToPost } from "utils/scroll-utils";
 import { useStateWithCallback } from "./useStateWithCallback";
 import { useThreadContext } from "../thread/ThreadContext";
 

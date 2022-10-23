@@ -49,3 +49,7 @@ export const addPostHandlerRef = ({
 export const removePostHandlerRef = ({ postId }: { postId: string }) => {
   postHandlers.delete(postId);
 };
+
+export const isPostLoaded = (postId: string): boolean => {
+  return !!document.querySelector(`.post[data-post-id='${postId}']`);
+};
