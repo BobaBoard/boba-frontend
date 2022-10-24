@@ -46,6 +46,7 @@ export interface ThreadPostProps {
     | React.MutableRefObject<HTMLImageElement | null>
     | ((avatarRef: HTMLImageElement | null) => void);
   onNotesClick?: (postId: string) => void;
+  // TODO: rename this to "onSizeChange"
   onEmbedLoaded?: () => void;
 }
 
@@ -58,9 +59,10 @@ const REGULAR_POST_OPTIONS = [
   PostOptions.DEBUG,
 ];
 
+const REGULAR_ONLY_OPTIONS = [PostOptions.COPY_LINK, PostOptions.DEBUG];
 const TOP_POST_OPTIONS = [
   ...REGULAR_POST_OPTIONS.filter(
-    (option) => option != PostOptions.COPY_LINK && option != PostOptions.DEBUG
+    (option) => !REGULAR_ONLY_OPTIONS.includes(option)
   ),
   PostOptions.UPDATE_VIEW,
   // make sure this is always at the end
@@ -112,7 +114,7 @@ const useGetPostData = () => {
         threadId,
         postId: postId,
       });
-      const createdTimeLink = {
+      const linkToPostWithSearchParams = {
         href: `${linkToPost.href}${getCurrentSearchParams()}`,
         onClick: linkToPost.onClick,
       };
@@ -124,7 +126,7 @@ const useGetPostData = () => {
         ...post,
         text: post.content,
         createdTime,
-        createdTimeLink,
+        createdTimeLink: linkToPostWithSearchParams,
         totalComments: postCommentsMap.get(postId)?.total || 0,
         directContributions: parentChildrenMap.get(postId)?.children.length,
         totalContributions: getTotalContributions(postId, parentChildrenMap),
@@ -269,18 +271,18 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
     showThreadStarter,
   });
 
-  // This link in the notes may have a different action than the link in the
-  // date display if a special notes click action has been passed from above
+  // By default, the link in the notes will link to the same place as the "createdTimeLink"
+  // of the last post. If an explictit onClick action was passed, however, that will be
+  // executed instead.
+  const directLinkToLastPost = postsData[postsData.length - 1].createdTimeLink;
   const notesLink = React.useMemo(
-    () => ({
-      href: `${
-        postsData[postsData.length - 1].createdTimeLink.href
-      }${getCurrentSearchParams()}`,
-      onClick: onNotesClick
-        ? () => onNotesClick(post.postId)
-        : postsData[postsData.length - 1].createdTimeLink.onClick,
-    }),
-    [onNotesClick, post.postId, postsData]
+    () =>
+      onNotesClick
+        ? {
+            onClick: () => onNotesClick(post.postId),
+          }
+        : directLinkToLastPost,
+    [onNotesClick, post.postId, directLinkToLastPost]
   );
 
   return (
