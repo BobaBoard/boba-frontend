@@ -49,16 +49,37 @@ const Editors = () => {
   const refetchBoardActivity = useRefetchBoardActivity();
   const [isRefetching, setRefetching] = React.useState(false);
   const boards = useRealmBoards();
+  const [isMinimized, setMinimized] = React.useState(false);
+  const onMinimize = () => {
+    if (isMinimized) {
+      document.body.style.overflow = "hidden";
+      // TODO: this is bad and horrible (we should not use query selector)
+      const layoutNode = document.querySelector(".layout") as HTMLDivElement;
+      if (layoutNode) {
+        layoutNode.style.overflow = "hidden";
+      }
+    } else {
+      document.body.style.overflow = "";
+      // TODO: this is bad and horrible (we should not use query selector)
+      const layoutNode = document.querySelector(".layout") as HTMLDivElement;
+      if (layoutNode) {
+        layoutNode.style.overflow = "";
+      }
+    }
+    setMinimized(!isMinimized);
+  };
+
   if (!isLoggedIn || isAuthPending || !state.isOpen) {
     return null;
   }
 
   return (
     <>
-      <Modal isOpen={true}>
+      <Modal isOpen={true} isMinimized={isMinimized}>
         {isContributionEditorState(state) && (
           <ContributionEditorModal
             loading={isRefetching}
+            onMinimize={onMinimize}
             onPostSaved={(post: PostType, postedBoardId: string) => {
               if (isEditContribution(state)) {
                 setPostTagsInCache(queryClient, {
