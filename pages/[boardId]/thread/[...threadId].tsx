@@ -22,6 +22,7 @@ import {
 } from "contexts/RealmContext";
 import { useThreadEditors, withEditors } from "components/editors/withEditors";
 
+import { FilterableContextProvider } from "contexts/FilterableContext";
 import GalleryThreadView from "components/thread/GalleryThreadView";
 import Layout from "components/layout/Layout";
 import LoadingSpinner from "components/LoadingSpinner";
@@ -304,7 +305,9 @@ const ThreadPageWithContext: React.FC<{
       threadId={threadId}
     >
       <ThreadViewContextProvider>
-        <ThreadPage />
+        <FilterableContextProvider>
+          <ThreadPage />
+        </FilterableContextProvider>
       </ThreadViewContextProvider>
     </ThreadContextProvider>
   );

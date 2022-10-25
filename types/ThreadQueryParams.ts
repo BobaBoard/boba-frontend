@@ -44,11 +44,6 @@ export interface TimelineViewMode {
   timelineViewMode: TIMELINE_VIEW_SUB_MODE;
 }
 
-export interface ThreadFilters {
-  activeFilters: string[] | null;
-  excludedNotices: string[] | null;
-}
-
 export type ThreadViewMode =
   | ClassicThreadViewMode
   | GalleryViewMode

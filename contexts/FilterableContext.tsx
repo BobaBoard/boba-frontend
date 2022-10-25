@@ -16,8 +16,8 @@ const FilterableContext = React.createContext<
   | {
       activeCategories: string[];
       setActiveCategories: (categories: string[]) => void;
-      //   filteredNotices: string[];
-      //   setFilteredNotices: (filters: string[]) => void;
+      filteredNotices: string[];
+      setFilteredNotices: (filters: string[]) => void;
     }
   | undefined
 >(undefined);
@@ -55,14 +55,26 @@ const useSetActiveCategories = () => {
 const FilterableContextProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const [{ filter }, setQuery] = useQueryParams(FilterParams);
+  const [{ filter, filteredNotices }, setQuery] = useQueryParams(FilterParams);
   const setActiveCategories = React.useCallback(
     (activeCategories: string[]) => {
       setQuery(
         {
           filter: activeCategories.length == 1 ? activeCategories : undefined,
         },
-        "replace"
+        "push"
+      );
+    },
+    [setQuery]
+  );
+  const setFilteredNotices = React.useCallback(
+    (filteredNotices: string[]) => {
+      setQuery(
+        {
+          filteredNotices:
+            filteredNotices.length == 1 ? filteredNotices : undefined,
+        },
+        "push"
       );
     },
     [setQuery]
@@ -74,8 +86,10 @@ const FilterableContextProvider: React.FC<{
         () => ({
           activeCategories: (filter ?? []).filter(isNotNull),
           setActiveCategories,
+          filteredNotices: (filteredNotices ?? []).filter(isNotNull),
+          setFilteredNotices: setFilteredNotices,
         }),
-        [filter, setActiveCategories]
+        [filter, setActiveCategories, filteredNotices, setFilteredNotices]
       )}
     >
       {children}
