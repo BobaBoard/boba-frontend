@@ -5,24 +5,10 @@ import {
 } from "@bobaboard/ui-components";
 import { PageTypes, usePageDetails } from "utils/router-utils";
 import {
-  faArchive,
-  faBook,
-  faCogs,
-  faComments,
-  faCrown,
-  faLock,
-  faLockOpen,
-  faSignOutAlt,
-} from "@fortawesome/free-solid-svg-icons";
-import {
   useInvalidateNotifications,
   useNotifications,
 } from "queries/notifications";
-import {
-  useRealmContext,
-  useRealmPermissions,
-  useRealmSettings,
-} from "contexts/RealmContext";
+import { useRealmContext, useRealmSettings } from "contexts/RealmContext";
 
 import { BOARD_ACTIVITY_KEY } from "queries/board-feed";
 import LoginModal from "../LoginModal";
@@ -30,87 +16,17 @@ import PinnedMenu from "./PinnedMenu";
 import React from "react";
 import Sidemenu from "./SideMenu";
 import debug from "debug";
-import { hasAdminPanelAccess } from "utils/permissions-utils";
 import { useAuth } from "components/Auth";
 import { useBoardSummaryBySlug } from "queries/board";
-import { useCachedLinks } from "../hooks/useCachedLinks";
-import { useForceHideIdentity } from "../hooks/useForceHideIdentity";
-import { useIsChangingRoute } from "../hooks/useIsChangingRoute";
+import { useCachedLinks } from "components/hooks/useCachedLinks";
+import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
+import { useIsChangingRoute } from "components/hooks/useIsChangingRoute";
+import { useLoggedInOptions } from "components/options/useLoggedInOptions";
 import { useQueryClient } from "react-query";
-import { useServerCssVariables } from "../hooks/useServerCssVariables";
+import { useServerCssVariables } from "components/hooks/useServerCssVariables";
 
 // const log = debug("bobafrontend:Layout-log");
 const error = debug("bobafrontend:Layout-error");
-
-const useLoggedInDropdownOptions = (openLogin: () => void) => {
-  const { forceHideIdentity, toggleForceHideIdentity } = useForceHideIdentity();
-  const { linkToPersonalSettings, linkToLogs, linkToRealmAdmin } =
-    useCachedLinks();
-  const userRealmPermissions = useRealmPermissions();
-  const realmData = useRealmContext();
-
-  return React.useMemo(
-    () => [
-      {
-        icon: faArchive,
-        name: "Logs Archive",
-        link: linkToLogs,
-      },
-      {
-        icon: faCogs,
-        name: "User Settings",
-        link: linkToPersonalSettings,
-      },
-      ...(hasAdminPanelAccess(userRealmPermissions)
-        ? [
-            {
-              icon: faCrown,
-              name: "Realm Administration",
-              link: linkToRealmAdmin,
-            },
-          ]
-        : []),
-      {
-        icon: faBook,
-        name: "User Guide",
-        link: {
-          href: "https://docs.bobaboard.com/docs/users/intro",
-        },
-      },
-      {
-        icon: faComments,
-        name: "Leave Feedback!",
-        link: {
-          href:
-            realmData.feedbackFormUrl ||
-            "https://docs.google.com/forms/d/e/1FAIpQLSfyMENg9eDNmRj-jIvIG5_ElJFwpGZ_VPvzAskarqu5kf0MSA/viewform",
-        },
-      },
-      {
-        icon: forceHideIdentity ? faLockOpen : faLock,
-        name: forceHideIdentity ? "Display identity" : "Force hide identity",
-        link: {
-          onClick: toggleForceHideIdentity,
-        },
-      },
-      {
-        icon: faSignOutAlt,
-        name: "Logout",
-        link: { onClick: openLogin },
-      },
-    ],
-    [
-      forceHideIdentity,
-      openLogin,
-      linkToLogs,
-      linkToPersonalSettings,
-      linkToRealmAdmin,
-      toggleForceHideIdentity,
-      userRealmPermissions,
-      realmData.feedbackFormUrl,
-    ]
-  );
-};
 
 interface LayoutComposition {
   MainContent: React.FC<{
@@ -194,7 +110,7 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
     realmId,
   });
   const openLogin = React.useCallback(() => setLoginOpen(true), []);
-  const loggedInMenuOptions = useLoggedInDropdownOptions(openLogin);
+  const loggedInMenuOptions = useLoggedInOptions(openLogin);
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   useServerCssVariables(containerRef);
