@@ -279,7 +279,7 @@ const InvitesPage: NextPage<InvitesPageProps> = ({
                     If you have concerns, no matter how small, the webmaster's
                     door is always open. In doubt, consult our{" "}
                     <a href="https://docs.bobaboard.com/docs/users/intro">
-                      Welcome Guide
+                      User Guide
                     </a>{" "}
                     or ask your questions on the boards!
                   </p>
