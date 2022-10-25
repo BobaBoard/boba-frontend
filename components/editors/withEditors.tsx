@@ -75,11 +75,15 @@ const Editors = () => {
 
   return (
     <>
-      <Modal isOpen={true} isMinimized={isMinimized}>
+      <Modal
+        isOpen={true}
+        isMinimized={isMinimized}
+        onMinimize={onMinimize}
+        minimizable={!isNewThread(state)}
+      >
         {isContributionEditorState(state) && (
           <ContributionEditorModal
             loading={isRefetching}
-            onMinimize={onMinimize}
             onPostSaved={(post: PostType, postedBoardId: string) => {
               if (isEditContribution(state)) {
                 setPostTagsInCache(queryClient, {

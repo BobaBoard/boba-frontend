@@ -230,14 +230,12 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
           avatar: currentBoard!.avatarUrl,
         }}
         availableBoards={isNewThread(state) ? allBoards : undefined}
-        onMinimize={props.onMinimize}
-        minimizable={!!props.onMinimize}
       />
       <style jsx>{`
         .editor {
           display: flex;
           justify-content: center;
-          padding: 15px;
+          padding: 0 15px 15px;
         }
       `}</style>
     </div>
@@ -247,7 +245,6 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
 export interface PostEditorModalProps {
   onCancel: (empty: boolean) => void;
   onPostSaved: (post: PostType, boardId?: string) => void;
-  onMinimize?: () => void;
   loading?: boolean;
 }
 
