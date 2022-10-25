@@ -5,16 +5,14 @@ import {
   TagType,
   TagsFilterSection,
 } from "@bobaboard/ui-components";
-import {
-  THREAD_VIEW_MODE,
-  useThreadViewContext,
-} from "contexts/ThreadViewContext";
 
 import { DisplayManager } from "components/hooks/useDisplayMananger";
 import React from "react";
+import { THREAD_VIEW_MODE } from "contexts/ThreadViewContext";
 import { UNCATEGORIZED_LABEL } from "utils/thread-utils";
 import classnames from "classnames";
 import { formatDistanceToNow } from "date-fns";
+import { useFilterableContext } from "contexts/FilterableContext";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { useThreadContext } from "components/thread/ThreadContext";
 
@@ -29,11 +27,11 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
   const { forceHideIdentity } = useForceHideIdentity();
   const { threadRoot, categories, contentNotices } = useThreadContext();
   const {
-    setActiveFilter,
-    activeFilters,
-    setExcludedNotices,
-    excludedNotices,
-  } = useThreadViewContext();
+    activeCategories,
+    setActiveCategories,
+    filteredNotices,
+    setFilteredNotices,
+  } = useFilterableContext();
   if (!threadRoot) {
     return null;
   }
@@ -96,24 +94,24 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
               tags={contentNotices.map((notice) => ({
                 name: notice,
                 state:
-                  excludedNotices == null || !excludedNotices.includes(notice)
+                  !filteredNotices.length || filteredNotices.includes(notice)
                     ? TagsFilterSection.FilteredTagsState.ACTIVE
                     : TagsFilterSection.FilteredTagsState.DISABLED,
               }))}
               onTagsStateChangeRequest={(notice) => {
-                if (excludedNotices?.includes(notice)) {
-                  const newNotices = excludedNotices.filter(
+                if (filteredNotices?.includes(notice)) {
+                  const newNotices = filteredNotices.filter(
                     (existingNotice) => existingNotice != notice
                   );
-                  setExcludedNotices(newNotices.length > 0 ? newNotices : null);
+                  setFilteredNotices(newNotices);
                   return;
                 }
-                setExcludedNotices(
-                  excludedNotices ? [...excludedNotices, notice] : [notice]
+                setFilteredNotices(
+                  filteredNotices ? [...filteredNotices, notice] : [notice]
                 );
               }}
               onClearFilterRequests={() => {
-                setExcludedNotices(null);
+                setFilteredNotices([]);
               }}
               type={TagType.CONTENT_WARNING}
             />
@@ -127,24 +125,25 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
               tags={categories.map((category) => ({
                 name: category,
                 state:
-                  activeFilters == null || activeFilters.includes(category)
+                  !activeCategories.length ||
+                  activeCategories.includes(category)
                     ? TagsFilterSection.FilteredTagsState.ACTIVE
                     : TagsFilterSection.FilteredTagsState.DISABLED,
               }))}
               onTagsStateChangeRequest={(name) => {
-                setActiveFilter(name);
+                setActiveCategories([name]);
               }}
               onClearFilterRequests={() => {
-                setActiveFilter(null);
+                setActiveCategories([]);
               }}
               uncategorized={
-                activeFilters == null ||
-                activeFilters.includes(UNCATEGORIZED_LABEL)
+                !activeCategories.length ||
+                activeCategories.includes(UNCATEGORIZED_LABEL)
                   ? TagsFilterSection.FilteredTagsState.ACTIVE
                   : TagsFilterSection.FilteredTagsState.DISABLED
               }
               onUncategorizedStateChangeRequest={() => {
-                setActiveFilter(UNCATEGORIZED_LABEL);
+                setActiveCategories([UNCATEGORIZED_LABEL]);
               }}
               type={TagType.CATEGORY}
             />
