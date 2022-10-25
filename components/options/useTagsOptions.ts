@@ -4,6 +4,7 @@ import type { Post, TagsType } from "@bobaboard/ui-components";
 import React from "react";
 import { TagType } from "@bobaboard/ui-components";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
+import { useFilterableContext } from "contexts/FilterableContext";
 import { useThreadViewContext } from "contexts/ThreadViewContext";
 
 export enum TagsOptions {
@@ -19,10 +20,10 @@ type PostProps = GetPropsFromForwardedRef<typeof Post>;
  */
 const getTagFilterOption = ({
   tag,
-  setActiveFilter,
+  setActiveCategories,
 }: {
   tag: TagsType;
-  setActiveFilter: (tag: string) => void;
+  setActiveCategories: (tags: string[]) => void;
 }) => {
   if (!tag || tag.type != TagType.CATEGORY) {
     return null;
@@ -33,7 +34,7 @@ const getTagFilterOption = ({
     name: "Filter",
     link: {
       onClick: () => {
-        setActiveFilter(tag.name);
+        setActiveCategories([tag.name]);
       },
     },
   };
@@ -45,16 +46,16 @@ const getTagFilterOption = ({
  * - null, if the option is non available for that tag
  */
 const useGetDropdownItemFromOption = () => {
-  const { setActiveFilter } = useThreadViewContext();
+  const { setActiveCategories } = useFilterableContext();
 
   return React.useCallback(
     ({ tag, option }: { tag: TagsType; option: TagsOptions }) => {
       switch (option) {
         case TagsOptions.FILTER_BY_CATEGORY:
-          return getTagFilterOption({ tag, setActiveFilter });
+          return getTagFilterOption({ tag, setActiveCategories });
       }
     },
-    [setActiveFilter]
+    [setActiveCategories]
   );
 };
 
