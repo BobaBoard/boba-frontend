@@ -84,7 +84,7 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
         .editor {
           display: flex;
           justify-content: center;
-          padding: 15px;
+          padding: 0 15px 15px;
         }
       `}</style>
     </div>
