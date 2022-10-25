@@ -1,14 +1,10 @@
 import { Post, TagType, TagsType } from "@bobaboard/ui-components";
 import { PostData, ThreadSummaryType } from "types/Types";
 import { PostOptions, usePostOptions } from "./options/usePostOptions";
-import {
-  faCodeBranch,
-  faFilm,
-  faFilter,
-  faImages,
-} from "@fortawesome/free-solid-svg-icons";
 
 import React from "react";
+import { THREAD_VIEW_OPTIONS } from "./editors/utils";
+import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { formatDistanceToNow } from "date-fns";
 import noop from "noop-ts";
 import { useCachedLinks } from "./hooks/useCachedLinks";
@@ -28,16 +24,8 @@ const THREAD_OPTIONS = [
   PostOptions.DEBUG,
 ];
 
-// TODO: Use THREAD_VIEW_OPTIONS from utils.
 const getThreadTypeIcon = (view: PostData["defaultView"]) => {
-  switch (view) {
-    case "gallery":
-      return faImages;
-    case "thread":
-      return faCodeBranch;
-    case "timeline":
-      return faFilm;
-  }
+  return THREAD_VIEW_OPTIONS.find((options) => options.id == view)?.icon;
 };
 
 const HiddenThread: React.FC<{
