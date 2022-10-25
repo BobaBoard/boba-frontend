@@ -71,7 +71,7 @@ const useLoggedInDropdownOptions = (openLogin: () => void) => {
         : []),
       {
         icon: faBook,
-        name: "Welcome Guide",
+        name: "User Guide",
         link: {
           href: "https://docs.bobaboard.com/docs/users/intro",
         },

@@ -83,7 +83,7 @@ describe("InvitesPanel", () => {
     expect(
       screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
     ).toBeVisible();
-    expect(screen.getByRole("link", { name: "Welcome Guide" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "User Guide" })).toBeVisible();
     expect(screen.getByRole("link", { name: "Twitter" })).toBeVisible();
     expect(screen.getByRole("link", { name: "Tumblr" })).toBeVisible();
     expect(screen.getByRole("link", { name: "BobaBoard.com" })).toBeVisible();
@@ -127,7 +127,7 @@ describe("InvitesPanel", () => {
       screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
     ).toBeVisible();
     expect(
-      screen.queryByRole("link", { name: "Welcome Guide" })
+      screen.queryByRole("link", { name: "User Guide" })
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("link", { name: "Twitter" })
