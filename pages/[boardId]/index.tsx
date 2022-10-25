@@ -1,10 +1,13 @@
-import { ArrayParam, useQueryParams } from "use-query-params";
 import { BoardPageDetails, usePageDetails } from "utils/router-utils";
 import {
   EditorActions,
   useEditorsDispatch,
 } from "components/editors/EditorsContext";
 import { FeedWithMenu, PostingActionButton } from "@bobaboard/ui-components";
+import {
+  FilterableContextProvider,
+  useFilterableContext,
+} from "contexts/FilterableContext";
 import {
   REALM_QUERY_KEY,
   useBoardSummary,
@@ -60,18 +63,13 @@ const NewThreadButton = withEditors<{ boardId: string | null }>((props) => {
   );
 });
 
-const BoardParams = {
-  filter: ArrayParam,
-};
-
 const MemoizedThreadPreview = React.memo(ThreadPreview);
 const MemoizedActionButton = React.memo(PostingActionButton);
-function BoardPage() {
+function BoardPage({ slug }: { slug: string }) {
+  const boardId = useCurrentRealmBoardId({ boardSlug: slug });
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
-  const { slug } = usePageDetails<BoardPageDetails>();
   const { isPending: isAuthPending, isLoggedIn } = useAuth();
-  const boardId = useCurrentRealmBoardId({ boardSlug: slug });
   const realmPermissions = useRealmPermissions();
   // TODO: make this easier:
   // We need to use the broad summary from the realm data to check if the board is locked
@@ -85,19 +83,7 @@ function BoardPage() {
     () => setShowSidebar(!showSidebar),
     [showSidebar]
   );
-  const [{ filter: categoryFilter }, setQuery] = useQueryParams(BoardParams);
-
-  React.useEffect(() => {
-    setQuery({
-      filter: undefined,
-    });
-  }, [slug, setQuery]);
-  const onSetFilter = React.useCallback(
-    (filter) => {
-      setQuery({ filter: [filter] }, "replace");
-    },
-    [setQuery]
-  );
+  const { activeCategories, setActiveCategories } = useFilterableContext();
 
   const {
     data: boardActivityData,
@@ -108,7 +94,7 @@ function BoardPage() {
     hasNextPage,
   } = useBoardActivity({
     boardId,
-    categoryFilter,
+    categoryFilter: activeCategories,
   });
 
   React.useEffect(() => {
@@ -118,20 +104,23 @@ function BoardPage() {
     }
   }, [isAuthPending, isLoggedIn, boardId, boardActivityFetched]);
 
+  const onSetFilter = React.useCallback(
+    (filter) => {
+      setActiveCategories([filter]);
+    },
+    [setActiveCategories]
+  );
+
+  setActiveCategories;
   const onCategoriesStateChange = React.useCallback(
     (categories: { name: string; active: boolean }[]) => {
-      const activeCategories = categories.filter((category) => category.active);
-      setQuery(
-        {
-          filter:
-            activeCategories.length == 1
-              ? [activeCategories[0].name]
-              : undefined,
-        },
-        "replace"
+      setActiveCategories(
+        categories
+          .filter((category) => category.active)
+          .map((category) => category.name)
       );
     },
-    [setQuery]
+    [setActiveCategories]
   );
 
   const showLockedMessage =
@@ -176,7 +165,7 @@ function BoardPage() {
                 loading={!isBoardMetadataFetched}
                 boardMetadata={boardMetadata}
                 pageSlug={slug}
-                activeCategory={categoryFilter?.[0] || null}
+                activeCategory={activeCategories[0] || null}
                 onCategoriesStateChange={onCategoriesStateChange}
               />
             </FeedWithMenu.Sidebar>
@@ -264,10 +253,20 @@ function BoardPage() {
   );
 }
 
-const MemoizedBoardPage: NextPage = React.memo(BoardPage);
-export default MemoizedBoardPage;
+const BoardPageWithContext: NextPage = () => {
+  const { slug } = usePageDetails<BoardPageDetails>();
+  return (
+    <FilterableContextProvider>
+      <BoardPage slug={slug} />
+    </FilterableContextProvider>
+  );
+};
 
-MemoizedBoardPage.getInitialProps = async (ctx: PageContextWithQueryClient) => {
+export default BoardPageWithContext;
+
+BoardPageWithContext.getInitialProps = async (
+  ctx: PageContextWithQueryClient
+) => {
   if (isClientContext(ctx)) {
     // See _app.tsx on why this is necessary
     return {};
