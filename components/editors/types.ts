@@ -104,6 +104,16 @@ export const isNewThread = (state: EditorState): state is NewThreadState => {
   );
 };
 
+export const isReplyContribution = (
+  state: EditorState
+): state is NewContributionState => {
+  return (
+    state.isOpen &&
+    isContributionEditorState(state) &&
+    "newContribution" in state
+  );
+};
+
 export const isEditContribution = (
   state: EditorState
 ): state is EditContributionState => {

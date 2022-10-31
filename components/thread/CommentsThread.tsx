@@ -9,15 +9,22 @@ import {
   RealmPermissions,
   ThreadCommentInfoType,
 } from "types/Types";
+import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
+import {
+  useBoardSummary,
+  useCurrentRealmBoardId,
+  useRealmPermissions,
+} from "contexts/RealmContext";
 
 import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
 import React from "react";
 import debug from "debug";
 import { faComment } from "@fortawesome/free-regular-svg-icons";
 import { formatDistanceToNow } from "date-fns";
+import { isCommentEditorState } from "components/editors/types";
 import { useAuth } from "components/Auth";
+import { useEditorsState } from "components/editors/EditorsContext";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
-import { useRealmPermissions } from "contexts/RealmContext";
 import { useThreadContext } from "./ThreadContext";
 import { useThreadEditors } from "components/editors/withEditors";
 
@@ -84,6 +91,12 @@ const ThreadComment: React.FC<{
   const { onNewComment } = useThreadEditors();
   const { postCommentsMap, opIdentity } = useThreadContext();
   const { parentChainMap } = postCommentsMap.get(parentPostId)!;
+  const { slug } = usePageDetails<ThreadPageDetails>();
+  const boardId = useCurrentRealmBoardId({
+    boardSlug: slug,
+  });
+  const boardColor = useBoardSummary({ boardId })?.accentColor;
+  const editorState = useEditorsState();
   const chainInfo = React.useMemo(
     () =>
       getCommentsChain(rootComment, parentChainMap).map((comment) => ({
@@ -92,6 +105,10 @@ const ThreadComment: React.FC<{
       })),
     [rootComment, parentChainMap]
   );
+  const isCurrentReplyToComment =
+    isCommentEditorState(editorState) &&
+    editorState.newComment.replyToCommentId ===
+      chainInfo[chainInfo.length - 1].id;
   const replyToLast = React.useMemo<LinkWithAction>(
     () => ({
       onClick: () =>
@@ -128,26 +145,46 @@ const ThreadComment: React.FC<{
   );
 
   return (
-    <Comment
-      ref={onSetRef}
-      key={rootComment.commentId}
-      secretIdentity={rootComment.secretIdentity}
-      userIdentity={rootComment.userIdentity}
-      createdTime={formatDistanceToNow(new Date(rootComment.created), {
-        addSuffix: true,
-      })}
-      comments={chainInfo}
-      new={isLoggedIn && rootComment.isNew}
-      op={rootComment.secretIdentity.name == opIdentity?.name}
-      onExtraAction={
-        realmPermissions.includes(RealmPermissions.COMMENT_ON_REALM)
-          ? replyToLast
-          : undefined
-      }
-      options={options}
-      forceHideIdentity={forceHideIdentity}
-      disableMotionOnScroll={disableMotionEffect}
-    />
+    <>
+      {isCurrentReplyToComment && (
+        <div className="current-reply-header">You're replying to:</div>
+      )}
+      <div className={isCurrentReplyToComment ? "current-reply-outline" : ""}>
+        <Comment
+          ref={onSetRef}
+          key={rootComment.commentId}
+          secretIdentity={rootComment.secretIdentity}
+          userIdentity={rootComment.userIdentity}
+          createdTime={formatDistanceToNow(new Date(rootComment.created), {
+            addSuffix: true,
+          })}
+          comments={chainInfo}
+          new={isLoggedIn && rootComment.isNew}
+          op={rootComment.secretIdentity.name == opIdentity?.name}
+          onExtraAction={
+            realmPermissions.includes(RealmPermissions.COMMENT_ON_REALM) &&
+            !editorState.isOpen
+              ? replyToLast
+              : undefined
+          }
+          options={options}
+          forceHideIdentity={forceHideIdentity}
+          disableMotionOnScroll={disableMotionEffect}
+        />
+      </div>
+      <style jsx>{`
+        .current-reply-outline {
+          outline: 3px solid ${boardColor};
+          border-radius: 15px;
+        }
+        .current-reply-header {
+          color: rgb(255, 255, 255);
+          padding-left: 10px;
+          padding-bottom: 7px;
+          font-size: 1.3rem;
+        }
+      `}</style>
+    </>
   );
 };
 

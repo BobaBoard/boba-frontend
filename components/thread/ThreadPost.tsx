@@ -11,6 +11,11 @@ import {
   getTotalNewContributions,
 } from "utils/thread-utils";
 import {
+  isCommentEditorState,
+  isReplyContribution,
+} from "components/editors/types";
+import {
+  useBoardSummary,
   useCurrentRealmBoardId,
   useRealmPermissions,
 } from "contexts/RealmContext";
@@ -18,10 +23,12 @@ import {
 import { GetPropsFromForwardedRef } from "utils/typescript-utils";
 import React from "react";
 import { addPostHandlerRef } from "utils/scroll-utils";
+import classNames from "classnames";
 import { formatDistanceToNow } from "date-fns";
 import { getCurrentSearchParams } from "utils/location-utils";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
+import { useEditorsState } from "components/editors/EditorsContext";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { useThreadContext } from "./ThreadContext";
 import { useThreadEditors } from "components/editors/withEditors";
@@ -232,7 +239,15 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
   const boardId = useCurrentRealmBoardId({
     boardSlug: slug,
   });
+  const boardColor = useBoardSummary({ boardId })?.accentColor;
   const realmPermissions = useRealmPermissions();
+  const editorState = useEditorsState();
+  const isCurrentReplyToContribution =
+    (isReplyContribution(editorState) &&
+      editorState.newContribution.replyToContributionId === post.postId) ||
+    (isCommentEditorState(editorState) &&
+      editorState.newComment.replyToContributionId === post.postId &&
+      editorState.newComment.replyToCommentId === null);
   const getTagOptions = useGetTagOptions({
     options: POST_TAG_OPTIONS,
   });
@@ -286,52 +301,76 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
   );
 
   return (
-    <div className="post" data-post-id={post.postId}>
-      {postsData.length == 1 ? (
-        // If there's a single post use the regular post
-        <Post
-          key={post.postId}
-          ref={onRefUpdated}
-          {...postsData[0]}
-          forceHideIdentity={forceHideIdentity}
-          getOptionsForTag={getTagOptions}
-          onNewContribution={onContributeToPost}
-          onNewComment={onCommentOnPost}
-          allowsComment={realmPermissions.includes(
-            RealmPermissions.COMMENT_ON_REALM
-          )}
-          allowsContribution={realmPermissions.includes(
-            RealmPermissions.POST_ON_REALM
-          )}
-          menuOptions={options}
-          notesLink={notesLink}
-        />
-      ) : (
-        // If there's multiple posts use a compact thread
-        <CompactPostThread
-          key={post.postId}
-          posts={postsData}
-          ref={onRefUpdated}
-          forceHideIdentity={forceHideIdentity}
-          getOptionsForTag={getTagOptions}
-          onNewContribution={onContributeToPost}
-          onNewComment={onCommentOnPost}
-          allowsComment={realmPermissions.includes(
-            RealmPermissions.COMMENT_ON_REALM
-          )}
-          allowsContribution={realmPermissions.includes(
-            RealmPermissions.POST_ON_REALM
-          )}
-          menuOptions={options}
-          notesLink={notesLink}
-        />
+    <>
+      {isCurrentReplyToContribution && (
+        <div className="current-reply-header">You're replying to:</div>
       )}
+      <div
+        className={classNames("post", {
+          "current-reply": isCurrentReplyToContribution,
+        })}
+        data-post-id={post.postId}
+      >
+        {postsData.length == 1 ? (
+          // If there's a single post use the regular post
+          <Post
+            key={post.postId}
+            ref={onRefUpdated}
+            {...postsData[0]}
+            forceHideIdentity={forceHideIdentity}
+            getOptionsForTag={getTagOptions}
+            onNewContribution={onContributeToPost}
+            onNewComment={onCommentOnPost}
+            allowsComment={
+              realmPermissions.includes(RealmPermissions.COMMENT_ON_REALM) &&
+              !editorState.isOpen
+            }
+            allowsContribution={
+              realmPermissions.includes(RealmPermissions.POST_ON_REALM) &&
+              !editorState.isOpen
+            }
+            menuOptions={options}
+            notesLink={notesLink}
+          />
+        ) : (
+          // If there's multiple posts use a compact thread
+          <CompactPostThread
+            key={post.postId}
+            posts={postsData}
+            ref={onRefUpdated}
+            forceHideIdentity={forceHideIdentity}
+            getOptionsForTag={getTagOptions}
+            onNewContribution={onContributeToPost}
+            onNewComment={onCommentOnPost}
+            allowsComment={
+              realmPermissions.includes(RealmPermissions.COMMENT_ON_REALM) &&
+              !editorState.isOpen
+            }
+            allowsContribution={
+              realmPermissions.includes(RealmPermissions.POST_ON_REALM) &&
+              !editorState.isOpen
+            }
+            menuOptions={options}
+            notesLink={notesLink}
+          />
+        )}
+      </div>
       <style jsx>{`
         .post {
           pointer-events: all;
         }
+        .post.current-reply {
+          outline: 5px solid ${boardColor};
+          border-radius: 15px;
+        }
+        .current-reply-header {
+          color: rgb(255, 255, 255);
+          padding-left: 15px;
+          padding-bottom: 7px;
+          font-size: 1.3rem;
+        }
       `}</style>
-    </div>
+    </>
   );
 };
 
