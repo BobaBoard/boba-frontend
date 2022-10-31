@@ -1,5 +1,6 @@
 import {
   CustomCursor,
+  DefaultTheme,
   Layout as LibraryLayout,
 } from "@bobaboard/ui-components";
 import { PageTypes, usePageDetails } from "utils/router-utils";
@@ -223,26 +224,51 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
       )}
       <LibraryLayout
         ref={layoutRef}
-        headerAccent={currentBoardSummary?.accentColor || "#f96680"}
+        accentColor={currentBoardSummary?.accentColor || "#f96680"}
+        notificationIcon={
+          hasNotifications
+            ? {
+                color: notificationsOutdated
+                  ? DefaultTheme.NOTIFICATIONS_OUTDATED_COLOR
+                  : DefaultTheme.NOTIFICATIONS_NEW_COLOR,
+              }
+            : undefined
+        }
         onUserBarClick={React.useMemo(
           () => ({
             onClick: () => setLoginOpen(!isUserPending && !isLoggedIn),
           }),
           [isUserPending, isLoggedIn]
         )}
-        loggedInMenuOptions={loggedInMenuOptions}
-        user={user}
+        user={React.useMemo(
+          () => ({
+            name: user?.username,
+            avatar: user?.avatarUrl,
+            loading: isUserPending,
+            menuOptions: loggedInMenuOptions,
+          }),
+          [user, isUserPending, loggedInMenuOptions]
+        )}
         title={props.title}
-        hideTitleOnDesktop={props.forceHideTitle}
+        hideTitleFromDesktopHeader={props.forceHideTitle}
         forceHideIdentity={forceHideIdentity}
         loading={props.loading || isUserPending || isChangingRoute}
-        userLoading={isUserPending}
-        hasNotifications={hasNotifications}
-        hasOutdatedNotifications={notificationsOutdated}
-        onSideMenuButtonClick={refetchNotifications}
+        onSideMenuStatusChange={React.useCallback(
+          (status) => {
+            if (status == "opening") {
+              refetchNotifications();
+            }
+          },
+          [refetchNotifications]
+        )}
         logoLink={linkToHome}
         titleLink={titleLink}
-        onCompassClick={props.onCompassClick}
+        onCompassClick={React.useMemo(
+          () => ({
+            onClick: props.onCompassClick,
+          }),
+          [props.onCompassClick]
+        )}
       >
         <LibraryLayout.SideMenuContent>
           <Sidemenu />
