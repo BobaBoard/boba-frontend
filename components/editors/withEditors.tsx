@@ -30,9 +30,11 @@ const Editors = () => {
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const { getLinkToBoard } = useCachedLinks();
   const queryClient = useQueryClient();
+  const [isMinimized, setMinimized] = React.useState(false);
   const dispatch = useEditorsDispatch();
   const onClose = React.useCallback(() => {
     dispatch({ type: EditorActions.CLOSE, payload: {} });
+    setMinimized(false);
   }, [dispatch]);
   const state = useEditorsState();
   usePreventPageChange(() => state.isOpen, onClose, [state.isOpen]);
@@ -49,7 +51,6 @@ const Editors = () => {
   const refetchBoardActivity = useRefetchBoardActivity();
   const [isRefetching, setRefetching] = React.useState(false);
   const boards = useRealmBoards();
-  const [isMinimized, setMinimized] = React.useState(false);
   const onMinimize = () => {
     if (isMinimized) {
       document.body.style.overflow = "hidden";

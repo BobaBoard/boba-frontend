@@ -41,6 +41,7 @@ import { useAuth } from "components/Auth";
 import { useBeamToNew } from "components/hooks/useBeamToNew";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
+import { useEditorsState } from "components/editors/EditorsContext";
 import { useInvalidateNotifications } from "queries/notifications";
 import { useOnPageExit } from "components/hooks/useOnPageExit";
 import { useRefetchBoardActivity } from "queries/board-feed";
@@ -140,6 +141,7 @@ function ThreadPage() {
   const { postId, slug, threadId } = usePageDetails<ThreadPageDetails>();
   const boardId = useCurrentRealmBoardId({ boardSlug: slug });
   const realmPermissions = useRealmPermissions();
+  const editorState = useEditorsState();
   const { isPending: isAuthPending } = useAuth();
   const { getLinkToBoard } = useCachedLinks();
   const currentBoardData = useBoardSummary({ boardId });
@@ -268,7 +270,7 @@ function ThreadPage() {
               onNext={onNewAnswersButtonClick}
               loading={loading}
             />
-          ) : canTopLevelPost ? (
+          ) : canTopLevelPost && !editorState.isOpen ? (
             <PostingActionButton
               accentColor={currentBoardData?.accentColor || "#f96680"}
               onNewPost={() =>
