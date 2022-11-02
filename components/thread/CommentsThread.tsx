@@ -175,6 +175,7 @@ const ThreadComment: React.FC<{
       <style jsx>{`
         .current-reply-outline {
           outline: 3px solid ${boardColor};
+          background-color: ${boardColor};
           border-radius: 15px;
         }
         .current-reply-header {
