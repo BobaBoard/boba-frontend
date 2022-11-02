@@ -361,6 +361,7 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
         }
         .post.current-reply {
           outline: 5px solid ${boardColor};
+          background-color: ${boardColor};
           border-radius: 15px;
         }
         .current-reply-header {

@@ -5,7 +5,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import React from "react";
-import { useAuth } from "components/Auth";
+import { RealmPermissions } from "types/Types";
+import { useEditorsState } from "components/editors/EditorsContext";
+import { useRealmPermissions } from "contexts/RealmContext";
 
 export const useStemOptions = ({
   onCollapse,
@@ -18,7 +20,8 @@ export const useStemOptions = ({
   onScrollTo: (levelId: string) => void;
   onReply: (levelId: string) => void;
 }) => {
-  const { isLoggedIn } = useAuth();
+  const realmPermissions = useRealmPermissions();
+  const editorState = useEditorsState();
 
   return React.useCallback(
     (levelId) => {
@@ -43,7 +46,10 @@ export const useStemOptions = ({
         },
       ];
 
-      if (isLoggedIn) {
+      if (
+        realmPermissions.includes(RealmPermissions.POST_ON_REALM) &&
+        !editorState.isOpen
+      ) {
         options.push({
           name: "reply up",
           icon: faPlusSquare,
@@ -56,6 +62,6 @@ export const useStemOptions = ({
       }
       return options;
     },
-    [isLoggedIn, onCollapse, onReply, onScrollTo]
+    [editorState.isOpen, onCollapse, onReply, onScrollTo, realmPermissions]
   );
 };
