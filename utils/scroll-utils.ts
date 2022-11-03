@@ -1,6 +1,5 @@
 import { DefaultTheme, PostHandler } from "@bobaboard/ui-components";
 
-import React from "react";
 import { log } from "debug";
 
 const postHandlers = new Map<string, PostHandler>();

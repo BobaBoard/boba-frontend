@@ -76,8 +76,10 @@ const SideMenu = () => {
       },
     }
   );
-  const {id: realmId} = useRealmContext();
-  const { realmBoardsNotifications, notificationsFetched } = useNotifications({realmId});
+  const { id: realmId } = useRealmContext();
+  const { realmBoardsNotifications, notificationsFetched } = useNotifications({
+    realmId,
+  });
   const realmBoards = useRealmBoards();
   const { getLinkToBoard } = useCachedLinks();
   const { recentBoards, allBoards } = React.useMemo(() => {
@@ -93,7 +95,7 @@ const SideMenu = () => {
         makeUiBoard({
           board,
           notifications: realmBoardsNotifications,
-          link: getLinkToBoard(board.slug, (slug) => {
+          link: getLinkToBoard(board.slug, () => {
             refetchBoardActivity({ boardId: board.id });
           }),
         })
@@ -102,7 +104,7 @@ const SideMenu = () => {
         makeUiBoard({
           board,
           notifications: realmBoardsNotifications,
-          link: getLinkToBoard(board.slug, (slug) => {
+          link: getLinkToBoard(board.slug, () => {
             refetchBoardActivity({ boardId: board.id });
           }),
         })
@@ -118,9 +120,6 @@ const SideMenu = () => {
   ]);
 
   return (
-    // Note: we don't need to add PinnedMenu in SideMenu cause Layout injects it directly
-    // at smaller resolutions.
-    // TODO: at some point it might be worth completely removing it from sidemenu.
     <LibrarySideMenu
       menuOptions={React.useMemo(
         () =>
@@ -129,7 +128,7 @@ const SideMenu = () => {
                 {
                   icon: faCommentSlash,
                   name: "Dismiss notifications",
-                  link: { onClick: () => dismissNotifications({realmId}) },
+                  link: { onClick: () => dismissNotifications({ realmId }) },
                 },
               ]
             : [],
