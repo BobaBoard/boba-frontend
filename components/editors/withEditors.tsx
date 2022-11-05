@@ -19,41 +19,67 @@ import CommentEditorModal from "./CommentEditorModal";
 import ContributionEditorModal from "./ContributionEditorModal";
 import React from "react";
 import { addCommentInCache } from "cache/comment";
+import debug from "debug";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "../hooks/useCachedLinks";
 import { usePageDetails } from "utils/router-utils";
 import { usePreventPageChange } from "components/hooks/usePreventPageChange";
 import { useQueryClient } from "react-query";
 import { useRefetchBoardActivity } from "queries/board-feed";
+import { useRouter } from "next/router";
+
+const log = debug("bobafrontend:editors:withEditors-log");
+// log.enabled = true;
 
 const Editors = () => {
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
   const { getLinkToBoard } = useCachedLinks();
   const queryClient = useQueryClient();
   const [isMinimized, setMinimized] = React.useState(false);
+  const [navigationUrl, setNavigationUrl] = React.useState("");
   const dispatch = useEditorsDispatch();
   const onClose = React.useCallback(() => {
     dispatch({ type: EditorActions.CLOSE, payload: {} });
     setMinimized(false);
   }, [dispatch]);
   const state = useEditorsState();
-  usePreventPageChange(() => state.isOpen, onClose, [state.isOpen]);
   const [askConfirmation, setAskConfirmation] = React.useState(false);
   const onCancel = React.useCallback(
-    (empty) => (empty ? onClose() : setAskConfirmation(true)),
-    [onClose, setAskConfirmation]
+    (empty) => {
+      setNavigationUrl("");
+      empty ? onClose() : setAskConfirmation(true);
+    },
+    [onClose, setAskConfirmation, setNavigationUrl]
   );
-  const onCloseModal = React.useCallback(() => setAskConfirmation(false), []);
+  const onCloseModal = React.useCallback(() => {
+    setAskConfirmation(false);
+  }, [setAskConfirmation]);
+  const router = useRouter();
   const onSubmit = React.useCallback(() => {
+    log("onSubmit triggered");
     setAskConfirmation(false);
     onClose();
-  }, [onClose]);
+    log("navigationUrl", navigationUrl);
+    if (navigationUrl) {
+      router.push(navigationUrl);
+    }
+    setNavigationUrl("");
+  }, [onClose, setAskConfirmation, navigationUrl, router]);
+  const onNavigation = React.useCallback(
+    (url: string) => {
+      setAskConfirmation(true);
+      setNavigationUrl(url);
+    },
+    [setAskConfirmation, setNavigationUrl]
+  );
+  usePreventPageChange(() => state.isOpen, onNavigation, [state.isOpen]);
   const refetchBoardActivity = useRefetchBoardActivity();
   const [isRefetching, setRefetching] = React.useState(false);
   const boards = useRealmBoards();
   const onMinimize = () => {
     if (isMinimized) {
       document.body.style.overflow = "hidden";
+      // These were your TODOs from wherever exactly I stole this code from
       // TODO: this is bad and horrible (we should not use query selector)
       const layoutNode = document.querySelector(".layout") as HTMLDivElement;
       if (layoutNode) {
