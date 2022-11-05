@@ -17,7 +17,7 @@
     "dev:stage": "cross-env NEXT_PUBLIC_DEFAULT_BACKEND=https://staging-dot-backend-dot-bobaboard.uc.r.appspot.com/ NEXT_PUBLIC_ENV=staging DEBUG=bobafrontend:*-log next",
     "stage": "rm -rf .next/ && rm -rf build/ && yarn run build && gcloud config set project bobaboard && gcloud app deploy --quiet --version staging --no-promote",
     "start": "next start -p 8080 ",
-    "test": "jest --roots tests",
+    "test": "jest --roots tests --runInBand",
     "test:UI:watch": "yarn run test:watch tests/UI",
     "test:debug": "jest-preview",
     "test:ci": "yarn run test --ci",
