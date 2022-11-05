@@ -1,7 +1,6 @@
 import { Client, getBoardRouter } from "./utils";
 import {
   fireEvent,
-  prettyDOM,
   render,
   screen,
   waitFor,
@@ -113,10 +112,8 @@ describe("BoardFeed", () => {
     const { sidebar } = renderSidebar();
 
     await waitFor(() => {
-      const pinnedBoardWithUpdates = document.querySelector<HTMLElement>(
-        ".pinned-boards a[href$=gore] .updates"
-      );
-      expect(pinnedBoardWithUpdates).toBeTruthy();
+      // First, we double-check gore effectively has new updates.
+      expect(screen.getByLabelText("gore has new updates")).toBeVisible();
     });
 
     expect(within(sidebar!).getByLabelText("Board options")).toBeVisible();
@@ -129,10 +126,8 @@ describe("BoardFeed", () => {
     fireEvent.click(screen.getByText("Dismiss notifications"));
 
     await waitFor(() => {
-      const pinnedBoardWithUpdates = document.querySelector<HTMLElement>(
-        ".pinned-boards a[href$=gore] .updates"
-      );
-      expect(pinnedBoardWithUpdates).toBeFalsy();
+      const label = screen.queryByLabelText("gore has new updates");
+      expect(label).toBeFalsy();
     });
   });
 });
