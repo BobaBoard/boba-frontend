@@ -36,7 +36,6 @@ const Editors = () => {
   const { getLinkToBoard } = useCachedLinks();
   const queryClient = useQueryClient();
   const [isMinimized, setMinimized] = React.useState(false);
-  const [navigationUrl, setNavigationUrl] = React.useState("");
   const dispatch = useEditorsDispatch();
   const onClose = React.useCallback(() => {
     dispatch({ type: EditorActions.CLOSE, payload: {} });
@@ -44,6 +43,12 @@ const Editors = () => {
   }, [dispatch]);
   const state = useEditorsState();
   const [askConfirmation, setAskConfirmation] = React.useState(false);
+  const [navigationUrl, setNavigationUrl] = React.useState("");
+  const [historyScrollPosition, setHistoryScrollPosition] = React.useState({
+    x: 0,
+    y: 0,
+  });
+  const [historyNavigation, setHistoryNavigation] = React.useState(false);
   const onCancel = React.useCallback(
     (empty) => {
       setNavigationUrl("");
@@ -53,7 +58,19 @@ const Editors = () => {
   );
   const onCloseModal = React.useCallback(() => {
     setAskConfirmation(false);
-  }, [setAskConfirmation]);
+    // This doesn't work properly if the user hit forward instead of back,
+    // but there is not an easy solution for distinguishing the two so I don't think it's worth trying to fix right now
+    if (historyNavigation) {
+      history.forward();
+    }
+    setHistoryScrollPosition({ x: 0, y: 0 });
+    setHistoryNavigation(false);
+  }, [
+    setAskConfirmation,
+    historyNavigation,
+    setHistoryScrollPosition,
+    setHistoryNavigation,
+  ]);
   const router = useRouter();
   const onSubmit = React.useCallback(() => {
     log("onSubmit triggered");
@@ -62,17 +79,50 @@ const Editors = () => {
     log("navigationUrl", navigationUrl);
     if (navigationUrl) {
       router.push(navigationUrl);
+      if (
+        historyNavigation &&
+        (historyScrollPosition.x > 0 || historyScrollPosition.y > 0)
+      ) {
+        const { x, y } = historyScrollPosition;
+        window.scrollTo(x, y);
+        log("scrolled to", historyScrollPosition);
+      }
     }
     setNavigationUrl("");
-  }, [onClose, setAskConfirmation, navigationUrl, router]);
+    setHistoryNavigation(false);
+  }, [
+    onClose,
+    setAskConfirmation,
+    navigationUrl,
+    router,
+    historyScrollPosition,
+    historyNavigation,
+  ]);
   const onNavigation = React.useCallback(
-    (url: string) => {
+    ({
+      url,
+      historyNavigation,
+      scrollPosition,
+    }: {
+      url: string;
+      historyNavigation: boolean;
+      scrollPosition?: { x: number; y: number };
+    }) => {
       setAskConfirmation(true);
       setNavigationUrl(url);
+      setHistoryNavigation(historyNavigation);
+      if (scrollPosition) {
+        setHistoryScrollPosition(scrollPosition);
+      }
     },
-    [setAskConfirmation, setNavigationUrl]
+    [
+      setAskConfirmation,
+      setNavigationUrl,
+      setHistoryScrollPosition,
+      setHistoryNavigation,
+    ]
   );
-  usePreventPageChange(() => state.isOpen, onNavigation, [state.isOpen]);
+  usePreventPageChange(() => state.isOpen, onNavigation);
   const refetchBoardActivity = useRefetchBoardActivity();
   const [isRefetching, setRefetching] = React.useState(false);
   const boards = useRealmBoards();
