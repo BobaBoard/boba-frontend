@@ -9,7 +9,7 @@ import {
   THREAD_VIEW_OPTIONS,
   getViewIdFromName,
   processTags,
-  useThreadDetails,
+  useThreadEditorDetails,
 } from "./utils";
 import {
   isContributionEditorState,
@@ -47,7 +47,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
     secretIdentity,
     userIdentity,
     accessories,
-  } = useThreadDetails(state);
+  } = useThreadEditorDetails(state);
   const [isPostLoading, setPostLoading] = React.useState(false);
   const { isLoggedIn } = useAuth();
   const boards = useRealmBoards();

@@ -50,7 +50,7 @@ export const processTags = (tags: TagsType[]): ServerTagsType => {
   };
 };
 
-export const useThreadDetails = (
+export const useThreadEditorDetails = (
   state: Exclude<EditorState, ClosedEditorState>
 ) => {
   const { boardId, threadId } = state;
