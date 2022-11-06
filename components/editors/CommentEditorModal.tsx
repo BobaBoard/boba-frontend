@@ -8,7 +8,7 @@ import { isCommentEditorState } from "./types";
 import { useAuth } from "components/Auth";
 import { useEditorsState } from "./EditorsContext";
 import { useMutation } from "react-query";
-import { useThreadDetails } from "./utils";
+import { useThreadEditorDetails } from "./utils";
 
 const log = debug("bobafrontend:commentEditor-log");
 const error = debug("bobafrontend:commentEditor-error");
@@ -24,7 +24,7 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
     );
   }
   const { additionalIdentities, secretIdentity, userIdentity, accessories } =
-    useThreadDetails(state);
+    useThreadEditorDetails(state);
 
   const { mutate: postCommentChain } = useMutation(
     ({
