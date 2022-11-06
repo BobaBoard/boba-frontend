@@ -54,13 +54,14 @@ export const useThreadDetails = (
   state: Exclude<EditorState, ClosedEditorState>
 ) => {
   const { boardId, threadId } = state;
+  const postId = isEditContribution(state)
+    ? state.editContributionId
+    : (state["newContribution"] || state["newComment"])
+        ?.replyToContributionId || null;
   const threadData = useThreadWithNull({
     boardId,
     threadId: threadId || null,
-    postId: isEditContribution(state)
-      ? state.editContributionId
-      : (state["newContribution"] || state["newComment"])
-          ?.replyToContributionId || null,
+    postId,
   });
   const { boardMetadata: currentBoardMetadata } = useBoardMetadata({
     boardId,
@@ -83,11 +84,13 @@ export const useThreadDetails = (
     editingContribution: isEditContribution(state)
       ? threadData.currentRoot
       : undefined,
-    suggestedCategories: isNewThread(state)
-      ? currentBoardMetadata?.descriptions.flatMap(
-          (description) => description["categories"] || []
-        )
-      : threadData.categories,
+    suggestedCategories:
+      isNewThread(state) ||
+      (isEditContribution(state) && postId == threadData.threadRoot?.postId)
+        ? currentBoardMetadata?.descriptions.flatMap((description) =>
+            "categories" in description ? description.categories : []
+          )
+        : threadData.categories,
     userIdentity: user
       ? {
           name: user.username,
