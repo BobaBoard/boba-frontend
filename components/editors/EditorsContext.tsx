@@ -1,6 +1,7 @@
 import { EditorActions, EditorActionsDispatch, EditorState } from "./types";
 
 import React from "react";
+
 const editorsReducer = (
   state: EditorState,
   action: EditorActionsDispatch
@@ -11,6 +12,12 @@ const editorsReducer = (
     };
   }
   if (state.isOpen) {
+    if (action.type == EditorActions.UPDATE_BOARD) {
+      return {
+        ...state,
+        boardId: action.payload.boardId,
+      };
+    }
     // Do not change state if the editor is already open.
     return state;
   }
@@ -47,6 +54,8 @@ const editorsReducer = (
         threadId: action.payload.threadId,
         editContributionId: action.payload.contributionId,
       };
+    default:
+      throw new Error("Invalid state change for EditorsContext");
   }
 };
 

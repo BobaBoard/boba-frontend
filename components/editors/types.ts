@@ -4,6 +4,7 @@ export enum EditorActions {
   "NEW_COMMENT",
   "EDIT_TAGS",
   "CLOSE",
+  "UPDATE_BOARD",
 }
 
 export type EditorActionsDispatch =
@@ -41,6 +42,12 @@ export type EditorActionsDispatch =
   | {
       type: EditorActions.CLOSE;
       payload: Record<string, never>;
+    }
+  | {
+      type: EditorActions.UPDATE_BOARD;
+      payload: {
+        boardId: string;
+      };
     };
 
 export interface ClosedEditorState {

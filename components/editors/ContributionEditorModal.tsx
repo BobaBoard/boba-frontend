@@ -1,4 +1,10 @@
 import {
+  EditorActions,
+  isContributionEditorState,
+  isEditContribution,
+  isNewThread,
+} from "./types";
+import {
   PostData,
   PostType,
   TagsType as ServerTagsType,
@@ -11,11 +17,7 @@ import {
   processTags,
   useThreadEditorDetails,
 } from "./utils";
-import {
-  isContributionEditorState,
-  isEditContribution,
-  isNewThread,
-} from "./types";
+import { useEditorsDispatch, useEditorsState } from "./EditorsContext";
 
 import React from "react";
 import { createPost } from "utils/queries/post";
@@ -23,7 +25,6 @@ import { createThread } from "utils/queries/thread";
 import debug from "debug";
 import { editPost } from "utils/queries/post";
 import { useAuth } from "components/Auth";
-import { useEditorsState } from "./EditorsContext";
 import { useMutation } from "react-query";
 import { useRealmBoards } from "contexts/RealmContext";
 
@@ -34,6 +35,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
   const editorRef = React.createRef<{ focus: () => void }>();
   const hasFocused = React.useRef<boolean>(false);
   const state = useEditorsState();
+  const dispatch = useEditorsDispatch();
   if (!isContributionEditorState(state)) {
     throw new Error(
       "ContributionEditorModal must only be rendered when the editor is open and a contribution is being edited."
@@ -187,15 +189,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
         onSubmit={(textPromise) => {
           setPostLoading(true);
           textPromise.then(
-            ({
-              text,
-              tags,
-              identityId,
-              accessoryId,
-              viewOptionName,
-              // TODO[realms]: this needs to be changed to be a board id.
-              boardSlug: postedBoardSlug,
-            }) => {
+            ({ text, tags, identityId, accessoryId, viewOptionName }) => {
               const processedTags = processTags(tags);
 
               if (isEditContribution(state)) {
@@ -207,9 +201,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
               }
               log(identityId);
               postContribution({
-                boardId: postedBoardSlug
-                  ? boards.find((board) => board.slug == postedBoardSlug)!.id
-                  : state.boardId,
+                boardId: state.boardId,
                 replyToPostId: parentContribution?.postId || null,
                 postData: {
                   content: text,
@@ -224,12 +216,20 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
           );
         }}
         onCancel={props.onCancel}
-        initialBoard={{
+        selectedBoard={{
           slug: currentBoard!.slug,
           color: currentBoard!.accentColor,
           avatar: currentBoard!.avatarUrl,
         }}
         availableBoards={isNewThread(state) ? allBoards : undefined}
+        onSelectBoard={(boardData) => {
+          dispatch({
+            type: EditorActions.UPDATE_BOARD,
+            payload: {
+              boardId: boards.find((board) => boardData.slug == board.slug)!.id,
+            },
+          });
+        }}
       />
       <style jsx>{`
         .editor {
