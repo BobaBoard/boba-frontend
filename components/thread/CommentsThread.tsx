@@ -11,6 +11,7 @@ import {
   ThreadCommentInfoType,
 } from "types/Types";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
+import { faArrowRight, faLink } from "@fortawesome/free-solid-svg-icons";
 import {
   useBoardSummary,
   useCurrentRealmBoardId,
@@ -23,7 +24,6 @@ import classNames from "classnames";
 import { copyText } from "utils/text-utils";
 import debug from "debug";
 import { faComment } from "@fortawesome/free-regular-svg-icons";
-import { faLink } from "@fortawesome/free-solid-svg-icons";
 import { formatDistanceToNow } from "date-fns";
 import { isCommentEditorState } from "components/editors/types";
 import { useAuth } from "components/Auth";
@@ -109,6 +109,7 @@ const ThreadComment: React.FC<{
   const { onNewComment } = useThreadEditors();
   const { postCommentsMap, opIdentity } = useThreadContext();
   const { parentChainMap } = postCommentsMap.get(parentPostId)!;
+  const hasBeenScrolledTo = React.useRef(false);
 
   const boardColor = useBoardSummary({ boardId })?.accentColor;
   const editorState = useEditorsState();
@@ -157,17 +158,24 @@ const ThreadComment: React.FC<{
         },
       },
     });
+    const linkToComment = getLinkToComment({
+      slug: boardMetadata!.slug,
+      commentId: rootComment.commentId,
+      threadId: threadId,
+    });
+
+    const goToCommentOption = {
+      name: "Go to comment",
+      icon: faArrowRight,
+      link: linkToComment,
+    };
 
     const copyCommentOption = getCopyLinkOption(
-      getLinkToComment({
-        slug: boardMetadata!.slug,
-        commentId: rootComment.commentId,
-        threadId: threadId,
-      })?.href as string,
+      linkToComment?.href as string,
       "Copy Comment Link"
     );
 
-    const options = [copyCommentOption];
+    const options = [goToCommentOption, copyCommentOption];
 
     if (realmPermissions.includes(RealmPermissions.COMMENT_ON_REALM)) {
       options.push({
@@ -196,6 +204,23 @@ const ThreadComment: React.FC<{
           "current-reply-outline": isCurrentReplyToComment,
           "current-display-outline": commentId == rootComment.commentId,
         })}
+        ref={React.useCallback(() => {
+          if (
+            hasBeenScrolledTo.current ||
+            commentId != rootComment.commentId ||
+            !boardColor
+          ) {
+            return;
+          }
+          // Without this setTimeout the page seems to start scrolling on load
+          // then goes back up. We add a delay so we don't have to deal with
+          // fixing it right now.
+          // TODO: remove the setTimeout hack
+          setTimeout(() => {
+            scrollToComment(commentId, boardColor);
+            hasBeenScrolledTo.current = true;
+          }, 500);
+        }, [hasBeenScrolledTo, commentId, boardColor, rootComment.commentId])}
       >
         <Comment
           ref={onSetRef}
