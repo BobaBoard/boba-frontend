@@ -157,7 +157,7 @@ function ThreadPage() {
   const collapseManager = useThreadCollapseManager();
   const { threadRoot, isFetching: isFetchingThread } = useThreadContext();
   const displayManager = useDisplayManager(collapseManager);
-  const { displayMore } = displayManager;
+  const { displayMore, currentModeLoadedElements } = displayManager;
   const { hasBeamToNew, onNewAnswersButtonClick, loading } = useBeamToNew(
     displayManager,
     currentBoardData?.accentColor
@@ -194,18 +194,11 @@ function ThreadPage() {
     }
   }, [currentBoardData, isAuthPending, realmPermissions, getLinkToBoard, slug]);
 
-  const accentColor = currentBoardData?.accentColor;
-  React.useEffect(() => {
-    if (!commentId || !accentColor) {
-      return;
-    }
-    scrollToComment(commentId, accentColor);
-  }, [commentId, accentColor]);
-
   const canTopLevelPost =
     realmPermissions.includes(RealmPermissions.POST_ON_REALM) &&
     (currentThreadViewMode == THREAD_VIEW_MODE.MASONRY ||
       currentThreadViewMode == THREAD_VIEW_MODE.TIMELINE);
+
   return (
     <div className="main">
       <Layout
