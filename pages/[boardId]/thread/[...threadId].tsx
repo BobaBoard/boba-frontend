@@ -37,6 +37,7 @@ import classnames from "classnames";
 import debug from "debug";
 import { getThreadData } from "utils/queries/thread";
 import { isClientContext } from "utils/location-utils";
+import { scrollToComment } from "components/thread/CommentsThread";
 import { useAuth } from "components/Auth";
 import { useBeamToNew } from "components/hooks/useBeamToNew";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
@@ -192,6 +193,14 @@ function ThreadPage() {
       getLinkToBoard(slug).onClick?.();
     }
   }, [currentBoardData, isAuthPending, realmPermissions, getLinkToBoard, slug]);
+
+  const accentColor = currentBoardData?.accentColor;
+  React.useEffect(() => {
+    if (!commentId || !accentColor) {
+      return;
+    }
+    scrollToComment(commentId, accentColor);
+  }, [commentId, accentColor]);
 
   const canTopLevelPost =
     realmPermissions.includes(RealmPermissions.POST_ON_REALM) &&
