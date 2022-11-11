@@ -35,6 +35,9 @@ interface LayoutComposition {
   ActionButton: React.FC<{
     children: React.ReactNode;
   }>;
+  BottomBar: React.FC<{
+    children: React.ReactNode;
+  }>;
 }
 
 const MainContent: LayoutComposition["MainContent"] = (props) => {
@@ -45,11 +48,18 @@ const ActionButton: LayoutComposition["ActionButton"] = (props) => {
   return <>{props.children}</>;
 };
 
+const BottomBar: LayoutComposition["BottomBar"] = (props) => {
+  return <>{props.children}</>;
+};
+
 const isMainContent = (node: React.ReactNode): node is typeof MainContent => {
   return React.isValidElement(node) && node.type == MainContent;
 };
 const isActionButton = (node: React.ReactNode): node is typeof ActionButton => {
   return React.isValidElement(node) && node.type == ActionButton;
+};
+const isBottomBar = (node: React.ReactNode): node is typeof BottomBar => {
+  return React.isValidElement(node) && node.type == BottomBar;
 };
 
 function useTitleLink() {
@@ -121,6 +131,9 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const actionButton = React.Children.toArray(props.children).find((child) =>
     isActionButton(child)
   ) as typeof ActionButton | undefined;
+  const bottomBar = React.Children.toArray(props.children).find((child) =>
+    isBottomBar(child)
+  ) as typeof BottomBar | undefined;
 
   return (
     <div ref={containerRef}>
@@ -187,7 +200,9 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
           <PinnedMenu />
         </LibraryLayout.PinnedMenuContent>
         <LibraryLayout.MainContent>{mainContent}</LibraryLayout.MainContent>
-        <LibraryLayout.ActionButton>{actionButton}</LibraryLayout.ActionButton>
+        {bottomBar && (
+          <LibraryLayout.BottomBar>{bottomBar}</LibraryLayout.BottomBar>
+        )}
       </LibraryLayout>
     </div>
   );
@@ -197,9 +212,9 @@ export interface LayoutProps {
   loading?: boolean;
   title: string;
   forceHideTitle?: boolean;
-  onCompassClick?: () => void;
 }
 
 Layout.ActionButton = ActionButton;
 Layout.MainContent = MainContent;
+Layout.BottomBar = BottomBar;
 export default Layout;

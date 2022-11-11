@@ -19,6 +19,7 @@ import {
 } from "utils/location-utils";
 import { prefetchBoardMetadata, useBoardMetadata } from "queries/board";
 
+import BoardBottomBar from "components/boards/BoardBottomBar";
 import { BoardSidebar } from "components/boards/Sidebar";
 import Layout from "components/layout/Layout";
 import LoadingSpinner from "components/LoadingSpinner";
@@ -30,35 +31,10 @@ import axios from "axios";
 import debug from "debug";
 import { useAuth } from "components/Auth";
 import { useBoardActivity } from "queries/board-feed";
-import { withEditors } from "components/editors/withEditors";
 
 const log = debug("bobafrontend:BoardPage-log");
 const info = debug("bobafrontend:BoardPage-info");
 info.log = console.info.bind(console);
-
-const NewThreadButton = withEditors<{ boardId: string | null }>((props) => {
-  const { boardMetadata } = useBoardMetadata({ boardId: props.boardId });
-  const editorDispatch = useEditorsDispatch();
-  const onNewPost = React.useCallback(() => {
-    if (!boardMetadata) {
-      return;
-    }
-    editorDispatch({
-      type: EditorActions.NEW_THREAD,
-      payload: { boardId: boardMetadata.id },
-    });
-  }, [editorDispatch, boardMetadata]);
-
-  if (!boardMetadata) {
-    return null;
-  }
-  return (
-    <MemoizedActionButton
-      accentColor={boardMetadata?.accentColor || "#f96680"}
-      onNewPost={onNewPost}
-    />
-  );
-});
 
 const BoardParams = {
   filter: ArrayParam,
@@ -147,11 +123,7 @@ function BoardPage() {
 
   return (
     <div className="main">
-      <Layout
-        title={`!${slug}`}
-        onCompassClick={onCompassClick}
-        forceHideTitle={true}
-      >
+      <Layout title={`!${slug}`} forceHideTitle={true}>
         <Layout.MainContent>
           <FeedWithMenu
             onCloseSidebar={closeSidebar}
@@ -219,11 +191,9 @@ function BoardPage() {
             </FeedWithMenu.FeedContent>
           </FeedWithMenu>
         </Layout.MainContent>
-        {realmPermissions.includes(RealmPermissions.CREATE_THREAD_ON_REALM) && (
-          <Layout.ActionButton>
-            <NewThreadButton boardId={boardId} />
-          </Layout.ActionButton>
-        )}
+        <Layout.BottomBar>
+          <BoardBottomBar onCompassClick={onCompassClick} />
+        </Layout.BottomBar>
       </Layout>
       <style jsx>{`
         .main {
