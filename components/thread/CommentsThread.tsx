@@ -19,6 +19,7 @@ import {
 
 import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
 import React from "react";
+import classNames from "classnames";
 import { copyText } from "utils/text-utils";
 import debug from "debug";
 import { faComment } from "@fortawesome/free-regular-svg-icons";
@@ -34,6 +35,7 @@ import { useThreadContext } from "./ThreadContext";
 import { useThreadEditors } from "components/editors/withEditors";
 
 const log = debug("bobafrontend:CommentsThread-log");
+log.enabled = true;
 // const info = debug("bobafrontend:CommentsThread-info");
 
 const getCommentsChain = (
@@ -57,6 +59,7 @@ export const scrollToComment = (commentId: string, color: string) => {
     `.comment[data-comment-id='${commentId}']`
   );
   if (!element) {
+    log(`No comment with id ${commentId} found.`);
     return;
   }
   const observer: IntersectionObserver = new IntersectionObserver(
@@ -95,7 +98,7 @@ const ThreadComment: React.FC<{
   disableMotionEffect?: boolean;
 }> = ({ rootComment, parentPostId, onBoundaryRef, disableMotionEffect }) => {
   const { isLoggedIn } = useAuth();
-  const { slug, threadId } = usePageDetails<ThreadPageDetails>();
+  const { slug, threadId, commentId } = usePageDetails<ThreadPageDetails>();
   const boardId = useCurrentRealmBoardId({
     boardSlug: slug,
   });
@@ -188,7 +191,12 @@ const ThreadComment: React.FC<{
       {isCurrentReplyToComment && (
         <div className="current-reply-header">You're replying to:</div>
       )}
-      <div className={isCurrentReplyToComment ? "current-reply-outline" : ""}>
+      <div
+        className={classNames({
+          "current-reply-outline": isCurrentReplyToComment,
+          "current-display-outline": commentId == rootComment.commentId,
+        })}
+      >
         <Comment
           ref={onSetRef}
           key={rootComment.commentId}
@@ -213,7 +221,7 @@ const ThreadComment: React.FC<{
       </div>
       <style jsx>{`
         .current-reply-outline {
-          outline: 3px solid ${boardColor};
+          outline: 4px solid ${boardColor};
           background-color: ${boardColor};
           border-radius: 15px;
         }
@@ -222,6 +230,9 @@ const ThreadComment: React.FC<{
           padding-left: 10px;
           padding-bottom: 7px;
           font-size: 1.3rem;
+        }
+        .current-display-outline :global(.comments-container) {
+          box-shadow: 0px 0px 0px 4px ${boardColor};
         }
       `}</style>
     </>
