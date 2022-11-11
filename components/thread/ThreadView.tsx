@@ -269,6 +269,7 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
     threadBaseUrl,
     slug: boardSlug,
     threadId,
+    commentId,
   } = usePageDetails<ThreadPageDetails>();
   const { onNewContribution } = useThreadEditors();
   const boardData = useBoardSummaryBySlug(boardSlug);
@@ -321,7 +322,7 @@ const ThreadView: React.FC<ThreadViewProps> = (props) => {
       />
       <div
         className={classnames("whole-thread", {
-          visible: !!postId,
+          visible: !!postId || !!commentId,
         })}
       >
         <Link
