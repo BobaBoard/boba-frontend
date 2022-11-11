@@ -29,6 +29,7 @@ import { NextPage } from "next";
 import { PageContextWithQueryClient } from "additional";
 import React from "react";
 import { RealmPermissions } from "types/Types";
+import ThreadBottomBar from "components/thread/ThreadBottomBar";
 import ThreadSidebar from "components/thread/ThreadSidebar";
 //import { useHotkeys } from "react-hotkeys-hook";
 import ThreadView from "components/thread/ThreadView";
@@ -38,7 +39,6 @@ import debug from "debug";
 import { getThreadData } from "utils/queries/thread";
 import { isClientContext } from "utils/location-utils";
 import { useAuth } from "components/Auth";
-import { useBeamToElement } from "components/hooks/useBeamToElement";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
 import { useEditorsState } from "components/editors/EditorsContext";
@@ -157,30 +157,8 @@ function ThreadPage() {
   const { threadRoot, isFetching: isFetchingThread } = useThreadContext();
   const displayManager = useDisplayManager(collapseManager);
   const { displayMore } = displayManager;
-  const { canBeam, onBeamToElement, loading } = useBeamToElement(
-    displayManager,
-    currentBoardData?.accentColor
-  );
   const { onNewContribution } = useThreadEditors();
   useMarkThreadReadOnDelay(threadId, slug);
-
-  // TODO: disable this while post editing and readd
-  // const currentPostIndex = React.useRef<number>(-1);
-  // useHotkeys(
-  //   "n",
-  //   () => {
-  //     if (!postsDisplaySequence) {
-  //       return;
-  //     }
-  //     currentPostIndex.current =
-  //       (currentPostIndex.current + 1) % postsDisplaySequence.length;
-  //     scrollToPost(
-  //       postsDisplaySequence[currentPostIndex.current].postId,
-  //       boardData.accentColor
-  //     );
-  //   },
-  //   [postsDisplaySequence]
-  // );
 
   React.useEffect(() => {
     if (
@@ -202,11 +180,7 @@ function ThreadPage() {
     currentThreadViewMode == THREAD_VIEW_MODE.THREAD || postId || commentId;
   return (
     <div className="main">
-      <Layout
-        title={`!${slug}`}
-        loading={isFetchingThread}
-        onCompassClick={onCompassClick}
-      >
+      <Layout title={`!${slug}`} loading={isFetchingThread}>
         <Layout.MainContent>
           <FeedWithMenu
             showSidebar={showSidebar}
@@ -266,22 +240,9 @@ function ThreadPage() {
             </FeedWithMenu.FeedContent>
           </FeedWithMenu>
         </Layout.MainContent>
-        <Layout.ActionButton>
-          {currentThreadViewMode == THREAD_VIEW_MODE.THREAD && canBeam ? (
-            <CycleNewButton
-              text="Next New"
-              onNext={onBeamToElement}
-              loading={loading}
-            />
-          ) : canTopLevelPost && !editorState.isOpen ? (
-            <PostingActionButton
-              accentColor={currentBoardData?.accentColor || "#f96680"}
-              onNewPost={() =>
-                threadRoot && onNewContribution(threadRoot.postId)
-              }
-            />
-          ) : undefined}
-        </Layout.ActionButton>
+        <Layout.BottomBar>
+          <ThreadBottomBar onCompassClick={onCompassClick} />
+        </Layout.BottomBar>
       </Layout>
       <style jsx>
         {`
