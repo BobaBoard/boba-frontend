@@ -47,6 +47,7 @@ export default [
         id: index == 0 ? chainId : uuid(),
         parent_comment_id: reply_to_comment_id,
         chain_parent_id: index > 0 ? chainId : undefined,
+        parent_thread_id: FAVORITE_CHARACTER_TO_MAIM_THREAD.id,
         parent_post_id: FAVORITE_CHARACTER_TO_MAIM_THREAD.starter.id,
         content: content,
       }));

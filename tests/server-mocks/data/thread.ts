@@ -172,7 +172,7 @@ export const FAVORITE_CHARACTER_TO_MAIM_THREAD = {
         id: "46a16199-33d1-48c2-bb79-4d4095014688",
         parent_comment_id: null,
         chain_parent_id: null,
-        parent_post_id: "29d1b2da-3289-454a-9089-2ed47db4967b",
+        parent_post_id: "b95bb260-eae0-456c-a5d0-8ae9e52608d8",
         created_at: "2020-05-22T00:22:00.00Z",
         content: '[{"insert":"OMG ME TOO"}]',
         secret_identity: {
@@ -191,7 +191,7 @@ export const FAVORITE_CHARACTER_TO_MAIM_THREAD = {
         id: "89fc3682-cb74-43f9-9a63-bd97d0f59bb9",
         parent_comment_id: null,
         chain_parent_id: "46a16199-33d1-48c2-bb79-4d4095014688",
-        parent_post_id: "29d1b2da-3289-454a-9089-2ed47db4967b",
+        parent_post_id: "b95bb260-eae0-456c-a5d0-8ae9e52608d8",
         created_at: "2020-05-23T05:52:00.00Z",
         content: '[{"insert":"friends!!!!!"}]',
         secret_identity: {
