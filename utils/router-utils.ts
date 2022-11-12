@@ -27,7 +27,7 @@ export interface ThreadPageDetails {
   postId: string | null;
   commentId: string | null;
   threadBaseUrl: string;
-  pageType: PageTypes.THREAD | PageTypes.POST;
+  pageType: PageTypes.THREAD | PageTypes.POST | PageTypes.COMMENT;
 }
 
 export interface BoardPageDetails {
@@ -73,6 +73,11 @@ export const PERSONAL_SETTINGS_PATH = "/users/settings";
 export const REALM_ADMIN_PATH = "/realms/admin";
 export const INVITE_PAGE_PATH = "/invite/[inviteId]";
 
+/**
+ * Returns the details of the page you're currently in as specified
+ * in the page URL.
+ */
+// TODO: rename to usePageUrlDetails.
 export const usePageDetails = <T extends PageDetails>() => {
   if (!isInitialized) {
     throw new Error(
@@ -101,11 +106,13 @@ const getPageType = (router: NextRouter): PageTypes | null => {
       return PageTypes.BOARD;
     // This is the same url as for single posts
     case THREAD_PATH: {
-      const postId = router.query.threadId?.[1];
-      if (postId === "comment") {
+      const secondThreadUrlSegment = router.query.threadId?.[1];
+      if (secondThreadUrlSegment === "comment") {
         return PageTypes.COMMENT;
       }
-      return postId ? PageTypes.POST : PageTypes.THREAD;
+      // If the `secondThreadUrlSegment` is not the string "comment" then
+      // it's a postId.
+      return secondThreadUrlSegment ? PageTypes.POST : PageTypes.THREAD;
     }
     case FEED_PATH:
       return PageTypes.FEED;

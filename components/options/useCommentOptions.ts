@@ -1,10 +1,6 @@
 import { CommentType, RealmPermissions } from "types/Types";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
-import {
-  faArrowRight,
-  faComment,
-  faLink,
-} from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight, faLink } from "@fortawesome/free-solid-svg-icons";
 import {
   useCurrentRealmBoardId,
   useRealmPermissions,
@@ -13,11 +9,13 @@ import {
 import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
 import React from "react";
 import { copyText } from "utils/text-utils";
+import { faComment } from "@fortawesome/free-regular-svg-icons";
 import { getCommentsChain } from "components/thread/CommentsThread";
 import { isNotNull } from "utils/typescript-utils";
 import { toast } from "@bobaboard/ui-components";
 import { useBoardMetadata } from "queries/board";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
+import { useEditorsState } from "components/editors/EditorsContext";
 import { useThreadContext } from "components/thread/ThreadContext";
 import { useThreadEditors } from "components/editors/withEditors";
 
@@ -51,6 +49,7 @@ export const useCommentOptions = ({
   const { postCommentsMap } = useThreadContext();
   const { parentChainMap } = postCommentsMap.get(parentPostId)!;
   const { onNewComment } = useThreadEditors();
+  const editorState = useEditorsState();
 
   const linkToComment = getLinkToComment({
     slug: boardMetadata!.slug,
@@ -62,9 +61,9 @@ export const useCommentOptions = ({
   const lastCommentChainId = commentChain[commentChain.length - 1].commentId;
 
   // TODO: we should also return null if the editor is open
-  const canReplyToComment = realmPermissions.includes(
-    RealmPermissions.COMMENT_ON_REALM
-  );
+  const canReplyToComment =
+    realmPermissions.includes(RealmPermissions.COMMENT_ON_REALM) &&
+    !editorState.isOpen;
 
   return React.useMemo(
     () =>
