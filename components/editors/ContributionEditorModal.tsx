@@ -230,6 +230,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
             },
           });
         }}
+        onIsEmptyChange={props.onIsEmptyChange}
       />
       <style jsx>{`
         .editor {
@@ -245,6 +246,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
 export interface PostEditorModalProps {
   onCancel: (empty: boolean) => void;
   onPostSaved: (post: PostType, boardId?: string) => void;
+  onIsEmptyChange: (empty: boolean) => void;
   loading?: boolean;
 }
 

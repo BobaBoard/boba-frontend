@@ -79,6 +79,7 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
           });
         }}
         onCancel={props.onCancel}
+        onIsEmptyChange={props.onIsEmptyChange}
       />
       <style jsx>{`
         .editor {
@@ -94,6 +95,7 @@ const CommentEditorModal: React.FC<CommentEditorModalProps> = (props) => {
 export interface CommentEditorModalProps {
   onCancel: (empty: boolean) => void;
   onCommentsSaved: (comments: CommentType[]) => void;
+  onIsEmptyChange: (empty: boolean) => void;
 }
 
 export default CommentEditorModal;
