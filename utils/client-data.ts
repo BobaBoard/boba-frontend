@@ -96,7 +96,6 @@ export const makeClientThreadSummary = (
 export const makeClientThread = (serverThread: any): ThreadType => {
   const clientPosts: PostType[] = serverThread.posts?.map(makeClientPost) || [];
   const clientComments: Record<string, CommentType[]> = {};
-  console.log(`dasdas`, serverThread.comments);
   Object.keys(serverThread.comments).forEach(
     (key) =>
       (clientComments[key] = serverThread.comments[key].map((c: any) =>
