@@ -411,10 +411,10 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@bobaboard/ui-components@~0.3.6":
-  version "0.3.6"
-  resolved "https://registry.yarnpkg.com/@bobaboard/ui-components/-/ui-components-0.3.6.tgz#8aef9566a6250f978a7f68235b32c9b4b20fc187"
-  integrity sha512-2kQRRI0Kqt5eWU/0QuAj1ewSGojroUzvcEIOx1vwBUT5h5DfABXS9102q9Vp0KRyO4nSM30I5XVDaAPvoe0G8A==
+"@bobaboard/ui-components@~0.3.7":
+  version "0.3.7"
+  resolved "https://registry.yarnpkg.com/@bobaboard/ui-components/-/ui-components-0.3.7.tgz#37361cd80790aab6b38aab34194552430cf73050"
+  integrity sha512-E40hDDnQWucXeRTMHcXSPIjNOgu5tAq3xt1X5RthFL+3xSGgmUcxWezls9ftHPQr9yLricT+4cn0/aHP8vFr4A==
   dependencies:
     "@fortawesome/fontawesome-common-types" "6.1.1"
     "@fortawesome/fontawesome-svg-core" "6.1.1"
