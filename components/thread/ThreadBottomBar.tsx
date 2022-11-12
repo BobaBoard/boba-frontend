@@ -1,5 +1,9 @@
 import { BoardOptions, useBoardOptions } from "../hooks/useBoardOptions";
-import { BoardPageDetails, usePageDetails } from "utils/router-utils";
+import {
+  BoardPageDetails,
+  ThreadPageDetails,
+  usePageDetails,
+} from "utils/router-utils";
 import { BottomBar, DefaultTheme } from "@bobaboard/ui-components";
 import {
   EditorActions,
@@ -39,7 +43,7 @@ export interface BoardBottomBarProps {
 }
 
 const BoardBottomBar = (props: BoardBottomBarProps) => {
-  const { slug } = usePageDetails<BoardPageDetails>();
+  const { slug } = usePageDetails<ThreadPageDetails>();
   if (!slug) {
     throw new Error("Using BoardBottomBar outside of Board page.");
   }
@@ -117,20 +121,28 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
       <BottomBar.Button
         key="jump up"
         icon={{ icon: faAnglesUp }}
-        withNotification={{
-          icon: faCertificate,
-          color: DefaultTheme.DEFAULT_ACCENT_COLOR,
-        }}
+        withNotification={
+          hasBeamToNew
+            ? {
+                icon: faCertificate,
+                color: DefaultTheme.DEFAULT_ACCENT_COLOR,
+              }
+            : null
+        }
         link={{ onClick: () => {} }}
         position="right"
       />
       <BottomBar.Button
         key="jump down"
         icon={{ icon: faAnglesDown }}
-        withNotification={{
-          icon: faCertificate,
-          color: DefaultTheme.DEFAULT_ACCENT_COLOR,
-        }}
+        withNotification={
+          hasBeamToNew
+            ? {
+                icon: faCertificate,
+                color: DefaultTheme.DEFAULT_ACCENT_COLOR,
+              }
+            : null
+        }
         link={{ onClick: onNewAnswersButtonClick }}
         position="right"
         loading={loading}

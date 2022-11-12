@@ -17,6 +17,8 @@ import {
   faAnglesUp,
   faCertificate,
   faCompass,
+  faPencil,
+  faPencilSquare,
   faPlusSquare,
   faThumbTack,
   faVolumeHigh,
@@ -75,7 +77,7 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
       // TODO: add realm permissions here
       // realmPermissions.includes(RealmPermissions.CREATE_THREAD_ON_REALM)
       centerButton={{
-        icon: faPlusSquare,
+        icon: faPencil,
         link: newThreadLink,
         color: "white",
       }}
