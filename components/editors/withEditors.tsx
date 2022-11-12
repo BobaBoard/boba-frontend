@@ -126,6 +126,7 @@ const Editors = () => {
   const refetchBoardActivity = useRefetchBoardActivity();
   const [isRefetching, setRefetching] = React.useState(false);
   const boards = useRealmBoards();
+  const [empty, setEmpty] = React.useState(true);
   const onMinimize = () => {
     if (isMinimized) {
       document.body.style.overflow = "hidden";
@@ -157,6 +158,7 @@ const Editors = () => {
         isMinimized={isMinimized}
         onMinimize={onMinimize}
         minimizable={!isNewThread(state)}
+        onRequestClose={() => onCancel(empty)}
       >
         {isContributionEditorState(state) && (
           <ContributionEditorModal
@@ -205,6 +207,7 @@ const Editors = () => {
               onClose();
             }}
             onCancel={onCancel}
+            onIsEmptyChange={setEmpty}
           />
         )}
         {isCommentEditorState(state) && (
@@ -222,6 +225,7 @@ const Editors = () => {
               onClose();
             }}
             onCancel={onCancel}
+            onIsEmptyChange={setEmpty}
           />
         )}
       </Modal>
