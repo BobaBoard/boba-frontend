@@ -31,7 +31,11 @@ export interface ThreadContextType {
   defaultView: ThreadType["defaultView"] | null;
   // The root of the thread (a.k.a. the first post).
   threadRoot: PostType | null;
-  // The current post targeted by the page.
+  /**
+   * The current post targeted by the page. This is going to be
+   * different from `threadRoot` if the URL is targeting a specific
+   * post or comment.
+   */
   currentRoot: PostType | null;
   chronologicalPostsSequence: PostType[];
   threadDisplaySequence: (PostType | CommentType)[];

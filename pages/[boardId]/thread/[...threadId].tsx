@@ -37,7 +37,6 @@ import classnames from "classnames";
 import debug from "debug";
 import { getThreadData } from "utils/queries/thread";
 import { isClientContext } from "utils/location-utils";
-import { scrollToComment } from "components/thread/CommentsThread";
 import { useAuth } from "components/Auth";
 import { useBeamToNew } from "components/hooks/useBeamToNew";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
@@ -157,7 +156,7 @@ function ThreadPage() {
   const collapseManager = useThreadCollapseManager();
   const { threadRoot, isFetching: isFetchingThread } = useThreadContext();
   const displayManager = useDisplayManager(collapseManager);
-  const { displayMore, currentModeLoadedElements } = displayManager;
+  const { displayMore } = displayManager;
   const { hasBeamToNew, onNewAnswersButtonClick, loading } = useBeamToNew(
     displayManager,
     currentBoardData?.accentColor
@@ -199,6 +198,8 @@ function ThreadPage() {
     (currentThreadViewMode == THREAD_VIEW_MODE.MASONRY ||
       currentThreadViewMode == THREAD_VIEW_MODE.TIMELINE);
 
+  const displayThreadView =
+    currentThreadViewMode == THREAD_VIEW_MODE.THREAD || postId || commentId;
   return (
     <div className="main">
       <Layout
@@ -234,9 +235,7 @@ function ThreadPage() {
                 })}
               >
                 <div className="view-modes">
-                  {currentThreadViewMode == THREAD_VIEW_MODE.THREAD ||
-                  postId ||
-                  commentId ? (
+                  {displayThreadView ? (
                     <MemoizedThreadView
                       displayManager={displayManager}
                       collapseManager={collapseManager}
