@@ -72,6 +72,12 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
     displayManager,
     boardMetadata?.accentColor
   );
+  const {
+    hasBeam,
+    onBeamToNextRequest,
+    onBeamToPreviousRequest,
+    loading: beamToElementLoading,
+  } = useBeamToElement(displayManager, boardMetadata?.accentColor);
   const boardOptions = useBoardOptions({
     options: [
       BoardOptions.MUTE,
@@ -121,15 +127,15 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
       <BottomBar.Button
         key="jump up"
         icon={{ icon: faAnglesUp }}
-        withNotification={
-          hasBeamToNew
-            ? {
-                icon: faCertificate,
-                color: DefaultTheme.DEFAULT_ACCENT_COLOR,
-              }
-            : null
-        }
-        link={{ onClick: () => {} }}
+        // withNotification={
+        //   hasBeamToNew
+        //     ? {
+        //         icon: faCertificate,
+        //         color: DefaultTheme.DEFAULT_ACCENT_COLOR,
+        //       }
+        //     : null
+        // }
+        link={{ onClick: onBeamToPreviousRequest }}
         position="right"
       />
       <BottomBar.Button
@@ -143,7 +149,9 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
               }
             : null
         }
-        link={{ onClick: onNewAnswersButtonClick }}
+        link={{
+          onClick: hasBeamToNew ? onNewAnswersButtonClick : onBeamToNextRequest,
+        }}
         position="right"
         loading={loading}
       />
