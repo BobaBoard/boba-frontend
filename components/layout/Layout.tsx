@@ -179,12 +179,6 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
         )}
         logoLink={linkToHome}
         titleLink={titleLink}
-        onCompassClick={React.useMemo(
-          () => ({
-            onClick: props.onCompassClick,
-          }),
-          [props.onCompassClick]
-        )}
       >
         <LibraryLayout.SideMenuContent>
           <Sidemenu />

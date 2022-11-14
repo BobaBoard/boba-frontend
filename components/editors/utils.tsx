@@ -62,6 +62,7 @@ export const useThreadEditorDetails = (
     boardId,
     threadId: threadId || null,
     postId,
+    commentId: null,
   });
   const { boardMetadata: currentBoardMetadata } = useBoardMetadata({
     boardId,
