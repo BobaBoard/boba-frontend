@@ -1,10 +1,16 @@
 import { CommentType, PostType, isComment, isPost } from "types/Types";
+import {
+  THREAD_VIEW_MODE,
+  TIMELINE_VIEW_SUB_MODE,
+  useThreadViewContext,
+} from "contexts/ThreadViewContext";
 import { isCommentLoaded, scrollToComment } from "../thread/CommentsThread";
 import { isPostLoaded, scrollToPost } from "utils/scroll-utils";
 
 import { DisplayManager } from "./useDisplayMananger";
 import React from "react";
 import debug from "debug";
+import { extractRepliesSequence } from "utils/thread-utils";
 import { useStateWithCallback } from "./useStateWithCallback";
 import { useThreadContext } from "../thread/ThreadContext";
 
@@ -70,23 +76,15 @@ const isScrolledPast = ({
  * Gets the element after the current index in the given sequence of
  * posts/comments, with wrap.
  */
+// TODO: decide whether to remove this
 const getNextElementIndex = ({
   currentIndex,
   elementsSequence,
-  skipThreadStarter,
 }: {
   currentIndex: number;
   elementsSequence: (PostType | CommentType)[];
-  skipThreadStarter: boolean;
 }) => {
-  const nextIndex = (currentIndex + 1) % elementsSequence.length;
-  const next = elementsSequence[nextIndex];
-  // Skip the thread starter, if asked to do so.
-  const isThreadStarter = isPost(next) && next.parentPostId == null;
-  if (!skipThreadStarter || !isThreadStarter) {
-    return nextIndex;
-  }
-  return (nextIndex + 1) % elementsSequence.length;
+  return (currentIndex + 1) % elementsSequence.length;
 };
 
 /**
@@ -96,16 +94,13 @@ const getNextElementIndex = ({
 const getNextElementInViewIndex = ({
   currentIndex,
   elementsSequence,
-  skipThreadStarter,
 }: {
   currentIndex: number;
   elementsSequence: (PostType | CommentType)[];
-  skipThreadStarter: boolean;
 }) => {
   let nextIndex = getNextElementIndex({
     currentIndex,
     elementsSequence,
-    skipThreadStarter,
   });
   let next = elementsSequence[nextIndex];
   // Keep trying to go to the next element until we find one that is either
@@ -120,14 +115,12 @@ const getNextElementInViewIndex = ({
     nextIndex = getNextElementIndex({
       currentIndex: nextIndex,
       elementsSequence,
-      skipThreadStarter,
     });
     if (nextIndex < currentIndex) {
       // We've gone back to the beginning, return directly.
       return getNextElementIndex({
         currentIndex: -1,
         elementsSequence,
-        skipThreadStarter,
       });
     }
     next = elementsSequence[nextIndex];
@@ -135,33 +128,71 @@ const getNextElementInViewIndex = ({
   return nextIndex;
 };
 
+const useCurrentDisplaySequence = () => {
+  const { currentThreadViewMode, galleryViewMode, timelineViewMode } =
+    useThreadViewContext();
+  const {
+    chronologicalPostsSequence,
+    threadDisplaySequence,
+    newRepliesSequence,
+    postCommentsMap,
+  } = useThreadContext();
+
+  switch (currentThreadViewMode) {
+    case THREAD_VIEW_MODE.THREAD: {
+      const newOnly = newRepliesSequence.length > 0;
+      const sequence = newOnly ? newRepliesSequence : threadDisplaySequence;
+
+      const hasThreadStarter =
+        isPost(sequence[0]) && sequence[0].parentPostId == null;
+
+      // Remove the thread starter from the array for thread view
+      return hasThreadStarter ? sequence.slice(1) : sequence;
+    }
+    case THREAD_VIEW_MODE.TIMELINE: {
+      // TODO: add "new" case
+      return timelineViewMode == TIMELINE_VIEW_SUB_MODE.LATEST
+        ? extractRepliesSequence(
+            [...chronologicalPostsSequence].reverse(),
+            postCommentsMap
+          )
+        : extractRepliesSequence(chronologicalPostsSequence, postCommentsMap);
+    }
+    case THREAD_VIEW_MODE.MASONRY: {
+      // TODO: add "new" case
+      // TODO: figure out how to add comments that are displayed
+      // TODO: consider removing root here
+      // skipRoot: !galleryViewMode.showCover,
+      return chronologicalPostsSequence;
+    }
+  }
+};
+
 export const useBeamToElement = (
   displayManager: DisplayManager,
   accentColor: string | undefined
 ) => {
-  const newRepliesIndex = React.useRef<number>(-1);
+  const currentIndex = React.useRef<number>(-1);
   const threadContext = useThreadContext();
   const [loading, setLoading] = useStateWithCallback(false);
 
-  const { threadRoot, newRepliesSequence, isFetching } = threadContext;
+  const { isFetching } = threadContext;
+  const elementsSequence = useCurrentDisplaySequence();
 
   // Skip if there's only one new post and it's the root.
-  const hasBeamToNew =
-    newRepliesSequence?.length &&
-    !(newRepliesSequence.length == 1 && newRepliesSequence[0] === threadRoot);
+  const canBeam = elementsSequence.length > 0;
   const onNewAnswersButtonClick = React.useCallback(() => {
-    if (isFetching || !hasBeamToNew) {
+    if (isFetching || !canBeam) {
       return;
     }
 
     log(`Finding next new reply...`);
-    newRepliesIndex.current = getNextElementInViewIndex({
-      currentIndex: newRepliesIndex.current,
-      elementsSequence: newRepliesSequence,
-      skipThreadStarter: true,
+    currentIndex.current = getNextElementInViewIndex({
+      currentIndex: currentIndex.current,
+      elementsSequence: elementsSequence,
     });
-    const next = newRepliesSequence[newRepliesIndex.current];
-    info(newRepliesSequence);
+    const next = elementsSequence[currentIndex.current];
+    info(elementsSequence);
     setLoading(true, () => {
       displayManager.displayToThreadElement(next, () => {
         tryScrollToElement(next, accentColor);
@@ -170,15 +201,15 @@ export const useBeamToElement = (
     });
   }, [
     accentColor,
-    hasBeamToNew,
+    canBeam,
     displayManager,
     isFetching,
-    newRepliesSequence,
     setLoading,
+    elementsSequence,
   ]);
 
   return {
-    hasBeamToNew,
+    hasBeamToNew: canBeam,
     onNewAnswersButtonClick,
     loading,
   };
