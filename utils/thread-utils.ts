@@ -148,6 +148,10 @@ export const extractNewRepliesSequence = (
   );
 };
 
+/**
+ * Given a list of posts in their display order, create a new list interleaving
+ * the posts with the comments replying to them (in chronological order).
+ */
 export const extractRepliesSequence = (
   postsDisplaySequence: PostType[],
   postCommentsMap: Map<string, ThreadCommentInfoType>
