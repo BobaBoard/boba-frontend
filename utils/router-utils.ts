@@ -35,6 +35,7 @@ export interface BoardPageDetails {
   slug: string;
   threadId: null;
   postId: null;
+  commentId: null;
   threadBaseUrl: null;
   pageType: PageTypes.BOARD;
 }
