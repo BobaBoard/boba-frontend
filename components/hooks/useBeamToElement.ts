@@ -67,19 +67,23 @@ const isScrolledPast = ({
 };
 
 /**
- * Gets the element after the current index in the given sequence of new replies, with wrap.
+ * Gets the element after the current index in the given sequence of
+ * posts/comments, with wrap.
  */
 const getNextElementIndex = ({
   currentIndex,
   newRepliesSequence,
+  skipThreadStarter,
 }: {
   currentIndex: number;
   newRepliesSequence: (PostType | CommentType)[];
+  skipThreadStarter: boolean;
 }) => {
   const nextIndex = (currentIndex + 1) % newRepliesSequence.length;
   const next = newRepliesSequence[nextIndex];
-  // Skip the root post.
-  if (!isPost(next) || next.parentPostId != null) {
+  // Skip the thread starter, if asked to do so.
+  const isThreadStarter = isPost(next) && next.parentPostId == null;
+  if (!skipThreadStarter || !isThreadStarter) {
     return nextIndex;
   }
   return (nextIndex + 1) % newRepliesSequence.length;
@@ -87,23 +91,27 @@ const getNextElementIndex = ({
 
 /**
  * Gets the next element after the current index that we have NOT scrolled past.
- * If we scrolled past them all, returns the first element.
+ * If we scrolled past them all, start again from the beginning.
  */
 const getNextElementInViewIndex = ({
   currentIndex,
   newRepliesSequence,
+  skipThreadStarter,
 }: {
   currentIndex: number;
   newRepliesSequence: (PostType | CommentType)[];
+  skipThreadStarter: boolean;
 }) => {
   let nextIndex = getNextElementIndex({
     currentIndex,
     newRepliesSequence,
+    skipThreadStarter,
   });
   let next = newRepliesSequence[nextIndex];
   // Keep trying to go to the next element until we find one that is either
-  // below the fold, or we find none are. In that case, we should start back
-  // again from index zero.
+  // below the fold, or we find that none are. In that case, we should start
+  // back again from the first element (unless the first element is the thread
+  // starter and skipThreadStarter is true).
   while (
     isScrolledPast({
       threadElement: next,
@@ -112,12 +120,14 @@ const getNextElementInViewIndex = ({
     nextIndex = getNextElementIndex({
       currentIndex: nextIndex,
       newRepliesSequence,
+      skipThreadStarter,
     });
     if (nextIndex < currentIndex) {
       // We've gone back to the beginning, return directly.
       return getNextElementIndex({
         currentIndex: -1,
         newRepliesSequence,
+        skipThreadStarter,
       });
     }
     next = newRepliesSequence[nextIndex];
@@ -148,6 +158,7 @@ export const useBeamToElement = (
     newRepliesIndex.current = getNextElementInViewIndex({
       currentIndex: newRepliesIndex.current,
       newRepliesSequence,
+      skipThreadStarter: true,
     });
     const next = newRepliesSequence[newRepliesIndex.current];
     info(newRepliesSequence);
