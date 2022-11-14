@@ -38,7 +38,7 @@ import debug from "debug";
 import { getThreadData } from "utils/queries/thread";
 import { isClientContext } from "utils/location-utils";
 import { useAuth } from "components/Auth";
-import { useBeamToNew } from "components/hooks/useBeamToNew";
+import { useBeamToElement } from "components/hooks/useBeamToElement";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
 import { useEditorsState } from "components/editors/EditorsContext";
@@ -157,7 +157,7 @@ function ThreadPage() {
   const { threadRoot, isFetching: isFetchingThread } = useThreadContext();
   const displayManager = useDisplayManager(collapseManager);
   const { displayMore } = displayManager;
-  const { hasBeamToNew, onNewAnswersButtonClick, loading } = useBeamToNew(
+  const { hasBeamToNew, onNewAnswersButtonClick, loading } = useBeamToElement(
     displayManager,
     currentBoardData?.accentColor
   );
