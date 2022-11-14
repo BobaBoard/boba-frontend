@@ -72,21 +72,21 @@ const isScrolledPast = ({
  */
 const getNextElementIndex = ({
   currentIndex,
-  newRepliesSequence,
+  elementsSequence,
   skipThreadStarter,
 }: {
   currentIndex: number;
-  newRepliesSequence: (PostType | CommentType)[];
+  elementsSequence: (PostType | CommentType)[];
   skipThreadStarter: boolean;
 }) => {
-  const nextIndex = (currentIndex + 1) % newRepliesSequence.length;
-  const next = newRepliesSequence[nextIndex];
+  const nextIndex = (currentIndex + 1) % elementsSequence.length;
+  const next = elementsSequence[nextIndex];
   // Skip the thread starter, if asked to do so.
   const isThreadStarter = isPost(next) && next.parentPostId == null;
   if (!skipThreadStarter || !isThreadStarter) {
     return nextIndex;
   }
-  return (nextIndex + 1) % newRepliesSequence.length;
+  return (nextIndex + 1) % elementsSequence.length;
 };
 
 /**
@@ -95,19 +95,19 @@ const getNextElementIndex = ({
  */
 const getNextElementInViewIndex = ({
   currentIndex,
-  newRepliesSequence,
+  elementsSequence,
   skipThreadStarter,
 }: {
   currentIndex: number;
-  newRepliesSequence: (PostType | CommentType)[];
+  elementsSequence: (PostType | CommentType)[];
   skipThreadStarter: boolean;
 }) => {
   let nextIndex = getNextElementIndex({
     currentIndex,
-    newRepliesSequence,
+    elementsSequence,
     skipThreadStarter,
   });
-  let next = newRepliesSequence[nextIndex];
+  let next = elementsSequence[nextIndex];
   // Keep trying to go to the next element until we find one that is either
   // below the fold, or we find that none are. In that case, we should start
   // back again from the first element (unless the first element is the thread
@@ -119,18 +119,18 @@ const getNextElementInViewIndex = ({
   ) {
     nextIndex = getNextElementIndex({
       currentIndex: nextIndex,
-      newRepliesSequence,
+      elementsSequence,
       skipThreadStarter,
     });
     if (nextIndex < currentIndex) {
       // We've gone back to the beginning, return directly.
       return getNextElementIndex({
         currentIndex: -1,
-        newRepliesSequence,
+        elementsSequence,
         skipThreadStarter,
       });
     }
-    next = newRepliesSequence[nextIndex];
+    next = elementsSequence[nextIndex];
   }
   return nextIndex;
 };
@@ -157,7 +157,7 @@ export const useBeamToElement = (
     log(`Finding next new reply...`);
     newRepliesIndex.current = getNextElementInViewIndex({
       currentIndex: newRepliesIndex.current,
-      newRepliesSequence,
+      elementsSequence: newRepliesSequence,
       skipThreadStarter: true,
     });
     const next = newRepliesSequence[newRepliesIndex.current];
