@@ -8,9 +8,9 @@ import debug from "debug";
 import { useStateWithCallback } from "./useStateWithCallback";
 import { useThreadContext } from "../thread/ThreadContext";
 
-// const error = debug("bobafrontend:useBeamToNew-error");
-const log = debug("bobafrontend:useBeamToNew-log");
-const info = debug("bobafrontend:useBeamToNew-info");
+// const error = debug("bobafrontend:useBeamToElement-error");
+const log = debug("bobafrontend:useBeamToElement-log");
+const info = debug("bobafrontend:useBeamToElement-info");
 
 /**
  * Attempts scrolling to element if it's found in page. If not, returns false.
@@ -125,7 +125,7 @@ const getNextElementInViewIndex = ({
   return nextIndex;
 };
 
-export const useBeamToNew = (
+export const useBeamToElement = (
   displayManager: DisplayManager,
   accentColor: string | undefined
 ) => {
