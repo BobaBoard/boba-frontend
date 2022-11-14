@@ -11,15 +11,39 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import { TagsType as ServerTagsType } from "types/Types";
+import { THREAD_VIEW_MODE } from "contexts/ThreadViewContext";
 import { TagsType } from "@bobaboard/ui-components/dist/types";
 import { useAuth } from "components/Auth";
 import { useBoardMetadata } from "queries/board";
 import { useThreadWithNull } from "components/thread/ThreadContext";
 
+export const getViewModeIcon = (view: THREAD_VIEW_MODE) => {
+  switch (view) {
+    case THREAD_VIEW_MODE.MASONRY:
+      return faImages;
+    case THREAD_VIEW_MODE.THREAD:
+      return faCodeBranch;
+    case THREAD_VIEW_MODE.TIMELINE:
+      return faFilm;
+  }
+};
+
 export const THREAD_VIEW_OPTIONS = [
-  { name: "Thread", id: "thread", icon: faCodeBranch },
-  { name: "Gallery", id: "gallery", icon: faImages },
-  { name: "Timeline", id: "timeline", icon: faFilm },
+  {
+    name: "Thread",
+    id: "thread",
+    icon: getViewModeIcon(THREAD_VIEW_MODE.THREAD),
+  },
+  {
+    name: "Gallery",
+    id: "gallery",
+    icon: getViewModeIcon(THREAD_VIEW_MODE.MASONRY),
+  },
+  {
+    name: "Timeline",
+    id: "timeline",
+    icon: getViewModeIcon(THREAD_VIEW_MODE.TIMELINE),
+  },
 ];
 
 export const getViewIdFromName = (viewName?: string) => {

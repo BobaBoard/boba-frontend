@@ -10,12 +10,22 @@ import {
   useEditorsDispatch,
 } from "components/editors/EditorsContext";
 import {
+  PostData,
+  RealmPermissions,
+  RealmType,
+  ThreadSummaryType,
+} from "types/Types";
+import { PostOptions, usePostOptions } from "components/options/usePostOptions";
+import {
   REALM_QUERY_KEY,
   useBoardSummary,
   useCurrentRealmBoardId,
   useRealmPermissions,
 } from "contexts/RealmContext";
-import { RealmPermissions, RealmType, ThreadSummaryType } from "types/Types";
+import {
+  ThreadViewMode,
+  useThreadViewContext,
+} from "contexts/ThreadViewContext";
 import {
   faAnglesDown,
   faAnglesUp,
@@ -32,6 +42,8 @@ import {
 import { useThreadEditors, withEditors } from "components/editors/withEditors";
 
 import React from "react";
+import { getViewModeIcon } from "components/editors/utils";
+import { useAuth } from "components/Auth";
 import { useBeamToElement } from "components/hooks/useBeamToElement";
 import { useBoardMetadata } from "queries/board";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
@@ -43,7 +55,8 @@ export interface BoardBottomBarProps {
 }
 
 const BoardBottomBar = (props: BoardBottomBarProps) => {
-  const { slug } = usePageDetails<ThreadPageDetails>();
+  const { slug, threadId } = usePageDetails<ThreadPageDetails>();
+  const { isLoggedIn } = useAuth();
   if (!slug) {
     throw new Error("Using BoardBottomBar outside of Board page.");
   }
@@ -56,6 +69,7 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
     isFetching: isFetchingThread,
     muted,
     hidden,
+    defaultView,
   } = useThreadContext();
   const { onNewContribution } = useThreadEditors();
   const newPostLink = React.useMemo(
@@ -66,25 +80,30 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
     }),
     [onNewContribution, threadRoot]
   );
+  const { currentThreadViewMode } = useThreadViewContext();
   const collapseManager = useThreadCollapseManager();
   const displayManager = useDisplayManager(collapseManager);
   const { canBeam, onBeamToElement, loading } = useBeamToElement(
     displayManager,
     boardMetadata?.accentColor
   );
-  const {
-    hasBeam,
-    onBeamToNextRequest,
-    onBeamToPreviousRequest,
-    loading: beamToElementLoading,
-  } = useBeamToElement(displayManager, boardMetadata?.accentColor);
-  const boardOptions = useBoardOptions({
+  const threadOptions = usePostOptions({
     options: [
-      BoardOptions.MUTE,
-      BoardOptions.PIN,
-      BoardOptions.DISMISS_NOTIFICATIONS,
+      PostOptions.COPY_THREAD_LINK,
+      PostOptions.HIDE,
+      PostOptions.MUTE,
+      PostOptions.MARK_READ,
+      PostOptions.OPEN_AS,
     ],
-    boardId: boardMetadata?.id || null,
+    isLoggedIn,
+    data: {
+      boardId,
+      threadId,
+      post: threadRoot!,
+      currentView: defaultView!,
+      hidden,
+      muted,
+    },
   });
 
   if (!boardMetadata) {
@@ -106,15 +125,20 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
           {
             id: "hidden",
             icon: hidden ? faEyeSlash : faEye,
-            color: hidden ? "white" : "#2e2e30",
+            color: hidden ? "red" : "#2e2e30",
           },
           {
             id: "muted",
-            icon: boardMetadata.muted ? faVolumeXmark : faVolumeHigh,
-            color: muted ? "#2e2e30" : "white",
+            icon: muted ? faVolumeXmark : faVolumeHigh,
+            color: muted ? "red" : "#2e2e30",
+          },
+          {
+            id: "thread-type",
+            icon: getViewModeIcon(currentThreadViewMode)!,
+            color: "white",
           },
         ],
-        options: boardOptions,
+        options: threadOptions,
       }}
     >
       <BottomBar.Button
