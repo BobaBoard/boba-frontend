@@ -1,5 +1,6 @@
 import { CommentType, PostType, isComment, isPost } from "types/Types";
 import {
+  GALLERY_VIEW_SUB_MODE,
   THREAD_VIEW_MODE,
   TIMELINE_VIEW_SUB_MODE,
   useThreadViewContext,
@@ -128,6 +129,11 @@ const getNextElementInViewIndex = ({
   return nextIndex;
 };
 
+/**
+ * Returns the current sequence of posts to beam through according to the view mode
+ * of the thread.
+ */
+// TODO: this doesn't handle the case where comment threads may have been "collapsed"
 const useCurrentDisplaySequence = () => {
   const { currentThreadViewMode, galleryViewMode, timelineViewMode } =
     useThreadViewContext();
@@ -136,6 +142,7 @@ const useCurrentDisplaySequence = () => {
     threadDisplaySequence,
     newRepliesSequence,
     postCommentsMap,
+    threadRoot,
   } = useThreadContext();
 
   switch (currentThreadViewMode) {
@@ -150,7 +157,9 @@ const useCurrentDisplaySequence = () => {
       return hasThreadStarter ? sequence.slice(1) : sequence;
     }
     case THREAD_VIEW_MODE.TIMELINE: {
-      // TODO: add "new" case
+      if (timelineViewMode == TIMELINE_VIEW_SUB_MODE.NEW) {
+        return newRepliesSequence;
+      }
       return timelineViewMode == TIMELINE_VIEW_SUB_MODE.LATEST
         ? extractRepliesSequence(
             [...chronologicalPostsSequence].reverse(),
@@ -159,11 +168,33 @@ const useCurrentDisplaySequence = () => {
         : extractRepliesSequence(chronologicalPostsSequence, postCommentsMap);
     }
     case THREAD_VIEW_MODE.MASONRY: {
-      // TODO: add "new" case
-      // TODO: figure out how to add comments that are displayed
-      // TODO: consider removing root here
-      // skipRoot: !galleryViewMode.showCover,
-      return chronologicalPostsSequence;
+      const sequence =
+        galleryViewMode.mode == GALLERY_VIEW_SUB_MODE.NEW
+          ? newRepliesSequence
+          : chronologicalPostsSequence;
+      if (galleryViewMode.showCover) {
+        return sequence;
+      }
+      // We're not displaying the gallery cover (thread starter), so we should remove
+      // it (and all its replies) from the sequence.
+      let sequenceWithHiddenCover = [...sequence];
+      while (threadRoot && sequenceWithHiddenCover.length > 0) {
+        const threadRootPostId = threadRoot.postId;
+        const currentElement = sequenceWithHiddenCover[0];
+        // We start from the beginning, and for as long as we keep getting first elements
+        // that match our criteria for "skippable "
+        if (
+          (isPost(currentElement) &&
+            currentElement.postId == threadRootPostId) ||
+          (isComment(currentElement) &&
+            currentElement.parentPostId == threadRoot.postId)
+        ) {
+          sequenceWithHiddenCover = sequenceWithHiddenCover.slice(1);
+        } else {
+          break;
+        }
+      }
+      return sequenceWithHiddenCover;
     }
   }
 };
@@ -179,14 +210,25 @@ export const useBeamToElement = (
   const { isFetching } = threadContext;
   const elementsSequence = useCurrentDisplaySequence();
 
+  const { currentThreadViewMode, galleryViewMode, timelineViewMode } =
+    useThreadViewContext();
+
+  React.useEffect(() => {
+    // When the view mode changes, reset the sequence index.
+    currentIndex.current = -1;
+  }, [currentThreadViewMode, galleryViewMode, timelineViewMode]);
+
   // Skip if there's only one new post and it's the root.
   const canBeam = elementsSequence.length > 0;
-  const onNewAnswersButtonClick = React.useCallback(() => {
+  const onBeamToElement = React.useCallback(() => {
     if (isFetching || !canBeam) {
       return;
     }
 
     log(`Finding next new reply...`);
+    // TODO: we may need to be more lenient with this when it comes to gallery, cause scrolling through comments
+    // will often cause the next post to go past the viewport, and then we end up completely skipping it.
+    // Hard to know what the right thing to do in gallery mode is though, it requires more thought.
     currentIndex.current = getNextElementInViewIndex({
       currentIndex: currentIndex.current,
       elementsSequence: elementsSequence,
@@ -209,8 +251,8 @@ export const useBeamToElement = (
   ]);
 
   return {
-    hasBeamToNew: canBeam,
-    onNewAnswersButtonClick,
+    canBeam,
+    onBeamToElement,
     loading,
   };
 };
