@@ -151,7 +151,9 @@ const useCurrentDisplaySequence = () => {
       const sequence = newOnly ? newRepliesSequence : threadDisplaySequence;
 
       const hasThreadStarter =
-        isPost(sequence[0]) && sequence[0].parentPostId == null;
+        sequence?.[0] &&
+        isPost(sequence[0]) &&
+        sequence[0].parentPostId == null;
 
       // Remove the thread starter from the array for thread view
       return hasThreadStarter ? sequence.slice(1) : sequence;
