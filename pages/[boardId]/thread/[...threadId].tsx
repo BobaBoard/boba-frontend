@@ -157,7 +157,7 @@ function ThreadPage() {
   const { threadRoot, isFetching: isFetchingThread } = useThreadContext();
   const displayManager = useDisplayManager(collapseManager);
   const { displayMore } = displayManager;
-  const { hasBeamToNew, onNewAnswersButtonClick, loading } = useBeamToElement(
+  const { canBeam, onBeamToElement, loading } = useBeamToElement(
     displayManager,
     currentBoardData?.accentColor
   );
@@ -267,10 +267,10 @@ function ThreadPage() {
           </FeedWithMenu>
         </Layout.MainContent>
         <Layout.ActionButton>
-          {currentThreadViewMode == THREAD_VIEW_MODE.THREAD && hasBeamToNew ? (
+          {currentThreadViewMode == THREAD_VIEW_MODE.THREAD && canBeam ? (
             <CycleNewButton
               text="Next New"
-              onNext={onNewAnswersButtonClick}
+              onNext={onBeamToElement}
               loading={loading}
             />
           ) : canTopLevelPost && !editorState.isOpen ? (
