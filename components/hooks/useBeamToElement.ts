@@ -220,14 +220,13 @@ export const useBeamToElement = (
     currentIndex.current = -1;
   }, [currentThreadViewMode, galleryViewMode, timelineViewMode]);
 
-  // Skip if there's only one new post and it's the root.
-  const canBeam = elementsSequence.length > 0;
-  const onBeamToElement = React.useCallback(() => {
-    if (isFetching || !canBeam) {
+  const canBeamToNext = elementsSequence.length > 0;
+  const onBeamToNext = React.useCallback(() => {
+    if (isFetching || !canBeamToNext) {
       return;
     }
 
-    log(`Finding next new reply...`);
+    log(`Finding next element...`);
     // TODO: we may need to be more lenient with this when it comes to gallery, cause scrolling through comments
     // will often cause the next post to go past the viewport, and then we end up completely skipping it.
     // Hard to know what the right thing to do in gallery mode is though, it requires more thought.
@@ -245,16 +244,32 @@ export const useBeamToElement = (
     });
   }, [
     accentColor,
-    canBeam,
+    canBeamToNext,
     displayManager,
     isFetching,
     setLoading,
     elementsSequence,
   ]);
 
+  const canBeamToPrevious =
+    elementsSequence.length > 0 && currentIndex.current < 1;
+  const onBeamToPrevious = React.useCallback(() => {
+    // TODO: we probably do need to index to be part of the state now
+    if (isFetching || elementsSequence.length < 0 || currentIndex.current < 1) {
+      return;
+    }
+
+    log(`Finding previous element...`);
+    currentIndex.current = currentIndex.current - 1;
+    const next = elementsSequence[currentIndex.current];
+    tryScrollToElement(next, accentColor);
+  }, [accentColor, isFetching, elementsSequence]);
+
   return {
-    canBeam,
-    onBeamToElement,
+    canBeamToNext,
+    canBeamToPrevious,
+    onBeamToNext,
+    onBeamToPrevious,
     loading,
   };
 };

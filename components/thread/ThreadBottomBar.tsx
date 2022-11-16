@@ -1,54 +1,28 @@
-import { BoardOptions, useBoardOptions } from "../hooks/useBoardOptions";
-import {
-  BoardPageDetails,
-  ThreadPageDetails,
-  usePageDetails,
-} from "utils/router-utils";
-import { BottomBar, DefaultTheme } from "@bobaboard/ui-components";
-import {
-  EditorActions,
-  useEditorsDispatch,
-} from "components/editors/EditorsContext";
-import {
-  PostData,
-  RealmPermissions,
-  RealmType,
-  ThreadSummaryType,
-} from "types/Types";
 import { PostOptions, usePostOptions } from "components/options/usePostOptions";
-import {
-  REALM_QUERY_KEY,
-  useBoardSummary,
-  useCurrentRealmBoardId,
-  useRealmPermissions,
-} from "contexts/RealmContext";
-import {
-  ThreadViewMode,
-  useThreadViewContext,
-} from "contexts/ThreadViewContext";
+import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import {
   faAnglesDown,
   faAnglesUp,
-  faCertificate,
   faCompass,
   faEye,
   faEyeSlash,
   faPlusSquare,
-  faThumbTack,
   faVolumeHigh,
-  faVolumeOff,
   faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { useThreadEditors, withEditors } from "components/editors/withEditors";
 
+import { BottomBar } from "@bobaboard/ui-components";
 import React from "react";
 import { getViewModeIcon } from "components/editors/utils";
 import { useAuth } from "components/Auth";
 import { useBeamToElement } from "components/hooks/useBeamToElement";
 import { useBoardMetadata } from "queries/board";
+import { useCurrentRealmBoardId } from "contexts/RealmContext";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
 import { useThreadCollapseManager } from "./useCollapseManager";
 import { useThreadContext } from "./ThreadContext";
+import { useThreadViewContext } from "contexts/ThreadViewContext";
 
 export interface BoardBottomBarProps {
   onCompassClick: () => void;
@@ -83,10 +57,13 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
   const { currentThreadViewMode } = useThreadViewContext();
   const collapseManager = useThreadCollapseManager();
   const displayManager = useDisplayManager(collapseManager);
-  const { canBeam, onBeamToElement, loading } = useBeamToElement(
-    displayManager,
-    boardMetadata?.accentColor
-  );
+  const {
+    canBeamToNext,
+    onBeamToNext,
+    canBeamToPrevious,
+    onBeamToPrevious,
+    loading,
+  } = useBeamToElement(displayManager, boardMetadata?.accentColor);
   const threadOptions = usePostOptions({
     options: [
       PostOptions.COPY_THREAD_LINK,
@@ -159,23 +136,23 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
         //       }
         //     : null
         // }
-        link={{ onClick: onBeamToPreviousRequest }}
+        link={{
+          onClick: onBeamToPrevious,
+        }}
         position="right"
       />
       <BottomBar.Button
         key="jump down"
         icon={{ icon: faAnglesDown }}
-        withNotification={
-          hasBeamToNew
-            ? {
-                icon: faCertificate,
-                color: DefaultTheme.DEFAULT_ACCENT_COLOR,
-              }
-            : null
-        }
-        link={{
-          onClick: hasBeamToNew ? onNewAnswersButtonClick : onBeamToNextRequest,
-        }}
+        // withNotification={
+        //   hasBeamToNew
+        //     ? {
+        //         icon: faCertificate,
+        //         color: DefaultTheme.DEFAULT_ACCENT_COLOR,
+        //       }
+        //     : null
+        // }
+        link={{ onClick: onBeamToNext }}
         position="right"
         loading={loading}
       />
