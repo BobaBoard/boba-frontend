@@ -1,41 +1,22 @@
-import { ArrayParam, useQueryParams } from "use-query-params";
-import { BoardOptions, useBoardOptions } from "../hooks/useBoardOptions";
-import { BoardPageDetails, usePageDetails } from "utils/router-utils";
 import { BottomBar, DefaultTheme } from "@bobaboard/ui-components";
-import {
-  EditorActions,
-  useEditorsDispatch,
-} from "components/editors/EditorsContext";
 import {
   faAnglesDown,
   faAnglesUp,
-  faCertificate,
   faCompass,
   faPauseCircle,
-  faPencil,
-  faThumbTack,
-  faVolumeHigh,
-  faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import { useCurrentRealmBoardId, useRealmContext } from "contexts/RealmContext";
 
 import { ExistanceParam } from "components/QueryParamNextProvider";
 import React from "react";
 import { isFromBackButton } from "components/hooks/useFromBackButton";
 import { useBeamToFeedElement } from "components/hooks/useBeamToFeedElement";
-import { useBoardActivity } from "queries/board-feed";
-import { useBoardMetadata } from "queries/board";
-import { useNotifications } from "queries/notifications";
+import { useQueryParams } from "use-query-params";
 import { useUserFeed } from "queries/user-feed";
 import { withEditors } from "components/editors/withEditors";
 
 export interface FeedBottomBarProps {
   onCompassClick: () => void;
 }
-
-const BoardParams = {
-  filter: ArrayParam,
-};
 
 const FeedParams = {
   showRead: ExistanceParam,
@@ -45,11 +26,7 @@ const FeedParams = {
 const FeedBottomBar = (props: FeedBottomBarProps) => {
   const [feedOptions] = useQueryParams(FeedParams);
 
-  const [{ filter: categoryFilter }] = useQueryParams(BoardParams);
-  const feedData = useUserFeed({
-    enabled: !isFromBackButton(),
-    feedOptions,
-  });
+  const [params] = useQueryParams(FeedParams);
 
   const {
     canBeamToNext,
@@ -58,21 +35,25 @@ const FeedBottomBar = (props: FeedBottomBarProps) => {
     onBeamToPrevious,
     loadingNext,
     loadingPrevious,
+    resetBeamIndex,
   } = useBeamToFeedElement({
-    feed: feedData,
+    feed: useUserFeed({
+      enabled: !isFromBackButton(),
+      feedOptions,
+    }),
     accentColor: DefaultTheme.DEFAULT_ACCENT_COLOR,
   });
+
+  React.useEffect(() => {
+    resetBeamIndex();
+    // Note: resetBeamIndex will never change cause it's been declared with
+    // useCallback and no dependency. If it did, this may need to be a more
+    // complex condition.
+  }, [params, resetBeamIndex]);
 
   return (
     <BottomBar
       accentColor={DefaultTheme.DEFAULT_ACCENT_COLOR}
-      // TODO: add realm permissions here
-      // realmPermissions.includes(RealmPermissions.CREATE_THREAD_ON_REALM)
-      //   centerButton={{
-      //     icon: faPencil,
-      //     link: newThreadLink,
-      //     color: "white",
-      //   }}
       contextMenu={{
         icons: [],
         options: [],

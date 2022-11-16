@@ -32,7 +32,7 @@ const log = debug("bobafrontend:BoardPage-log");
 const info = debug("bobafrontend:BoardPage-info");
 info.log = console.info.bind(console);
 
-const BoardParams = {
+export const BoardParams = {
   filter: ArrayParam,
 };
 

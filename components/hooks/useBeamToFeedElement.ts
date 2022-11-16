@@ -20,7 +20,6 @@ export const useBeamToFeedElement = ({
 }) => {
   const [currentIndex, setCurrentIndex] = React.useState(-1);
   const allLoadedThreads = React.useMemo(() => {
-    console.log("redoing the pages");
     return feed.data?.pages.flatMap((page) => page.activity) || [];
   }, [feed.data?.pages]);
 
@@ -54,20 +53,23 @@ export const useBeamToFeedElement = ({
         return currentIndex;
       }
 
-      console.log(currentIndex);
       log(`Finding previous element...`);
       const nextIndex = currentIndex - 1;
       const next = allLoadedThreads[nextIndex];
-      console.log(nextIndex);
-      console.log(next);
       tryScrollToElement(next, accentColor);
       return nextIndex;
     });
   }, [accentColor, feed.isFetched, allLoadedThreads, canBeamToPrevious]);
+
   const loadingNext =
     !feed.isFetched ||
     (isAtLastElement && feed.hasNextPage && feed.isFetchingNextPage);
   const loadingPrevious = !feed.isFetched;
+
+  const resetBeamIndex = React.useCallback(() => {
+    setCurrentIndex(-1);
+  }, []);
+
   return React.useMemo(
     () => ({
       canBeamToNext,
@@ -76,6 +78,7 @@ export const useBeamToFeedElement = ({
       onBeamToPrevious,
       loadingNext,
       loadingPrevious,
+      resetBeamIndex,
     }),
     [
       canBeamToNext,
@@ -84,6 +87,7 @@ export const useBeamToFeedElement = ({
       onBeamToPrevious,
       loadingNext,
       loadingPrevious,
+      resetBeamIndex,
     ]
   );
 };

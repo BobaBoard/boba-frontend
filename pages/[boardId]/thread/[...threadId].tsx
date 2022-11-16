@@ -41,7 +41,6 @@ import { isClientContext } from "utils/location-utils";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
-import { useEditorsState } from "components/editors/EditorsContext";
 import { useInvalidateNotifications } from "queries/notifications";
 import { useOnPageExit } from "components/hooks/useOnPageExit";
 import { useRefetchBoardActivity } from "queries/board-feed";
