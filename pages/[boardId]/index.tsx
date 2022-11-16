@@ -1,11 +1,6 @@
 import { ArrayParam, useQueryParams } from "use-query-params";
 import { BoardPageDetails, usePageDetails } from "utils/router-utils";
 import {
-  EditorActions,
-  useEditorsDispatch,
-} from "components/editors/EditorsContext";
-import { FeedWithMenu, PostingActionButton } from "@bobaboard/ui-components";
-import {
   REALM_QUERY_KEY,
   useBoardSummary,
   useCurrentRealmBoardId,
@@ -21,6 +16,7 @@ import { prefetchBoardMetadata, useBoardMetadata } from "queries/board";
 
 import BoardBottomBar from "components/boards/BoardBottomBar";
 import { BoardSidebar } from "components/boards/Sidebar";
+import { FeedWithMenu } from "@bobaboard/ui-components";
 import Layout from "components/layout/Layout";
 import LoadingSpinner from "components/LoadingSpinner";
 import { NextPage } from "next";
@@ -30,6 +26,7 @@ import ThreadPreview from "components/ThreadPreview";
 import axios from "axios";
 import debug from "debug";
 import { useAuth } from "components/Auth";
+import { useBeamToFeedElement } from "components/hooks/useBeamToFeedElement";
 import { useBoardActivity } from "queries/board-feed";
 
 const log = debug("bobafrontend:BoardPage-log");
@@ -41,7 +38,6 @@ const BoardParams = {
 };
 
 const MemoizedThreadPreview = React.memo(ThreadPreview);
-const MemoizedActionButton = React.memo(PostingActionButton);
 function BoardPage() {
   const [showSidebar, setShowSidebar] = React.useState(false);
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
@@ -75,6 +71,10 @@ function BoardPage() {
     [setQuery]
   );
 
+  const feedData = useBoardActivity({
+    boardId,
+    categoryFilter,
+  });
   const {
     data: boardActivityData,
     isFetching: isFetchingBoardActivity,
@@ -82,9 +82,10 @@ function BoardPage() {
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useBoardActivity({
-    boardId,
-    categoryFilter,
+  } = feedData;
+  useBeamToFeedElement({
+    feed: feedData,
+    accentColor: boardMetadata?.accentColor,
   });
 
   React.useEffect(() => {
@@ -169,7 +170,11 @@ function BoardPage() {
                     .flatMap((activityData) => activityData?.activity)
                     .map((thread: ThreadSummaryType) => {
                       return (
-                        <div className="post" key={`${thread.id}_container`}>
+                        <div
+                          className="thread"
+                          key={`${thread.id}_container`}
+                          data-thread-id={thread.id}
+                        >
                           <MemoizedThreadPreview
                             thread={thread}
                             isLoggedIn={isLoggedIn}
@@ -200,11 +205,11 @@ function BoardPage() {
           width: 100%;
           box-sizing: border-box;
         }
-        .post {
+        .thread {
           margin: 20px auto;
           width: 100%;
         }
-        .post > :global(article) {
+        .thread > :global(article) {
           margin: 0 auto;
         }
         .empty {

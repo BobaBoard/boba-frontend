@@ -1,6 +1,10 @@
-import { Post, TagType, TagsType } from "@bobaboard/ui-components";
+import { Post, PostHandler, TagType, TagsType } from "@bobaboard/ui-components";
 import { PostData, ThreadSummaryType } from "types/Types";
 import { PostOptions, usePostOptions } from "./options/usePostOptions";
+import {
+  addThreadHandlerRef,
+  removeThreadHandlerRef,
+} from "utils/scroll-utils";
 
 import React from "react";
 import { THREAD_VIEW_OPTIONS } from "./editors/utils";
@@ -117,6 +121,24 @@ const ThreadPreview: React.FC<{
     [onSetCategoryFilter]
   );
 
+  // We save the thread handler ref so that UI effects that want to highlight
+  // the thread can do so.
+  const { id: threadId } = thread;
+  const updateRef = React.useCallback(
+    (ref: PostHandler) => {
+      console.log("adding thread handler", threadId, ref);
+      addThreadHandlerRef({ threadId, ref });
+    },
+    [threadId]
+  );
+  React.useEffect(() => {
+    // When the components is unmounted, we remove the ref from memory.
+    return () => {
+      console.log("removing thread handler", threadId);
+      removeThreadHandlerRef({ threadId });
+    };
+  }, [threadId]);
+
   if (thread.hidden) {
     return <HiddenThread thread={thread} />;
   }
@@ -133,6 +155,7 @@ const ThreadPreview: React.FC<{
             })}]`
           : ""
       }`}
+      ref={updateRef}
       createdMessageIcon={getThreadTypeIcon(thread.defaultView)}
       createdTimeLink={linkToThread}
       text={rootPost.content}

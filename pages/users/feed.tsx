@@ -1,8 +1,8 @@
+import { DefaultTheme, FeedWithMenu } from "@bobaboard/ui-components";
 import { FeedOptions, useUserFeed } from "queries/user-feed";
 
 import { ExistanceParam } from "components/QueryParamNextProvider";
 import FeedSidebar from "components/feed/FeedSidebar";
-import { FeedWithMenu } from "@bobaboard/ui-components";
 import Layout from "components/layout/Layout";
 import LoadingSpinner from "components/LoadingSpinner";
 import React from "react";
@@ -11,6 +11,7 @@ import { ThreadType } from "types/Types";
 import debug from "debug";
 import { isFromBackButton } from "components/hooks/useFromBackButton";
 import { useAuth } from "components/Auth";
+import { useBeamToFeedElement } from "components/hooks/useBeamToFeedElement";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useQueryParams } from "use-query-params";
 import { useRealmBoards } from "contexts/RealmContext";
@@ -32,15 +33,20 @@ function UserFeedPage() {
   const realmBoards = useRealmBoards();
   const { linkToHome } = useCachedLinks();
 
+  const feedData = useUserFeed({
+    enabled: !isFromBackButton(),
+    feedOptions,
+  });
   const {
     data: userActivityData,
     isFetching: isFetchingUserActivity,
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useUserFeed({
-    enabled: !isFromBackButton(),
-    feedOptions,
+  } = feedData;
+  useBeamToFeedElement({
+    feed: feedData,
+    accentColor: DefaultTheme.DEFAULT_ACCENT_COLOR,
   });
 
   React.useEffect(() => {
@@ -71,7 +77,6 @@ function UserFeedPage() {
     );
   }, [hasNextPage, fetchNextPage, isFetchingNextPage]);
   const hideSidebar = React.useCallback(() => setShowSidebar(false), []);
-  const showSidebar = React.useCallback(() => setShowSidebar(true), []);
 
   const showEmptyMessage =
     !isFetchingUserActivity &&
@@ -81,7 +86,6 @@ function UserFeedPage() {
     <div className="main">
       <Layout
         title={`Your Stuff`}
-        onCompassClick={showSidebar}
         forceHideTitle={true}
         loading={isFetchingUserActivity}
       >
@@ -108,7 +112,11 @@ function UserFeedPage() {
                     .flatMap((activityData) => activityData?.activity)
                     .map((thread: ThreadType) => {
                       return (
-                        <div className="post" key={`${thread.id}_container`}>
+                        <div
+                          className="thread"
+                          key={`${thread.id}_container`}
+                          data-thread-id={thread.id}
+                        >
                           <ThreadPreview
                             thread={thread}
                             isLoggedIn={isLoggedIn}
@@ -135,12 +143,12 @@ function UserFeedPage() {
         .main {
           width: 100%;
         }
-        .post {
+        .thread {
           margin: 20px auto;
           margin-bottom: 30px;
           width: 100%;
         }
-        .post > :global(article) {
+        .thread > :global(article) {
           margin: 0 auto;
         }
         .empty {

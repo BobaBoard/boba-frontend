@@ -12,7 +12,7 @@ export const getBoardActivityData = async (
     realmId,
   }: { boardId: string | null; categoryFilter: string | null; realmId: string },
   cursor?: string
-): Promise<FeedType | undefined> => {
+): Promise<FeedType> => {
   log(`Fetching board activity for board with id ${boardId}.`);
   if (!boardId) {
     log(`...can't fetch board activity for board with no id.`);
@@ -44,7 +44,7 @@ export const getUserActivityData = async (
     realmId: string;
   },
   cursor: string
-): Promise<FeedType | undefined> => {
+): Promise<FeedType> => {
   const response = await axios.get(`feeds/users/@me`, {
     params: { ...params, cursor },
   });
