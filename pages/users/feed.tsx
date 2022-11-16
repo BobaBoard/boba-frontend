@@ -1,8 +1,9 @@
-import { DefaultTheme, FeedWithMenu } from "@bobaboard/ui-components";
 import { FeedOptions, useUserFeed } from "queries/user-feed";
 
 import { ExistanceParam } from "components/QueryParamNextProvider";
+import FeedBottomBar from "components/feed/FeedBottomBar";
 import FeedSidebar from "components/feed/FeedSidebar";
+import { FeedWithMenu } from "@bobaboard/ui-components";
 import Layout from "components/layout/Layout";
 import LoadingSpinner from "components/LoadingSpinner";
 import React from "react";
@@ -11,7 +12,6 @@ import { ThreadType } from "types/Types";
 import debug from "debug";
 import { isFromBackButton } from "components/hooks/useFromBackButton";
 import { useAuth } from "components/Auth";
-import { useBeamToFeedElement } from "components/hooks/useBeamToFeedElement";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useQueryParams } from "use-query-params";
 import { useRealmBoards } from "contexts/RealmContext";
@@ -32,21 +32,17 @@ function UserFeedPage() {
 
   const realmBoards = useRealmBoards();
   const { linkToHome } = useCachedLinks();
+  const showSidebar = React.useCallback(() => setShowSidebar(true), []);
 
-  const feedData = useUserFeed({
-    enabled: !isFromBackButton(),
-    feedOptions,
-  });
   const {
     data: userActivityData,
     isFetching: isFetchingUserActivity,
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = feedData;
-  useBeamToFeedElement({
-    feed: feedData,
-    accentColor: DefaultTheme.DEFAULT_ACCENT_COLOR,
+  } = useUserFeed({
+    enabled: !isFromBackButton(),
+    feedOptions,
   });
 
   React.useEffect(() => {
@@ -138,6 +134,9 @@ function UserFeedPage() {
             </FeedWithMenu.FeedContent>
           </FeedWithMenu>
         </Layout.MainContent>
+        <Layout.BottomBar>
+          <FeedBottomBar onCompassClick={showSidebar} />
+        </Layout.BottomBar>
       </Layout>
       <style jsx>{`
         .main {
