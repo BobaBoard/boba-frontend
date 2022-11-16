@@ -20,7 +20,7 @@ import { withEditors } from "components/editors/withEditors";
 const info = debug("bobafrontend:boardPage-info");
 info.log = console.info.bind(console);
 
-const FeedParams = {
+export const FeedParams = {
   showRead: ExistanceParam,
   ownOnly: ExistanceParam,
 };

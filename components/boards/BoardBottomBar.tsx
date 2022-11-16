@@ -19,7 +19,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useCurrentRealmBoardId, useRealmContext } from "contexts/RealmContext";
 
+import { BoardParams } from "pages/[boardId]";
 import React from "react";
+import { RealmPermissions } from "types/Types";
+import { useAuth } from "components/Auth";
 import { useBeamToFeedElement } from "components/hooks/useBeamToFeedElement";
 import { useBoardActivity } from "queries/board-feed";
 import { useBoardMetadata } from "queries/board";
@@ -30,23 +33,20 @@ export interface BoardBottomBarProps {
   onCompassClick: () => void;
 }
 
-const BoardParams = {
-  filter: ArrayParam,
-};
-
 const BoardBottomBar = (props: BoardBottomBarProps) => {
   const { slug } = usePageDetails<BoardPageDetails>();
   if (!slug) {
     throw new Error("Using BoardBottomBar outside of Board page.");
   }
   const boardId = useCurrentRealmBoardId({ boardSlug: slug });
-  const { id: realmId } = useRealmContext();
+  const { id: realmId, realmPermissions } = useRealmContext();
   const { realmBoardsNotifications } = useNotifications({
     realmId,
   });
   const { boardMetadata } = useBoardMetadata({
     boardId,
   });
+  const { isLoggedIn } = useAuth();
   const editorDispatch = useEditorsDispatch();
   const newThreadLink = React.useMemo(
     () => ({
@@ -71,11 +71,7 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
     boardId: boardMetadata?.id || null,
   });
 
-  const [{ filter: categoryFilter }] = useQueryParams(BoardParams);
-  const feedData = useBoardActivity({
-    boardId,
-    categoryFilter,
-  });
+  const [params] = useQueryParams(BoardParams);
   const {
     canBeamToNext,
     onBeamToNext,
@@ -83,49 +79,67 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
     onBeamToPrevious,
     loadingNext,
     loadingPrevious,
+    resetBeamIndex,
   } = useBeamToFeedElement({
-    feed: feedData,
+    feed: useBoardActivity({
+      boardId,
+      categoryFilter: params.filter,
+    }),
     accentColor: boardMetadata?.accentColor,
   });
+
+  React.useEffect(() => {
+    resetBeamIndex();
+    // Note: resetBeamIndex will never change cause it's been declared with
+    // useCallback and no dependency. If it did, this may need to be a more
+    // complex condition.
+  }, [params, resetBeamIndex]);
 
   if (!boardMetadata) {
     return null;
   }
 
+  const canCreateThread = realmPermissions.includes(
+    RealmPermissions.CREATE_THREAD_ON_REALM
+  );
   return (
     <BottomBar
       accentColor={boardMetadata.accentColor}
-      // TODO: add realm permissions here
-      // realmPermissions.includes(RealmPermissions.CREATE_THREAD_ON_REALM)
-      centerButton={{
-        icon: faPencil,
-        link: newThreadLink,
-        color: "white",
-      }}
+      centerButton={
+        canCreateThread
+          ? {
+              icon: faPencil,
+              link: newThreadLink,
+              color: "white",
+            }
+          : undefined
+      }
       contextMenu={{
-        icons: [
-          {
-            id: "pinned",
-            icon: faThumbTack,
-            color: boardMetadata.pinned ? "white" : "#2e2e30",
-          },
-          {
-            id: "muted",
-            icon: boardMetadata.muted ? faVolumeXmark : faVolumeHigh,
-            color: boardMetadata.muted ? "red" : "#2e2e30",
-          },
-          {
-            id: "updates",
-            icon: faCertificate,
-            color:
-              boardId && realmBoardsNotifications[boardId]?.hasUpdates
-                ? boardId && realmBoardsNotifications[boardId]?.isOutdated
-                  ? DefaultTheme.NOTIFICATIONS_OUTDATED_COLOR
-                  : DefaultTheme.NOTIFICATIONS_NEW_COLOR
-                : "#2e2e30",
-          },
-        ],
-        options: boardOptions,
+        icons: isLoggedIn
+          ? [
+              {
+                id: "pinned",
+                icon: faThumbTack,
+                color: boardMetadata.pinned ? "white" : "#2e2e30",
+              },
+              {
+                id: "muted",
+                icon: boardMetadata.muted ? faVolumeXmark : faVolumeHigh,
+                color: boardMetadata.muted ? "red" : "#2e2e30",
+              },
+              {
+                id: "updates",
+                icon: faCertificate,
+                color:
+                  boardId && realmBoardsNotifications[boardId]?.hasUpdates
+                    ? boardId && realmBoardsNotifications[boardId]?.isOutdated
+                      ? DefaultTheme.NOTIFICATIONS_OUTDATED_COLOR
+                      : DefaultTheme.NOTIFICATIONS_NEW_COLOR
+                    : "#2e2e30",
+              },
+            ]
+          : [],
+        options: isLoggedIn ? boardOptions : [],
       }}
     >
       <BottomBar.Button
