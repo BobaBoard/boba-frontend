@@ -26,7 +26,6 @@ import ThreadPreview from "components/ThreadPreview";
 import axios from "axios";
 import debug from "debug";
 import { useAuth } from "components/Auth";
-import { useBeamToFeedElement } from "components/hooks/useBeamToFeedElement";
 import { useBoardActivity } from "queries/board-feed";
 
 const log = debug("bobafrontend:BoardPage-log");
@@ -71,10 +70,6 @@ function BoardPage() {
     [setQuery]
   );
 
-  const feedData = useBoardActivity({
-    boardId,
-    categoryFilter,
-  });
   const {
     data: boardActivityData,
     isFetching: isFetchingBoardActivity,
@@ -82,10 +77,9 @@ function BoardPage() {
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = feedData;
-  useBeamToFeedElement({
-    feed: feedData,
-    accentColor: boardMetadata?.accentColor,
+  } = useBoardActivity({
+    boardId,
+    categoryFilter,
   });
 
   React.useEffect(() => {
