@@ -142,7 +142,6 @@ function ThreadPage() {
     usePageDetails<ThreadPageDetails>();
   const boardId = useCurrentRealmBoardId({ boardSlug: slug });
   const realmPermissions = useRealmPermissions();
-  const editorState = useEditorsState();
   const { isPending: isAuthPending } = useAuth();
   const { getLinkToBoard } = useCachedLinks();
   const currentBoardData = useBoardSummary({ boardId });
@@ -154,10 +153,9 @@ function ThreadPage() {
   );
   const { currentThreadViewMode, setThreadViewMode } = useThreadViewContext();
   const collapseManager = useThreadCollapseManager();
-  const { threadRoot, isFetching: isFetchingThread } = useThreadContext();
+  const { isFetching: isFetchingThread } = useThreadContext();
   const displayManager = useDisplayManager(collapseManager);
   const { displayMore } = displayManager;
-  const { onNewContribution } = useThreadEditors();
   useMarkThreadReadOnDelay(threadId, slug);
 
   React.useEffect(() => {
@@ -170,11 +168,6 @@ function ThreadPage() {
       getLinkToBoard(slug).onClick?.();
     }
   }, [currentBoardData, isAuthPending, realmPermissions, getLinkToBoard, slug]);
-
-  const canTopLevelPost =
-    realmPermissions.includes(RealmPermissions.POST_ON_REALM) &&
-    (currentThreadViewMode == THREAD_VIEW_MODE.MASONRY ||
-      currentThreadViewMode == THREAD_VIEW_MODE.TIMELINE);
 
   const displayThreadView =
     currentThreadViewMode == THREAD_VIEW_MODE.THREAD || postId || commentId;

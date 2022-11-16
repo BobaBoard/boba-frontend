@@ -1,4 +1,11 @@
-import { CommentType, PostType, isComment, isPost } from "types/Types";
+import {
+  CommentType,
+  PostType,
+  ThreadSummaryType,
+  isComment,
+  isPost,
+  isThread,
+} from "types/Types";
 import {
   GALLERY_VIEW_SUB_MODE,
   THREAD_VIEW_MODE,
@@ -6,7 +13,7 @@ import {
   useThreadViewContext,
 } from "contexts/ThreadViewContext";
 import { isCommentLoaded, scrollToComment } from "../thread/CommentsThread";
-import { isPostLoaded, scrollToPost } from "utils/scroll-utils";
+import { isPostLoaded, scrollToPost, scrollToThread } from "utils/scroll-utils";
 
 import { DisplayManager } from "./useDisplayMananger";
 import React from "react";
@@ -16,14 +23,14 @@ import { useStateWithCallback } from "./useStateWithCallback";
 import { useThreadContext } from "../thread/ThreadContext";
 
 // const error = debug("bobafrontend:useBeamToElement-error");
-const log = debug("bobafrontend:useBeamToElement-log");
-const info = debug("bobafrontend:useBeamToElement-info");
+const log = debug("bobafrontend:useBeamToThreadElement-log");
+const info = debug("bobafrontend:useBeamToThreadElement-info");
 
 /**
  * Attempts scrolling to element if it's found in page. If not, returns false.
  */
-const tryScrollToElement = (
-  threadElement: PostType | CommentType,
+export const tryScrollToElement = (
+  threadElement: PostType | CommentType | ThreadSummaryType,
   accentColor: string | undefined
 ) => {
   if (isPost(threadElement) && isPostLoaded(threadElement.postId)) {
@@ -34,6 +41,8 @@ const tryScrollToElement = (
     isCommentLoaded(threadElement.commentId)
   ) {
     scrollToComment(threadElement.commentId, accentColor || "#f96680");
+  } else if (isThread(threadElement)) {
+    scrollToThread(threadElement.id, accentColor || "#f96680");
   }
   return false;
 };
@@ -44,7 +53,7 @@ const tryScrollToElement = (
 const getElementContainer = ({
   threadElement,
 }: {
-  threadElement: PostType | CommentType;
+  threadElement: PostType | CommentType | ThreadSummaryType;
 }) => {
   if (isPost(threadElement)) {
     return document.querySelector(
@@ -53,6 +62,10 @@ const getElementContainer = ({
   } else if (isComment(threadElement)) {
     return document.querySelector(
       `.comment[data-comment-id='${threadElement.commentId}']`
+    );
+  } else if (isThread(threadElement)) {
+    return document.querySelector(
+      `.thread[data-thread-id='${threadElement.id}']`
     );
   }
   throw new Error("Invalid threadElement");
@@ -64,7 +77,7 @@ const getElementContainer = ({
 const isScrolledPast = ({
   threadElement,
 }: {
-  threadElement: PostType | CommentType;
+  threadElement: PostType | CommentType | ThreadSummaryType;
 }) => {
   const container = getElementContainer({ threadElement });
   if (!container) {
@@ -74,35 +87,17 @@ const isScrolledPast = ({
 };
 
 /**
- * Gets the element after the current index in the given sequence of
- * posts/comments, with wrap.
- */
-// TODO: decide whether to remove this
-const getNextElementIndex = ({
-  currentIndex,
-  elementsSequence,
-}: {
-  currentIndex: number;
-  elementsSequence: (PostType | CommentType)[];
-}) => {
-  return (currentIndex + 1) % elementsSequence.length;
-};
-
-/**
  * Gets the next element after the current index that we have NOT scrolled past.
  * If we scrolled past them all, start again from the beginning.
  */
-const getNextElementInViewIndex = ({
+export const getNextElementInViewIndex = ({
   currentIndex,
   elementsSequence,
 }: {
   currentIndex: number;
-  elementsSequence: (PostType | CommentType)[];
+  elementsSequence: (PostType | CommentType | ThreadSummaryType)[];
 }) => {
-  let nextIndex = getNextElementIndex({
-    currentIndex,
-    elementsSequence,
-  });
+  let nextIndex = (currentIndex + 1) % elementsSequence.length;
   let next = elementsSequence[nextIndex];
   // Keep trying to go to the next element until we find one that is either
   // below the fold, or we find that none are. In that case, we should start
@@ -113,16 +108,10 @@ const getNextElementInViewIndex = ({
       threadElement: next,
     })
   ) {
-    nextIndex = getNextElementIndex({
-      currentIndex: nextIndex,
-      elementsSequence,
-    });
+    nextIndex = (nextIndex + 1) % elementsSequence.length;
     if (nextIndex < currentIndex) {
       // We've gone back to the beginning, return directly.
-      return getNextElementIndex({
-        currentIndex: -1,
-        elementsSequence,
-      });
+      return 0;
     }
     next = elementsSequence[nextIndex];
   }
@@ -131,10 +120,12 @@ const getNextElementInViewIndex = ({
 
 /**
  * Returns the current sequence of posts to beam through according to the view mode
- * of the thread.
+ * of the thread the user is currently in.
+ *
+ * Note: this should not be used outside of the a thread page.
  */
 // TODO: this doesn't handle the case where comment threads may have been "collapsed"
-const useCurrentDisplaySequence = () => {
+export const useCurrentThreadDisplaySequence = () => {
   const { currentThreadViewMode, galleryViewMode, timelineViewMode } =
     useThreadViewContext();
   const {
@@ -201,7 +192,7 @@ const useCurrentDisplaySequence = () => {
   }
 };
 
-export const useBeamToElement = (
+export const useBeamToThreadElement = (
   displayManager: DisplayManager,
   accentColor: string | undefined
 ) => {
@@ -210,7 +201,7 @@ export const useBeamToElement = (
   const [loading, setLoading] = useStateWithCallback(false);
 
   const { isFetching } = threadContext;
-  const elementsSequence = useCurrentDisplaySequence();
+  const elementsSequence = useCurrentThreadDisplaySequence();
 
   const { currentThreadViewMode, galleryViewMode, timelineViewMode } =
     useThreadViewContext();

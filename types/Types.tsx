@@ -253,14 +253,23 @@ export interface BobadexSeasonType {
   caughtIdentities: (SecretIdentityType & { id: string; index: number })[];
 }
 
-export const isPost = (object: PostType | CommentType): object is PostType => {
+export const isPost = (
+  object: PostType | CommentType | ThreadSummaryType
+): object is PostType => {
   return (object as PostType).postId !== undefined;
 };
 
 export const isComment = (
-  object: PostType | CommentType
+  object: PostType | CommentType | ThreadSummaryType
 ): object is CommentType => {
   return (object as CommentType).commentId !== undefined;
+};
+
+export const isThread = (
+  object: PostType | CommentType | ThreadSummaryType
+): object is ThreadType => {
+  // A thread must always have a starter object
+  return (object as ThreadType).starter !== undefined;
 };
 
 export interface CssVariableSetting {

@@ -16,7 +16,7 @@ import { BottomBar } from "@bobaboard/ui-components";
 import React from "react";
 import { getViewModeIcon } from "components/editors/utils";
 import { useAuth } from "components/Auth";
-import { useBeamToElement } from "components/hooks/useBeamToElement";
+import { useBeamToThreadElement } from "components/hooks/useBeamToThreadElement";
 import { useBoardMetadata } from "queries/board";
 import { useCurrentRealmBoardId } from "contexts/RealmContext";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
@@ -38,13 +38,7 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
   const { boardMetadata } = useBoardMetadata({
     boardId,
   });
-  const {
-    threadRoot,
-    isFetching: isFetchingThread,
-    muted,
-    hidden,
-    defaultView,
-  } = useThreadContext();
+  const { threadRoot, muted, hidden, defaultView } = useThreadContext();
   const { onNewContribution } = useThreadEditors();
   const newPostLink = React.useMemo(
     () => ({
@@ -63,7 +57,7 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
     canBeamToPrevious,
     onBeamToPrevious,
     loading,
-  } = useBeamToElement(displayManager, boardMetadata?.accentColor);
+  } = useBeamToThreadElement(displayManager, boardMetadata?.accentColor);
   const threadOptions = usePostOptions({
     options: [
       PostOptions.COPY_THREAD_LINK,
