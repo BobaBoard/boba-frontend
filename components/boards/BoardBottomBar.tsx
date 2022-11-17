@@ -1,4 +1,3 @@
-import { ArrayParam, useQueryParams } from "use-query-params";
 import { BoardOptions, useBoardOptions } from "../hooks/useBoardOptions";
 import { BoardPageDetails, usePageDetails } from "utils/router-utils";
 import { BottomBar, DefaultTheme } from "@bobaboard/ui-components";
@@ -27,6 +26,7 @@ import { useBeamToFeedElement } from "components/hooks/useBeamToFeedElement";
 import { useBoardActivity } from "queries/board-feed";
 import { useBoardMetadata } from "queries/board";
 import { useNotifications } from "queries/notifications";
+import { useQueryParams } from "use-query-params";
 import { withEditors } from "components/editors/withEditors";
 
 export interface BoardBottomBarProps {

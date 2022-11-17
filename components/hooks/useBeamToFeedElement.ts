@@ -1,12 +1,9 @@
-import {
-  getNextElementInViewIndex,
-  tryScrollToElement,
-} from "./useBeamToThreadElement";
-
 import { FeedType } from "types/Types";
 import React from "react";
 import type { UseInfiniteQueryResult } from "react-query";
 import debug from "debug";
+import { getNextElementInViewIndex } from "./useBeamToThreadElement";
+import { tryScrollToElement } from "utils/scroll-utils";
 
 const log = debug("bobafrontend:useBeamToThreadElement-log");
 const info = debug("bobafrontend:useBeamToThreadElement-info");

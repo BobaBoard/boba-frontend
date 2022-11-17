@@ -3,9 +3,11 @@ import {
   PostType,
   ThreadCommentInfoType,
   ThreadPostInfoType,
+  ThreadSummaryType,
   ThreadType,
   isComment,
   isPost,
+  isThread,
 } from "types/Types";
 
 import debug from "debug";
@@ -425,4 +427,19 @@ export const getCommentFromId = ({
 }) => {
   const allComments = Object.values(threadComments).flatMap((c) => c);
   return allComments.find((comment) => comment.commentId === commentId) ?? null;
+};
+
+export const getThreadElementIdWithType = ({
+  threadElement,
+}: {
+  threadElement: PostType | CommentType | ThreadSummaryType;
+}) => {
+  if (isPost(threadElement)) {
+    return { postId: threadElement.postId };
+  } else if (isComment(threadElement)) {
+    return { commentId: threadElement.commentId };
+  } else if (isThread(threadElement)) {
+    return { threadId: threadElement.id };
+  }
+  throw new Error("Invalid threadElement");
 };
