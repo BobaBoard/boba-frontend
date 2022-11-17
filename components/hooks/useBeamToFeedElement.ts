@@ -21,7 +21,7 @@ export const useBeamToFeedElement = ({
   }, [feed.data?.pages]);
 
   const isAtLastElement = currentIndex == allLoadedThreads.length - 1;
-  const canBeamToNext = allLoadedThreads.length > 0 && !isAtLastElement;
+  const canBeamToNext = allLoadedThreads.length > 1 && !isAtLastElement;
   const onBeamToNext = React.useCallback(() => {
     setCurrentIndex((currentIndex) => {
       if (
@@ -43,7 +43,7 @@ export const useBeamToFeedElement = ({
     });
   }, [accentColor, allLoadedThreads, feed.isFetched]);
 
-  const canBeamToPrevious = allLoadedThreads.length > 0 && currentIndex > 0;
+  const canBeamToPrevious = allLoadedThreads.length > 1 && currentIndex > 0;
   const onBeamToPrevious = React.useCallback(() => {
     setCurrentIndex((currentIndex) => {
       if (!feed.isFetched || !canBeamToPrevious) {
