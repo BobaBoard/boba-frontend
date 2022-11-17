@@ -1,6 +1,6 @@
+import { BoardMetadata, RealmPermissions } from "types/Types";
 import { BoardOptions, useBoardOptions } from "../hooks/useBoardOptions";
 import { BoardPageDetails, usePageDetails } from "utils/router-utils";
-import { BottomBar, DefaultTheme } from "@bobaboard/ui-components";
 import {
   EditorActions,
   useEditorsDispatch,
@@ -19,8 +19,10 @@ import {
 import { useCurrentRealmBoardId, useRealmContext } from "contexts/RealmContext";
 
 import { BoardParams } from "pages/[boardId]";
+import { BottomBar } from "@bobaboard/ui-components";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
-import { RealmPermissions } from "types/Types";
+import chroma from "chroma-js";
 import { useAuth } from "components/Auth";
 import { useBeamToFeedElement } from "components/hooks/useBeamToFeedElement";
 import { useBoardActivity } from "queries/board-feed";
@@ -32,6 +34,53 @@ import { withEditors } from "components/editors/withEditors";
 export interface BoardBottomBarProps {
   onCompassClick: () => void;
 }
+
+const BoardInfoPanel = ({
+  boardMetadata,
+}: {
+  boardMetadata: BoardMetadata;
+}) => {
+  const { id: realmId } = useRealmContext();
+  const { realmBoardsNotifications } = useNotifications({
+    realmId,
+  });
+  const boardNotifications = realmBoardsNotifications[boardMetadata.id];
+  const { isLoggedIn } = useAuth();
+
+  if (!boardNotifications || !isLoggedIn) {
+    return null;
+  }
+
+  const notificationColor = boardNotifications.hasUpdates
+    ? boardNotifications.isOutdated
+      ? chroma(boardMetadata?.accentColor).alpha(0.5).css()
+      : boardMetadata?.accentColor
+    : "#2e2e30";
+  const notificationsText = !boardNotifications.hasUpdates
+    ? "You read all the threads in this board."
+    : boardNotifications.isOutdated
+    ? "No new threads since you got here."
+    : "The board has new updates! Refresh to see them.";
+  return (
+    <aside>
+      <FontAwesomeIcon icon={faCertificate} color={notificationColor} />
+      {notificationsText}
+      <style jsx>
+        {`
+          aside {
+            padding: 10px 15px;
+            border-bottom: 2px dashed ${boardMetadata?.accentColor};
+            margin-bottom: 5px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            max-width: max(250px, 100%);
+          }
+        `}
+      </style>
+    </aside>
+  );
+};
 
 const BoardBottomBar = (props: BoardBottomBarProps) => {
   const { slug } = usePageDetails<BoardPageDetails>();
@@ -133,13 +182,16 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
                 color:
                   boardId && realmBoardsNotifications[boardId]?.hasUpdates
                     ? boardId && realmBoardsNotifications[boardId]?.isOutdated
-                      ? DefaultTheme.NOTIFICATIONS_OUTDATED_COLOR
-                      : DefaultTheme.NOTIFICATIONS_NEW_COLOR
+                      ? chroma(boardMetadata?.accentColor).alpha(0.5).css()
+                      : boardMetadata?.accentColor
                     : "#2e2e30",
               },
             ]
           : [],
         options: isLoggedIn ? boardOptions : [],
+        info: boardMetadata ? (
+          <BoardInfoPanel boardMetadata={boardMetadata} />
+        ) : undefined,
       }}
     >
       <BottomBar.Button

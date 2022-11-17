@@ -3,8 +3,6 @@ import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import {
   faAnglesDown,
   faAnglesUp,
-  faArrowTurnDown,
-  faArrowTurnUp,
   faCertificate,
   faCompass,
   faEye,
@@ -17,7 +15,6 @@ import { useThreadEditors, withEditors } from "components/editors/withEditors";
 
 import { BottomBar } from "@bobaboard/ui-components";
 import React from "react";
-import { data } from "cypress/types/jquery";
 import { faCircleXmark } from "@fortawesome/free-regular-svg-icons";
 import { getViewModeIcon } from "components/editors/utils";
 import { useAuth } from "components/Auth";
@@ -63,8 +60,6 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
     canBeamToPrevious,
     onBeamToPrevious,
     loadingMore,
-    isFirstElement,
-    isLastElement,
   } = useBeamToThreadElement(displayManager, boardMetadata?.accentColor);
   const threadOptions = usePostOptions({
     options: [
