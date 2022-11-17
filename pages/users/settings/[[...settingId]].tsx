@@ -1,5 +1,9 @@
-import { DefaultTheme, TabsGroup } from "@bobaboard/ui-components";
-import { faHollyBerry, faUser } from "@fortawesome/free-solid-svg-icons";
+import { BottomBar, DefaultTheme, TabsGroup } from "@bobaboard/ui-components";
+import {
+  faCompass,
+  faHollyBerry,
+  faUser,
+} from "@fortawesome/free-solid-svg-icons";
 
 import DecorationsSettings from "components/settings/DecorationsSettings";
 import { FeedWithMenu } from "@bobaboard/ui-components";
@@ -79,7 +83,7 @@ function UserPage() {
 
   return (
     <div className="main">
-      <Layout title={`Settings`} onCompassClick={onCompassClick}>
+      <Layout title={`Settings`}>
         <Layout.MainContent>
           <FeedWithMenu showSidebar={showSidebar} onCloseSidebar={closeSidebar}>
             <FeedWithMenu.Sidebar>
@@ -139,6 +143,23 @@ function UserPage() {
             </FeedWithMenu.FeedContent>
           </FeedWithMenu>
         </Layout.MainContent>
+        <Layout.BottomBar>
+          <BottomBar
+            accentColor={DefaultTheme.DEFAULT_ACCENT_COLOR}
+            contextMenu={{
+              icons: [],
+              options: [],
+            }}
+          >
+            <BottomBar.Button
+              key="compass"
+              icon={{ icon: faCompass }}
+              link={{ onClick: onCompassClick }}
+              position="left"
+              desktopOnly
+            />
+          </BottomBar>
+        </Layout.BottomBar>
       </Layout>
     </div>
   );

@@ -1,11 +1,11 @@
-import { DefaultTheme, TabsGroup } from "@bobaboard/ui-components";
+import { BottomBar, DefaultTheme, TabsGroup } from "@bobaboard/ui-components";
+import { faCompass, faDoorOpen } from "@fortawesome/free-solid-svg-icons";
 
 import { FeedWithMenu } from "@bobaboard/ui-components";
 import InvitesPanel from "components/realm/InvitesPanel";
 import Layout from "components/layout/Layout";
 import React from "react";
 import { RealmPermissions } from "types/Types";
-import { faDoorOpen } from "@fortawesome/free-solid-svg-icons";
 import { hasAdminPanelAccess } from "utils/permissions-utils";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
@@ -81,9 +81,10 @@ function AdminPage() {
     }
   }, [isLoggedIn, isUserPending, linkToHome, userRealmPermissions]);
 
+  // TODO: see about scrolling between sections in the bottom bar
   return (
     <div className="main">
-      <Layout title={`Realm Administration`} onCompassClick={onCompassClick}>
+      <Layout title={`Realm Administration`}>
         <Layout.MainContent>
           <FeedWithMenu showSidebar={showSidebar} onCloseSidebar={closeSidebar}>
             <FeedWithMenu.Sidebar>
@@ -138,6 +139,23 @@ function AdminPage() {
             </FeedWithMenu.FeedContent>
           </FeedWithMenu>
         </Layout.MainContent>
+        <Layout.BottomBar>
+          <BottomBar
+            accentColor={DefaultTheme.DEFAULT_ACCENT_COLOR}
+            contextMenu={{
+              icons: [],
+              options: [],
+            }}
+          >
+            <BottomBar.Button
+              key="compass"
+              icon={{ icon: faCompass }}
+              link={{ onClick: onCompassClick }}
+              position="left"
+              desktopOnly
+            />
+          </BottomBar>
+        </Layout.BottomBar>
       </Layout>
     </div>
   );
