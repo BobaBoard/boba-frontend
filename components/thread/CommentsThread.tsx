@@ -125,7 +125,6 @@ const ThreadComment: React.FC<{
     // When the components is unmounted, we remove the ref from memory.
     return () => {
       chainInfo.forEach((el) => {
-        console.log("removing comment handler", el.id);
         removeCommentHandlerRef({ commentId: el.id });
       });
     };

@@ -95,14 +95,7 @@ describe("BoardFeed", () => {
       </Client>
     );
 
-    const buttons = screen.getAllByRole("button");
-
-    const createThreadButton = buttons.filter((button) => {
-      return (
-        button.querySelector(".fab") && button.querySelector(".fa-square-plus")
-      );
-    });
-    expect(createThreadButton).toHaveLength(1);
+    expect(screen.getByLabelText("create new thread")).toBeVisible();
   });
 
   it("doesn't render create new thread button when user is not a realm member", async () => {
