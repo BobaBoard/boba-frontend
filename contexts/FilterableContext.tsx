@@ -62,7 +62,7 @@ const FilterableContextProvider: React.FC<{
         {
           filter: activeCategories.length == 1 ? activeCategories : undefined,
         },
-        "push"
+        "pushIn"
       );
     },
     [setQuery]
@@ -72,9 +72,9 @@ const FilterableContextProvider: React.FC<{
       setQuery(
         {
           filteredNotices:
-            filteredNotices.length == 1 ? filteredNotices : undefined,
+            filteredNotices.length >= 1 ? filteredNotices : undefined,
         },
-        "push"
+        "pushIn"
       );
     },
     [setQuery]

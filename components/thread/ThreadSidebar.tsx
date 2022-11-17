@@ -94,7 +94,7 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
               tags={contentNotices.map((notice) => ({
                 name: notice,
                 state:
-                  !filteredNotices.length || filteredNotices.includes(notice)
+                  !filteredNotices.length || !filteredNotices.includes(notice)
                     ? TagsFilterSection.FilteredTagsState.ACTIVE
                     : TagsFilterSection.FilteredTagsState.DISABLED,
               }))}
