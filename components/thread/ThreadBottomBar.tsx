@@ -3,6 +3,8 @@ import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import {
   faAnglesDown,
   faAnglesUp,
+  faArrowTurnDown,
+  faArrowTurnUp,
   faCertificate,
   faCompass,
   faEye,
@@ -15,6 +17,8 @@ import { useThreadEditors, withEditors } from "components/editors/withEditors";
 
 import { BottomBar } from "@bobaboard/ui-components";
 import React from "react";
+import { data } from "cypress/types/jquery";
+import { faCircleXmark } from "@fortawesome/free-regular-svg-icons";
 import { getViewModeIcon } from "components/editors/utils";
 import { useAuth } from "components/Auth";
 import { useBeamToThreadElement } from "components/hooks/useBeamToThreadElement";
@@ -39,7 +43,7 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
   const { boardMetadata } = useBoardMetadata({
     boardId,
   });
-  const { threadRoot, muted, hidden, defaultView, chronologicalPostsSequence } =
+  const { threadRoot, muted, hidden, defaultView, newRepliesCount, isLoading } =
     useThreadContext();
   const { onNewContribution } = useThreadEditors();
   const newPostLink = React.useMemo(
@@ -58,7 +62,9 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
     onBeamToNext,
     canBeamToPrevious,
     onBeamToPrevious,
-    loading,
+    loadingMore,
+    isFirstElement,
+    isLastElement,
   } = useBeamToThreadElement(displayManager, boardMetadata?.accentColor);
   const threadOptions = usePostOptions({
     options: [
@@ -123,9 +129,11 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
       />
       <BottomBar.Button
         key="jump up"
-        icon={{ icon: faAnglesUp }}
+        icon={{
+          icon: canBeamToPrevious ? faAnglesUp : faCircleXmark,
+        }}
         withNotification={
-          chronologicalPostsSequence.length > 0
+          newRepliesCount > 0
             ? {
                 icon: faCertificate,
                 color: boardMetadata?.accentColor,
@@ -136,13 +144,16 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
           onClick: onBeamToPrevious,
         }}
         position="right"
-        disabled={canBeamToPrevious}
+        loading={isLoading}
+        disabled={!canBeamToPrevious}
       />
       <BottomBar.Button
         key="jump down"
-        icon={{ icon: faAnglesDown }}
+        icon={{
+          icon: canBeamToNext ? faAnglesDown : faCircleXmark,
+        }}
         withNotification={
-          chronologicalPostsSequence.length > 0
+          newRepliesCount > 0
             ? {
                 icon: faCertificate,
                 color: boardMetadata?.accentColor,
@@ -151,8 +162,8 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
         }
         link={{ onClick: onBeamToNext }}
         position="right"
-        disabled={canBeamToNext}
-        loading={loading}
+        disabled={!canBeamToNext}
+        loading={isLoading || loadingMore}
       />
     </BottomBar>
   );

@@ -28,6 +28,10 @@ const FeedBottomBar = (props: FeedBottomBarProps) => {
 
   const [params] = useQueryParams(FeedParams);
 
+  const feed = useUserFeed({
+    enabled: !isFromBackButton(),
+    feedOptions,
+  });
   const {
     canBeamToNext,
     onBeamToNext,
@@ -37,10 +41,7 @@ const FeedBottomBar = (props: FeedBottomBarProps) => {
     loadingPrevious,
     resetBeamIndex,
   } = useBeamToFeedElement({
-    feed: useUserFeed({
-      enabled: !isFromBackButton(),
-      feedOptions,
-    }),
+    feed,
     accentColor: DefaultTheme.DEFAULT_ACCENT_COLOR,
   });
 
@@ -51,6 +52,7 @@ const FeedBottomBar = (props: FeedBottomBarProps) => {
     // complex condition.
   }, [params, resetBeamIndex]);
 
+  const isEmptyFeed = feed.data?.pages?.[0]?.activity?.length === 0;
   return (
     <BottomBar
       accentColor={DefaultTheme.DEFAULT_ACCENT_COLOR}
@@ -66,22 +68,26 @@ const FeedBottomBar = (props: FeedBottomBarProps) => {
         position="left"
         desktopOnly
       />
-      <BottomBar.Button
-        key="jump up"
-        icon={{ icon: canBeamToPrevious ? faAnglesUp : faPauseCircle }}
-        link={{ onClick: onBeamToPrevious }}
-        position="right"
-        loading={loadingPrevious}
-        disabled={!canBeamToPrevious}
-      />
-      <BottomBar.Button
-        key="jump down"
-        icon={{ icon: canBeamToNext ? faAnglesDown : faPauseCircle }}
-        link={{ onClick: onBeamToNext }}
-        position="right"
-        loading={loadingNext}
-        disabled={!canBeamToNext}
-      />
+      {(feed.status == "loading" || !isEmptyFeed) && (
+        <>
+          <BottomBar.Button
+            key="jump up"
+            icon={{ icon: canBeamToPrevious ? faAnglesUp : faPauseCircle }}
+            link={{ onClick: onBeamToPrevious }}
+            position="right"
+            loading={loadingPrevious}
+            disabled={!canBeamToPrevious}
+          />
+          <BottomBar.Button
+            key="jump down"
+            icon={{ icon: canBeamToNext ? faAnglesDown : faPauseCircle }}
+            link={{ onClick: onBeamToNext }}
+            position="right"
+            loading={loadingNext}
+            disabled={!canBeamToNext}
+          />
+        </>
+      )}
     </BottomBar>
   );
 };

@@ -134,9 +134,9 @@ export const useBeamToThreadElement = (
   displayManager: DisplayManager,
   accentColor: string | undefined
 ) => {
-  const currentIndex = React.useRef<number>(-1);
+  const [currentIndex, setCurrentIndex] = React.useState(-1);
   const threadContext = useThreadContext();
-  const [loading, setLoading] = useStateWithCallback(false);
+  const [loadingMore, setLoadingMore] = useStateWithCallback(false);
 
   const { isFetching } = threadContext;
   const elementsSequence = useCurrentThreadDisplaySequence();
@@ -146,7 +146,7 @@ export const useBeamToThreadElement = (
 
   React.useEffect(() => {
     // When the view mode changes, reset the sequence index.
-    currentIndex.current = -1;
+    setCurrentIndex(-1);
   }, [currentThreadViewMode, galleryViewMode, timelineViewMode]);
 
   const canBeamToNext = elementsSequence.length > 0;
@@ -159,46 +159,59 @@ export const useBeamToThreadElement = (
     // TODO: we may need to be more lenient with this when it comes to gallery, cause scrolling through comments
     // will often cause the next post to go past the viewport, and then we end up completely skipping it.
     // Hard to know what the right thing to do in gallery mode is though, it requires more thought.
-    currentIndex.current = getNextElementInViewIndex({
-      currentIndex: currentIndex.current,
-      elementsSequence: elementsSequence,
-    });
-    const next = elementsSequence[currentIndex.current];
-    info(elementsSequence);
-    setLoading(true, () => {
-      displayManager.displayToThreadElement(next, () => {
-        tryScrollToElement(next, accentColor);
-        setLoading(false);
+    setCurrentIndex((currentIndex) => {
+      const nextIndex = getNextElementInViewIndex({
+        currentIndex: currentIndex,
+        elementsSequence: elementsSequence,
       });
+      const next = elementsSequence[nextIndex];
+      info(elementsSequence);
+      setLoadingMore(true, () => {
+        displayManager.displayToThreadElement(next, () => {
+          tryScrollToElement(next, accentColor);
+          setLoadingMore(false);
+        });
+      });
+      return nextIndex;
     });
   }, [
     accentColor,
     canBeamToNext,
     displayManager,
     isFetching,
-    setLoading,
+    setLoadingMore,
     elementsSequence,
   ]);
 
   const canBeamToPrevious =
-    elementsSequence.length > 0 && currentIndex.current < 1;
+    currentThreadViewMode == THREAD_VIEW_MODE.THREAD ||
+    (elementsSequence.length > 0 && currentIndex > 0);
   const onBeamToPrevious = React.useCallback(() => {
-    // TODO: we probably do need to index to be part of the state now
-    if (isFetching || elementsSequence.length < 0 || currentIndex.current < 1) {
+    if (isFetching) {
       return;
     }
 
     log(`Finding previous element...`);
-    currentIndex.current = currentIndex.current - 1;
-    const next = elementsSequence[currentIndex.current];
-    tryScrollToElement(next, accentColor);
-  }, [accentColor, isFetching, elementsSequence]);
+    setCurrentIndex((currentIndex) => {
+      if (
+        currentThreadViewMode != THREAD_VIEW_MODE.THREAD &&
+        currentIndex < 1
+      ) {
+        return currentIndex;
+      }
+      const nextIndex =
+        currentIndex > 0 ? currentIndex - 1 : elementsSequence.length - 1;
+      const next = elementsSequence[nextIndex];
+      tryScrollToElement(next, accentColor);
+      return nextIndex;
+    });
+  }, [accentColor, isFetching, elementsSequence, currentThreadViewMode]);
 
   return {
     canBeamToNext,
     canBeamToPrevious,
     onBeamToNext,
     onBeamToPrevious,
-    loading,
+    loadingMore,
   };
 };
