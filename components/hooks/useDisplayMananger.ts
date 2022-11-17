@@ -19,6 +19,10 @@ import {
   findNextSibling,
   findPreviousSibling,
 } from "utils/thread-utils";
+import {
+  useActiveCategories,
+  useFilterableContext,
+} from "contexts/FilterableContext";
 
 import { CollapseManager } from "components/thread/useCollapseManager";
 import React from "react";
@@ -133,13 +137,9 @@ const getDisplayPostsForView = (
 const useThreadViewDisplay = () => {
   const { chronologicalPostsSequence, postCommentsMap, postsInfoMap } =
     useThreadContext();
-  const {
-    currentThreadViewMode,
-    timelineViewMode,
-    galleryViewMode,
-    activeFilters,
-    excludedNotices,
-  } = useThreadViewContext();
+  const { currentThreadViewMode, timelineViewMode, galleryViewMode } =
+    useThreadViewContext();
+  const { activeCategories, filteredNotices } = useFilterableContext();
   const { postId } = usePageDetails<ThreadPageDetails>();
 
   return React.useMemo(() => {
@@ -158,26 +158,26 @@ const useThreadViewDisplay = () => {
       }
     );
 
-    if (excludedNotices != null || activeFilters != null) {
+    if (filteredNotices.length > 0 || activeCategories.length > 0) {
       const finalDisplayPosts: PostType[] = [];
 
       displayPostsForView.forEach((post) => {
         if (
           post.tags.contentWarnings.some((tag) =>
-            excludedNotices?.includes(tag)
+            filteredNotices?.includes(tag)
           )
         ) {
           return;
         }
-        if (activeFilters == null) {
+        if (activeCategories.length == 0) {
           finalDisplayPosts.push(post);
         } else if (
-          activeFilters.includes(UNCATEGORIZED_LABEL) &&
+          activeCategories.includes(UNCATEGORIZED_LABEL) &&
           post.tags.categoryTags.length === 0
         ) {
           finalDisplayPosts.push(post);
         } else if (
-          post.tags.categoryTags.some((tag) => !!activeFilters.includes(tag))
+          post.tags.categoryTags.some((tag) => !!activeCategories.includes(tag))
         ) {
           finalDisplayPosts.push(post);
         }
@@ -208,10 +208,10 @@ const useThreadViewDisplay = () => {
     galleryViewMode,
     currentThreadViewMode,
     chronologicalPostsSequence,
-    activeFilters,
+    activeCategories,
     postsInfoMap,
     postId,
-    excludedNotices,
+    filteredNotices,
     postCommentsMap,
   ]);
 };
@@ -232,7 +232,8 @@ export const useDisplayManager = (
   }
 ) => {
   const currentModeDisplayElements = useThreadViewDisplay();
-  const { currentThreadViewMode, activeFilters } = useThreadViewContext();
+  const { currentThreadViewMode } = useThreadViewContext();
+  const activeCategories = useActiveCategories();
   const { postsInfoMap, isFetching } = useThreadContext();
   /**
    * How many contributions are currently displayed (at most) in the current mode.
@@ -299,7 +300,7 @@ export const useDisplayManager = (
         cancelIdleCallback(loadMoreIdleCallback.current);
       }
     };
-  }, [isFetching, currentThreadViewMode, displayMore, activeFilters]);
+  }, [isFetching, currentThreadViewMode, displayMore, activeCategories]);
 
   const hasMore = React.useCallback(() => {
     return maxDisplay < currentModeDisplayElements.length;
