@@ -44,7 +44,7 @@ describe("PostEditor", () => {
       </Client>
     );
 
-    fireEvent.click(document.querySelector(".fab-clickable-area")!);
+    fireEvent.click(screen.getByLabelText("create new thread"));
     await waitFor(() => {
       expect(screen.getByText("Random Identity")).toBeInTheDocument();
     });
@@ -83,7 +83,7 @@ describe("PostEditor", () => {
       </Client>
     );
 
-    fireEvent.click(document.querySelector(".fab-clickable-area")!);
+    fireEvent.click(screen.getByLabelText("create new thread")!);
     await waitFor(() => {
       expect(screen.getByText("Random Identity")).toBeInTheDocument();
     });

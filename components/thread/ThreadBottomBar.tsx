@@ -11,16 +11,17 @@ import {
   faVolumeHigh,
   faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons";
+import { useCurrentRealmBoardId, useRealmContext } from "contexts/RealmContext";
 import { useThreadEditors, withEditors } from "components/editors/withEditors";
 
 import { BottomBar } from "@bobaboard/ui-components";
 import React from "react";
+import { RealmPermissions } from "types/Types";
 import { faCircleXmark } from "@fortawesome/free-regular-svg-icons";
 import { getViewModeIcon } from "components/editors/utils";
 import { useAuth } from "components/Auth";
 import { useBeamToThreadElement } from "components/hooks/useBeamToThreadElement";
 import { useBoardMetadata } from "queries/board";
-import { useCurrentRealmBoardId } from "contexts/RealmContext";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
 import { useThreadCollapseManager } from "./useCollapseManager";
 import { useThreadContext } from "./ThreadContext";
@@ -36,6 +37,7 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
   if (!slug) {
     throw new Error("Using BoardBottomBar outside of Board page.");
   }
+  const { realmPermissions } = useRealmContext();
   const boardId = useCurrentRealmBoardId({ boardSlug: slug });
   const { boardMetadata } = useBoardMetadata({
     boardId,
@@ -87,13 +89,16 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
   return (
     <BottomBar
       accentColor={boardMetadata.accentColor}
-      // TODO: add realm permissions here
-      // canTopLevelPost
-      centerButton={{
-        icon: faPlusSquare,
-        link: newPostLink,
-        color: "white",
-      }}
+      centerButton={
+        realmPermissions.includes(RealmPermissions.POST_ON_REALM)
+          ? {
+              icon: faPlusSquare,
+              link: newPostLink,
+              color: "white",
+              "aria-label": "new contribution",
+            }
+          : undefined
+      }
       contextMenu={{
         icons: [
           {

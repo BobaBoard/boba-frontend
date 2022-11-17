@@ -126,7 +126,6 @@ const ThreadPreview: React.FC<{
   const { id: threadId } = thread;
   const updateRef = React.useCallback(
     (ref: PostHandler) => {
-      console.log("adding thread handler", threadId, ref);
       addThreadHandlerRef({ threadId, ref });
     },
     [threadId]
@@ -134,7 +133,6 @@ const ThreadPreview: React.FC<{
   React.useEffect(() => {
     // When the components is unmounted, we remove the ref from memory.
     return () => {
-      console.log("removing thread handler", threadId);
       removeThreadHandlerRef({ threadId });
     };
   }, [threadId]);

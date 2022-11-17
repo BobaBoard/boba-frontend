@@ -160,6 +160,7 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
               icon: faPencil,
               link: newThreadLink,
               color: "white",
+              "aria-label": "create new thread",
             }
           : undefined
       }
