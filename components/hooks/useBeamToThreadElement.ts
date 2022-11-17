@@ -4,7 +4,6 @@ import {
   ThreadSummaryType,
   isComment,
   isPost,
-  isThread,
 } from "types/Types";
 import {
   GALLERY_VIEW_SUB_MODE,
@@ -12,8 +11,7 @@ import {
   TIMELINE_VIEW_SUB_MODE,
   useThreadViewContext,
 } from "contexts/ThreadViewContext";
-import { isCommentLoaded, scrollToComment } from "../thread/CommentsThread";
-import { isPostLoaded, scrollToPost, scrollToThread } from "utils/scroll-utils";
+import { isScrolledPast, tryScrollToElement } from "utils/scroll-utils";
 
 import { DisplayManager } from "./useDisplayMananger";
 import React from "react";
@@ -25,66 +23,6 @@ import { useThreadContext } from "../thread/ThreadContext";
 // const error = debug("bobafrontend:useBeamToElement-error");
 const log = debug("bobafrontend:useBeamToThreadElement-log");
 const info = debug("bobafrontend:useBeamToThreadElement-info");
-
-/**
- * Attempts scrolling to element if it's found in page. If not, returns false.
- */
-export const tryScrollToElement = (
-  threadElement: PostType | CommentType | ThreadSummaryType,
-  accentColor: string | undefined
-) => {
-  if (isPost(threadElement) && isPostLoaded(threadElement.postId)) {
-    scrollToPost(threadElement.postId, accentColor || "#f96680");
-    return true;
-  } else if (
-    isComment(threadElement) &&
-    isCommentLoaded(threadElement.commentId)
-  ) {
-    scrollToComment(threadElement.commentId, accentColor || "#f96680");
-  } else if (isThread(threadElement)) {
-    scrollToThread(threadElement.id, accentColor || "#f96680");
-  }
-  return false;
-};
-
-/**
- * Gets the DOM Element corresponding to the given element of a thread.
- */
-const getElementContainer = ({
-  threadElement,
-}: {
-  threadElement: PostType | CommentType | ThreadSummaryType;
-}) => {
-  if (isPost(threadElement)) {
-    return document.querySelector(
-      `.post[data-post-id='${threadElement.postId}']`
-    );
-  } else if (isComment(threadElement)) {
-    return document.querySelector(
-      `.comment[data-comment-id='${threadElement.commentId}']`
-    );
-  } else if (isThread(threadElement)) {
-    return document.querySelector(
-      `.thread[data-thread-id='${threadElement.id}']`
-    );
-  }
-  throw new Error("Invalid threadElement");
-};
-
-/**
- * Checks if the given element has already been scrolled past.
- */
-const isScrolledPast = ({
-  threadElement,
-}: {
-  threadElement: PostType | CommentType | ThreadSummaryType;
-}) => {
-  const container = getElementContainer({ threadElement });
-  if (!container) {
-    return false;
-  }
-  return container.getBoundingClientRect().y <= 0;
-};
 
 /**
  * Gets the next element after the current index that we have NOT scrolled past.

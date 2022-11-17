@@ -1,7 +1,6 @@
 import {
   Comment,
   CommentHandler,
-  DefaultTheme,
   NewCommentsThread,
 } from "@bobaboard/ui-components";
 import {
@@ -14,6 +13,11 @@ import {
   ThreadCommentInfoType,
 } from "types/Types";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
+import {
+  addCommentHandlerRef,
+  removeCommentHandlerRef,
+  scrollToComment,
+} from "utils/scroll-utils";
 import {
   useBoardSummary,
   useCurrentRealmBoardId,
@@ -54,42 +58,10 @@ export const getCommentsChain = (
   return chain;
 };
 
-export const isCommentLoaded = (commentId: string) => {
-  return !!document.querySelector(`.comment[data-comment-id='${commentId}']`);
-};
-export const scrollToComment = (commentId: string, color: string) => {
-  log(`Beaming up to comment with id ${commentId}`);
-  const element: HTMLElement | null = document.querySelector(
-    `.comment[data-comment-id='${commentId}']`
-  );
-  if (!element) {
-    log(`No comment with id ${commentId} found.`);
-    return;
-  }
-  const observer: IntersectionObserver = new IntersectionObserver(
-    (observed) => {
-      if (observed[0].isIntersecting) {
-        commentHandlers.get(commentId)?.highlight(color), observer.disconnect();
-      }
-    }
-  );
-  observer.observe(element);
-  element.classList.add("outline-hidden");
-  window.scroll({
-    top:
-      element.getBoundingClientRect().top +
-      window.pageYOffset -
-      (DefaultTheme.HEADER_HEIGHT_PX + 25),
-    behavior: "smooth",
-  });
-};
-
 /**
  * ThreadComment displays the rootComment, and all the other comments
  * in its chain, if any exists.
  */
-// TODO: clear commentHandlers when changing thread
-export const commentHandlers = new Map<string, CommentHandler>();
 const ThreadComment: React.FC<{
   rootComment: CommentType;
   parentPostId: string;
@@ -142,7 +114,9 @@ const ThreadComment: React.FC<{
       if (handler == null) {
         return;
       }
-      chainInfo.forEach((el) => commentHandlers.set(el.id, handler));
+      chainInfo.forEach((el) =>
+        addCommentHandlerRef({ commentId: el.id, ref: handler })
+      );
       onBoundaryRef({
         positionX: handler.avatarRef?.current || undefined,
         positionY: handler.headerRef?.current || undefined,
@@ -150,6 +124,17 @@ const ThreadComment: React.FC<{
     },
     [chainInfo, onBoundaryRef]
   );
+
+  React.useEffect(() => {
+    // When the components is unmounted, we remove the ref from memory.
+    return () => {
+      chainInfo.forEach((el) => {
+        console.log("removing comment handler", el.id);
+        removeCommentHandlerRef({ commentId: el.id });
+      });
+    };
+  }, [chainInfo]);
+
   const options = useCommentOptions({
     comment: rootComment,
     options: COMMENT_OPTIONS,
@@ -166,6 +151,8 @@ const ThreadComment: React.FC<{
           "current-display-outline": commentId == rootComment.commentId,
         })}
         ref={React.useCallback(() => {
+          // When we're in a specific page with a comments thread, we scroll
+          // to that comment upon first load.
           if (
             hasBeenScrolledTo.current ||
             commentId != rootComment.commentId ||
