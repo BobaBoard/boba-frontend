@@ -3,6 +3,7 @@ import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import {
   faAnglesDown,
   faAnglesUp,
+  faCertificate,
   faCompass,
   faEye,
   faEyeSlash,
@@ -38,7 +39,8 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
   const { boardMetadata } = useBoardMetadata({
     boardId,
   });
-  const { threadRoot, muted, hidden, defaultView } = useThreadContext();
+  const { threadRoot, muted, hidden, defaultView, chronologicalPostsSequence } =
+    useThreadContext();
   const { onNewContribution } = useThreadEditors();
   const newPostLink = React.useMemo(
     () => ({
@@ -122,32 +124,34 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
       <BottomBar.Button
         key="jump up"
         icon={{ icon: faAnglesUp }}
-        // withNotification={
-        //   hasBeamToNew
-        //     ? {
-        //         icon: faCertificate,
-        //         color: DefaultTheme.DEFAULT_ACCENT_COLOR,
-        //       }
-        //     : null
-        // }
+        withNotification={
+          chronologicalPostsSequence.length > 0
+            ? {
+                icon: faCertificate,
+                color: boardMetadata?.accentColor,
+              }
+            : undefined
+        }
         link={{
           onClick: onBeamToPrevious,
         }}
         position="right"
+        disabled={canBeamToPrevious}
       />
       <BottomBar.Button
         key="jump down"
         icon={{ icon: faAnglesDown }}
-        // withNotification={
-        //   hasBeamToNew
-        //     ? {
-        //         icon: faCertificate,
-        //         color: DefaultTheme.DEFAULT_ACCENT_COLOR,
-        //       }
-        //     : null
-        // }
+        withNotification={
+          chronologicalPostsSequence.length > 0
+            ? {
+                icon: faCertificate,
+                color: boardMetadata?.accentColor,
+              }
+            : undefined
+        }
         link={{ onClick: onBeamToNext }}
         position="right"
+        disabled={canBeamToNext}
         loading={loading}
       />
     </BottomBar>

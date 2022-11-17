@@ -1,9 +1,4 @@
-import {
-  CycleNewButton,
-  FeedWithMenu,
-  PostingActionButton,
-  getDeltaSummary,
-} from "@bobaboard/ui-components";
+import { FeedWithMenu, getDeltaSummary } from "@bobaboard/ui-components";
 import { THREAD_QUERY_KEY, useReadThread } from "queries/thread";
 import {
   THREAD_VIEW_MODE,
@@ -20,7 +15,6 @@ import {
   useCurrentRealmBoardId,
   useRealmPermissions,
 } from "contexts/RealmContext";
-import { useThreadEditors, withEditors } from "components/editors/withEditors";
 
 import GalleryThreadView from "components/thread/GalleryThreadView";
 import Layout from "components/layout/Layout";
@@ -45,6 +39,7 @@ import { useInvalidateNotifications } from "queries/notifications";
 import { useOnPageExit } from "components/hooks/useOnPageExit";
 import { useRefetchBoardActivity } from "queries/board-feed";
 import { useThreadCollapseManager } from "components/thread/useCollapseManager";
+import { withEditors } from "components/editors/withEditors";
 
 const error = debug("bobafrontend:ThreadPage-error");
 const log = debug("bobafrontend:ThreadPage-log");

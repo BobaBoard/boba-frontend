@@ -27,7 +27,6 @@ import {
 import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
 import React from "react";
 import classNames from "classnames";
-import debug from "debug";
 import { formatDistanceToNow } from "date-fns";
 import { isCommentEditorState } from "components/editors/types";
 import { useAuth } from "components/Auth";
@@ -35,9 +34,6 @@ import { useEditorsState } from "components/editors/EditorsContext";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { useThreadContext } from "./ThreadContext";
 import { useThreadEditors } from "components/editors/withEditors";
-
-const log = debug("bobafrontend:CommentsThread-log");
-// const info = debug("bobafrontend:CommentsThread-info");
 
 const COMMENT_OPTIONS = [
   CommentOptions.GO_TO_COMMENT,

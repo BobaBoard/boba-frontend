@@ -32,9 +32,6 @@ interface LayoutComposition {
   MainContent: React.FC<{
     children: React.ReactNode;
   }>;
-  ActionButton: React.FC<{
-    children: React.ReactNode;
-  }>;
   BottomBar: React.FC<{
     children: React.ReactNode;
   }>;
@@ -44,19 +41,12 @@ const MainContent: LayoutComposition["MainContent"] = (props) => {
   return <>{props.children}</>;
 };
 
-const ActionButton: LayoutComposition["ActionButton"] = (props) => {
-  return <>{props.children}</>;
-};
-
 const BottomBar: LayoutComposition["BottomBar"] = (props) => {
   return <>{props.children}</>;
 };
 
 const isMainContent = (node: React.ReactNode): node is typeof MainContent => {
   return React.isValidElement(node) && node.type == MainContent;
-};
-const isActionButton = (node: React.ReactNode): node is typeof ActionButton => {
-  return React.isValidElement(node) && node.type == ActionButton;
 };
 const isBottomBar = (node: React.ReactNode): node is typeof BottomBar => {
   return React.isValidElement(node) && node.type == BottomBar;
@@ -128,9 +118,6 @@ const Layout: React.FC<LayoutProps> & LayoutComposition = (props) => {
   const mainContent = React.Children.toArray(props.children).find((child) =>
     isMainContent(child)
   ) as typeof MainContent | undefined;
-  const actionButton = React.Children.toArray(props.children).find((child) =>
-    isActionButton(child)
-  ) as typeof ActionButton | undefined;
   const bottomBar = React.Children.toArray(props.children).find((child) =>
     isBottomBar(child)
   ) as typeof BottomBar | undefined;
@@ -214,7 +201,6 @@ export interface LayoutProps {
   forceHideTitle?: boolean;
 }
 
-Layout.ActionButton = ActionButton;
 Layout.MainContent = MainContent;
 Layout.BottomBar = BottomBar;
 export default Layout;
