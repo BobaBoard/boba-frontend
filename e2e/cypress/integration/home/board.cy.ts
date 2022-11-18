@@ -83,7 +83,8 @@ describe("Board", () => {
   });
 
   it("should unpin and-repin board", () => {
-    cy.get(".pinned-boards section:nth-child(2)")
+    cy.get("[aria-label='pinned boards']")
+      .closest("section")
       .find(".pinned-item")
       .should("have.length", 2);
 
@@ -92,7 +93,8 @@ describe("Board", () => {
     cy.get(".popover-content").contains("Unpin").click();
     cy.wait(unpinKey);
 
-    cy.get(".pinned-boards section:nth-child(2)")
+    cy.get("[aria-label='pinned boards']")
+      .closest("section")
       .find(".pinned-item")
       .should("have.length", 1);
 
@@ -100,7 +102,8 @@ describe("Board", () => {
     cy.get(".preview-options button").click();
     cy.get(".popover-content").contains("Pin").click();
 
-    cy.get(".pinned-boards section:nth-child(2)")
+    cy.get("[aria-label='pinned boards']")
+      .closest("section")
       .find(".pinned-item")
       .should("have.length", 2);
     cy.wait(pinKey);
