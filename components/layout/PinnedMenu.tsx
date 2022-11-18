@@ -77,6 +77,7 @@ const PinnedMenu = () => {
       {isLoggedIn && (
         <LibraryPinnedMenu.Section
           icon={faRss}
+          sectionId={"feeds"}
           items={[
             // {
             //   id: "star",
@@ -97,6 +98,7 @@ const PinnedMenu = () => {
       )}
       {processedPinnedBoards.length && (
         <LibraryPinnedMenu.Section
+          sectionId={"pinned boards"}
           icon={faThumbtack}
           items={processedPinnedBoards}
           currentItemId={slug}
