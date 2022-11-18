@@ -71,11 +71,6 @@ export const ThreadViewQueryParams = {
   thread: ExistanceParam,
 };
 
-export const FilterParams = {
-  filter: ArrayParam,
-  excludedNotices: ArrayParam,
-};
-
 export const TimelineViewQueryParams = {
   new: ExistanceParam,
   latest: ExistanceParam,
@@ -92,10 +87,8 @@ export const VIEW_QUERY_PARAMS = {
   ...ThreadViewQueryParams,
   ...TimelineViewQueryParams,
   ...GalleryViewQueryParams,
-  ...FilterParams,
 };
 
-export type FilterParamsType = DecodedValueMap<typeof FilterParams>;
 export type GalleryViewSpecialParamsType = DecodedValueMap<
   typeof GalleryViewQueryParams
 >;
@@ -103,23 +96,21 @@ export type TimelineViewSpecialParamsType = DecodedValueMap<
   typeof TimelineViewQueryParams
 >;
 
-export interface ThreadViewQueryParamsType extends FilterParamsType {
+export interface ThreadViewQueryParamsType {
   thread: true;
   gallery: false;
   timeline: false;
 }
 
 export interface GalleryViewQueryParamsType
-  extends FilterParamsType,
-    GalleryViewSpecialParamsType {
+  extends GalleryViewSpecialParamsType {
   thread: false;
   gallery: true;
   timeline: false;
 }
 
 export interface TimelineViewQueryParamsType
-  extends FilterParamsType,
-    TimelineViewSpecialParamsType {
+  extends TimelineViewSpecialParamsType {
   thread: false;
   gallery: false;
   timeline: true;

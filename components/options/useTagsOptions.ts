@@ -5,7 +5,6 @@ import React from "react";
 import { TagType } from "@bobaboard/ui-components";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { useFilterableContext } from "contexts/FilterableContext";
-import { useThreadViewContext } from "contexts/ThreadViewContext";
 
 export enum TagsOptions {
   FILTER_BY_CATEGORY = "FILTER_BY_CATEGORY",
