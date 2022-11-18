@@ -17,8 +17,12 @@ import {
 
 import { Optional } from "utility-types";
 import React from "react";
+import debug from "debug";
 import { useQueryParams } from "use-query-params";
 import { useThreadContext } from "components/thread/ThreadContext";
+
+const log = debug("bobafrontend:contexts:ThreadViewContext-log");
+log.enabled = true;
 
 // Re-export view modes for consumption of other code
 export { THREAD_VIEW_MODE, GALLERY_VIEW_SUB_MODE, TIMELINE_VIEW_SUB_MODE };
@@ -271,6 +275,7 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
   React.useEffect(() => {
     //Keep query params in sync when the current view changes
     // TODO: consider changing this effect to "syncExternalStore"
+    log("currentView", currentView);
     updateViewQueryParams(currentView);
   }, [currentView, updateViewQueryParams]);
 
@@ -312,7 +317,7 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
       setCurrentView((currentView) => {
         if (viewMode.showCover === undefined) {
           // If the next view mode does not explicitly tell us what showCover's value is, we:
-          // a) keep the existing value if we're alredady in gallery mode
+          // a) keep the existing value if we're already in gallery mode
           // b) check for updates to the "cover" if we're switching to gallery mode
           viewMode.showCover =
             currentView.threadViewMode == THREAD_VIEW_MODE.MASONRY

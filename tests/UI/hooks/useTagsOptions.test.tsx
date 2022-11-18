@@ -8,10 +8,10 @@ import { TagType } from "@bobaboard/ui-components";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { renderHook } from "@testing-library/react-hooks";
 
-const mockSetActiveFilter = jest.fn();
-jest.mock("contexts/ThreadViewContext.tsx", () => ({
-  useThreadViewContext: jest.fn(() => ({
-    setActiveFilter: mockSetActiveFilter,
+const mockSetActiveCategories = jest.fn();
+jest.mock("contexts/FilterableContext.tsx", () => ({
+  useFilterableContext: jest.fn(() => ({
+    setActiveCategories: mockSetActiveCategories,
   })),
 }));
 
@@ -44,7 +44,7 @@ describe("useTagOptions", () => {
         throw new Error("Link should be present in category tag options.");
       }
       link.onClick();
-      expect(mockSetActiveFilter).toHaveBeenCalledWith("a category tag");
+      expect(mockSetActiveCategories).toHaveBeenCalledWith("a category tag");
     });
   });
 
