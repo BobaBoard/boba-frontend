@@ -183,12 +183,35 @@ const useThreadViewDisplay = () => {
         }
       });
 
-      if (currentThreadViewMode !== THREAD_VIEW_MODE.THREAD) {
+      if (currentThreadViewMode == THREAD_VIEW_MODE.MASONRY) {
         return finalDisplayPosts;
       }
-      // Add all parents of posts, even if they don't have categories.
-      const displayPostsWithParents = [...finalDisplayPosts];
+      // Remove any posts whose ancestors include filtered cn's
+      const filteredFinalDisplayPosts: PostType[] = [];
       finalDisplayPosts.forEach((post) => {
+        let parent = post.parentPostId;
+        let include = true;
+        while (parent != null && include) {
+          const parentData = postsInfoMap.get(parent)!;
+          if (
+            parentData.post.tags.contentWarnings.some((tag) =>
+              filteredNotices?.includes(tag)
+            )
+          ) {
+            include = false;
+          }
+          parent = parentData.parent?.postId || null;
+        }
+        if (include) {
+          filteredFinalDisplayPosts.push(post);
+        }
+      });
+      if (currentThreadViewMode == THREAD_VIEW_MODE.TIMELINE) {
+        return filteredFinalDisplayPosts;
+      }
+      // Add all parents of posts, even if they don't have categories.
+      const displayPostsWithParents = [...filteredFinalDisplayPosts];
+      filteredFinalDisplayPosts.forEach((post) => {
         let parent = post.parentPostId;
         while (parent != null) {
           const parentData = postsInfoMap.get(parent)!;
