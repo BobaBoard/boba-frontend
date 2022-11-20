@@ -92,42 +92,40 @@ const getQueryParamsGalleryViewMode = (
  * the query params should look given the updatedView in the params.
  */
 const getUpdatedQuery = ({
-  currentParams,
   defaultView,
   updatedViews,
 }: {
-  currentParams: ViewQueryParamsType;
   defaultView: THREAD_VIEW_MODE | null;
   updatedViews: ThreadViewMode;
 }) => {
   const { threadViewMode, timelineViewMode, galleryViewMode } = updatedViews;
+  log("in update query params: timelineViewMode", timelineViewMode);
+  log("in update query params: galleryViewMode %o", galleryViewMode);
   // Thread mode has no params, only timeline & gallery mode must reckon with special ones.
   let specialViewParams:
     | GalleryViewSpecialParamsType
-    | TimelineViewSpecialParamsType
-    | Record<string, never> = {};
+    | TimelineViewSpecialParamsType = {
+    // Clear previous special params
+    all: false,
+    new: false,
+    latest: false,
+    showCover: false,
+  };
   if (threadViewMode == THREAD_VIEW_MODE.MASONRY) {
     specialViewParams = {
-      // The only case when all should be specified is when it's been asked for explicitly.
-      all:
-        galleryViewMode.mode == GALLERY_VIEW_SUB_MODE.ALL &&
-        "all" in currentParams
-          ? currentParams.all
-          : false,
+      ...specialViewParams,
+      all: galleryViewMode.mode == GALLERY_VIEW_SUB_MODE.ALL,
       new: galleryViewMode.mode == GALLERY_VIEW_SUB_MODE.NEW,
       showCover: galleryViewMode.showCover,
-    } as GalleryViewSpecialParamsType;
+    };
   }
   if (threadViewMode == THREAD_VIEW_MODE.TIMELINE) {
     specialViewParams = {
-      // The only case when all should be specified is when it's been asked for explicitly.
-      all:
-        timelineViewMode == TIMELINE_VIEW_SUB_MODE.ALL && "all" in currentParams
-          ? currentParams.all
-          : false,
+      ...specialViewParams,
+      all: timelineViewMode == TIMELINE_VIEW_SUB_MODE.ALL,
       new: timelineViewMode == TIMELINE_VIEW_SUB_MODE.NEW,
       latest: timelineViewMode == TIMELINE_VIEW_SUB_MODE.LATEST,
-    } as TimelineViewSpecialParamsType;
+    };
   }
 
   const isDefaultView = defaultView
@@ -164,16 +162,22 @@ const getNextView = ({
       const currentMode = isGalleryViewQueryParams(queryParams)
         ? getQueryParamsGalleryViewMode(queryParams)?.mode
         : null;
+      log("next view, masonry currentMode", currentMode);
+
       const currentShowCover = isGalleryViewQueryParams(queryParams)
         ? getQueryParamsGalleryViewMode(queryParams)?.showCover
         : null;
+      log("next view, masonry currentShowCover", currentShowCover);
+
       return {
         threadViewMode: THREAD_VIEW_MODE.MASONRY,
         galleryViewMode: {
           mode:
+            // I'm not sure what this comment was supposed to mean/if that's correct
             // We only go to "new" mode if explicitly requested or we're already in it
-            currentMode ??
-            (hasUpdates || ("new" in queryParams && queryParams.new))
+            currentMode
+              ? currentMode
+              : hasUpdates || ("new" in queryParams && queryParams.new)
               ? GALLERY_VIEW_SUB_MODE.NEW
               : GALLERY_VIEW_SUB_MODE.ALL,
           showCover: currentShowCover || isNew,
@@ -185,13 +189,15 @@ const getNextView = ({
       const currentViewMode = isTimelineViewQueryParams(queryParams)
         ? getQueryParamsTimelineViewMode(queryParams)
         : null;
+      log("next view, timeline currentViewMode", currentViewMode);
       return {
         threadViewMode: THREAD_VIEW_MODE.TIMELINE,
         galleryViewMode: null,
         timelineViewMode:
           // We only go to "new" mode if explicitly requested or we're already in it
-          currentViewMode ??
-          (hasUpdates || ("new" in queryParams && queryParams.new))
+          currentViewMode
+            ? currentViewMode
+            : hasUpdates || ("new" in queryParams && queryParams.new)
             ? TIMELINE_VIEW_SUB_MODE.NEW
             : TIMELINE_VIEW_SUB_MODE.ALL,
       };
@@ -234,7 +240,6 @@ const useViewQueryParamsUpdater = () => {
         setViewQueryParams(
           {
             ...getUpdatedQuery({
-              currentParams: viewQueryParams as ViewQueryParamsType,
               defaultView: getThreadViewTypeFromString(defaultView),
               updatedViews: nextView,
             }),
@@ -263,78 +268,63 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
     ? threadRoot.isNew || !!postCommentsMap.get(threadRoot.postId)?.new
     : false;
   const hasUpdates = !!threadRoot?.isNew || hasNewReplies;
-  const [currentView, setCurrentView] = React.useState(
-    getInitialView({
-      defaultView: getThreadViewTypeFromString(defaultView),
-      queryParams: viewQueryParams,
-      isNew,
-      hasUpdates,
-    })
-  );
-
-  React.useEffect(() => {
-    //Keep query params in sync when the current view changes
-    // TODO: consider changing this effect to "syncExternalStore"
-    log("currentView", currentView);
-    updateViewQueryParams(currentView);
-  }, [currentView, updateViewQueryParams]);
+  const currentView = getInitialView({
+    defaultView: getThreadViewTypeFromString(defaultView),
+    queryParams: viewQueryParams,
+    isNew,
+    hasUpdates,
+  });
+  log("view mode", currentView.threadViewMode);
+  log("gallery mode", currentView.galleryViewMode?.mode);
+  log("show cover", currentView.galleryViewMode?.showCover);
+  log("timeline mode", currentView.timelineViewMode);
 
   const setThreadViewMode = React.useCallback(
     (viewMode: THREAD_VIEW_MODE) => {
-      setCurrentView((currentView) => {
-        const nextView = getNextView({
-          nextViewMode: viewMode,
-          queryParams: viewQueryParams,
-          isNew,
-        });
-        return {
-          ...currentView,
-          ...nextView,
-        };
+      const nextView = getNextView({
+        nextViewMode: viewMode,
+        queryParams: viewQueryParams,
+        isNew,
       });
+      updateViewQueryParams(nextView);
     },
-    [viewQueryParams, isNew]
+    [viewQueryParams, isNew, updateViewQueryParams]
   );
 
   const setTimelineViewMode = React.useCallback(
     (viewMode: TIMELINE_VIEW_SUB_MODE) => {
-      setCurrentView((currentView) => {
-        const nextView: ThreadViewMode = {
-          ...currentView,
-          threadViewMode: THREAD_VIEW_MODE.TIMELINE,
-          timelineViewMode: viewMode,
-          galleryViewMode: null,
-        };
-
-        return nextView;
-      });
+      const nextView: ThreadViewMode = {
+        ...currentView,
+        threadViewMode: THREAD_VIEW_MODE.TIMELINE,
+        timelineViewMode: viewMode,
+        galleryViewMode: null,
+      };
+      updateViewQueryParams(nextView);
     },
-    []
+    [currentView, updateViewQueryParams]
   );
 
   const setGalleryViewMode = React.useCallback(
     (viewMode: NonNullable<ThreadViewMode["galleryViewMode"]>) => {
-      setCurrentView((currentView) => {
-        if (viewMode.showCover === undefined) {
-          // If the next view mode does not explicitly tell us what showCover's value is, we:
-          // a) keep the existing value if we're already in gallery mode
-          // b) check for updates to the "cover" if we're switching to gallery mode
-          viewMode.showCover =
-            currentView.threadViewMode == THREAD_VIEW_MODE.MASONRY
-              ? currentView.galleryViewMode.showCover
-              : hasRootUpdates;
-        }
-        const nextView: ThreadViewMode = {
-          ...currentView,
-          threadViewMode: THREAD_VIEW_MODE.MASONRY,
-          timelineViewMode: null,
-          galleryViewMode: viewMode,
-        };
+      if (viewMode.showCover === undefined) {
+        // If the next view mode does not explicitly tell us what showCover's value is, we:
+        // a) keep the existing value if we're already in gallery mode
+        // b) check for updates to the "cover" if we're switching to gallery mode
+        viewMode.showCover =
+          currentView.threadViewMode == THREAD_VIEW_MODE.MASONRY
+            ? currentView.galleryViewMode.showCover
+            : hasRootUpdates;
+      }
+      const nextView: ThreadViewMode = {
+        ...currentView,
+        threadViewMode: THREAD_VIEW_MODE.MASONRY,
+        timelineViewMode: null,
+        galleryViewMode: viewMode,
+      };
 
-        return nextView;
-      });
+      updateViewQueryParams(nextView);
     },
-    [hasRootUpdates]
+    [hasRootUpdates, currentView, updateViewQueryParams]
   );
 
   const hasLoaded = React.useRef(false);
