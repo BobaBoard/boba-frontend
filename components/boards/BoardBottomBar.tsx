@@ -18,7 +18,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useCurrentRealmBoardId, useRealmContext } from "contexts/RealmContext";
 
-import { BoardParams } from "pages/[boardId]";
 import { BottomBar } from "@bobaboard/ui-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
@@ -27,8 +26,8 @@ import { useAuth } from "components/Auth";
 import { useBeamToFeedElement } from "components/hooks/useBeamToFeedElement";
 import { useBoardActivity } from "queries/board-feed";
 import { useBoardMetadata } from "queries/board";
+import { useFilterableContext } from "contexts/FilterableContext";
 import { useNotifications } from "queries/notifications";
-import { useQueryParams } from "use-query-params";
 import { withEditors } from "components/editors/withEditors";
 
 export interface BoardBottomBarProps {
@@ -120,7 +119,7 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
     boardId: boardMetadata?.id || null,
   });
 
-  const [params] = useQueryParams(BoardParams);
+  const { activeCategories } = useFilterableContext();
   const {
     canBeamToNext,
     onBeamToNext,
@@ -132,7 +131,7 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
   } = useBeamToFeedElement({
     feed: useBoardActivity({
       boardId,
-      categoryFilter: params.filter,
+      categoryFilter: activeCategories,
     }),
     accentColor: boardMetadata?.accentColor,
   });
@@ -142,7 +141,7 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
     // Note: resetBeamIndex will never change cause it's been declared with
     // useCallback and no dependency. If it did, this may need to be a more
     // complex condition.
-  }, [params, resetBeamIndex]);
+  }, [activeCategories, resetBeamIndex]);
 
   if (!boardMetadata) {
     return null;

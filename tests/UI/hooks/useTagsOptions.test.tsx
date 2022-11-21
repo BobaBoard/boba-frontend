@@ -44,7 +44,7 @@ describe("useTagOptions", () => {
         throw new Error("Link should be present in category tag options.");
       }
       link.onClick();
-      expect(mockSetActiveCategories).toHaveBeenCalledWith("a category tag");
+      expect(mockSetActiveCategories).toHaveBeenCalledWith(["a category tag"]);
     });
   });
 
