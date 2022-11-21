@@ -14,6 +14,7 @@ import { act, renderHook } from "@testing-library/react-hooks/native";
 import React from "react";
 import { ViewQueryParamsType } from "types/ThreadQueryParams";
 import _ from "cypress/types/lodash";
+import { removeThreadHandlerRef } from "utils/scroll-utils";
 import { useQueryParams } from "use-query-params";
 
 jest.mock("components/thread/ThreadContext.tsx");
@@ -46,6 +47,10 @@ const NEUTRAL_QUERY_PARAMS_STATE = {
   gallery: false,
   timeline: false,
   thread: false,
+  all: false,
+  new: false,
+  showCover: false,
+  latest: false,
 };
 const NEUTRAL_QUERY_PARAMS_STATE_WITH_THREAD = {
   ...NEUTRAL_QUERY_PARAMS_STATE,
@@ -71,12 +76,18 @@ const getThreadViewContextWrapper = () => {
 };
 
 const mockQueryParams = (initialState?: Partial<ViewQueryParamsType>) => {
-  const setQueryParams = jest.fn();
+  const setQueryParams = jest.fn((newState) => mockChangeQueryParams(newState));
   jest
     .mocked(useQueryParams)
     .mockImplementation(() => [initialState || {}, setQueryParams]);
 
   return setQueryParams;
+};
+const mockChangeQueryParams = (newState?: Partial<ViewQueryParamsType>) => {
+  const setQueryParams = jest.fn();
+  jest
+    .mocked(useQueryParams)
+    .mockImplementation(() => [newState || {}, setQueryParams]);
 };
 
 describe("useThreadViewContext", () => {
@@ -93,11 +104,6 @@ describe("useThreadViewContext", () => {
       wrapper: getThreadViewContextWrapper(),
     });
 
-    expect(setQueryParams).toHaveBeenCalledOnce();
-    expect(setQueryParams).toHaveBeenLastCalledWith(
-      expect.objectContaining(NEUTRAL_QUERY_PARAMS_STATE),
-      "replace"
-    );
     expect(result.current.currentThreadViewMode).toBe(THREAD_VIEW_MODE.THREAD);
   });
 
@@ -113,11 +119,6 @@ describe("useThreadViewContext", () => {
       mode: GALLERY_VIEW_SUB_MODE.ALL,
       showCover: false,
     });
-    expect(setQueryParams).toHaveBeenCalledOnce();
-    expect(setQueryParams).toHaveBeenLastCalledWith(
-      expect.objectContaining(NEUTRAL_QUERY_PARAMS_STATE),
-      "replace"
-    );
   });
 
   it("Returns view mode in the params if specified", async () => {
@@ -132,14 +133,6 @@ describe("useThreadViewContext", () => {
       THREAD_VIEW_MODE.TIMELINE
     );
     expect(result.current.timelineViewMode).toBe(TIMELINE_VIEW_SUB_MODE.ALL);
-    expect(setQueryParams).toHaveBeenCalledOnce();
-    expect(setQueryParams).toHaveBeenLastCalledWith(
-      {
-        ...NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE,
-        timeline: true,
-      },
-      "replace"
-    );
   });
 
   describe("Default states", () => {
@@ -156,13 +149,13 @@ describe("useThreadViewContext", () => {
       );
       expect(result.current.timelineViewMode).toBe(TIMELINE_VIEW_SUB_MODE.NEW);
 
-      expect(setQueryParams).toHaveBeenCalledTimes(2);
+      expect(setQueryParams).toHaveBeenCalledTimes(1);
       expect(setQueryParams).toHaveBeenLastCalledWith(
         {
           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE,
           new: true,
         },
-        "replace"
+        "pushIn"
       );
     });
 
@@ -181,14 +174,6 @@ describe("useThreadViewContext", () => {
         mode: GALLERY_VIEW_SUB_MODE.NEW,
         showCover: false,
       });
-      expect(setQueryParams).toHaveBeenCalledTimes(2);
-      expect(setQueryParams).toHaveBeenLastCalledWith(
-        {
-          ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
-          new: true,
-        },
-        "replace"
-      );
     });
 
     it("Defaults to show cover for gallery if root is updated", async () => {
@@ -209,14 +194,14 @@ describe("useThreadViewContext", () => {
         showCover: true,
       });
 
-      expect(setQueryParams).toHaveBeenCalledTimes(2);
+      expect(setQueryParams).toHaveBeenCalledTimes(1);
       expect(setQueryParams).toHaveBeenLastCalledWith(
         {
           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
           new: true,
           showCover: true,
         },
-        "replace"
+        "pushIn"
       );
     });
 
@@ -233,14 +218,6 @@ describe("useThreadViewContext", () => {
       expect(result.current.currentThreadViewMode).toBe(
         THREAD_VIEW_MODE.THREAD
       );
-
-      expect(setQueryParams).toHaveBeenCalledTimes(1);
-      expect(setQueryParams).toHaveBeenLastCalledWith(
-        {
-          ...NEUTRAL_QUERY_PARAMS_STATE_WITH_THREAD,
-        },
-        "replace"
-      );
     });
   });
 
@@ -248,7 +225,7 @@ describe("useThreadViewContext", () => {
     it("Correctly switches view mode for gallery with explicit show cover", async () => {
       mockedThreadContext.defaultView = "thread";
       const setQueryParams = mockQueryParams({ timeline: true });
-      const { result } = renderHook(() => useThreadViewContext(), {
+      const { result, rerender } = renderHook(() => useThreadViewContext(), {
         wrapper: getThreadViewContextWrapper(),
       });
 
@@ -258,12 +235,41 @@ describe("useThreadViewContext", () => {
           showCover: true,
         });
       });
+
+      expect(setQueryParams).toHaveBeenCalledTimes(1);
+      expect(setQueryParams).toHaveBeenLastCalledWith(
+        {
+          ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
+          gallery: true,
+          new: true,
+          showCover: true,
+        },
+        "pushIn"
+      );
+      rerender();
       expect(result.current.currentThreadViewMode).toBe(
         THREAD_VIEW_MODE.MASONRY
       );
       expect(result.current.galleryViewMode).toEqual({
         mode: GALLERY_VIEW_SUB_MODE.NEW,
         showCover: true,
+      });
+    });
+
+    it("Correctly switches view mode for gallery without explicit show cover (new)", async () => {
+      mockedThreadContext.defaultView = "thread";
+      mockedThreadContext.hasNewReplies = true;
+      // @ts-expect-error
+      mockedThreadContext.threadRoot = { isNew: true };
+      const setQueryParams = mockQueryParams({ timeline: true });
+      const { result, rerender } = renderHook(() => useThreadViewContext(), {
+        wrapper: getThreadViewContextWrapper(),
+      });
+
+      act(() => {
+        result.current.setGalleryViewMode({
+          mode: GALLERY_VIEW_SUB_MODE.NEW,
+        });
       });
 
       expect(setQueryParams).toHaveBeenCalledTimes(2);
@@ -274,25 +280,9 @@ describe("useThreadViewContext", () => {
           new: true,
           showCover: true,
         },
-        "replace"
+        "pushIn"
       );
-    });
-
-    it("Correctly switches view mode for gallery without explicit show cover (new)", async () => {
-      mockedThreadContext.defaultView = "thread";
-      mockedThreadContext.hasNewReplies = true;
-      // @ts-expect-error
-      mockedThreadContext.threadRoot = { isNew: true };
-      const setQueryParams = mockQueryParams({ timeline: true });
-      const { result } = renderHook(() => useThreadViewContext(), {
-        wrapper: getThreadViewContextWrapper(),
-      });
-
-      act(() => {
-        result.current.setGalleryViewMode({
-          mode: GALLERY_VIEW_SUB_MODE.NEW,
-        });
-      });
+      rerender();
       expect(result.current.currentThreadViewMode).toBe(
         THREAD_VIEW_MODE.MASONRY
       );
@@ -300,23 +290,12 @@ describe("useThreadViewContext", () => {
         mode: GALLERY_VIEW_SUB_MODE.NEW,
         showCover: true,
       });
-
-      expect(setQueryParams).toHaveBeenCalledTimes(3);
-      expect(setQueryParams).toHaveBeenLastCalledWith(
-        {
-          ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
-          gallery: true,
-          new: true,
-          showCover: true,
-        },
-        "replace"
-      );
     });
 
     it("Correctly switches view mode for gallery without explicit show cover (not new)", async () => {
       mockedThreadContext.defaultView = "thread";
       const setQueryParams = mockQueryParams({ timeline: true });
-      const { result } = renderHook(() => useThreadViewContext(), {
+      const { result, rerender } = renderHook(() => useThreadViewContext(), {
         wrapper: getThreadViewContextWrapper(),
       });
 
@@ -326,6 +305,18 @@ describe("useThreadViewContext", () => {
           showCover: false,
         });
       });
+
+      expect(setQueryParams).toHaveBeenCalledTimes(1);
+      expect(setQueryParams).toHaveBeenLastCalledWith(
+        {
+          ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
+          gallery: true,
+          new: true,
+        },
+        "pushIn"
+      );
+
+      rerender();
       expect(result.current.currentThreadViewMode).toBe(
         THREAD_VIEW_MODE.MASONRY
       );
@@ -333,21 +324,11 @@ describe("useThreadViewContext", () => {
         mode: GALLERY_VIEW_SUB_MODE.NEW,
         showCover: false,
       });
-
-      expect(setQueryParams).toHaveBeenCalledTimes(2);
-      expect(setQueryParams).toHaveBeenLastCalledWith(
-        {
-          ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
-          gallery: true,
-          new: true,
-        },
-        "replace"
-      );
     });
 
     it("Correctly switches view mode for timeline", async () => {
       mockedThreadContext.defaultView = "gallery";
-      const { result } = renderHook(() => useThreadViewContext(), {
+      const { result, rerender } = renderHook(() => useThreadViewContext(), {
         wrapper: getThreadViewContextWrapper(),
       });
 
@@ -355,23 +336,23 @@ describe("useThreadViewContext", () => {
         result.current.setTimelineViewMode(TIMELINE_VIEW_SUB_MODE.NEW);
       });
 
-      expect(result.current.timelineViewMode).toBe(TIMELINE_VIEW_SUB_MODE.NEW);
-
-      expect(setQueryParams).toHaveBeenCalledTimes(2);
+      expect(setQueryParams).toHaveBeenCalledTimes(1);
       expect(setQueryParams).toHaveBeenLastCalledWith(
         {
           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE,
           timeline: true,
           new: true,
         },
-        "replace"
+        "pushIn"
       );
+      rerender();
+      expect(result.current.timelineViewMode).toBe(TIMELINE_VIEW_SUB_MODE.NEW);
     });
 
     it("Correctly switches to thread", async () => {
       mockedThreadContext.defaultView = "gallery";
       const setQueryParams = mockQueryParams({ timeline: true });
-      const { result } = renderHook(() => useThreadViewContext(), {
+      const { result, rerender } = renderHook(() => useThreadViewContext(), {
         wrapper: getThreadViewContextWrapper(),
       });
 
@@ -379,10 +360,14 @@ describe("useThreadViewContext", () => {
         result.current.setThreadViewMode(THREAD_VIEW_MODE.THREAD);
       });
 
-      expect(setQueryParams).toHaveBeenCalledTimes(2);
+      expect(setQueryParams).toHaveBeenCalledTimes(1);
       expect(setQueryParams).toHaveBeenLastCalledWith(
         { ...NEUTRAL_QUERY_PARAMS_STATE_WITH_THREAD, thread: true },
-        "replace"
+        "pushIn"
+      );
+      rerender();
+      expect(result.current.currentThreadViewMode).toBe(
+        THREAD_VIEW_MODE.THREAD
       );
     });
   });
@@ -395,7 +380,7 @@ describe("useThreadViewContext", () => {
         all: true,
         showCover: true,
       });
-      const { result } = renderHook(() => useThreadViewContext(), {
+      const { result, rerender } = renderHook(() => useThreadViewContext(), {
         wrapper: getThreadViewContextWrapper(),
       });
 
@@ -404,15 +389,8 @@ describe("useThreadViewContext", () => {
           mode: GALLERY_VIEW_SUB_MODE.NEW,
         });
       });
-      expect(result.current.currentThreadViewMode).toBe(
-        THREAD_VIEW_MODE.MASONRY
-      );
-      expect(result.current.galleryViewMode).toEqual({
-        mode: GALLERY_VIEW_SUB_MODE.NEW,
-        showCover: true,
-      });
 
-      expect(setQueryParams).toHaveBeenCalledTimes(2);
+      expect(setQueryParams).toHaveBeenCalledTimes(1);
       expect(setQueryParams).toHaveBeenLastCalledWith(
         {
           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
@@ -420,101 +398,109 @@ describe("useThreadViewContext", () => {
           new: true,
           showCover: true,
         },
-        "replace"
+        "pushIn"
       );
+      rerender();
+      expect(result.current.currentThreadViewMode).toBe(
+        THREAD_VIEW_MODE.MASONRY
+      );
+      expect(result.current.galleryViewMode).toEqual({
+        mode: GALLERY_VIEW_SUB_MODE.NEW,
+        showCover: true,
+      });
     });
   });
-
-  // TODO: Update to reflect addition of FilterableContext/test FilterableContext separately
-  //   describe("Filters updates", () => {
-  //     it("Adds filters without adding explicit view mode for default view (filters)", async () => {
-  //       mockedThreadContext.defaultView = "gallery";
-  //       const setQueryParams = mockQueryParams();
-  //       const { result } = renderHook(() => useThreadViewContext(), {
-  //         wrapper: getThreadViewContextWrapper(),
-  //       });
-
-  //       act(() => {
-  //         result.current.setActiveFilter("test");
-  //       });
-
-  //       expect(setQueryParams).toHaveBeenCalledTimes(2);
-  //       expect(setQueryParams).toHaveBeenLastCalledWith(
-  //         {
-  //           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
-  //           filter: ["test"],
-  //         },
-  //         "replace"
-  //       );
-  //     });
-
-  //     it("Adds filters and keeps explicit parameters", async () => {
-  //       mockedThreadContext.defaultView = "gallery";
-  //       const setQueryParams = mockQueryParams({ timeline: true, new: true });
-  //       const { result } = renderHook(() => useThreadViewContext(), {
-  //         wrapper: getThreadViewContextWrapper(),
-  //       });
-
-  //       act(() => {
-  //         result.current.setActiveFilter("test");
-  //       });
-
-  //       expect(setQueryParams).toHaveBeenCalledTimes(2);
-  //       expect(setQueryParams).toHaveBeenLastCalledWith(
-  //         {
-  //           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE,
-  //           timeline: true,
-  //           new: true,
-  //           filter: ["test"],
-  //         },
-  //         "replace"
-  //       );
-  //     });
-  //   });
-
-  //   describe("Excluded content notices updates", () => {
-  //     it("Adds filters without adding explicit view mode for default view (notices)", async () => {
-  //       mockedThreadContext.defaultView = "gallery";
-  //       const setQueryParams = mockQueryParams();
-  //       const { result } = renderHook(() => useThreadViewContext(), {
-  //         wrapper: getThreadViewContextWrapper(),
-  //       });
-
-  //       act(() => {
-  //         result.current.setExcludedNotices(["test1", "test2", "test3"]);
-  //       });
-
-  //       expect(setQueryParams).toHaveBeenCalledTimes(2);
-  //       expect(setQueryParams).toHaveBeenLastCalledWith(
-  //         {
-  //           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
-  //           excludedNotices: ["test1", "test2", "test3"],
-  //         },
-  //         "replace"
-  //       );
-  //     });
-
-  //     it("Adds filters and keeps explicit parameters", async () => {
-  //       mockedThreadContext.defaultView = "gallery";
-  //       const setQueryParams = mockQueryParams({ timeline: true, new: true });
-  //       const { result } = renderHook(() => useThreadViewContext(), {
-  //         wrapper: getThreadViewContextWrapper(),
-  //       });
-
-  //       act(() => {
-  //         result.current.setExcludedNotices(["test1", "test2", "test3"]);
-  //       });
-
-  //       expect(setQueryParams).toHaveBeenCalledTimes(2);
-  //       expect(setQueryParams).toHaveBeenLastCalledWith(
-  //         {
-  //           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE,
-  //           timeline: true,
-  //           new: true,
-  //           excludedNotices: ["test1", "test2", "test3"],
-  //         },
-  //         "replace"
-  //       );
-  //     });
-  //   });
 });
+
+// TODO: Update to reflect addition of FilterableContext/test FilterableContext separately
+//   describe("Filters updates", () => {
+//     it("Adds filters without adding explicit view mode for default view (filters)", async () => {
+//       mockedThreadContext.defaultView = "gallery";
+//       const setQueryParams = mockQueryParams();
+//       const { result } = renderHook(() => useThreadViewContext(), {
+//         wrapper: getThreadViewContextWrapper(),
+//       });
+
+//       act(() => {
+//         result.current.setActiveFilter("test");
+//       });
+
+//       expect(setQueryParams).toHaveBeenCalledTimes(2);
+//       expect(setQueryParams).toHaveBeenLastCalledWith(
+//         {
+//           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
+//           filter: ["test"],
+//         },
+//         "replace"
+//       );
+//     });
+
+//     it("Adds filters and keeps explicit parameters", async () => {
+//       mockedThreadContext.defaultView = "gallery";
+//       const setQueryParams = mockQueryParams({ timeline: true, new: true });
+//       const { result } = renderHook(() => useThreadViewContext(), {
+//         wrapper: getThreadViewContextWrapper(),
+//       });
+
+//       act(() => {
+//         result.current.setActiveFilter("test");
+//       });
+
+//       expect(setQueryParams).toHaveBeenCalledTimes(2);
+//       expect(setQueryParams).toHaveBeenLastCalledWith(
+//         {
+//           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE,
+//           timeline: true,
+//           new: true,
+//           filter: ["test"],
+//         },
+//         "replace"
+//       );
+//     });
+//   });
+
+//   describe("Excluded content notices updates", () => {
+//     it("Adds filters without adding explicit view mode for default view (notices)", async () => {
+//       mockedThreadContext.defaultView = "gallery";
+//       const setQueryParams = mockQueryParams();
+//       const { result } = renderHook(() => useThreadViewContext(), {
+//         wrapper: getThreadViewContextWrapper(),
+//       });
+
+//       act(() => {
+//         result.current.setExcludedNotices(["test1", "test2", "test3"]);
+//       });
+
+//       expect(setQueryParams).toHaveBeenCalledTimes(2);
+//       expect(setQueryParams).toHaveBeenLastCalledWith(
+//         {
+//           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_GALLERY,
+//           excludedNotices: ["test1", "test2", "test3"],
+//         },
+//         "replace"
+//       );
+//     });
+
+//     it("Adds filters and keeps explicit parameters", async () => {
+//       mockedThreadContext.defaultView = "gallery";
+//       const setQueryParams = mockQueryParams({ timeline: true, new: true });
+//       const { result } = renderHook(() => useThreadViewContext(), {
+//         wrapper: getThreadViewContextWrapper(),
+//       });
+
+//       act(() => {
+//         result.current.setExcludedNotices(["test1", "test2", "test3"]);
+//       });
+
+//       expect(setQueryParams).toHaveBeenCalledTimes(2);
+//       expect(setQueryParams).toHaveBeenLastCalledWith(
+//         {
+//           ...NEUTRAL_QUERY_PARAMS_STATE_WITH_TIMELINE,
+//           timeline: true,
+//           new: true,
+//           excludedNotices: ["test1", "test2", "test3"],
+//         },
+//         "replace"
+//       );
+//     });
+//   });

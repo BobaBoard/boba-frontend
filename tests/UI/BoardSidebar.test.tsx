@@ -10,6 +10,7 @@ import {
 import BoardPage from "pages/[boardId]/index";
 import { LOGGED_IN_V0_MEMBER_DATA } from "../server-mocks/data/realm";
 import React from "react";
+import { RealmType } from "types/Types";
 import { makeRealmData } from "utils/client-data";
 
 const GORE_ROUTER = getBoardRouter({ boardSlug: "gore" });
@@ -21,7 +22,9 @@ const renderSidebar = () => {
   render(
     <Client
       router={GORE_ROUTER}
-      initialData={{ realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) }}
+      initialData={{
+        realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
+      }}
     >
       <BoardPage />
     </Client>
