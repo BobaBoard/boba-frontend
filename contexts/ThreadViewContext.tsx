@@ -22,7 +22,7 @@ import { useQueryParams } from "use-query-params";
 import { useThreadContext } from "components/thread/ThreadContext";
 
 const log = debug("bobafrontend:contexts:ThreadViewContext-log");
-log.enabled = true;
+// log.enabled = true;
 
 // Re-export view modes for consumption of other code
 export { THREAD_VIEW_MODE, GALLERY_VIEW_SUB_MODE, TIMELINE_VIEW_SUB_MODE };
