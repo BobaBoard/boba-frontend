@@ -96,13 +96,17 @@ const SubscriptionBlockWithData = ({
   title,
 }: SubscriptionBlockType) => {
   const data = useSubscription({ subscriptionId });
+  const { slug: realmSlug } = useRealmContext();
 
   if (!data) {
     return <div>Loading</div>;
   }
 
   const subscriptionPost = data.activity[0];
-  const updatesThreadUrl = `https://fandom-coders.boba.social/!fancoders/thread/9e329ac4-9225-4261-a849-e8a92d6652c3`;
+  // TODO: this is a terrible hack because we have no information on the thread itself within
+  // the subscription.
+  const boardName = realmSlug == "v0" ? "bobaland" : "fandconders";
+  const updatesThreadUrl = `https://${realmSlug}.boba.social/!${boardName}/thread/${subscriptionPost.threadId}`;
   const lastestReleaseUrl = `${updatesThreadUrl}/${subscriptionPost.postId}`;
   return (
     <SubscriptionBlock
@@ -116,6 +120,7 @@ const SubscriptionBlockWithData = ({
       }}
       post={subscriptionPost.content}
       secretIdentity={subscriptionPost.secretIdentity}
+      maxHeightPx={320}
     />
   );
 };
