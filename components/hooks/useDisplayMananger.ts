@@ -189,20 +189,22 @@ const useThreadViewDisplay = () => {
       // Remove any posts whose ancestors include filtered cn's
       const filteredFinalDisplayPosts: PostType[] = [];
       finalDisplayPosts.forEach((post) => {
-        let parent = post.parentPostId;
-        let include = true;
-        while (parent != null && include) {
-          const parentData = postsInfoMap.get(parent)!;
+        let parentId = post.parentPostId;
+        while (parentId != null) {
+          const parentData = postsInfoMap.get(parentId)!;
           if (
             parentData.post.tags.contentWarnings.some((tag) =>
               filteredNotices?.includes(tag)
             )
           ) {
-            include = false;
+            // Error found! Stop the loop early.
+            break;
           }
-          parent = parentData.parent?.postId || null;
+          parentId = parentData.parent?.postId || null;
         }
-        if (include) {
+        if (parentId == null) {
+          // We've traversed the whole parent chain without error, so
+          // we can add the post to the final display.
           filteredFinalDisplayPosts.push(post);
         }
       });

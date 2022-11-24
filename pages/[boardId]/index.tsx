@@ -82,7 +82,6 @@ function BoardPage({ slug }: { slug: string }) {
     [setActiveCategories]
   );
 
-  setActiveCategories;
   const onCategoriesStateChange = React.useCallback(
     (categories: { name: string; active: boolean }[]) => {
       setActiveCategories(
