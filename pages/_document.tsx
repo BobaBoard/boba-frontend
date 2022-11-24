@@ -40,7 +40,7 @@ class MyDocument extends Document {
             src="//platform.twitter.com/widgets.js"
           ></script>
           <script async src="https://www.tiktok.com/embed.js"></script>
-          <style>{`
+          <style jsx global>{`
             html {
               font-size: 62.5%;
               --font-size-regular: 1.6rem;
@@ -52,7 +52,19 @@ class MyDocument extends Document {
               font-family: Inter, sans-serif;
               background-color: rgb(47, 47, 48);
               font-size: 1.6rem;
-              font-display:optional;
+              font-display: optional;
+
+              --contribution-a-color: #008fdb;
+              --contribution-a-visited-color: #f35fe4;
+              --comment-a-color: hsl(191deg 89% 47%);
+              --comment-a-visited-color: hsl(309deg 86% 72%);
+
+              // Set the default colors for contribs at the root levels because there's
+              // a lot of places where they appear.
+              // TODO: maybe consider if these CSS variables should be moved to the components
+              // library.
+              --a-color: var(--contribution-a-color);
+              --a-visited-color: var(--contribution-a-visited-color);
             }
             * {
               scrollbar-width: thin;
@@ -73,7 +85,7 @@ class MyDocument extends Document {
               -webkit-box-shadow: inset 0 0px 2px 1px #1c1c1c;
               background-color: #5a5a5ad6;
             }
-        `}</style>
+          `}</style>
         </Head>
         <body>
           <Main />

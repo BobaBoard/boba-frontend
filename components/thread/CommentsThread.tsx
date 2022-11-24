@@ -300,6 +300,8 @@ const CommentsThread: React.FC<CommentsThreadProps> = (props) => {
         .comments-thread-container {
           pointer-events: all;
           margin-left: 15px;
+          --a-color: var(--comment-a-color);
+          --a-visited-color: var(--comment-a-visited-color);
         }
         .comments-thread {
           margin-top: 20px;
