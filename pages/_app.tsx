@@ -97,7 +97,7 @@ const embedsFetchers = {
     // We add a random number to the embed load to get around https://github.com/itteco/iframely/issues/281
     return embedsAxios
       .get(
-        `https://boba-embeds.herokuapp.com/iframely?uri=${url}&iframe=0&test=${Math.floor(
+        `https://embeds.bobaboard.com/iframely?uri=${url}&iframe=0&test=${Math.floor(
           Math.random() * 100000
         )}`
       )
