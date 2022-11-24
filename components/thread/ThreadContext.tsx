@@ -59,6 +59,8 @@ export interface ThreadContextType {
     avatar: string;
   };
   parentBoardSlug: string | null;
+  createdAt: Date | null;
+  lastActivityAt: Date | null;
   threadId: string | null;
   muted: boolean | undefined;
   hidden: boolean | undefined;
@@ -202,6 +204,8 @@ export const useThreadMetadata = ({
     threadId: threadId,
     muted: threadData?.muted,
     hidden: threadData?.hidden,
+    createdAt: root ? new Date(root.created) : null,
+    lastActivityAt: threadData ? new Date(threadData.lastActivityAt) : null,
   };
 };
 

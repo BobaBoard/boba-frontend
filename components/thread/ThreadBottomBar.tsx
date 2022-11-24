@@ -27,11 +27,54 @@ import { useThreadCollapseManager } from "./useCollapseManager";
 import { useThreadContext } from "./ThreadContext";
 import { useThreadViewContext } from "contexts/ThreadViewContext";
 
-export interface BoardBottomBarProps {
+export interface ThreadBottomBarProps {
   onCompassClick: () => void;
 }
+const ThreadInfoPanel = () => {
+  const { createdAt, lastActivityAt } = useThreadContext();
+  const { slug } = usePageDetails<ThreadPageDetails>();
+  const boardId = useCurrentRealmBoardId({ boardSlug: slug });
+  const { boardMetadata } = useBoardMetadata({
+    boardId,
+  });
 
-const BoardBottomBar = (props: BoardBottomBarProps) => {
+  return (
+    <aside>
+      <dl>
+        <dt>Created on</dt>
+        <dd>{createdAt?.toLocaleString()}</dd>
+        <dt>Last updated</dt>
+        <dd>{lastActivityAt?.toLocaleString()}</dd>
+      </dl>
+      <style jsx>
+        {`
+          aside {
+            padding: 10px 20px;
+            border-bottom: 2px dashed ${boardMetadata?.accentColor};
+            margin-bottom: 5px;
+            max-width: max(250px, 100%);
+          }
+          dl {
+            margin: 0;
+          }
+          dt {
+            font-size: var(--font-size-small);
+            font-weight: bold;
+          }
+          dd {
+            margin-left: 0;
+            font-size: var(--font-size-regular);
+          }
+          dd:not(:last-child) {
+            margin-bottom: 10px;
+          }
+        `}
+      </style>
+    </aside>
+  );
+};
+
+const BoardBottomBar = (props: ThreadBottomBarProps) => {
   const { slug, threadId } = usePageDetails<ThreadPageDetails>();
   const { isLoggedIn } = useAuth();
   if (!slug) {
@@ -118,6 +161,7 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
           },
         ],
         options: threadOptions,
+        info: <ThreadInfoPanel />,
       }}
     >
       <BottomBar.Button
