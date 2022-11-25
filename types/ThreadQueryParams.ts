@@ -1,5 +1,4 @@
-import { ArrayParam, DecodedValueMap } from "use-query-params";
-
+import { DecodedValueMap } from "use-query-params";
 import { ExistanceParam } from "../components/QueryParamNextProvider";
 import { ThreadType } from "./Types";
 
@@ -102,10 +101,23 @@ export interface ThreadViewQueryParamsType {
   timeline: false;
 }
 
+export interface DefaultBaseViewQueryParamsType {
+  thread: false;
+  gallery: false;
+  timeline: false;
+}
+
 export interface GalleryViewQueryParamsType
   extends GalleryViewSpecialParamsType {
   thread: false;
   gallery: true;
+  timeline: false;
+}
+
+export interface DefaultGalleryViewQueryParamsType
+  extends GalleryViewSpecialParamsType {
+  thread: false;
+  gallery: false;
   timeline: false;
 }
 
@@ -116,21 +128,74 @@ export interface TimelineViewQueryParamsType
   timeline: true;
 }
 
+export interface DefaultTimelineViewQueryParamsType
+  extends TimelineViewSpecialParamsType {
+  thread: false;
+  gallery: false;
+  timeline: false;
+}
+
 export type ViewQueryParamsType =
   | ThreadViewQueryParamsType
   | GalleryViewQueryParamsType
   | TimelineViewQueryParamsType;
 
+export type DefaultViewQueryParamsType =
+  | DefaultGalleryViewQueryParamsType
+  | DefaultTimelineViewQueryParamsType;
+
+const includesGalleryViewSpecialParam = (
+  queryParams: DefaultViewQueryParamsType
+) => {
+  return (
+    queryParams.all == true ||
+    queryParams.new == true ||
+    ("showCover" in queryParams && queryParams.showCover == true)
+  );
+};
+
+const includesTimelineViewSpecialParam = (
+  queryParams: DefaultViewQueryParamsType
+) => {
+  return (
+    queryParams.all == true ||
+    queryParams.new == true ||
+    ("latest" in queryParams && queryParams.latest == true)
+  );
+};
+
+const isDefaultViewQueryParams = (
+  queryParams: ViewQueryParamsType | DefaultViewQueryParamsType
+): queryParams is DefaultViewQueryParamsType => {
+  return (
+    queryParams.gallery == false &&
+    queryParams.thread == false &&
+    queryParams.timeline == false
+  );
+};
+
 export const isGalleryViewQueryParams = (
-  queryParams: ViewQueryParamsType
-): queryParams is GalleryViewQueryParamsType => {
-  return queryParams.gallery == true;
+  queryParams: ViewQueryParamsType | DefaultViewQueryParamsType
+): queryParams is
+  | GalleryViewQueryParamsType
+  | DefaultGalleryViewQueryParamsType => {
+  return (
+    queryParams.gallery == true ||
+    (isDefaultViewQueryParams(queryParams) &&
+      includesGalleryViewSpecialParam(queryParams))
+  );
 };
 
 export const isTimelineViewQueryParams = (
-  queryParams: ViewQueryParamsType
-): queryParams is TimelineViewQueryParamsType => {
-  return queryParams.timeline == true;
+  queryParams: ViewQueryParamsType | DefaultViewQueryParamsType
+): queryParams is
+  | TimelineViewQueryParamsType
+  | DefaultTimelineViewQueryParamsType => {
+  return (
+    queryParams.timeline == true ||
+    (isDefaultViewQueryParams(queryParams) &&
+      includesTimelineViewSpecialParam(queryParams))
+  );
 };
 
 export const isThreadViewQueryParams = (

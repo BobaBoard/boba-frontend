@@ -1,4 +1,6 @@
 import {
+  DefaultGalleryViewQueryParamsType,
+  DefaultTimelineViewQueryParamsType,
   GALLERY_VIEW_SUB_MODE,
   GalleryViewMode,
   GalleryViewQueryParamsType,
@@ -57,7 +59,9 @@ const getQueryParamsViewMode = (query: ViewQueryParamsType) => {
 
 // Returns the TIMELINE_VIEW_SUB_MODE set in the page params.
 const getQueryParamsTimelineViewMode = (
-  timelineQuery: TimelineViewQueryParamsType
+  timelineQuery:
+    | TimelineViewQueryParamsType
+    | DefaultTimelineViewQueryParamsType
 ): ThreadViewMode["timelineViewMode"] => {
   if (timelineQuery.new) {
     return TIMELINE_VIEW_SUB_MODE.NEW;
@@ -71,7 +75,7 @@ const getQueryParamsTimelineViewMode = (
 
 // Returns the GALLERY_VIEW_SUB_MODE set in the page params.
 const getQueryParamsGalleryViewMode = (
-  galleryQuery: GalleryViewQueryParamsType
+  galleryQuery: GalleryViewQueryParamsType | DefaultGalleryViewQueryParamsType
 ): Partial<ThreadViewMode["galleryViewMode"]> => {
   if (!galleryQuery.all && !galleryQuery.new) {
     return {
@@ -173,8 +177,7 @@ const getNextView = ({
         threadViewMode: THREAD_VIEW_MODE.MASONRY,
         galleryViewMode: {
           mode:
-            // I'm not sure what this comment was supposed to mean/if that's correct
-            // We only go to "new" mode if explicitly requested or we're already in it
+            // We only go to "new" mode if explicitly requested or we're already in it, or no mode is specified and there are new updates
             currentMode
               ? currentMode
               : hasUpdates || ("new" in queryParams && queryParams.new)
@@ -194,7 +197,7 @@ const getNextView = ({
         threadViewMode: THREAD_VIEW_MODE.TIMELINE,
         galleryViewMode: null,
         timelineViewMode:
-          // We only go to "new" mode if explicitly requested or we're already in it
+          // We only go to "new" mode if explicitly requested or we're already in it, or no mode is specified and there are new updates
           currentViewMode
             ? currentViewMode
             : hasUpdates || ("new" in queryParams && queryParams.new)
