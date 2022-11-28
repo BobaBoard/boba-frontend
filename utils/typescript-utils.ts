@@ -24,3 +24,20 @@ export type GetPropsFromForwardedRef<
 export const isNotNull = <T>(value: T | null | undefined): value is T => {
   return value !== null && value !== undefined;
 };
+
+/**
+ * Turns all the boolean values in the given object to false.
+ */
+export type AllFalse<T extends Record<string, unknown>> = {
+  [K in keyof T]: T[K] extends boolean ? false : T[K];
+};
+
+/**
+ * Expands object types recursively, thus making the resulting type
+ * more readable. Doesn't actually change the type.
+ */
+export type MakeRecursiveTypeReadable<T> = T extends object
+  ? T extends infer O
+    ? { [K in keyof O]: MakeRecursiveTypeReadable<O[K]> }
+    : never
+  : T;
