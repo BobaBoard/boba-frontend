@@ -1,11 +1,11 @@
 import { ArrayParam } from "use-query-params";
 import React from "react";
-import debug from "debug";
+// import debug from "debug";
 import { isNotNull } from "utils/typescript-utils";
 import { useQueryParams } from "use-query-params";
 
 //const log = debug("bobafrontend:contexts:RealmContext-log");
-const info = debug("bobafrontend:contexts:FilterableContext-info");
+// const info = debug("bobafrontend:contexts:FilterableContext-info");
 
 export const FilterParams = {
   filter: ArrayParam,
