@@ -46,7 +46,7 @@ const useRealmSettings = () => {
       "useRealmSettings must be used within a RealmContextProvider"
     );
   }
-  return context.realmData.settings;
+  return context.realmData?.settings;
 };
 
 const useRealmId = () => {
@@ -54,7 +54,7 @@ const useRealmId = () => {
   if (context === undefined) {
     throw new Error("useRealmId must be used within a RealmContextProvider");
   }
-  return context.realmData.id;
+  return context.realmData?.id;
 };
 
 const useRealmPermissions = () => {
@@ -64,7 +64,7 @@ const useRealmPermissions = () => {
       "useRealmPermissions must be used within a RealmContextProvider"
     );
   }
-  return context.realmData.realmPermissions;
+  return context.realmData?.realmPermissions;
 };
 
 const useRealmBoards = () => {
@@ -74,7 +74,7 @@ const useRealmBoards = () => {
       "useRealmSettings must be used within a RealmContextProvider"
     );
   }
-  return context.realmData.boards;
+  return context.realmData?.boards;
 };
 
 const useRealmHomepage = () => {
@@ -84,7 +84,7 @@ const useRealmHomepage = () => {
       "useRealmHomepage must be used within a RealmContextProvider"
     );
   }
-  return context.realmData.homepage;
+  return context.realmData?.homepage;
 };
 
 const useRealmIcon = () => {
@@ -92,7 +92,7 @@ const useRealmIcon = () => {
   if (context === undefined) {
     throw new Error("useRealmIcon must be used within a RealmContextProvider");
   }
-  return context.realmData.icon;
+  return context.realmData?.icon;
 };
 
 const useBoardSummary = ({ boardId }: { boardId?: string | null }) => {
@@ -102,7 +102,7 @@ const useBoardSummary = ({ boardId }: { boardId?: string | null }) => {
       "useRealmSettings must be used within a RealmContextProvider"
     );
   }
-  return context.realmData.boards.find((summary) => summary.id == boardId);
+  return context.realmData?.boards.find((summary) => summary.id == boardId);
 };
 
 export const useCurrentRealmBoardId = ({
@@ -112,7 +112,7 @@ export const useCurrentRealmBoardId = ({
 }) => {
   const boards = useRealmBoards();
 
-  if (!boardSlug) {
+  if (!boardSlug || !boards) {
     return null;
   }
   return boards.find((board) => board.slug == boardSlug)?.id || null;
@@ -141,13 +141,42 @@ const RealmContextProvider: React.FC<{
     {
       staleTime: Infinity,
       placeholderData: () => {
-        if (!isLoggedIn) {
-          return;
-        }
-        return queryClient
+        console.log(queryClient.getQueryCache());
+        const realmQuery = queryClient
           .getQueryCache()
-          .find<RealmType>([REALM_QUERY_KEY, { realmSlug }], { exact: false })
-          ?.state.data;
+          .findAll([REALM_QUERY_KEY, { realmSlug }], {
+            exact: false,
+          })
+          .filter((query) => !!query.state.data);
+        console.log(realmQuery);
+        if (!realmQuery.length) {
+          throw new Error(
+            `No data found for realm ${realmSlug}. Realm data should always be provided.`
+          );
+        }
+        // Find a query for the current logged in state, if available.
+        // Note that at this stage at least ONE query must be available.
+        const queryForLoggedInState = realmQuery.find(
+          (query) => query.queryKey[1]?.["isLoggedIn"] == isLoggedIn
+        );
+        if (queryForLoggedInState) {
+          return queryForLoggedInState.state.data as RealmType;
+        }
+        if (isLoggedIn) {
+          // We are logged in, but the query we have is for not-logged in users. That's fine, because
+          // there's no risk of data leak
+          return realmQuery[0].state.data as RealmType;
+        }
+        // At this point, we know we're not logged in, but that the query we have access to is for logged in
+        // data. We don't want to accidentally leak anything, so let's only return the "safe" data.
+        const loggedInRealmData = realmQuery[0].state.data as RealmType;
+        return {
+          ...loggedInRealmData,
+          permissions: [],
+          feedbackFormUrl: null,
+          // TODO: distinguish realm and user settings, and remove the user
+          // settings.
+        };
       },
       refetchInterval: 60 * 1000,
       refetchOnWindowFocus: true,
