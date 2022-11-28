@@ -170,9 +170,9 @@ export type ViewQueryParamsType =
  * the default type.
  */
 export type DefaultViewQueryParamsType = MakeRecursiveTypeReadable<
-  | BaseDefaultViewQueryParamsType &
-      GalleryViewSpecialParamsType &
-      TimelineViewSpecialParamsType
+  BaseDefaultViewQueryParamsType &
+    GalleryViewSpecialParamsType &
+    TimelineViewSpecialParamsType
 >;
 
 const includesGalleryViewSpecialParam = (
