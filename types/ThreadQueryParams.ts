@@ -1,8 +1,11 @@
+import { AllFalse, MakeRecursiveTypeReadable } from "utils/typescript-utils";
+
 import { DecodedValueMap } from "use-query-params";
 import { ExistanceParam } from "../components/QueryParamNextProvider";
 import { ThreadType } from "./Types";
 
-// All the view types available for a specific thread
+// All the view types available for threads
+// TODO: rename this to BASE_VIEW_MODE
 export enum THREAD_VIEW_MODE {
   THREAD = "THREAD",
   MASONRY = "MASONRY",
@@ -43,11 +46,13 @@ export interface TimelineViewMode {
   timelineViewMode: TIMELINE_VIEW_SUB_MODE;
 }
 
+// TODO: rename this to BaseViewMode
 export type ThreadViewMode =
   | ClassicThreadViewMode
   | GalleryViewMode
   | TimelineViewMode;
 
+// TODO: rename this to getBaseViewTypeFromString
 export const getThreadViewTypeFromString = (
   viewString: ThreadType["defaultView"] | null
 ) => {
@@ -64,11 +69,13 @@ export const getThreadViewTypeFromString = (
   }
 };
 
-export const ThreadViewQueryParams = {
+const BaseViewQueryParams = {
   gallery: ExistanceParam,
   timeline: ExistanceParam,
   thread: ExistanceParam,
 };
+
+export const ThreadViewQueryParams = BaseViewQueryParams;
 
 export const TimelineViewQueryParams = {
   new: ExistanceParam,
@@ -88,64 +95,87 @@ export const VIEW_QUERY_PARAMS = {
   ...GalleryViewQueryParams,
 };
 
+/**
+ * The base value of query params when we're in default view. Contains all
+ * the query params for the base view mode, but set to false.
+ */
+export type BaseDefaultViewQueryParamsType = AllFalse<
+  DecodedValueMap<typeof BaseViewQueryParams>
+>;
+
+/**
+ * The type of query params when we're in thread view mode.
+ * This is either the query params in default mode, or query params
+ * with the thread key explicitly set to true.
+ */
+export type ThreadViewQueryParamsType = MakeRecursiveTypeReadable<
+  | BaseDefaultViewQueryParamsType
+  | (Omit<BaseDefaultViewQueryParamsType, "thread"> & { thread: true })
+>;
+
+/**
+ * The query params that are exclusive to gallery view mode.
+ */
 export type GalleryViewSpecialParamsType = DecodedValueMap<
   typeof GalleryViewQueryParams
 >;
+
+/**
+ * The type of query params when we're in gallery view mode.
+ * This is either the query params in default mode, or query params
+ * with the gallery key explicitly set to true.
+ */
+export type GalleryViewQueryParamsType = MakeRecursiveTypeReadable<
+  (
+    | BaseDefaultViewQueryParamsType
+    | (Omit<BaseDefaultViewQueryParamsType, "gallery"> & {
+        gallery: true;
+      })
+  ) &
+    GalleryViewSpecialParamsType
+>;
+
+/**
+ * The query params that are exclusive to timeline view mode.
+ */
 export type TimelineViewSpecialParamsType = DecodedValueMap<
   typeof TimelineViewQueryParams
 >;
 
-export interface ThreadViewQueryParamsType {
-  thread: true;
-  gallery: false;
-  timeline: false;
-}
+/**
+ * The type of query params when we we're in timeline view mode.
+ * This is either the query params in default mode, or query params
+ * with the timeline key explicitly set to true.
+ */
+export type TimelineViewQueryParamsType = MakeRecursiveTypeReadable<
+  (
+    | BaseDefaultViewQueryParamsType
+    | Omit<BaseDefaultViewQueryParamsType, "timeline">
+  ) & {
+    timeline: boolean;
+  } & TimelineViewSpecialParamsType
+>;
 
-export interface DefaultBaseViewQueryParamsType {
-  thread: false;
-  gallery: false;
-  timeline: false;
-}
-
-export interface GalleryViewQueryParamsType
-  extends GalleryViewSpecialParamsType {
-  thread: false;
-  gallery: true;
-  timeline: false;
-}
-
-export interface DefaultGalleryViewQueryParamsType
-  extends GalleryViewSpecialParamsType {
-  thread: false;
-  gallery: false;
-  timeline: false;
-}
-
-export interface TimelineViewQueryParamsType
-  extends TimelineViewSpecialParamsType {
-  thread: false;
-  gallery: false;
-  timeline: true;
-}
-
-export interface DefaultTimelineViewQueryParamsType
-  extends TimelineViewSpecialParamsType {
-  thread: false;
-  gallery: false;
-  timeline: false;
-}
-
+/**
+ * All possible types of view query params.
+ */
 export type ViewQueryParamsType =
   | ThreadViewQueryParamsType
   | GalleryViewQueryParamsType
   | TimelineViewQueryParamsType;
 
-export type DefaultViewQueryParamsType =
-  | DefaultGalleryViewQueryParamsType
-  | DefaultTimelineViewQueryParamsType;
+/**
+ * All possible types of view query params, when the view is currently
+ * the default type.
+ */
+export type DefaultViewQueryParamsType = MakeRecursiveTypeReadable<
+  | BaseDefaultViewQueryParamsType &
+      GalleryViewSpecialParamsType &
+      TimelineViewSpecialParamsType
+>;
 
 const includesGalleryViewSpecialParam = (
-  queryParams: DefaultViewQueryParamsType
+  queryParams: GalleryViewQueryParamsType
 ) => {
   return (
     queryParams.all == true ||
@@ -155,7 +185,7 @@ const includesGalleryViewSpecialParam = (
 };
 
 const includesTimelineViewSpecialParam = (
-  queryParams: DefaultViewQueryParamsType
+  queryParams: TimelineViewQueryParamsType
 ) => {
   return (
     queryParams.all == true ||
@@ -176,9 +206,7 @@ const isDefaultViewQueryParams = (
 
 export const isGalleryViewQueryParams = (
   queryParams: ViewQueryParamsType | DefaultViewQueryParamsType
-): queryParams is
-  | GalleryViewQueryParamsType
-  | DefaultGalleryViewQueryParamsType => {
+): queryParams is GalleryViewQueryParamsType => {
   return (
     queryParams.gallery == true ||
     (isDefaultViewQueryParams(queryParams) &&
@@ -188,9 +216,7 @@ export const isGalleryViewQueryParams = (
 
 export const isTimelineViewQueryParams = (
   queryParams: ViewQueryParamsType | DefaultViewQueryParamsType
-): queryParams is
-  | TimelineViewQueryParamsType
-  | DefaultTimelineViewQueryParamsType => {
+): queryParams is TimelineViewQueryParamsType => {
   return (
     queryParams.timeline == true ||
     (isDefaultViewQueryParams(queryParams) &&
@@ -199,7 +225,7 @@ export const isTimelineViewQueryParams = (
 };
 
 export const isThreadViewQueryParams = (
-  queryParams: ViewQueryParamsType
+  queryParams: ViewQueryParamsType | DefaultViewQueryParamsType
 ): queryParams is ThreadViewQueryParamsType => {
   return queryParams.thread == true;
 };

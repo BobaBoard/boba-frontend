@@ -1,6 +1,4 @@
 import {
-  DefaultGalleryViewQueryParamsType,
-  DefaultTimelineViewQueryParamsType,
   GALLERY_VIEW_SUB_MODE,
   GalleryViewMode,
   GalleryViewQueryParamsType,
@@ -59,9 +57,7 @@ const getQueryParamsViewMode = (query: ViewQueryParamsType) => {
 
 // Returns the TIMELINE_VIEW_SUB_MODE set in the page params.
 const getQueryParamsTimelineViewMode = (
-  timelineQuery:
-    | TimelineViewQueryParamsType
-    | DefaultTimelineViewQueryParamsType
+  timelineQuery: TimelineViewQueryParamsType
 ): ThreadViewMode["timelineViewMode"] => {
   if (timelineQuery.new) {
     return TIMELINE_VIEW_SUB_MODE.NEW;
@@ -75,7 +71,7 @@ const getQueryParamsTimelineViewMode = (
 
 // Returns the GALLERY_VIEW_SUB_MODE set in the page params.
 const getQueryParamsGalleryViewMode = (
-  galleryQuery: GalleryViewQueryParamsType | DefaultGalleryViewQueryParamsType
+  galleryQuery: GalleryViewQueryParamsType
 ): Partial<ThreadViewMode["galleryViewMode"]> => {
   if (!galleryQuery.all && !galleryQuery.new) {
     return {
