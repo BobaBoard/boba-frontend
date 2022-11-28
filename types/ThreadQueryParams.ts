@@ -150,10 +150,11 @@ export type TimelineViewSpecialParamsType = DecodedValueMap<
 export type TimelineViewQueryParamsType = MakeRecursiveTypeReadable<
   (
     | BaseDefaultViewQueryParamsType
-    | Omit<BaseDefaultViewQueryParamsType, "timeline">
-  ) & {
-    timeline: boolean;
-  } & TimelineViewSpecialParamsType
+    | (Omit<BaseDefaultViewQueryParamsType, "timeline"> & {
+        timeline: true;
+      })
+  ) &
+    TimelineViewSpecialParamsType
 >;
 
 /**
