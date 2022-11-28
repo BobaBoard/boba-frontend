@@ -40,7 +40,7 @@ class MyDocument extends Document {
             src="//platform.twitter.com/widgets.js"
           ></script>
           <script async src="https://www.tiktok.com/embed.js"></script>
-          <style jsx global>{`
+          <style>{`
             html {
               font-size: 62.5%;
               --font-size-regular: 1.6rem;
