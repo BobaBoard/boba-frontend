@@ -176,7 +176,7 @@ export type DefaultViewQueryParamsType = MakeRecursiveTypeReadable<
 >;
 
 const includesGalleryViewSpecialParam = (
-  queryParams: GalleryViewQueryParamsType
+  queryParams: DefaultViewQueryParamsType
 ) => {
   return (
     queryParams.all == true ||
@@ -186,7 +186,7 @@ const includesGalleryViewSpecialParam = (
 };
 
 const includesTimelineViewSpecialParam = (
-  queryParams: TimelineViewQueryParamsType
+  queryParams: DefaultViewQueryParamsType
 ) => {
   return (
     queryParams.all == true ||
