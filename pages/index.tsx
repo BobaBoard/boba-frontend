@@ -182,7 +182,7 @@ const HomePage: NextPage = () => {
           <div className="content">
             <div className="intro">
               <div className="title">
-                <h1>Welcome to B🌸baB🌸ard!</h1>
+                <h1>Welcome to B❅baB❅ard!</h1>
               </div>
               <div className="tagline">
                 "Where the bugs are funny and the people are cool" — Outdated
