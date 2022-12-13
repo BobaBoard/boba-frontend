@@ -161,18 +161,18 @@ const BoardBottomBar = (props: ThreadBottomBarProps) => {
           },
         ],
         options: threadOptions,
-        info: <ThreadInfoPanel />,
+        info: <ThreadInfoPanel key="info-panel" />,
       }}
     >
       <BottomBar.Button
-        key="compass"
+        id="compass"
         icon={{ icon: faCompass }}
         link={{ onClick: props.onCompassClick }}
         position="left"
         desktopOnly
       />
       <BottomBar.Button
-        key="jump up"
+        id="jump up"
         icon={{
           icon: canBeamToPrevious ? faAnglesUp : faCircleXmark,
         }}
@@ -192,7 +192,7 @@ const BoardBottomBar = (props: ThreadBottomBarProps) => {
         disabled={!canBeamToPrevious}
       />
       <BottomBar.Button
-        key="jump down"
+        id="jump down"
         icon={{
           icon: canBeamToNext ? faAnglesDown : faCircleXmark,
         }}
