@@ -183,9 +183,13 @@ export const useBeamToThreadElement = (
     elementsSequence,
   ]);
 
+  // A thread can always beam to previous because we always have the full thread loaded and ready,
+  // (or can trigger a quick render as needed), but we don't have a way to jump to the last page
+  // of timeline or gallery mode as of now, which means we only jump up if we're already past the
+  // root.
   const canBeamToPrevious =
-    currentThreadViewMode == THREAD_VIEW_MODE.THREAD ||
-    (elementsSequence.length > 0 && currentIndex > 0);
+    elementsSequence.length > 0 &&
+    (currentThreadViewMode == THREAD_VIEW_MODE.THREAD || currentIndex > 0);
   const onBeamToPrevious = React.useCallback(() => {
     if (isFetching) {
       return;
