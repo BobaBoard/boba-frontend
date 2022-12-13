@@ -148,7 +148,7 @@ function AdminPage() {
             }}
           >
             <BottomBar.Button
-              key="compass"
+              id="compass"
               icon={{ icon: faCompass }}
               link={{ onClick: onCompassClick }}
               position="left"

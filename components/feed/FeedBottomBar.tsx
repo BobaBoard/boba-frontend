@@ -62,7 +62,7 @@ const FeedBottomBar = (props: FeedBottomBarProps) => {
       }}
     >
       <BottomBar.Button
-        key="compass"
+        id="compass"
         icon={{ icon: faCompass }}
         link={{ onClick: props.onCompassClick }}
         position="left"
@@ -71,7 +71,7 @@ const FeedBottomBar = (props: FeedBottomBarProps) => {
       {(feed.status == "loading" || !isEmptyFeed) && (
         <>
           <BottomBar.Button
-            key="jump up"
+            id="jump up"
             icon={{ icon: canBeamToPrevious ? faAnglesUp : faPauseCircle }}
             link={{ onClick: onBeamToPrevious }}
             position="right"
@@ -79,7 +79,7 @@ const FeedBottomBar = (props: FeedBottomBarProps) => {
             disabled={!canBeamToPrevious}
           />
           <BottomBar.Button
-            key="jump down"
+            id="jump down"
             icon={{ icon: canBeamToNext ? faAnglesDown : faPauseCircle }}
             link={{ onClick: onBeamToNext }}
             position="right"

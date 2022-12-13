@@ -195,14 +195,14 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
       }}
     >
       <BottomBar.Button
-        key="compass"
+        id="compass"
         icon={{ icon: faCompass }}
         link={{ onClick: props.onCompassClick }}
         position="left"
         desktopOnly
       />
       <BottomBar.Button
-        key="jump up"
+        id="jump up"
         icon={{ icon: canBeamToPrevious ? faAnglesUp : faPauseCircle }}
         link={{ onClick: onBeamToPrevious }}
         position="right"
@@ -210,7 +210,7 @@ const BoardBottomBar = (props: BoardBottomBarProps) => {
         disabled={!canBeamToPrevious}
       />
       <BottomBar.Button
-        key="jump down"
+        id="jump down"
         icon={{ icon: canBeamToNext ? faAnglesDown : faPauseCircle }}
         link={{ onClick: onBeamToNext }}
         position="right"

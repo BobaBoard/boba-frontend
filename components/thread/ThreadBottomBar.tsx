@@ -74,7 +74,7 @@ const ThreadInfoPanel = () => {
   );
 };
 
-const BoardBottomBar = (props: ThreadBottomBarProps) => {
+const ThreadBottomBar = (props: ThreadBottomBarProps) => {
   const { slug, threadId } = usePageDetails<ThreadPageDetails>();
   const { isLoggedIn } = useAuth();
   if (!slug) {
@@ -213,4 +213,4 @@ const BoardBottomBar = (props: ThreadBottomBarProps) => {
   );
 };
 
-export default withEditors(BoardBottomBar);
+export default withEditors(ThreadBottomBar);
