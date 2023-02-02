@@ -1,7 +1,7 @@
 import { AllFalse, MakeRecursiveTypeReadable } from "utils/typescript-utils";
 
 import { DecodedValueMap } from "use-query-params";
-import { ExistanceParam } from "../components/QueryParamNextProvider";
+import { ExistanceParam } from "components/QueryParamNextProvider";
 import { ThreadType } from "./Types";
 
 // All the view types available for threads
