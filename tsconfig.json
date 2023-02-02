@@ -33,13 +33,13 @@
       "@testing-library/jest-dom"
     ],
     "paths": {
-      "queries/*": ["queries/*"],
-      "cache/*": ["cache/*"],
-      "components/*": ["components/*"],
-      "utils/*": ["utils/*"],
+      "queries/*": ["src/queries/*"],
+      "cache/*": ["src/cache/*"],
+      "components/*": ["src/components/*"],
+      "utils/*": ["src/utils/*"],
       "pages/*": ["src/pages/*"],
       "types/*": ["types/*"],
-      "contexts/*": ["contexts/*"]
+      "contexts/*": ["src/contexts/*"]
     },
     "skipLibCheck": true,
     "strict": false,
