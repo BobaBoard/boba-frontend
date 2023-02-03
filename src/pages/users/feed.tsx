@@ -8,7 +8,6 @@ import Layout from "components/layout/Layout";
 import LoadingSpinner from "components/LoadingSpinner";
 import React from "react";
 import ThreadPreview from "components/ThreadPreview";
-import { ThreadType } from "types/Types";
 import debug from "debug";
 import { isFromBackButton } from "components/hooks/useFromBackButton";
 import { useAuth } from "components/Auth";
@@ -106,7 +105,7 @@ function UserFeedPage() {
                 {userActivityData?.pages &&
                   userActivityData.pages
                     .flatMap((activityData) => activityData?.activity)
-                    .map((thread: ThreadType) => {
+                    .map((thread) => {
                       return (
                         <div
                           className="thread"

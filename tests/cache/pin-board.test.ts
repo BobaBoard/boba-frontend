@@ -1,10 +1,5 @@
-import { BoardMetadata, BoardSummary, RealmType } from "types/Types";
-import {
-  DRAWN_SUMMARY,
-  GORE_BOARD_ID,
-  GORE_LOGGED_IN_SUMMARY,
-  KPOP_SUMMARY,
-} from "../data/BoardSummary";
+import { BoardMetadata, RealmType } from "types/Types";
+import { GORE_LOGGED_IN_SUMMARY, KPOP_SUMMARY } from "../data/BoardSummary";
 import {
   PINNED_BOARDS_QUERY_KEY,
   PinnedBoardType,

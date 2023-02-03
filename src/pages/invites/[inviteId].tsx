@@ -21,6 +21,7 @@ import Layout from "components/layout/Layout";
 import LoginModal from "components/LoginModal";
 import { RulesBlock as RulesBlockType } from "types/Types";
 import { acceptInvite } from "utils/queries/user";
+import axios from "axios";
 import classnames from "classnames";
 import debug from "debug";
 import { getRealmNameFromSlug } from "utils/text-utils";
@@ -578,6 +579,9 @@ InvitesPage.getInitialProps = async (ctx: NextPageContext) => {
     return invite;
   } catch (e) {
     error(e);
+    if (!axios.isAxiosError(e)) {
+      throw new Error("Non-server error detected during invite flow.");
+    }
     const urlRealmSlug = getCurrentRealmSlug({
       serverHostname: ctx.req?.headers.host,
     });

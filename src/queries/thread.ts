@@ -166,7 +166,7 @@ export const useReadThread = (args?: { activityOnly?: boolean }) => {
         throw new Error("Attempt to read thread with no user logged in.");
       }
       if (!threadId) {
-        return Promise.resolve(null);
+        return Promise.resolve(false);
       }
       return markThreadAsRead({ threadId });
     },

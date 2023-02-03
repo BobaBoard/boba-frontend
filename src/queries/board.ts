@@ -1,4 +1,4 @@
-import { BoardDescription, BoardMetadata } from "types/Types";
+import { BoardDescription, BoardMetadata, BoardSummary } from "types/Types";
 import {
   QueryClient,
   useMutation,
@@ -219,7 +219,7 @@ export const useUpdateBoardMetadata = () => {
     {
       onMutate: ({ boardId, descriptions, accentColor, tagline }) => {
         log(`Optimistically updating the metadata of board ${boardId}`);
-        const transform = (boardMetadata: BoardMetadata) => {
+        const transform = (boardMetadata: BoardMetadata | BoardSummary) => {
           const newMetdata: BoardMetadata = {
             ...boardMetadata,
             accentColor,

@@ -57,7 +57,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
 
   const { mutate: postContribution } = useMutation<
     PostType | ThreadType,
-    unknown,
+    Error,
     {
       boardId: string;
       replyToPostId: string | null;
@@ -96,7 +96,7 @@ const ContributionEditorModal: React.FC<PostEditorModalProps> = (props) => {
 
   const { mutate: editContribution } = useMutation<
     PostType,
-    unknown,
+    Error,
     {
       postId: string;
       tags: ServerTagsType;
