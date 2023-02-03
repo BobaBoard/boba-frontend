@@ -310,17 +310,18 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
           ...viewMode,
           showCover:
             viewMode.showCover ??
+            // If the next view mode does not explicitly tell us what showCover's value is, we:
+            // a) keep the existing value if we're already in gallery mode
+            // b) check for updates to the "cover" if we're switching to gallery mode
             currentView.threadViewMode == THREAD_VIEW_MODE.MASONRY
-              ? currentView.galleryViewMode?.showCover ?? true
+              ? // TODO: figure out why galleryViewMode may be null here (or is it only in tests?)
+                currentView.galleryViewMode?.showCover ?? true
               : hasRootUpdates,
         };
         const nextView: ThreadViewMode = {
           ...currentView,
           threadViewMode: THREAD_VIEW_MODE.MASONRY,
           timelineViewMode: null,
-          // If the next view mode does not explicitly tell us what showCover's value is, we:
-          // a) keep the existing value if we're already in gallery mode
-          // b) check for updates to the "cover" if we're switching to gallery mode
           galleryViewMode: nextViewMode,
         };
 
