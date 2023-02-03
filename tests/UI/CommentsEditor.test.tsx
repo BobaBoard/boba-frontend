@@ -1,7 +1,6 @@
 import { Client, getThreadRouter } from "./utils";
 import {
   fireEvent,
-  prettyDOM,
   render,
   screen,
   waitFor,

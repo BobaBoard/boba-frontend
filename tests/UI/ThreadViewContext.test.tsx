@@ -13,8 +13,6 @@ import { act, renderHook } from "@testing-library/react-hooks/native";
 
 import React from "react";
 import { ViewQueryParamsType } from "types/ThreadQueryParams";
-import _ from "cypress/types/lodash";
-import { removeThreadHandlerRef } from "utils/scroll-utils";
 import { useQueryParams } from "use-query-params";
 
 jest.mock("components/thread/ThreadContext.tsx");
@@ -123,7 +121,7 @@ describe("useThreadViewContext", () => {
 
   it("Returns view mode in the params if specified", async () => {
     mockedThreadContext.defaultView = "gallery";
-    const setQueryParams = mockQueryParams({ timeline: true });
+    // const setQueryParams = mockQueryParams({ timeline: true });
 
     const { result } = renderHook(() => useThreadViewContext(), {
       wrapper: getThreadViewContextWrapper(),
@@ -162,7 +160,7 @@ describe("useThreadViewContext", () => {
     it("Defaults to new for gallery if there are updated posts", async () => {
       mockedThreadContext.defaultView = "gallery";
       mockedThreadContext.hasNewReplies = true;
-      const setQueryParams = mockQueryParams();
+      // const setQueryParams = mockQueryParams();
       const { result } = renderHook(() => useThreadViewContext(), {
         wrapper: getThreadViewContextWrapper(),
       });
@@ -210,7 +208,7 @@ describe("useThreadViewContext", () => {
       mockedThreadContext.hasNewReplies = true;
       // @ts-expect-error
       mockedThreadContext.threadRoot = { isNew: true };
-      const setQueryParams = mockQueryParams();
+      // const setQueryParams = mockQueryParams();
       const { result } = renderHook(() => useThreadViewContext(), {
         wrapper: getThreadViewContextWrapper(),
       });

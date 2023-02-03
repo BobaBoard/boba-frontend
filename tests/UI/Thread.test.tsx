@@ -10,11 +10,11 @@ import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../server-mocks/data/thread";
 import React from "react";
 import { RealmType } from "types/Types";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
-import debug from "debug";
 import { makeRealmData } from "utils/client-data";
 import { useReadThread } from "queries/thread";
 
-const log = debug("bobafrontend:tests:UI:Thread-test-log");
+// import debug from "debug";
+// const log = debug("bobafrontend:tests:UI:Thread-test-log");
 
 jest.mock("components/hooks/usePreventPageChange");
 jest.mock("components/hooks/useIsChangingRoute");

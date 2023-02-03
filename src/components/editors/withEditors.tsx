@@ -163,7 +163,10 @@ const Editors = () => {
         {isContributionEditorState(state) && (
           <ContributionEditorModal
             loading={isRefetching}
-            onPostSaved={(post: PostType, postedBoardId: string) => {
+            onPostSaved={(
+              post: PostType,
+              postedBoardId: string | undefined
+            ) => {
               if (isEditContribution(state)) {
                 setPostTagsInCache(queryClient, {
                   threadId: state.threadId,

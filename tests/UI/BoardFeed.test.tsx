@@ -6,7 +6,6 @@ import {
 } from "../server-mocks/data/realm";
 import {
   fireEvent,
-  prettyDOM,
   render,
   screen,
   waitFor,

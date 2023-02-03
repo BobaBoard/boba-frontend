@@ -90,6 +90,7 @@ export const usePageDetails = <T extends PageDetails>() => {
   );
 
   React.useEffect(() => {
+    // @ts-ignore unearthed through strict:true changes, not worth fixing
     listeners.push(pageDataChangeListener);
     return () => {
       listeners = listeners.filter(

@@ -1,7 +1,6 @@
 import { Client, getUserSettingsRoute } from "./utils";
 import {
   fireEvent,
-  prettyDOM,
   render,
   screen,
   waitFor,

@@ -26,10 +26,13 @@ export const setActivitiesInCache = (
   key: { boardId: string },
   transform: (activity: FeedType) => FeedType
 ) => {
-  const activityTransformer = (data: InfiniteData<FeedType>) => {
+  const activityTransformer = (data: InfiniteData<FeedType> | undefined) => {
     const activityPages = data?.pages;
     if (!activityPages) {
-      return undefined;
+      return {
+        pages: [],
+        pageParams: [],
+      };
     }
     let updated = false;
     const updatedPages = [...activityPages];
