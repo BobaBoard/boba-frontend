@@ -303,28 +303,31 @@ export const ThreadViewContextProvider: React.FC = ({ children }) => {
     [currentView, updateViewQueryParams]
   );
 
-  const setGalleryViewMode = React.useCallback(
-    (viewMode: NonNullable<ThreadViewMode["galleryViewMode"]>) => {
-      if (viewMode.showCover === undefined) {
-        // If the next view mode does not explicitly tell us what showCover's value is, we:
-        // a) keep the existing value if we're already in gallery mode
-        // b) check for updates to the "cover" if we're switching to gallery mode
-        viewMode.showCover =
-          currentView.threadViewMode == THREAD_VIEW_MODE.MASONRY
-            ? currentView.galleryViewMode.showCover
-            : hasRootUpdates;
-      }
-      const nextView: ThreadViewMode = {
-        ...currentView,
-        threadViewMode: THREAD_VIEW_MODE.MASONRY,
-        timelineViewMode: null,
-        galleryViewMode: viewMode,
-      };
+  const setGalleryViewMode: ThreadViewContextType["setGalleryViewMode"] =
+    React.useCallback(
+      (viewMode) => {
+        const nextViewMode = {
+          ...viewMode,
+          showCover:
+            viewMode.showCover ??
+            currentView.threadViewMode == THREAD_VIEW_MODE.MASONRY
+              ? currentView.galleryViewMode?.showCover ?? true
+              : hasRootUpdates,
+        };
+        const nextView: ThreadViewMode = {
+          ...currentView,
+          threadViewMode: THREAD_VIEW_MODE.MASONRY,
+          timelineViewMode: null,
+          // If the next view mode does not explicitly tell us what showCover's value is, we:
+          // a) keep the existing value if we're already in gallery mode
+          // b) check for updates to the "cover" if we're switching to gallery mode
+          galleryViewMode: nextViewMode,
+        };
 
-      updateViewQueryParams(nextView);
-    },
-    [hasRootUpdates, currentView, updateViewQueryParams]
-  );
+        updateViewQueryParams(nextView);
+      },
+      [hasRootUpdates, currentView, updateViewQueryParams]
+    );
 
   const hasLoaded = React.useRef(false);
   React.useEffect(() => {

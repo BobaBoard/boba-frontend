@@ -1,3 +1,4 @@
+// @ts-ignore
 const { THREAD_VIEW_MODE } = jest.requireActual("../ThreadViewContext");
 
 module.exports = {
