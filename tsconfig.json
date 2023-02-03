@@ -42,7 +42,7 @@
       "contexts/*": ["src/contexts/*"]
     },
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true,
     "noEmit": true,
     "resolveJsonModule": true,
     "isolatedModules": true

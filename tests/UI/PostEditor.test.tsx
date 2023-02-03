@@ -1,7 +1,6 @@
 import { Client, getBoardRouter, getThreadRouter } from "./utils";
 import {
   fireEvent,
-  prettyDOM,
   render,
   screen,
   waitFor,
@@ -14,6 +13,7 @@ import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../server-mocks/data/thread";
 import { LOGGED_IN_V0_MEMBER_DATA } from "../server-mocks/data/realm";
 import React from "react";
 import { RealmType } from "types/Types";
+import { TagMatcher } from "./utils/matchers";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
 import { makeRealmData } from "utils/client-data";
 import userEvent from "@testing-library/user-event";
@@ -24,11 +24,6 @@ jest.mock("components/hooks/useOnPageExit");
 
 const getPostByTextContent = async (textContent: string) => {
   return (await screen.findByText(textContent))?.closest("article");
-};
-export const TagMatcher = (tagText: string) => {
-  return (_: string, node: HTMLElement) => {
-    return node.textContent === tagText && node.classList.contains("tag");
-  };
 };
 
 describe("PostEditor", () => {

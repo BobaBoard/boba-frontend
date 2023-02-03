@@ -52,6 +52,7 @@ export const setThreadInCache = (
     key,
     transformers.transformThreadSummary
   );
+  // @ts-ignore unearthed through strict:true changes, not worth fixing
   queryClient.setQueriesData<ThreadType>(
     {
       queryKey: [THREAD_QUERY_KEY, { threadId: key.threadId }],

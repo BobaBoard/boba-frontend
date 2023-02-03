@@ -9,13 +9,12 @@ export type GetProps<C extends React.FC<any>> = C extends React.FC<infer T>
  * Extracts the type of Props from the given component type, if the component
  * is a forwarded ref.
  */
-export type GetPropsFromForwardedRef<
-  C extends React.ForwardRefExoticComponent<unknown>
-> = C extends React.ForwardRefExoticComponent<infer T>
-  ? T extends React.RefAttributes<infer Q>
-    ? Omit<T, keyof Q>
-    : unknown
-  : unknown;
+export type GetPropsFromForwardedRef<Q> =
+  Q extends React.ForwardRefExoticComponent<infer T>
+    ? T extends React.RefAttributes<infer Q>
+      ? Omit<T, keyof Q>
+      : unknown
+    : unknown;
 
 /**
  * Type-safe function to remove null or undefined values from an array

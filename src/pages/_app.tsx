@@ -65,7 +65,7 @@ const AxiosInterceptor = () => {
   React.useEffect(() => {
     axios.interceptors.request.use((config) => {
       logRequest(`Queing request for ${config.url}`);
-      return getAuthIdToken!().then((idToken: string) => {
+      return getAuthIdToken!().then((idToken: string | undefined) => {
         logRequest(
           `Sending request for ${config.url} ${
             idToken ? "WITH" : "WITHOUT"
@@ -73,7 +73,9 @@ const AxiosInterceptor = () => {
         );
         log(idToken);
         config.headers = config.headers ?? {};
-        config.headers.authorization = idToken;
+        if (idToken) {
+          config.headers.authorization = idToken;
+        }
         return config;
       });
     });
