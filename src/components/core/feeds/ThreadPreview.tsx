@@ -1,13 +1,13 @@
 import { Post, PostHandler, TagType, TagsType } from "@bobaboard/ui-components";
 import { PostData, ThreadSummaryType } from "types/Types";
-import { PostOptions, usePostOptions } from "../../options/usePostOptions";
+import { PostOptions, usePostOptions } from "components/options/usePostOptions";
 import {
   addThreadHandlerRef,
   removeThreadHandlerRef,
 } from "utils/scroll-utils";
 
 import React from "react";
-import { THREAD_VIEW_OPTIONS } from "../../editors/utils";
+import { THREAD_VIEW_OPTIONS } from "components/core/editors/utils";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { formatDistanceToNow } from "date-fns";
 import noop from "noop-ts";
@@ -15,7 +15,7 @@ import { useCachedLinks } from "../../hooks/useCachedLinks";
 import { useCurrentRealmBoardId } from "contexts/RealmContext";
 import { useForceHideIdentity } from "../../hooks/useForceHideIdentity";
 import { useSetThreadHidden } from "queries/thread";
-import { withEditors } from "../../editors/withEditors";
+import { withEditors } from "components/core/editors/withEditors";
 
 const THREAD_OPTIONS = [
   PostOptions.COPY_THREAD_LINK,

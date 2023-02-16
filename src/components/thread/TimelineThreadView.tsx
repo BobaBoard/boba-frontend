@@ -21,7 +21,7 @@ import { useAuth } from "components/Auth";
 import { useBoardSummaryBySlug } from "queries/board";
 import { useStemOptions } from "components/hooks/useStemOptions";
 import { useThreadContext } from "components/thread/ThreadContext";
-import { useThreadEditors } from "components/editors/withEditors";
+import { useThreadEditors } from "components/core/editors/withEditors";
 
 //import { useHotkeys } from "react-hotkeys-hook";
 

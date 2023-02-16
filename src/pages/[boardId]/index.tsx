@@ -20,7 +20,7 @@ import { prefetchBoardMetadata, useBoardMetadata } from "queries/board";
 import BoardBottomBar from "components/boards/BoardBottomBar";
 import { BoardSidebar } from "components/boards/Sidebar";
 import { FeedWithMenu } from "@bobaboard/ui-components";
-import Layout from "components/layout/Layout";
+import Layout from "components/core/layouts/Layout";
 import LoadingSpinner from "components/LoadingSpinner";
 import { NextPage } from "next";
 import { PageContextWithQueryClient } from "additional";

@@ -18,7 +18,7 @@ import {
 
 import { FilterableContextProvider } from "components/core/feeds/FilterableContext";
 import GalleryThreadView from "components/thread/GalleryThreadView";
-import Layout from "components/layout/Layout";
+import Layout from "components/core/layouts/Layout";
 import LoadingSpinner from "components/LoadingSpinner";
 import { NextPage } from "next";
 import { PageContextWithQueryClient } from "additional";
@@ -40,7 +40,7 @@ import { useInvalidateNotifications } from "queries/notifications";
 import { useOnPageExit } from "components/hooks/useOnPageExit";
 import { useRefetchBoardActivity } from "queries/board-feed";
 import { useThreadCollapseManager } from "components/thread/useCollapseManager";
-import { withEditors } from "components/editors/withEditors";
+import { withEditors } from "components/core/editors/withEditors";
 
 const error = debug("bobafrontend:ThreadPage-error");
 const log = debug("bobafrontend:ThreadPage-log");

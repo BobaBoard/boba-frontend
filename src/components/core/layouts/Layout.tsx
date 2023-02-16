@@ -11,7 +11,7 @@ import {
 import { useRealmContext, useRealmSettings } from "contexts/RealmContext";
 
 import { BOARD_ACTIVITY_KEY } from "queries/board-feed";
-import LoginModal from "../LoginModal";
+import LoginModal from "./LoginModal";
 import PinnedMenu from "./PinnedMenu";
 import React from "react";
 import Sidemenu from "./SideMenu";

@@ -28,12 +28,12 @@ import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
 import React from "react";
 import classNames from "classnames";
 import { formatDistanceToNow } from "date-fns";
-import { isCommentEditorState } from "components/editors/types";
+import { isCommentEditorState } from "components/core/editors/types";
 import { useAuth } from "components/Auth";
-import { useEditorsState } from "components/editors/EditorsContext";
+import { useEditorsState } from "components/core/editors/EditorsContext";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { useThreadContext } from "./ThreadContext";
-import { useThreadEditors } from "components/editors/withEditors";
+import { useThreadEditors } from "components/core/editors/withEditors";
 
 const COMMENT_OPTIONS = [
   CommentOptions.GO_TO_COMMENT,

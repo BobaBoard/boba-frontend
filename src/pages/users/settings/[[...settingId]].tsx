@@ -7,7 +7,7 @@ import {
 
 import DecorationsSettings from "components/settings/DecorationsSettings";
 import { FeedWithMenu } from "@bobaboard/ui-components";
-import Layout from "components/layout/Layout";
+import Layout from "components/core/layouts/Layout";
 import React from "react";
 import UserSettings from "components/settings/UserSettings";
 import { useAuth } from "components/Auth";

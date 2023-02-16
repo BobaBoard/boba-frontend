@@ -28,7 +28,7 @@ import {
   useSubscription,
 } from "queries/subscriptions";
 
-import Layout from "components/layout/Layout";
+import Layout from "components/core/layouts/Layout";
 import { NextPage } from "next";
 import { PageContextWithQueryClient } from "additional";
 import debug from "debug";

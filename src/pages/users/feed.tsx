@@ -4,7 +4,7 @@ import { ExistanceParam } from "components/QueryParamNextProvider";
 import FeedBottomBar from "components/feed/FeedBottomBar";
 import FeedSidebar from "components/feed/FeedSidebar";
 import { FeedWithMenu } from "@bobaboard/ui-components";
-import Layout from "components/layout/Layout";
+import Layout from "components/core/layouts/Layout";
 import LoadingSpinner from "components/LoadingSpinner";
 import React from "react";
 import ThreadPreview from "components/core/feeds/ThreadPreview";
@@ -14,7 +14,7 @@ import { useAuth } from "components/Auth";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useQueryParams } from "use-query-params";
 import { useRealmBoards } from "contexts/RealmContext";
-import { withEditors } from "components/editors/withEditors";
+import { withEditors } from "components/core/editors/withEditors";
 
 const info = debug("bobafrontend:boardPage-info");
 info.log = console.info.bind(console);

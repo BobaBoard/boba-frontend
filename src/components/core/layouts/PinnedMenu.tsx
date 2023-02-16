@@ -10,7 +10,7 @@ import { PinnedMenu as LibraryPinnedMenu } from "@bobaboard/ui-components";
 import React from "react";
 import debug from "debug";
 import { useAuth } from "components/Auth";
-import { useCachedLinks } from "../hooks/useCachedLinks";
+import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { usePinnedBoards } from "queries/pinned-boards";
 import { useRefetchBoardActivity } from "queries/board-feed";
 
