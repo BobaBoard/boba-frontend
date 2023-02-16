@@ -14,7 +14,7 @@ import ThreadPage from "pages/[boardId]/thread/[...threadId]";
 import { copyText } from "utils/text-utils";
 
 jest.mock("components/hooks/usePreventPageChange");
-jest.mock("components/hooks/useIsChangingRoute");
+jest.mock("components/core/useIsChangingRoute");
 jest.mock("components/hooks/useOnPageExit");
 jest.mock("utils/text-utils.ts");
 

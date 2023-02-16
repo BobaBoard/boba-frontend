@@ -32,7 +32,7 @@ const INVITES_ROUTER_NO_EMAIL = getInvitesPageRoute({
 const V0_REALM_NAME = getRealmNameFromSlug(V0_DATA.slug);
 
 jest.mock("components/hooks/usePreventPageChange");
-jest.mock("components/hooks/useIsChangingRoute");
+jest.mock("components/core/useIsChangingRoute");
 
 const spiedPush = jest
   .spyOn(INVITES_ROUTER, "push")

@@ -17,7 +17,7 @@ import { useReadThread } from "queries/thread";
 // const log = debug("bobafrontend:tests:UI:Thread-test-log");
 
 jest.mock("components/hooks/usePreventPageChange");
-jest.mock("components/hooks/useIsChangingRoute");
+jest.mock("components/core/useIsChangingRoute");
 jest.mock("components/hooks/useOnPageExit");
 jest.mock("queries/thread", () => ({
   ...jest.requireActual("queries/thread"),
