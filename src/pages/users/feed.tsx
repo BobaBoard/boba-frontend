@@ -9,7 +9,7 @@ import LoadingSpinner from "components/LoadingSpinner";
 import React from "react";
 import ThreadPreview from "components/core/feeds/ThreadPreview";
 import debug from "debug";
-import { isFromBackButton } from "components/hooks/useFromBackButton";
+import { isFromBackButton } from "components/core/useFromBackButton";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useQueryParams } from "use-query-params";

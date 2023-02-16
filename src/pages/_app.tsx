@@ -42,7 +42,7 @@ import embedsCache from "utils/embeds-cache";
 import { getRealmData } from "utils/queries/realm";
 import smoothscroll from "smoothscroll-polyfill";
 import { useConsoleHelloMessage } from "components/hooks/useConsoleHelloMessage";
-import useFromBackButton from "components/hooks/useFromBackButton";
+import useFromBackButton from "components/core/useFromBackButton";
 import { useImageUploader } from "utils/image-upload";
 import { usePageDataListener } from "utils/router-utils";
 import { useScrollRestoration } from "components/hooks/useScrollRestoration";

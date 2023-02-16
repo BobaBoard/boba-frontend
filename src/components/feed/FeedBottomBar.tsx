@@ -8,7 +8,7 @@ import {
 
 import { ExistanceParam } from "components/QueryParamNextProvider";
 import React from "react";
-import { isFromBackButton } from "components/hooks/useFromBackButton";
+import { isFromBackButton } from "components/core/useFromBackButton";
 import { useBeamToFeedElement } from "components/hooks/useBeamToFeedElement";
 import { useQueryParams } from "use-query-params";
 import { useUserFeed } from "queries/user-feed";

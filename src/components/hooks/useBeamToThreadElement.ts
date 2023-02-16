@@ -17,7 +17,7 @@ import { DisplayManager } from "./useDisplayMananger";
 import React from "react";
 import debug from "debug";
 import { extractRepliesSequence } from "utils/thread-utils";
-import { useStateWithCallback } from "./useStateWithCallback";
+import { useStateWithCallback } from "components/core/useStateWithCallback";
 import { useThreadContext } from "../thread/ThreadContext";
 
 // const error = debug("bobafrontend:useBeamToElement-error");
