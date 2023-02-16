@@ -12,13 +12,16 @@ import {
   faVolumeXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { useCurrentRealmBoardId, useRealmContext } from "contexts/RealmContext";
-import { useThreadEditors, withEditors } from "components/editors/withEditors";
+import {
+  useThreadEditors,
+  withEditors,
+} from "components/core/editors/withEditors";
 
 import { BottomBar } from "@bobaboard/ui-components";
 import React from "react";
 import { RealmPermissions } from "types/Types";
 import { faCircleXmark } from "@fortawesome/free-regular-svg-icons";
-import { getViewModeIcon } from "components/editors/utils";
+import { getViewModeIcon } from "components/core/editors/utils";
 import { useAuth } from "components/Auth";
 import { useBeamToThreadElement } from "components/hooks/useBeamToThreadElement";
 import { useBoardMetadata } from "queries/board";

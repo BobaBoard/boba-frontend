@@ -15,9 +15,9 @@ import { isNotNull } from "utils/typescript-utils";
 import { toast } from "@bobaboard/ui-components";
 import { useBoardMetadata } from "queries/board";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
-import { useEditorsState } from "components/editors/EditorsContext";
+import { useEditorsState } from "components/core/editors/EditorsContext";
 import { useThreadContext } from "components/thread/ThreadContext";
-import { useThreadEditors } from "components/editors/withEditors";
+import { useThreadEditors } from "components/core/editors/withEditors";
 
 export enum CommentOptions {
   GO_TO_COMMENT = "GO_TO_COMMENT",

@@ -17,8 +17,8 @@ import {
   useRealmPermissions,
 } from "contexts/RealmContext";
 
-import Layout from "components/layout/Layout";
-import LoginModal from "components/LoginModal";
+import Layout from "components/core/layouts/Layout";
+import LoginModal from "components/core/layouts/LoginModal";
 import { RulesBlock as RulesBlockType } from "types/Types";
 import { acceptInvite } from "utils/queries/user";
 import axios from "axios";

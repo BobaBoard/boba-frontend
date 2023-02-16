@@ -4,7 +4,7 @@ import { BoardPageDetails, usePageDetails } from "utils/router-utils";
 import {
   EditorActions,
   useEditorsDispatch,
-} from "components/editors/EditorsContext";
+} from "components/core/editors/EditorsContext";
 import {
   faAnglesDown,
   faAnglesUp,
@@ -28,7 +28,7 @@ import { useBoardActivity } from "queries/board-feed";
 import { useBoardMetadata } from "queries/board";
 import { useFilterableContext } from "components/core/feeds/FilterableContext";
 import { useNotifications } from "queries/notifications";
-import { withEditors } from "components/editors/withEditors";
+import { withEditors } from "components/core/editors/withEditors";
 
 export interface BoardBottomBarProps {
   onCompassClick: () => void;

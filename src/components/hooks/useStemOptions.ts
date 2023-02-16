@@ -6,7 +6,7 @@ import {
 
 import React from "react";
 import { RealmPermissions } from "types/Types";
-import { useEditorsState } from "components/editors/EditorsContext";
+import { useEditorsState } from "components/core/editors/EditorsContext";
 import { useRealmPermissions } from "contexts/RealmContext";
 
 export const useStemOptions = ({

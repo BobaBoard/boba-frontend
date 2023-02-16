@@ -1,4 +1,4 @@
-import Layout from "components/layout/Layout";
+import Layout from "components/core/layouts/Layout";
 import React from "react";
 
 function NotFoundPage() {

@@ -3,7 +3,7 @@ import { faCompass, faDoorOpen } from "@fortawesome/free-solid-svg-icons";
 
 import { FeedWithMenu } from "@bobaboard/ui-components";
 import InvitesPanel from "components/realm/InvitesPanel";
-import Layout from "components/layout/Layout";
+import Layout from "components/core/layouts/Layout";
 import React from "react";
 import { RealmPermissions } from "types/Types";
 import { hasAdminPanelAccess } from "utils/permissions-utils";

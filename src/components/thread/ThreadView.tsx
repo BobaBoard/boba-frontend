@@ -24,7 +24,7 @@ import { scrollToPost } from "utils/scroll-utils";
 import { useBoardSummaryBySlug } from "queries/board";
 import { useStemOptions } from "components/hooks/useStemOptions";
 import { useThreadContext } from "components/thread/ThreadContext";
-import { useThreadEditors } from "components/editors/withEditors";
+import { useThreadEditors } from "components/core/editors/withEditors";
 
 const error = debug("bobafrontend:ThreadLevel-log");
 const log = debug("bobafrontend:ThreadLevel-log");

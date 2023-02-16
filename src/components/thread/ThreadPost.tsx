@@ -13,7 +13,7 @@ import {
 import {
   isCommentEditorState,
   isReplyContribution,
-} from "components/editors/types";
+} from "components/core/editors/types";
 import {
   useBoardSummary,
   useCurrentRealmBoardId,
@@ -28,10 +28,10 @@ import { formatDistanceToNow } from "date-fns";
 import { getCurrentSearchParams } from "utils/location-utils";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
-import { useEditorsState } from "components/editors/EditorsContext";
+import { useEditorsState } from "components/core/editors/EditorsContext";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { useThreadContext } from "./ThreadContext";
-import { useThreadEditors } from "components/editors/withEditors";
+import { useThreadEditors } from "components/core/editors/withEditors";
 
 export interface ThreadPostProps {
   /**

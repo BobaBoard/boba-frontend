@@ -1,11 +1,11 @@
-import { EditorActions } from "components/editors/types";
+import { EditorActions } from "components/core/editors/types";
 import { PostType } from "types/Types";
 import React from "react";
 import { faEdit } from "@fortawesome/free-solid-svg-icons";
 import { isPostEditPermission } from "utils/permissions-utils";
 import { useAuth } from "components/Auth";
 import { useBoardMetadata } from "queries/board";
-import { useEditorsDispatch } from "components/editors/EditorsContext";
+import { useEditorsDispatch } from "components/core/editors/EditorsContext";
 
 export const useEditTagsOption = ({
   boardId,

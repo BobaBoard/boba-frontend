@@ -12,7 +12,7 @@ import { isFromBackButton } from "components/hooks/useFromBackButton";
 import { useBeamToFeedElement } from "components/hooks/useBeamToFeedElement";
 import { useQueryParams } from "use-query-params";
 import { useUserFeed } from "queries/user-feed";
-import { withEditors } from "components/editors/withEditors";
+import { withEditors } from "components/core/editors/withEditors";
 
 export interface FeedBottomBarProps {
   onCompassClick: () => void;

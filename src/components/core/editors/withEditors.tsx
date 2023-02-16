@@ -21,7 +21,7 @@ import React from "react";
 import { addCommentInCache } from "cache/comment";
 import debug from "debug";
 import { useAuth } from "components/Auth";
-import { useCachedLinks } from "../hooks/useCachedLinks";
+import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { usePageDetails } from "utils/router-utils";
 import { usePreventPageChange } from "components/hooks/usePreventPageChange";
 import { useQueryClient } from "react-query";
