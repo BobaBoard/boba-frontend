@@ -28,7 +28,7 @@ import { CollapseManager } from "components/thread/useCollapseManager";
 import React from "react";
 import debug from "debug";
 import { getElementId } from "utils/thread-utils";
-import { useStateWithCallback } from "components/hooks/useStateWithCallback";
+import { useStateWithCallback } from "components/core/useStateWithCallback";
 import { useThreadContext } from "components/thread/ThreadContext";
 
 const error = debug("bobafrontend:useDisplayManager-error");

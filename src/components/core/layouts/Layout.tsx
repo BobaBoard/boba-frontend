@@ -20,7 +20,7 @@ import { useAuth } from "components/Auth";
 import { useBoardSummaryBySlug } from "queries/board";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
-import { useIsChangingRoute } from "components/hooks/useIsChangingRoute";
+import { useIsChangingRoute } from "components/core/useIsChangingRoute";
 import { useLoggedInOptions } from "components/options/useLoggedInOptions";
 import { useQueryClient } from "react-query";
 import { useServerCssVariables } from "components/hooks/useServerCssVariables";
