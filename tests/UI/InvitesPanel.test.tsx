@@ -25,7 +25,7 @@ const ADMIN_ROUTER = getAdminPanelRoute({
 });
 
 jest.mock("components/hooks/usePreventPageChange");
-jest.mock("components/hooks/useIsChangingRoute");
+jest.mock("components/core/useIsChangingRoute");
 jest.mock("utils/image-upload", () => ({
   ...jest.requireActual("utils/image-upload"),
   uploadImage: jest.fn(({ baseUrl, extension }) =>

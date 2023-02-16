@@ -17,7 +17,7 @@ import { makeRealmData } from "utils/client-data";
 import userEvent from "@testing-library/user-event";
 
 jest.mock("components/hooks/usePreventPageChange");
-jest.mock("components/hooks/useIsChangingRoute");
+jest.mock("components/core/useIsChangingRoute");
 jest.mock("components/hooks/useOnPageExit");
 
 describe("Comments editor", () => {
