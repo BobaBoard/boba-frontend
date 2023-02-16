@@ -22,7 +22,7 @@ import {
 import {
   useActiveCategories,
   useFilterableContext,
-} from "contexts/FilterableContext";
+} from "components/core/feeds/FilterableContext";
 
 import { CollapseManager } from "components/thread/useCollapseManager";
 import React from "react";

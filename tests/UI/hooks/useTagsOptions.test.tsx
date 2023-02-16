@@ -9,7 +9,7 @@ import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { renderHook } from "@testing-library/react-hooks";
 
 const mockSetActiveCategories = jest.fn();
-jest.mock("contexts/FilterableContext.tsx", () => ({
+jest.mock("components/core/feeds/FilterableContext.tsx", () => ({
   useFilterableContext: jest.fn(() => ({
     setActiveCategories: mockSetActiveCategories,
   })),
