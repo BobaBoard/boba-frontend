@@ -12,7 +12,7 @@ import { THREAD_VIEW_MODE } from "contexts/ThreadViewContext";
 import { UNCATEGORIZED_LABEL } from "utils/thread-utils";
 import classnames from "classnames";
 import { formatDistanceToNow } from "date-fns";
-import { useFilterableContext } from "contexts/FilterableContext";
+import { useFilterableContext } from "components/core/feeds/FilterableContext";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { useThreadContext } from "components/thread/ThreadContext";
 

@@ -7,7 +7,7 @@ import { FeedWithMenu } from "@bobaboard/ui-components";
 import Layout from "components/layout/Layout";
 import LoadingSpinner from "components/LoadingSpinner";
 import React from "react";
-import ThreadPreview from "components/ThreadPreview";
+import ThreadPreview from "components/core/feeds/ThreadPreview";
 import debug from "debug";
 import { isFromBackButton } from "components/hooks/useFromBackButton";
 import { useAuth } from "components/Auth";

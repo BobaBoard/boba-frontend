@@ -4,7 +4,7 @@ import type { Post, TagsType } from "@bobaboard/ui-components";
 import React from "react";
 import { TagType } from "@bobaboard/ui-components";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
-import { useFilterableContext } from "contexts/FilterableContext";
+import { useFilterableContext } from "components/core/feeds/FilterableContext";
 
 export enum TagsOptions {
   FILTER_BY_CATEGORY = "FILTER_BY_CATEGORY",

@@ -26,7 +26,7 @@ import { useAuth } from "components/Auth";
 import { useBeamToFeedElement } from "components/hooks/useBeamToFeedElement";
 import { useBoardActivity } from "queries/board-feed";
 import { useBoardMetadata } from "queries/board";
-import { useFilterableContext } from "contexts/FilterableContext";
+import { useFilterableContext } from "components/core/feeds/FilterableContext";
 import { useNotifications } from "queries/notifications";
 import { withEditors } from "components/editors/withEditors";
 

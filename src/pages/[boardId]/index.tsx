@@ -2,7 +2,7 @@ import { BoardPageDetails, usePageDetails } from "utils/router-utils";
 import {
   FilterableContextProvider,
   useFilterableContext,
-} from "contexts/FilterableContext";
+} from "components/core/feeds/FilterableContext";
 import {
   REALM_QUERY_KEY,
   useBoardSummary,
@@ -25,7 +25,7 @@ import LoadingSpinner from "components/LoadingSpinner";
 import { NextPage } from "next";
 import { PageContextWithQueryClient } from "additional";
 import React from "react";
-import ThreadPreview from "components/ThreadPreview";
+import ThreadPreview from "components/core/feeds/ThreadPreview";
 import axios from "axios";
 import debug from "debug";
 import { useAuth } from "components/Auth";
