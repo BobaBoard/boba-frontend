@@ -11,7 +11,7 @@ import React from "react";
 import { RealmType } from "types/Types";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
 import { makeRealmData } from "utils/client-data";
-import { useReadThread } from "queries/thread";
+import { useReadThread } from "lib/api/hooks/thread";
 
 // import debug from "debug";
 // const log = debug("bobafrontend:tests:UI:Thread-test-log");
@@ -19,8 +19,8 @@ import { useReadThread } from "queries/thread";
 jest.mock("components/hooks/usePreventPageChange");
 jest.mock("components/core/useIsChangingRoute");
 jest.mock("components/hooks/useOnPageExit");
-jest.mock("queries/thread", () => ({
-  ...jest.requireActual("queries/thread"),
+jest.mock("lib/api/hooks/thread", () => ({
+  ...jest.requireActual("lib/api/hooks/thread"),
   useReadThread: jest.fn().mockReturnValue(jest.fn()),
 }));
 

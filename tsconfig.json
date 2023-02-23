@@ -34,12 +34,13 @@
     ],
     "paths": {
       "queries/*": ["src/queries/*"],
-      "cache/*": ["src/cache/*"],
+      "cache/*": ["src/lib/api/cache/*"],
       "components/*": ["src/components/*"],
       "utils/*": ["src/utils/*"],
       "pages/*": ["src/pages/*"],
       "types/*": ["types/*"],
-      "contexts/*": ["src/contexts/*"]
+      "contexts/*": ["src/contexts/*"],
+      "lib/*": ["src/lib/*"]
     },
     "skipLibCheck": true,
     "strict": true,

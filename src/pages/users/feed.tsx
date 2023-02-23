@@ -1,4 +1,4 @@
-import { FeedOptions, useUserFeed } from "queries/user-feed";
+import { FeedOptions, useUserFeed } from "lib/api/hooks/user-feed";
 
 import { ExistanceParam } from "components/QueryParamNextProvider";
 import FeedBottomBar from "components/feed/FeedBottomBar";

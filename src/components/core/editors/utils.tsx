@@ -14,7 +14,7 @@ import { TagsType as ServerTagsType } from "types/Types";
 import { THREAD_VIEW_MODE } from "contexts/ThreadViewContext";
 import { TagsType } from "@bobaboard/ui-components/dist/types";
 import { useAuth } from "components/Auth";
-import { useBoardMetadata } from "queries/board";
+import { useBoardMetadata } from "lib/api/hooks/board";
 import { useThreadWithNull } from "components/thread/ThreadContext";
 
 export const getViewModeIcon = (view: THREAD_VIEW_MODE) => {

@@ -1,5 +1,5 @@
 import { FeedWithMenu, getDeltaSummary } from "@bobaboard/ui-components";
-import { THREAD_QUERY_KEY, useReadThread } from "queries/thread";
+import { THREAD_QUERY_KEY, useReadThread } from "lib/api/hooks/thread";
 import {
   THREAD_VIEW_MODE,
   ThreadViewContextProvider,
@@ -36,9 +36,9 @@ import { isClientContext } from "utils/location-utils";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
-import { useInvalidateNotifications } from "queries/notifications";
+import { useInvalidateNotifications } from "lib/api/hooks/notifications";
 import { useOnPageExit } from "components/hooks/useOnPageExit";
-import { useRefetchBoardActivity } from "queries/board-feed";
+import { useRefetchBoardActivity } from "lib/api/hooks/board-feed";
 import { useThreadCollapseManager } from "components/thread/useCollapseManager";
 import { withEditors } from "components/core/editors/withEditors";
 

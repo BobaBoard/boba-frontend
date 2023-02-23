@@ -1,4 +1,4 @@
-import { FeedOptions } from "queries/user-feed";
+import { FeedOptions } from "lib/api/hooks/user-feed";
 import React from "react";
 import { SegmentedButton } from "@bobaboard/ui-components";
 import classnames from "classnames";

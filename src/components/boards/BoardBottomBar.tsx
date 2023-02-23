@@ -24,10 +24,10 @@ import React from "react";
 import chroma from "chroma-js";
 import { useAuth } from "components/Auth";
 import { useBeamToFeedElement } from "components/hooks/useBeamToFeedElement";
-import { useBoardActivity } from "queries/board-feed";
-import { useBoardMetadata } from "queries/board";
+import { useBoardActivity } from "lib/api/hooks/board-feed";
+import { useBoardMetadata } from "lib/api/hooks/board";
 import { useFilterableContext } from "components/core/feeds/FilterableContext";
-import { useNotifications } from "queries/notifications";
+import { useNotifications } from "lib/api/hooks/notifications";
 import { withEditors } from "components/core/editors/withEditors";
 
 export interface BoardBottomBarProps {

@@ -11,7 +11,7 @@ import {
   setThreadDefaultViewInCache,
   setThreadHiddenInCache,
   setThreadMutedInCache,
-} from "cache/thread";
+} from "../cache/thread";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import { ThreadType } from "types/Types";

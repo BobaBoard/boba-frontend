@@ -2,8 +2,8 @@ import { faVolumeMute, faVolumeUp } from "@fortawesome/free-solid-svg-icons";
 
 import React from "react";
 import { useAuth } from "components/Auth";
-import { useInvalidateNotifications } from "queries/notifications";
-import { useMuteThread } from "queries/thread";
+import { useInvalidateNotifications } from "lib/api/hooks/notifications";
+import { useMuteThread } from "lib/api/hooks/thread";
 
 export const useMuteThreadOption = ({
   muted,

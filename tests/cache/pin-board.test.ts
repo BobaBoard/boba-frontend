@@ -3,14 +3,14 @@ import { GORE_LOGGED_IN_SUMMARY, KPOP_SUMMARY } from "../data/BoardSummary";
 import {
   PINNED_BOARDS_QUERY_KEY,
   PinnedBoardType,
-} from "queries/pinned-boards";
+} from "lib/api/hooks/pinned-boards";
 import { expect, test } from "@jest/globals";
 
-import { BOARD_METADATA_KEY } from "queries/board";
+import { BOARD_METADATA_KEY } from "lib/api/hooks/board";
 import { GORE_METADATA_BOBATAN } from "../data/BoardMetadata";
 import { QueryClient } from "react-query";
 import { REALM_QUERY_KEY } from "contexts/RealmContext";
-import { setBoardPinnedInCache } from "cache/board";
+import { setBoardPinnedInCache } from "lib//api/cache/board";
 
 const getV0QueryKey = () => {
   return [REALM_QUERY_KEY, { realmSlug: "v0" }];

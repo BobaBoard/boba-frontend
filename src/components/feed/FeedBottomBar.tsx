@@ -11,7 +11,7 @@ import React from "react";
 import { isFromBackButton } from "components/core/useFromBackButton";
 import { useBeamToFeedElement } from "components/hooks/useBeamToFeedElement";
 import { useQueryParams } from "use-query-params";
-import { useUserFeed } from "queries/user-feed";
+import { useUserFeed } from "lib/api/hooks/user-feed";
 import { withEditors } from "components/core/editors/withEditors";
 
 export interface FeedBottomBarProps {

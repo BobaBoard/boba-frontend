@@ -5,7 +5,7 @@ import { getThreadDataFromCache, getThreadKey } from "./thread.test";
 
 import { FAVORITE_CHARACTER_GORE_EMPTY_THREAD } from "../data/Thread";
 import { FAVORITE_CHARACTER_GORE_THREAD_SUMMARY } from "../data/ThreadSummary";
-import { addCommentInCache } from "cache/comment";
+import { addCommentInCache } from "lib//api/cache/comment";
 import { getBoardQueryKey } from "./activity.test";
 import { getThreadSummaryFromBoardFeedCache } from "./post.test";
 

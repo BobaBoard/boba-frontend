@@ -19,7 +19,7 @@ import {
   setBoardPinnedInCache,
   setBoardSummaryInCache,
   setPinnedBoardInCache,
-} from "cache/board";
+} from "../cache/board";
 
 import React from "react";
 import debug from "debug";

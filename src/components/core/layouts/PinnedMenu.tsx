@@ -3,7 +3,7 @@ import { faInbox, faRss, faThumbtack } from "@fortawesome/free-solid-svg-icons";
 import {
   useInvalidateNotifications,
   useNotifications,
-} from "queries/notifications";
+} from "lib/api/hooks/notifications";
 import { useRealmBoards, useRealmContext } from "contexts/RealmContext";
 
 import { PinnedMenu as LibraryPinnedMenu } from "@bobaboard/ui-components";
@@ -11,8 +11,8 @@ import React from "react";
 import debug from "debug";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
-import { usePinnedBoards } from "queries/pinned-boards";
-import { useRefetchBoardActivity } from "queries/board-feed";
+import { usePinnedBoards } from "lib/api/hooks/pinned-boards";
+import { useRefetchBoardActivity } from "lib/api/hooks/board-feed";
 
 const log = debug("bobafrontend:PinnedMenu-log");
 

@@ -18,7 +18,7 @@ import ThreadPost from "./ThreadPost";
 import classnames from "classnames";
 import { scrollToPost } from "utils/scroll-utils";
 import { useAuth } from "components/Auth";
-import { useBoardSummaryBySlug } from "queries/board";
+import { useBoardSummaryBySlug } from "lib/api/hooks/board";
 import { useStemOptions } from "components/hooks/useStemOptions";
 import { useThreadContext } from "components/thread/ThreadContext";
 import { useThreadEditors } from "components/core/editors/withEditors";

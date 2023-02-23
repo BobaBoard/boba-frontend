@@ -21,7 +21,7 @@ import { PostType } from "types/Types";
 import React from "react";
 import ThreadPost from "./ThreadPost";
 import { scrollToPost } from "utils/scroll-utils";
-import { useBoardSummaryBySlug } from "queries/board";
+import { useBoardSummaryBySlug } from "lib/api/hooks/board";
 import { useStemOptions } from "components/hooks/useStemOptions";
 import { useThreadContext } from "components/thread/ThreadContext";
 import { useThreadEditors } from "components/core/editors/withEditors";

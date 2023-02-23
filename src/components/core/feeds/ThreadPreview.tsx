@@ -14,7 +14,7 @@ import noop from "noop-ts";
 import { useCachedLinks } from "../../hooks/useCachedLinks";
 import { useCurrentRealmBoardId } from "contexts/RealmContext";
 import { useForceHideIdentity } from "../../hooks/useForceHideIdentity";
-import { useSetThreadHidden } from "queries/thread";
+import { useSetThreadHidden } from "lib/api/hooks/thread";
 import { withEditors } from "components/core/editors/withEditors";
 
 const THREAD_OPTIONS = [
