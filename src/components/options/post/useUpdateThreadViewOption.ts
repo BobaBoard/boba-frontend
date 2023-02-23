@@ -8,7 +8,7 @@ import {
 
 import React from "react";
 import { useAuth } from "components/Auth";
-import { useSetThreadView } from "queries/thread";
+import { useSetThreadView } from "lib/api/hooks/thread";
 
 export const useUpdateThreadViewOption = ({
   threadId,

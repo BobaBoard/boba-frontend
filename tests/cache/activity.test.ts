@@ -7,11 +7,14 @@ import {
 import { FeedType, ThreadSummaryType } from "types/Types";
 import { InfiniteData, QueryClient } from "react-query";
 import { expect, test } from "@jest/globals";
-import { getActivitiesInCache, setActivitiesInCache } from "cache/activity";
+import {
+  getActivitiesInCache,
+  setActivitiesInCache,
+} from "lib//api/cache/activity";
 
-import { BOARD_ACTIVITY_KEY } from "queries/board-feed";
+import { BOARD_ACTIVITY_KEY } from "lib/api/hooks/board-feed";
 import { GORE_BOARD_ID } from "../data/BoardSummary";
-import { USER_FEED_KEY } from "queries/user-feed";
+import { USER_FEED_KEY } from "lib/api/hooks/user-feed";
 
 export const getBoardQueryKey = (data: { boardId: string }) => {
   return [BOARD_ACTIVITY_KEY, { boardId: data.boardId }];

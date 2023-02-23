@@ -1,8 +1,8 @@
 import React from "react";
 import { faBookOpen } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "components/Auth";
-import { useInvalidateNotifications } from "queries/notifications";
-import { useReadThread } from "queries/thread";
+import { useInvalidateNotifications } from "lib/api/hooks/notifications";
+import { useReadThread } from "lib/api/hooks/thread";
 
 export const useMarkReadOption = ({
   boardId,

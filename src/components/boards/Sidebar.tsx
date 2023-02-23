@@ -7,7 +7,7 @@ import {
 import { BoardMetadata } from "types/Types";
 import LoadingSpinner from "../LoadingSpinner";
 import React from "react";
-import { useUpdateBoardMetadata } from "queries/board";
+import { useUpdateBoardMetadata } from "lib/api/hooks/board";
 
 interface BoardSidebarProps {
   boardMetadata: BoardMetadata | null | undefined;

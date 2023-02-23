@@ -13,7 +13,7 @@ import { faComment } from "@fortawesome/free-regular-svg-icons";
 import { getCommentsChain } from "components/thread/CommentsThread";
 import { isNotNull } from "utils/typescript-utils";
 import { toast } from "@bobaboard/ui-components";
-import { useBoardMetadata } from "queries/board";
+import { useBoardMetadata } from "lib/api/hooks/board";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useEditorsState } from "components/core/editors/EditorsContext";
 import { useThreadContext } from "components/thread/ThreadContext";

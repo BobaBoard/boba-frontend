@@ -12,7 +12,7 @@ import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
 import React from "react";
 import { copyText } from "utils/text-utils";
 import { toast } from "@bobaboard/ui-components";
-import { useBoardMetadata } from "queries/board";
+import { useBoardMetadata } from "lib/api/hooks/board";
 import { useCachedLinks } from "../hooks/useCachedLinks";
 import { useDebugOptions } from "./post/useDebugOptions";
 import { useEditTagsOption } from "./post/useEditTagsOption";

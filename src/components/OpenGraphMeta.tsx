@@ -3,7 +3,7 @@ import { BoardData, BoardSummary, RealmType } from "types/Types";
 import Head from "next/head";
 import React from "react";
 import { getDeltaSummary } from "@bobaboard/ui-components";
-import { useBoardSummaryBySlug } from "queries/board";
+import { useBoardSummaryBySlug } from "lib/api/hooks/board";
 import { useRealmContext } from "contexts/RealmContext";
 
 export const getTitle = (

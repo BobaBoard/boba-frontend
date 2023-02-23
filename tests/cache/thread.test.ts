@@ -16,8 +16,8 @@ import {
 
 import { GORE_BOARD_ID } from "../data/BoardSummary";
 import { REMEMBER_TO_BE_EXCELLENT_GORE_THREAD } from "../data/Thread";
-import { THREAD_QUERY_KEY } from "queries/thread";
-import { setThreadInCache } from "cache/thread";
+import { THREAD_QUERY_KEY } from "lib/api/hooks/thread";
+import { setThreadInCache } from "lib//api/cache/thread";
 
 const GORE_BOARD_FEED_SINGLE_PAGE: InfiniteData<FeedType> = {
   pageParams: [],

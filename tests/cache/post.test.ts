@@ -1,6 +1,6 @@
 import { FeedType, PostType, SecretIdentityType } from "types/Types";
 import { InfiniteData, QueryClient } from "react-query";
-import { addPostInCache, setPostTagsInCache } from "cache/post";
+import { addPostInCache, setPostTagsInCache } from "lib//api/cache/post";
 import { expect, test } from "@jest/globals";
 import {
   getBoardActivityDataFromCache,

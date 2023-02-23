@@ -9,7 +9,7 @@ import {
   addBoardSummaryInCache,
   getBoardSummaryInCache,
   setBoardSummaryInCache,
-} from "cache/board";
+} from "lib//api/cache/board";
 import { expect, test } from "@jest/globals";
 
 import { QueryClient } from "react-query";

@@ -22,6 +22,7 @@ module.exports = {
     "^types(.*)$": "<rootDir>/types$1",
     "^pages(.*)$": "<rootDir>/src/pages$1",
     "^queries(.*)$": "<rootDir>/src/queries$1",
+    "^lib(.*)$": "<rootDir>/src/lib$1",
     "^react$": "<rootDir>/node_modules/react",
     "^react-dom$": "<rootDir>/node_modules/react-dom",
   },

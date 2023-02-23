@@ -26,14 +26,14 @@ import {
 import {
   prefetchSubscriptionData,
   useSubscription,
-} from "queries/subscriptions";
+} from "lib/api/hooks/subscriptions";
 
 import Layout from "components/core/layouts/Layout";
 import { NextPage } from "next";
 import { PageContextWithQueryClient } from "additional";
 import debug from "debug";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
-import { useNotifications } from "queries/notifications";
+import { useNotifications } from "lib/api/hooks/notifications";
 
 const error = debug("bobafrontend:HomePage-error");
 

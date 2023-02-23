@@ -6,7 +6,7 @@ import {
   useEditorsState,
 } from "./EditorsContext";
 import { Modal, ModalWithButtons, toast } from "@bobaboard/ui-components";
-import { addPostInCache, setPostTagsInCache } from "cache/post";
+import { addPostInCache, setPostTagsInCache } from "lib/api/cache/post";
 import {
   isCommentEditorState,
   isContributionEditorState,
@@ -18,14 +18,14 @@ import { useCurrentRealmBoardId, useRealmBoards } from "contexts/RealmContext";
 import CommentEditorModal from "./CommentEditorModal";
 import ContributionEditorModal from "./ContributionEditorModal";
 import React from "react";
-import { addCommentInCache } from "cache/comment";
+import { addCommentInCache } from "lib/api/cache/comment";
 import debug from "debug";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { usePageDetails } from "utils/router-utils";
 import { usePreventPageChange } from "components/hooks/usePreventPageChange";
 import { useQueryClient } from "react-query";
-import { useRefetchBoardActivity } from "queries/board-feed";
+import { useRefetchBoardActivity } from "lib/api/hooks/board-feed";
 import { useRouter } from "next/router";
 
 const log = debug("bobafrontend:editors:withEditors-log");

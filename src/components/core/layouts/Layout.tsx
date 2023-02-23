@@ -7,17 +7,17 @@ import { PageTypes, usePageDetails } from "utils/router-utils";
 import {
   useInvalidateNotifications,
   useNotifications,
-} from "queries/notifications";
+} from "lib/api/hooks/notifications";
 import { useRealmContext, useRealmSettings } from "contexts/RealmContext";
 
-import { BOARD_ACTIVITY_KEY } from "queries/board-feed";
+import { BOARD_ACTIVITY_KEY } from "lib/api/hooks/board-feed";
 import LoginModal from "./LoginModal";
 import PinnedMenu from "./PinnedMenu";
 import React from "react";
 import Sidemenu from "./SideMenu";
 import debug from "debug";
 import { useAuth } from "components/Auth";
-import { useBoardSummaryBySlug } from "queries/board";
+import { useBoardSummaryBySlug } from "lib/api/hooks/board";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { useIsChangingRoute } from "components/core/useIsChangingRoute";

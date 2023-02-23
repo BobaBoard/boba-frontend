@@ -2,8 +2,8 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 import React from "react";
 import { useAuth } from "components/Auth";
-import { useInvalidateNotifications } from "queries/notifications";
-import { useSetThreadHidden } from "queries/thread";
+import { useInvalidateNotifications } from "lib/api/hooks/notifications";
+import { useSetThreadHidden } from "lib/api/hooks/thread";
 
 export const useHideThreadOption = ({
   hidden,

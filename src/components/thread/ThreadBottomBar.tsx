@@ -24,7 +24,7 @@ import { faCircleXmark } from "@fortawesome/free-regular-svg-icons";
 import { getViewModeIcon } from "components/core/editors/utils";
 import { useAuth } from "components/Auth";
 import { useBeamToThreadElement } from "components/hooks/useBeamToThreadElement";
-import { useBoardMetadata } from "queries/board";
+import { useBoardMetadata } from "lib/api/hooks/board";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
 import { useThreadCollapseManager } from "./useCollapseManager";
 import { useThreadContext } from "./ThreadContext";

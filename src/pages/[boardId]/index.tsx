@@ -15,7 +15,7 @@ import {
   getCurrentRealmSlug,
   isClientContext,
 } from "utils/location-utils";
-import { prefetchBoardMetadata, useBoardMetadata } from "queries/board";
+import { prefetchBoardMetadata, useBoardMetadata } from "lib/api/hooks/board";
 
 import BoardBottomBar from "components/boards/BoardBottomBar";
 import { BoardSidebar } from "components/boards/Sidebar";
@@ -29,7 +29,7 @@ import ThreadPreview from "components/core/feeds/ThreadPreview";
 import axios from "axios";
 import debug from "debug";
 import { useAuth } from "components/Auth";
-import { useBoardActivity } from "queries/board-feed";
+import { useBoardActivity } from "lib/api/hooks/board-feed";
 
 const log = debug("bobafrontend:BoardPage-log");
 const info = debug("bobafrontend:BoardPage-info");
