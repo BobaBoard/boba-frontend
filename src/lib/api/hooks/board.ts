@@ -46,7 +46,7 @@ export const useMuteBoard = () => {
             mute ? "muted" : "unmuted"
           }.`
         );
-        setBoardMutedInCache(queryClient, { boardId, mute });
+        //setBoardMutedInCache(queryClient, { boardId, mute });
       },
       onError: (error: Error, { boardId, mute }) => {
         toast.error(

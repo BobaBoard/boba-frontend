@@ -6,3 +6,7 @@ coverage
 .DS_Store
 cypress.env.json
 e2e/cypress/screenshots
+/test-results/
+/playwright-report/
+/playwright/.cache/
+.env.test
