@@ -48,14 +48,15 @@ const LoginModal: React.FC<LoginModalProps> = (props) => {
 			<>
 				{!isLoggedIn && (
 					<div className="login">
-													<div className="sign-up-info">
-								<h3 className="sign-up-label">
-									Sign-Ups are invitation only.
-								</h3>
-								<div>
-									<a href="https://docs.bobaboard.com/docs/users/v0/intro">Click here</a> for more info.
-								</div>
-					</div>
+						<div className="sign-up-info">
+							<h3 className="sign-up-label">Sign-Ups are invitation only.</h3>
+							<div>
+								<a href="https://docs.bobaboard.com/docs/users/v0/intro">
+									Click here
+								</a>{" "}
+								for more info.
+							</div>
+						</div>
 						<div className={classnames("inputs", { pending: isPending })}>
 							<div>
 								<Input
@@ -81,7 +82,13 @@ const LoginModal: React.FC<LoginModalProps> = (props) => {
 							</div>
 							<div className="password-recovery">
 								<div>
-									<p><strong>Forgot your password?</strong> Email <a href="mailto:ms.boba@bobaboard.com?subject=Password%20Recovery">ms.boba@bobaboard.com</a>.</p>
+									<p>
+										<strong>Forgot your password?</strong> Email{" "}
+										<a href="mailto:ms.boba@bobaboard.com?subject=Password%20Recovery">
+											ms.boba@bobaboard.com
+										</a>
+										.
+									</p>
 								</div>
 							</div>
 						</div>
@@ -118,7 +125,8 @@ const LoginModal: React.FC<LoginModalProps> = (props) => {
 				.error.hidden {
 					visibility: hidden;
 				}
-				.sign-up-info, .password-recovery {
+				.sign-up-info,
+				.password-recovery {
 					text-align: center;
 				}
 				.sign-up-label {
