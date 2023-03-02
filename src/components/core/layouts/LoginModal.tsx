@@ -51,7 +51,7 @@ const LoginModal: React.FC<LoginModalProps> = (props) => {
 						<div className="sign-up-info">
 							<h3 className="sign-up-label">Sign-Ups are invitation only.</h3>
 							<div>
-								<a href="https://docs.bobaboard.com/docs/users/v0/intro">
+								<a href="https://docs.bobaboard.com/docs/users/admins">
 									Click here
 								</a>{" "}
 								for more info.
