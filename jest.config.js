@@ -29,7 +29,7 @@ module.exports = {
   testPathIgnorePatterns: [
     "<rootDir>/node_modules/",
     "<rootDir>/.next/",
-    "<rootDir>/e2e/",
+    "<rootDir>/tests/e2e",
   ],
   transformIgnorePatterns: [
     "/node_modules/(?!uuid|@firebase)",

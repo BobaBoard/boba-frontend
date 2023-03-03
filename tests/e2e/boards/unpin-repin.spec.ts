@@ -1,7 +1,7 @@
 import { authenticate, request } from "../utils";
 import { expect, test } from "@playwright/test";
 
-import { GORE_BOARD_ID } from "../../tests/data/BoardSummary";
+import { GORE_BOARD_ID } from "../../data/BoardSummary";
 
 test.describe("Board page", () => {
   test("Should unpin and repin board", async ({ page }) => {

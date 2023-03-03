@@ -1,6 +1,6 @@
 import { authenticate, request } from "../utils";
 
-import { GORE_BOARD_ID } from "../../tests/data/BoardSummary";
+import { GORE_BOARD_ID } from "../../data/BoardSummary";
 import { test } from "@playwright/test";
 
 test.describe("Board page", () => {
