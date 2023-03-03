@@ -1,4 +1,4 @@
-import { Page, Request, Response } from "@playwright/test";
+import { Page, Request } from "@playwright/test";
 
 import dotenv from "dotenv";
 
