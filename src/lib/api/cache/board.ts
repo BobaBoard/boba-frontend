@@ -57,12 +57,15 @@ export const setBoardSummaryInCache = (
     {
       queryKey: REALM_QUERY_KEY,
       exact: false,
+      // Only update queries where the board is included in the data
+      predicate: (query) => {
+        return !!(query.state.data as RealmType)?.boards.find(
+          (board) => board.id === boardId
+        );
+      },
     },
     (data) => {
-      const containsBoard = data?.boards.find(
-        (realmBoard) => realmBoard.id == boardId
-      );
-      if (!containsBoard || !data) {
+      if (!data) {
         return data;
       }
       return {
