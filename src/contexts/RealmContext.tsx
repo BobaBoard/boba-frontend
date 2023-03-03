@@ -141,14 +141,12 @@ const RealmContextProvider: React.FC<{
     {
       staleTime: Infinity,
       placeholderData: () => {
-        console.log(queryClient.getQueryCache());
         const realmQuery = queryClient
           .getQueryCache()
           .findAll([REALM_QUERY_KEY, { realmSlug }], {
             exact: false,
           })
           .filter((query) => !!query.state.data);
-        console.log(realmQuery);
         if (!realmQuery.length) {
           throw new Error(
             `No data found for realm ${realmSlug}. Realm data should always be provided.`
