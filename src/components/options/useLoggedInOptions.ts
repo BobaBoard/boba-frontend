@@ -19,8 +19,11 @@ import { useForceHideIdentity } from "../hooks/useForceHideIdentity";
 // here instead of passing it as an argument
 export const useLoggedInOptions = (openLogin: () => void) => {
   const { forceHideIdentity, toggleForceHideIdentity } = useForceHideIdentity();
-  const { linkToPersonalSettings, linkToLogs, linkToRealmAdmin } =
-    useCachedLinks();
+  const {
+    linkToPersonalSettings,
+    linkToLogs,
+    linkToRealmAdmin,
+  } = useCachedLinks();
   const userRealmPermissions = useRealmPermissions();
   const realmData = useRealmContext();
 
