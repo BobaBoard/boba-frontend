@@ -25,7 +25,13 @@
     "test:e2e:ci": "playwright test",
     "test:watch": "cross-env DEBUG=bobafrontend:*-log jest --watch"
   },
+  "files": [
+    ".next",
+    "next.config.js",
+    "public"
+  ],
   "dependencies": {
+    "@bobaboard/boba-editor": "^0.0.15",
     "@bobaboard/ui-components": "^0.3.10",
     "@fortawesome/fontawesome-common-types": "6.1.1",
     "@fortawesome/fontawesome-svg-core": "6.1.1",
@@ -50,6 +56,8 @@
     "noop-ts": "1.0.3",
     "normalize.css": "^8.0.1",
     "query-string": "^7.1.1",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
     "react-hotkeys-hook": "^3.4.6",
     "react-query": "^3.12.0",
     "requestidlecallback-polyfill": "^1.0.2",
@@ -98,8 +106,6 @@
     "jest-preview": "^0.3.1",
     "msw": "^0.47.4",
     "multicast-dns": "^7.2.4",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
     "react-test-render": "^1.1.2",
     "react-test-renderer": "17.0.2",
     "ts-jest": "^28.0.5",
@@ -108,11 +114,6 @@
   "resolutions": {
     "@fortawesome/fontawesome-common-types": "^0.3.0",
     "@types/react": "17.0.2"
-  },
-  "peerDependencies": {
-    "@bobaboard/ui-components": "*",
-    "react": "17.0.2",
-    "react-dom": "17.0.2"
   },
   "msw": {
     "workerDirectory": "public"

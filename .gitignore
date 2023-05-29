@@ -10,3 +10,4 @@ e2e/cypress/screenshots
 /playwright-report/
 /playwright/.cache/
 .env.test
+result

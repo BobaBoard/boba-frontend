@@ -5,21 +5,21 @@ const path = require("path");
 
 module.exports = withTM({
   webpack: (config, { webpack, buildId, isServer }) => {
-    config.resolve.alias["react"] = path.resolve(
-      __dirname,
-      ".",
-      "node_modules",
-      "react"
-    );
-    config.resolve.alias["react-dom"] = path.resolve(
-      __dirname,
-      ".",
-      "node_modules",
-      "react-dom"
-    );
-    if (isServer) {
-      config.externals = ["react", "react-dom", ...config.externals];
-    }
+    // config.resolve.alias["react"] = path.resolve(
+    //   __dirname,
+    //   ".",
+    //   "node_modules",
+    //   "react"
+    // );
+    // config.resolve.alias["react-dom"] = path.resolve(
+    //   __dirname,
+    //   ".",
+    //   "node_modules",
+    //   "react-dom"
+    // );
+    // if (isServer) {
+    //   config.externals = ["react", "react-dom", ...config.externals];
+    // }
 
     config.plugins.push(
       new webpack.DefinePlugin({

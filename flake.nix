@@ -11,17 +11,7 @@
     # forEachSystem (system:
       let
         system = "aarch64-darwin"; 
-        pkgs = import nixpkgs {
-          overlays = [
-            (self: super: {
-              nodejs = super.nodejs.overrideAttrs (oldAttrs: {
-                version = "16.16.0";
-              });
-            })
-          ];
-          config = { allowUnfree = true; };
-          system = system;
-        };
+        pkgs = nixpkgs.legacyPackages.${system};
       in {
         packages.${system} = rec {
           boba-frontend-assets = pkgs.yarn2nix-moretea.mkYarnPackage {
@@ -30,8 +20,9 @@
             src = ./.;
             dontFixup = true;
             doDist = false;
+            nodejs = pkgs.nodejs-16_x;
+            NODE_OPTIONS="--openssl-legacy-provider";
             buildPhase = ''
-              node -v
               yarn build
             '';
             distPhase = "";
@@ -42,13 +33,10 @@
             '';
           };
           boba-frontend = pkgs.writeShellScriptBin "boba-frontend" ''
-            ls -la
-            exit 1
             export NODE_PATH=${boba-frontend-assets}/libexec/boba-frontend/node_modules
-            export GOOGLE_APPLICATION_CREDENTIALS_PATH=$(pwd)/firebase-sdk.json
             export DEBUG=boba-frontend:*,-*info
 
-            ${pkgs.nodejs}/bin/node -r dotenv/config ${boba-frontend-assets}/libexec/boba-frontend/node_modules/boba-frontend/dist/server/index.js
+            yarn run dev
           '';
           default = boba-frontend;
         };
