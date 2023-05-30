@@ -36,7 +36,7 @@
             export NODE_PATH=${boba-frontend-assets}/libexec/boba-frontend/node_modules
             export DEBUG=boba-frontend:*,-*info
 
-            yarn run dev
+            yarn run start
           '';
           default = boba-frontend;
         };
