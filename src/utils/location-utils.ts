@@ -91,14 +91,17 @@ export const isStaging = (serverHostname?: string | undefined) => {
 export const getServerBaseUrl = (context?: NextPageContext) => {
   const currentHost = getCurrentHost(context?.req?.headers?.host);
   const staging = isStaging(currentHost);
+
+  console.log(process.env);
+  if (process.env.NEXT_PUBLIC_DEFAULT_BACKEND) {
+    return process.env.NEXT_PUBLIC_DEFAULT_BACKEND;
+  }
+
+  // TODO: remove this hardcoding completely and only use the environment variables
   if (process.env.NODE_ENV == "production") {
     return staging
       ? "https://staging-dot-backend-dot-bobaboard.uc.r.appspot.com/"
       : "https://backend-dot-bobaboard.uc.r.appspot.com/";
-  }
-
-  if (process.env.NEXT_PUBLIC_DEFAULT_BACKEND) {
-    return process.env.NEXT_PUBLIC_DEFAULT_BACKEND;
   }
 
   if (!context) {
