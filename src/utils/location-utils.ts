@@ -92,7 +92,6 @@ export const getServerBaseUrl = (context?: NextPageContext) => {
   const currentHost = getCurrentHost(context?.req?.headers?.host);
   const staging = isStaging(currentHost);
 
-  console.log(process.env);
   if (process.env.NEXT_PUBLIC_DEFAULT_BACKEND) {
     return process.env.NEXT_PUBLIC_DEFAULT_BACKEND;
   }
