@@ -1,6 +1,7 @@
 import { CommentType, RealmPermissions } from "types/Types";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import { faArrowRight, faLink } from "@fortawesome/free-solid-svg-icons";
+import { faCopy } from "@fortawesome/free-regular-svg-icons";
 import {
   useCurrentRealmBoardId,
   useRealmPermissions,
@@ -21,6 +22,8 @@ import { useThreadEditors } from "components/core/editors/withEditors";
 
 export enum CommentOptions {
   GO_TO_COMMENT = "GO_TO_COMMENT",
+  COPY_CONTENT_DATA = "COPY_CONTENT_DATA",
+  COPY_CHAIN_CONTENT_DATA = "COPY_CHAIN_CONTENT_DATA",
   COPY_COMMENT_LINK = "COPY_COMMENT_LINK",
   REPLY_TO_COMMENT = "REPLY_TO_COMMENT",
 }
@@ -70,6 +73,33 @@ export const useCommentOptions = ({
       options
         .map((option) => {
           switch (option) {
+            case CommentOptions.COPY_CONTENT_DATA: {
+              return {
+                icon: faCopy,
+                name: "Copy content data",
+                link: {
+                  onClick: () => {
+                    copyText(comment.content);
+                    toast.success("Data copied!");
+                  },
+                },
+              };
+            }
+            case CommentOptions.COPY_CHAIN_CONTENT_DATA: {
+              return {
+                icon: faCopy,
+                name: "Copy comment chain content data",
+                link: {
+                  onClick: () => {
+                    const chainContent = JSON.stringify(
+                      commentChain.map((comment) => JSON.parse(comment.content)),
+                    );
+                    copyText(chainContent);
+                    toast.success("Data copied!");
+                  },
+                },
+              };
+            }
             case CommentOptions.COPY_COMMENT_LINK: {
               return {
                 icon: faLink,
