@@ -59,10 +59,6 @@ class MyDocument extends Document {
               --comment-a-color: hsl(191deg 89% 47%);
               --comment-a-visited-color: hsl(309deg 86% 72%);
 
-              // Set the default colors for contribs at the root levels because there's
-              // a lot of places where they appear.
-              // TODO: maybe consider if these CSS variables should be moved to the components
-              // library.
               --a-color: var(--contribution-a-color);
               --a-visited-color: var(--contribution-a-visited-color);
             }
@@ -95,5 +91,15 @@ class MyDocument extends Document {
     );
   }
 }
+
+// The following comment relates to these body styles above:
+// --a-color: var(--contribution-a-color);
+// --a-visited-color: var(--contribution-a-visited-color);
+// However it was being read as part of the template literal, so I've moved it down here
+
+// Set the default colors for contribs at the root levels because there's
+// a lot of places where they appear.
+// TODO: maybe consider if these CSS variables should be moved to the components
+// library.
 
 export default MyDocument;
