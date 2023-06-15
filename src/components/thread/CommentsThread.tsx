@@ -41,6 +41,7 @@ const COMMENT_OPTIONS = [
   CommentOptions.COPY_CHAIN_CONTENT_DATA,
   CommentOptions.COPY_COMMENT_LINK,
   CommentOptions.REPLY_TO_COMMENT,
+  CommentOptions.DEBUG,
 ];
 
 // TODO: consider doing this directly as part of ThreadCommentInfoType.
