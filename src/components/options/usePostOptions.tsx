@@ -5,8 +5,10 @@ import {
   faImages,
   faLink,
   faReply,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 
+import DeleteEntityConfirmationModal from "./components/DeleteEntityConfirmationModal";
 import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
 import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
 import React from "react";
@@ -28,6 +30,7 @@ export enum PostOptions {
   MARK_READ = "MARK_READ",
   MUTE = "MUTE",
   HIDE = "HIDE",
+  DELETE = "DELETE",
   UPDATE_VIEW = "UPDATE_VIEW",
   OPEN_AS = "OPEN_AS",
   DEBUG = "DEBUG",
@@ -83,7 +86,7 @@ const usePostOptions = ({
     hidden?: boolean;
     muted?: boolean;
   };
-}): DropdownProps["options"] => {
+}) => {
   const { getLinkToPost, getLinkToThread } = useCachedLinks();
   const { boardMetadata } = useBoardMetadata({ boardId });
   const muteThreadOption = useMuteThreadOption({
@@ -105,6 +108,9 @@ const usePostOptions = ({
     currentView: data.currentView,
   });
   const debugOptions = useDebugOptions({ post });
+  const [currentAction, setCurrentAction] = React.useState<null | "delete">(
+    null
+  );
 
   const getOption = React.useCallback(
     (option: PostOptions) => {
@@ -133,6 +139,16 @@ const usePostOptions = ({
           return hideThreadOption;
         case PostOptions.MUTE:
           return muteThreadOption;
+        case PostOptions.DELETE:
+          // TODO: this needs to check delete permissions before
+          // the post can be deleted
+          return {
+            icon: faTrash,
+            name: "Delete",
+            link: {
+              onClick: () => setCurrentAction("delete"),
+            },
+          };
         case PostOptions.MARK_READ:
           return markAsReadOption;
         case PostOptions.UPDATE_VIEW:
@@ -167,10 +183,20 @@ const usePostOptions = ({
   );
 
   const dropdownOptions = React.useMemo(() => {
-    return options.map(getOption).filter((option) => option != null);
-  }, [options, getOption]);
+    return [
+      options.map(getOption).filter((option) => option != null),
+      <>
+        {currentAction == "delete" && post && (
+          <DeleteEntityConfirmationModal
+            post={post}
+            onCloseModal={() => setCurrentAction(null)}
+          />
+        )}
+      </>,
+    ];
+  }, [options, getOption, currentAction, post]);
 
-  return dropdownOptions as DropdownProps["options"];
+  return dropdownOptions as [DropdownProps["options"], React.ReactElement];
 };
 
 export { usePostOptions };

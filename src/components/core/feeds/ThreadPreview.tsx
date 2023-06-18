@@ -87,7 +87,7 @@ const ThreadPreview: React.FC<{
   const boardId = useCurrentRealmBoardId({
     boardSlug: thread.parentBoardSlug,
   });
-  const options = usePostOptions({
+  const [options] = usePostOptions({
     options: THREAD_OPTIONS,
     isLoggedIn,
     data: {

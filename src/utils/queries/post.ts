@@ -79,3 +79,7 @@ export const createCommentChain = async ({
   log(comments);
   return comments;
 };
+
+export const deletePost = async (postId: string): Promise<void> => {
+  await axios.delete(`/posts/${postId}`);
+};

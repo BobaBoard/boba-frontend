@@ -62,6 +62,7 @@ const REGULAR_POST_OPTIONS = [
   PostOptions.COPY_THREAD_LINK,
   PostOptions.MUTE,
   PostOptions.HIDE,
+  PostOptions.DELETE,
   PostOptions.EDIT_TAGS,
   PostOptions.DEBUG,
 ];
@@ -251,7 +252,7 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
   const getTagOptions = useGetTagOptions({
     options: POST_TAG_OPTIONS,
   });
-  const options = usePostOptions({
+  const [options, optionComponents] = usePostOptions({
     options:
       post.parentPostId == null ? TOP_POST_OPTIONS : REGULAR_POST_OPTIONS,
     isLoggedIn,
@@ -355,6 +356,7 @@ const ThreadPost: React.FC<ThreadPostProps> = ({
           />
         )}
       </div>
+      {optionComponents}
       <style jsx>{`
         .post {
           pointer-events: all;

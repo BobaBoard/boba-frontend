@@ -109,7 +109,7 @@ const ThreadBottomBar = (props: ThreadBottomBarProps) => {
     onBeamToPrevious,
     loadingMore,
   } = useBeamToThreadElement(displayManager, boardMetadata?.accentColor);
-  const threadOptions = usePostOptions({
+  const [threadOptions] = usePostOptions({
     options: [
       PostOptions.COPY_THREAD_LINK,
       PostOptions.HIDE,
