@@ -7,7 +7,7 @@ import { toast } from "@bobaboard/ui-components";
 
 enum DebugOptions {
   COPY_CONTENT_DATA = "COPY_CONTENT_DATA",
-  COPY_CHAIN_CONTENT_DATA = "COPY_CHAIN_CONTENT_DATA",
+  COPY_TOP_COMMENT_ID = "COPY_TOP_COMMENT_ID",
 }
 
 export const useDebugOptions = (props: { comments: CommentType[] }) => {
@@ -22,20 +22,24 @@ export const useDebugOptions = (props: { comments: CommentType[] }) => {
           name: "Copy content data",
           link: {
             onClick: () => {
-              copyText(comments[0].content);
+              const content =
+                comments.length > 1
+                  ? JSON.stringify(
+                      comments.map((comment) => JSON.parse(comment.content))
+                    )
+                  : comments[0].content;
+              copyText(content);
               toast.success("Data copied!");
             },
           },
         },
         {
           icon: faCopy,
-          name: "Copy comment chain content data",
+          name:
+            comments.length > 1 ? "Copy comment chain id" : "Copy comment id",
           link: {
             onClick: () => {
-              const chainContent = JSON.stringify(
-                comments.map((comment) => JSON.parse(comment.content))
-              );
-              copyText(chainContent);
+              copyText(comments[0].commentId);
               toast.success("Data copied!");
             },
           },
