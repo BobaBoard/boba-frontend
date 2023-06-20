@@ -1,12 +1,17 @@
+import { CommentType } from "types/Types";
 import React from "react";
-import { faCopy } from "@fortawesome/free-regular-svg-icons";
+import { copyText } from "utils/text-utils";
 import { faBug } from "@fortawesome/free-solid-svg-icons";
+import { faCopy } from "@fortawesome/free-regular-svg-icons";
+import { toast } from "@bobaboard/ui-components";
 
 enum DebugOptions {
   COPY_CONTENT_DATA = "COPY_CONTENT_DATA",
   COPY_CHAIN_CONTENT_DATA = "COPY_CHAIN_CONTENT_DATA",
 }
-export const useDebugOptions = ({ comment: CommentType, commentChain }) => {
+
+export const useDebugOptions = (props: { comments: CommentType[] }) => {
+  const { comments } = props;
   React.useMemo(() => {
     return {
       icon: faBug,
@@ -17,7 +22,7 @@ export const useDebugOptions = ({ comment: CommentType, commentChain }) => {
           name: "Copy content data",
           link: {
             onClick: () => {
-              copyText(comment.content);
+              copyText(comments[0].content);
               toast.success("Data copied!");
             },
           },
@@ -28,7 +33,7 @@ export const useDebugOptions = ({ comment: CommentType, commentChain }) => {
           link: {
             onClick: () => {
               const chainContent = JSON.stringify(
-                commentChain.map((comment) => JSON.parse(comment.content)),
+                comments.map((comment) => JSON.parse(comment.content))
               );
               copyText(chainContent);
               toast.success("Data copied!");
@@ -37,5 +42,5 @@ export const useDebugOptions = ({ comment: CommentType, commentChain }) => {
         },
       ],
     };
-  }, [comment, commentChain])
+  }, [comments]);
 };
