@@ -1,7 +1,6 @@
 import { CommentType, RealmPermissions } from "types/Types";
 import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
 import { faArrowRight, faLink } from "@fortawesome/free-solid-svg-icons";
-import { faCopy } from "@fortawesome/free-regular-svg-icons";
 import {
   useCurrentRealmBoardId,
   useRealmPermissions,
@@ -11,15 +10,16 @@ import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownList
 import React from "react";
 import { copyText } from "utils/text-utils";
 import { faComment } from "@fortawesome/free-regular-svg-icons";
+import { faCopy } from "@fortawesome/free-regular-svg-icons";
 import { getCommentsChain } from "components/thread/CommentsThread";
 import { isNotNull } from "utils/typescript-utils";
 import { toast } from "@bobaboard/ui-components";
 import { useBoardMetadata } from "lib/api/hooks/board";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
+import { useDebugOptions } from "./comment/useDebugOptions";
 import { useEditorsState } from "components/core/editors/EditorsContext";
 import { useThreadContext } from "components/thread/ThreadContext";
 import { useThreadEditors } from "components/core/editors/withEditors";
-import { useDebugOptions } from "./comment/useDebugOptions";
 
 export enum CommentOptions {
   GO_TO_COMMENT = "GO_TO_COMMENT",
@@ -111,7 +111,7 @@ export const useCommentOptions = ({
               };
             }
             case CommentOptions.DEBUG: {
-              return useDebugOptions({ comment, commentChain });
+              return useDebugOptions({ comments: commentChain });
             }
           }
         })
@@ -125,6 +125,7 @@ export const useCommentOptions = ({
       linkToComment,
       onNewComment,
       parentPostId,
+      commentChain,
     ]
   );
 };
