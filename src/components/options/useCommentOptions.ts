@@ -10,7 +10,6 @@ import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownList
 import React from "react";
 import { copyText } from "utils/text-utils";
 import { faComment } from "@fortawesome/free-regular-svg-icons";
-import { faCopy } from "@fortawesome/free-regular-svg-icons";
 import { getCommentsChain } from "components/thread/CommentsThread";
 import { isNotNull } from "utils/typescript-utils";
 import { toast } from "@bobaboard/ui-components";
