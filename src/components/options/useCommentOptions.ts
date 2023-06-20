@@ -78,7 +78,6 @@ export const useCommentOptions = ({
                 icon: faLink,
                 name: "Copy link to comment",
                 link: {
-                  // @ts-expect-error TODO: figure this out
                   onClick: () => {
                     copyText(
                       new URL(

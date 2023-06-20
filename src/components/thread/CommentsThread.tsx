@@ -37,8 +37,6 @@ import { useThreadEditors } from "components/core/editors/withEditors";
 
 const COMMENT_OPTIONS = [
   CommentOptions.GO_TO_COMMENT,
-  CommentOptions.COPY_CONTENT_DATA,
-  CommentOptions.COPY_CHAIN_CONTENT_DATA,
   CommentOptions.COPY_COMMENT_LINK,
   CommentOptions.REPLY_TO_COMMENT,
   CommentOptions.DEBUG,

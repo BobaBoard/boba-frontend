@@ -5,11 +5,6 @@ import { faBug } from "@fortawesome/free-solid-svg-icons";
 import { faCopy } from "@fortawesome/free-regular-svg-icons";
 import { toast } from "@bobaboard/ui-components";
 
-enum DebugOptions {
-  COPY_CONTENT_DATA = "COPY_CONTENT_DATA",
-  COPY_TOP_COMMENT_ID = "COPY_TOP_COMMENT_ID",
-}
-
 export const useDebugOptions = (props: { comments: CommentType[] }) => {
   const { comments } = props;
   return React.useMemo(() => {
