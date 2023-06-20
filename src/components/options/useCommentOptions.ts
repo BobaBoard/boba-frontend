@@ -62,6 +62,7 @@ export const useCommentOptions = ({
 
   const commentChain = getCommentsChain(comment, parentChainMap);
   const lastCommentChainId = commentChain[commentChain.length - 1].commentId;
+  const debugOptions = useDebugOptions({ comments: commentChain });
 
   // TODO: we should also return null if the editor is open
   const canReplyToComment =
@@ -78,6 +79,7 @@ export const useCommentOptions = ({
                 icon: faLink,
                 name: "Copy link to comment",
                 link: {
+                  // @ts-expect-error TODO: figure this out
                   onClick: () => {
                     copyText(
                       new URL(
@@ -111,7 +113,7 @@ export const useCommentOptions = ({
               };
             }
             case CommentOptions.DEBUG: {
-              return useDebugOptions({ comments: commentChain });
+              return debugOptions;
             }
           }
         })
@@ -125,7 +127,7 @@ export const useCommentOptions = ({
       linkToComment,
       onNewComment,
       parentPostId,
-      commentChain,
+      debugOptions,
     ]
   );
 };

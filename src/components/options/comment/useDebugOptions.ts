@@ -12,7 +12,7 @@ enum DebugOptions {
 
 export const useDebugOptions = (props: { comments: CommentType[] }) => {
   const { comments } = props;
-  React.useMemo(() => {
+  return React.useMemo(() => {
     return {
       icon: faBug,
       name: "Debug",
