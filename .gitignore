@@ -2,7 +2,6 @@ node_modules
 .next
 next-env.d.ts
 coverage
-.vscode/
 .DS_Store
 cypress.env.json
 e2e/cypress/screenshots
