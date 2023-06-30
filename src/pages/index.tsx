@@ -210,6 +210,11 @@ const HomePage: NextPage = () => {
             </div>
             {styles}
           </div>
+          <footer>
+            <a href="https://docs.bobaboard.com/docs/users/dmca-policy">
+              DMCA policy
+            </a>
+          </footer>
         </Layout.MainContent>
       </Layout>
       <style jsx>{`
@@ -283,6 +288,15 @@ const HomePage: NextPage = () => {
         .intro .christmas {
           height: 250px;
         }
+
+        footer {
+          border-top: 1px dotted #1c1c1c;
+          color: white;
+          text-align: center;
+          font-size: small;
+          padding-block: 8px;
+        }
+
         @media only screen and (max-width: 700px) {
           .content {
             --board-display-min-size: 150px;
