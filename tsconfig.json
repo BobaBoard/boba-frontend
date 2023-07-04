@@ -28,8 +28,6 @@
       "styled-jsx",
       "node",
       "jest",
-      "cypress",
-      "@testing-library/cypress",
       "@testing-library/jest-dom"
     ],
     "paths": {
