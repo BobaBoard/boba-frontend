@@ -13,6 +13,7 @@ import { UNCATEGORIZED_LABEL } from "utils/thread-utils";
 import classnames from "classnames";
 import { formatDistanceToNow } from "date-fns";
 import { useFilterableContext } from "components/core/feeds/FilterableContext";
+import { useCachedLinks } from 'components/hooks/useCachedLinks';
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { useThreadContext } from "components/thread/ThreadContext";
 
@@ -25,7 +26,16 @@ export interface ThreadSidebarProps {
 
 const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
   const { forceHideIdentity } = useForceHideIdentity();
-  const { threadRoot, categories, contentNotices } = useThreadContext();
+  const { threadRoot, categories, contentNotices, parentBoardSlug, threadId } = useThreadContext();
+  const { getLinkToThread } = useCachedLinks();
+
+    const linkToThread = getLinkToThread({
+// @ts-ignore
+      slug: parentBoardSlug,
+// @ts-ignore
+    threadId: threadId,
+  });
+ 
   const {
     activeCategories,
     setActiveCategories,
@@ -57,24 +67,24 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
                 id: THREAD_VIEW_MODE.THREAD,
                 label: "Thread",
                 link: {
-                  // TODO: add href here
                   onClick: () => props.onViewChange(THREAD_VIEW_MODE.THREAD),
+                  href: `${linkToThread.href}?thread`
                 },
               },
               {
                 id: THREAD_VIEW_MODE.MASONRY,
                 label: "Gallery",
                 link: {
-                  // TODO: add href here
                   onClick: () => props.onViewChange(THREAD_VIEW_MODE.MASONRY),
+                  href: `${linkToThread.href}?all&gallery`
                 },
               },
               {
                 id: THREAD_VIEW_MODE.TIMELINE,
                 label: "Timeline",
                 link: {
-                  // TODO: add href here
                   onClick: () => props.onViewChange(THREAD_VIEW_MODE.TIMELINE),
+                  href: `${linkToThread.href}?all&timeline`
                 },
               },
             ]}
