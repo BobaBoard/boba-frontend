@@ -14,7 +14,7 @@
     "start": "next start -p 8080 ",
     "test": "jest --roots tests --runInBand",
     "test:ci": "yarn run test --ci",
-    "test:component": "yarn run test:watch tests/UI",
+    "test:components": "yarn run test:watch tests/UI",
     "test:debug": "jest-preview",
     "test:e2e": "playwright test --debug'",
     "test:e2e:ci": "playwright test",
