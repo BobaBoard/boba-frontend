@@ -10,3 +10,4 @@ e2e/cypress/screenshots
 /playwright/.cache/
 .env.test
 result
+.vscode/settings.json
