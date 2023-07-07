@@ -5,6 +5,7 @@ import {
   TagType,
   TagsFilterSection,
 } from "@bobaboard/ui-components";
+import { ThreadPageDetails, usePageDetails } from 'utils/router-utils';
 
 import { DisplayManager } from "components/hooks/useDisplayMananger";
 import React from "react";
@@ -12,8 +13,8 @@ import { THREAD_VIEW_MODE } from "contexts/ThreadViewContext";
 import { UNCATEGORIZED_LABEL } from "utils/thread-utils";
 import classnames from "classnames";
 import { formatDistanceToNow } from "date-fns";
-import { useFilterableContext } from "components/core/feeds/FilterableContext";
 import { useCachedLinks } from 'components/hooks/useCachedLinks';
+import { useFilterableContext } from "components/core/feeds/FilterableContext";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { useThreadContext } from "components/thread/ThreadContext";
 
@@ -26,15 +27,26 @@ export interface ThreadSidebarProps {
 
 const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
   const { forceHideIdentity } = useForceHideIdentity();
-  const { threadRoot, categories, contentNotices, parentBoardSlug, threadId } = useThreadContext();
+  const { threadRoot, categories, contentNotices } = useThreadContext();
   const { getLinkToThread } = useCachedLinks();
 
-    const linkToThread = getLinkToThread({
-// @ts-ignore
-      slug: parentBoardSlug,
-// @ts-ignore
-    threadId: threadId,
-  });
+  const {threadId, slug} = usePageDetails<ThreadPageDetails>();
+
+  const linkToThread = getLinkToThread({
+    slug,
+    threadId,
+    view: "thread"
+  }).href;
+  const linkToGallery = getLinkToThread({
+    slug,
+    threadId,
+    view: "gallery"
+  }).href;
+const linkToTimeline = getLinkToThread({
+    slug,
+    threadId,
+    view: "timeline"
+  }).href;
  
   const {
     activeCategories,
@@ -68,7 +80,7 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
                 label: "Thread",
                 link: {
                   onClick: () => props.onViewChange(THREAD_VIEW_MODE.THREAD),
-                  href: `${linkToThread.href}?thread`
+                  href: `${linkToThread}`
                 },
               },
               {
@@ -76,7 +88,7 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
                 label: "Gallery",
                 link: {
                   onClick: () => props.onViewChange(THREAD_VIEW_MODE.MASONRY),
-                  href: `${linkToThread.href}?all&gallery`
+                  href: `${linkToGallery}`
                 },
               },
               {
@@ -84,7 +96,7 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
                 label: "Timeline",
                 link: {
                   onClick: () => props.onViewChange(THREAD_VIEW_MODE.TIMELINE),
-                  href: `${linkToThread.href}?all&timeline`
+                  href: `${linkToTimeline}`
                 },
               },
             ]}
