@@ -1,4 +1,4 @@
-import { Post, PostHandler, TagType, TagsType } from "@bobaboard/ui-components";
+import { Post, PostHandler, TagType, TagsType, HiddenThread } from "@bobaboard/ui-components";
 import { PostData, ThreadSummaryType } from "types/Types";
 import { PostOptions, usePostOptions } from "components/options/usePostOptions";
 import {
@@ -32,41 +32,6 @@ const getThreadTypeIcon = (view: PostData["defaultView"]) => {
   return THREAD_VIEW_OPTIONS.find((options) => options.id == view)?.icon;
 };
 
-const HiddenThread: React.FC<{
-  thread: ThreadSummaryType;
-}> = ({ thread }) => {
-  const setThreadHidden = useSetThreadHidden();
-  return (
-    <div className="post hidden" key={thread.id}>
-      This thread was hidden{" "}
-      <a
-        href="#"
-        onClick={(e) => {
-          setThreadHidden({
-            threadId: thread.id,
-            boardId: thread.parentBoardId,
-            hide: !thread.hidden,
-          });
-          e.preventDefault();
-        }}
-      >
-        [unhide]
-      </a>
-      <style jsx>{`
-        .post.hidden {
-          margin: 0 auto;
-          max-width: 500px;
-          width: calc(100% - 40px);
-          background-color: gray;
-          padding: 20px;
-          border: 1px dashed black;
-          border-radius: 15px;
-        }
-      `}</style>
-    </div>
-  );
-};
-
 const ThreadPreview: React.FC<{
   thread: ThreadSummaryType;
   isLoggedIn: boolean;
@@ -77,6 +42,7 @@ const ThreadPreview: React.FC<{
   onSetCategoryFilter?: (filter: string) => void;
 }> = ({ thread, isLoggedIn, onSetCategoryFilter, originBoard }) => {
   const { getLinkToThread } = useCachedLinks();
+  const setThreadHidden = useSetThreadHidden();
   const hasReplies =
     thread.totalPostsAmount > 1 || thread.totalCommentsAmount > 0;
   const linkToThread = getLinkToThread({
@@ -138,7 +104,15 @@ const ThreadPreview: React.FC<{
   }, [threadId]);
 
   if (thread.hidden) {
-    return <HiddenThread thread={thread} />;
+    console.log(typeof(HiddenThread));
+    let hiddenThreadArgs : HiddenThreadProps = {
+      threadId: thread.id,
+      boardId: thread.parentBoardId,
+      hide: !thread.hidden,
+      setHideCallback: setThreadHidden,
+    }
+    console.log(hiddenThreadArgs);
+    return <HiddenThread {...hiddenThreadArgs} />;
   }
 
   return (
