@@ -4,22 +4,21 @@ const withTM = require("next-transpile-modules")(["@bobaboard/ui-components"], {
 const path = require("path");
 
 module.exports = withTM({
-  webpack: (config, { webpack, buildId }) => {
-    // config.resolve.alias["react"] = path.resolve(
-    //   __dirname,
-    //   ".",
-    //   "node_modules",
-    //   "react"
-    // );
-    // config.resolve.alias["react-dom"] = path.resolve(
-    //   __dirname,
-    //   ".",
-    //   "node_modules",
-    //   "react-dom"
-    // );
-    // if (isServer) {
-    //   config.externals = ["react", "react-dom", ...config.externals];
-    // }
+  webpack: (config, { webpack, buildId, isServer }) => {
+    const nodeModulesPath = path.resolve(
+      process.env.NODE_MODULES_PARENT_PATH ?? __dirname,
+      ".",
+      "node_modules"
+    );
+
+    config.resolve.alias["react"] = path.resolve(nodeModulesPath, "react");
+    config.resolve.alias["react-dom"] = path.resolve(
+      nodeModulesPath,
+      "react-dom"
+    );
+    if (isServer) {
+      config.externals = ["react", "react-dom", ...config.externals];
+    }
 
     config.plugins.push(
       new webpack.DefinePlugin({

@@ -19,6 +19,7 @@
             nodejs = pkgs.nodejs-18_x;
             NODE_OPTIONS = "--openssl-legacy-provider";
             buildPhase = ''
+              export NODE_MODULES_PARENT_PATH=$PWD
               yarn build
             '';
             distPhase = "";
