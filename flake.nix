@@ -17,7 +17,7 @@
             dontFixup = true;
             doDist = false;
             nodejs = pkgs.nodejs-18_x;
-            NODE_OPTIONS = "--openssl-legacy-provider --max-old-space-size=4096";
+            NODE_OPTIONS = "--openssl-legacy-provider --max-old-space-size=8192";
             buildPhase = ''
               export NODE_MODULES_PARENT_PATH=$PWD
               yarn build
