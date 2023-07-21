@@ -6,7 +6,7 @@
   "author": "",
   "main": "index.js",
   "scripts": {
-    "build": "rm -rf .next && next build",
+    "build": "rm -rf .next && cross-env NODE_OPTIONS='--openssl-legacy-provider  --max-old-space-size=8192' next build",
     "deploy": "rm -rf .next/ && rm -rf build/ && yarn run build && gcloud config set project bobaboard && gcloud app deploy --version live",
     "dev": "cross-env DEBUG=bobafrontend:*-log next",
     "dev:bonjour": "concurrently --kill-others \"node bonjour_proxies.js\" \"yarn run dev\"",
