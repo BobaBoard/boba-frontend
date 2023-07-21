@@ -3,8 +3,12 @@ const withTM = require("next-transpile-modules")(["@bobaboard/ui-components"], {
   debug: true,
 });
 const path = require("path");
+const {
+  PHASE_DEVELOPMENT_SERVER,
+  PHASE_PRODUCTION_BUILD,
+} = require("next/constants");
 
-module.exports = withTM({
+const config = {
   webpack: (config, { webpack, buildId, isServer }) => {
     const nodeModulesPath = path.resolve(
       process.env.NODE_MODULES_PARENT_PATH ?? __dirname,
@@ -31,4 +35,8 @@ module.exports = withTM({
 
     return config;
   },
-});
+};
+module.exports = (phase) =>
+  phase == PHASE_DEVELOPMENT_SERVER || phase == PHASE_PRODUCTION_BUILD
+    ? withTM(config)
+    : config;
