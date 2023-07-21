@@ -1,5 +1,6 @@
 const withTM = require("next-transpile-modules")(["@bobaboard/ui-components"], {
   resolveSymlinks: false,
+  debug: true,
 });
 const path = require("path");
 
