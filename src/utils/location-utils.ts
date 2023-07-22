@@ -92,10 +92,10 @@ export const isStaging = (serverHostname?: string | undefined) => {
 export const getServerBaseUrl = (context?: NextPageContext) => {
   const currentHost = getCurrentHost(context?.req?.headers?.host);
   const staging = isStaging(currentHost);
-  const { publicRuntimeConfig } = getConfig();
+  const runtimeConfig = getConfig();
 
-  if (publicRuntimeConfig.defaultBackendUrl) {
-    return publicRuntimeConfig.defaultBackendUrl;
+  if (runtimeConfig?.publicRuntimeConfig?.defaultBackendUrl) {
+    return runtimeConfig.publicRuntimeConfig.defaultBackendUrl;
   }
 
   // TODO: remove this hardcoding completely and only use the environment variables
