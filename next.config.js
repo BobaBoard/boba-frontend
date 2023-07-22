@@ -33,7 +33,8 @@ const config = {
     return config;
   },
   publicRuntimeConfig: {
-    defaultBackendUrl: process.env.DEFAULT_BACKEND,
+    defaultBackendUrl: process.env.DEFAULT_BACKEND || "http://localhost:4200",
+    onlyHereToStopBug: "I hate bugs",
   },
 };
 // Only transpile boba-component modules during development or as building for production
