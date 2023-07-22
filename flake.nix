@@ -33,7 +33,7 @@
             export NODE_PATH=${boba-frontend-assets}/libexec/boba-frontend/node_modules
             export NODE_OPTIONS="--openssl-legacy-provider";
             export DEBUG=boba-frontend:*,-*info
-            ${boba-frontend-assets}/libexec/boba-frontend/node_modules/.bin/next start "${boba-frontend-assets}/libexec/boba-frontend/deps/bobaboard-frontend -p 3010"
+            ${boba-frontend-assets}/libexec/boba-frontend/node_modules/.bin/next start "${boba-frontend-assets}/libexec/boba-frontend/deps/bobaboard-frontend" -p 3010
           '';
           default = boba-frontend;
       };
