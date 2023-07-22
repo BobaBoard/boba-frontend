@@ -1,6 +1,5 @@
 const withTM = require("next-transpile-modules")(["@bobaboard/ui-components"], {
   resolveSymlinks: false,
-  debug: true,
 });
 const path = require("path");
 const {
@@ -27,15 +26,18 @@ const config = {
 
     config.plugins.push(
       new webpack.DefinePlugin({
-        "process.env": {
-          BUILD_ID: JSON.stringify(buildId),
-        },
+        "process.env.BUILD_ID": JSON.stringify(buildId),
       })
     );
 
     return config;
   },
+  publicRuntimeConfig: {
+    defaultBackendUrl: process.env.DEFAULT_BACKEND,
+  },
 };
+// Only transpile boba-component modules during development or as building for production
+// (so don't transpile when starting the production server)
 module.exports = (phase) =>
   phase == PHASE_DEVELOPMENT_SERVER || phase == PHASE_PRODUCTION_BUILD
     ? withTM(config)

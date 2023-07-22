@@ -1,4 +1,5 @@
 import { NextPageContext } from "next/dist/shared/lib/utils";
+import getConfig from "next/config";
 
 export const getCurrentHost = (
   serverHost: string | undefined,
@@ -91,9 +92,10 @@ export const isStaging = (serverHostname?: string | undefined) => {
 export const getServerBaseUrl = (context?: NextPageContext) => {
   const currentHost = getCurrentHost(context?.req?.headers?.host);
   const staging = isStaging(currentHost);
+  const { publicRuntimeConfig } = getConfig();
 
-  if (process.env.NEXT_PUBLIC_DEFAULT_BACKEND) {
-    return process.env.NEXT_PUBLIC_DEFAULT_BACKEND;
+  if (publicRuntimeConfig.defaultBackendUrl) {
+    return publicRuntimeConfig.defaultBackendUrl;
   }
 
   // TODO: remove this hardcoding completely and only use the environment variables
