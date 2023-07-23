@@ -30,6 +30,7 @@
             '';
           };
           boba-frontend = pkgs.writeShellScriptBin "boba-frontend" ''
+            export NODE_MODULES_PARENT_PATH=${boba-frontend-assets}/libexec/boba-frontend
             export NODE_PATH=${boba-frontend-assets}/libexec/boba-frontend/node_modules
             export NODE_OPTIONS="--openssl-legacy-provider";
             export DEBUG=boba-frontend:*,-*info
