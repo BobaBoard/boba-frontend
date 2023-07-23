@@ -1,4 +1,8 @@
 const path = require("path");
+const {
+  PHASE_DEVELOPMENT_SERVER,
+  PHASE_PRODUCTION_BUILD,
+} = require("next/constants");
 
 // This is here because Nix needs to be given the node_module path explicitly to resolve it at serve time
 const nodeModulesPath = path.resolve(
@@ -42,4 +46,9 @@ const config = {
   },
 };
 
-module.exports = withTM(config);
+// Only transpile boba-component modules during development or as building for production
+// (so don't transpile when starting the production server)
+module.exports = (phase) =>
+  phase == PHASE_DEVELOPMENT_SERVER || phase == PHASE_PRODUCTION_BUILD
+    ? withTM(config)
+    : config;
