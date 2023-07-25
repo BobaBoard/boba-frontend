@@ -3,10 +3,9 @@ node_modules
 next-env.d.ts
 coverage
 .DS_Store
-cypress.env.json
-e2e/cypress/screenshots
 /test-results/
 /playwright-report/
 /playwright/.cache/
 .env.test
 result
+.vscode/settings.json
