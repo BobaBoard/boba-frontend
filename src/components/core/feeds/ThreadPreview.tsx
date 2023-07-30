@@ -106,10 +106,10 @@ const ThreadPreview: React.FC<{
   // If the thread is hidden, use a special placeholder to represent it.
   if (thread.hidden) {
     return <HiddenThread 
-             threadId={thread.id} 
-             boardId={thread.parentBoardId} 
-             hide={!thread.hidden} 
-             onThreadHidden={setThreadHidden} />;
+             hidden={thread.hidden} 
+             onThreadHidden={(hide: boolean) => 
+               setThreadHidden({threadId, boardId, hide})} 
+            />;
   }
 
   return (
