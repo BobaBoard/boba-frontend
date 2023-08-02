@@ -52,7 +52,7 @@ const ThreadPreview: React.FC<{
   const rootPost = thread.starter;
   const boardId = useCurrentRealmBoardId({
     boardSlug: thread.parentBoardSlug,
-  });
+  })!;
   const options = usePostOptions({
     options: THREAD_OPTIONS,
     isLoggedIn,
