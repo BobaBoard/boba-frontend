@@ -119,6 +119,7 @@ const queryClient = new QueryClient();
 const DefaultFavicon = () => {
   return (
     <>
+      <link rel="icon" type="image/x-icon" href="/icons/logo-compact.ico" />
       <link rel="icon" type="image/svg+xml" href="/icons/logo-compact.svg" />
       <link
         rel="apple-touch-icon"
