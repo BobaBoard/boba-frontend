@@ -42,7 +42,7 @@ const config = {
   },
   publicRuntimeConfig: {
     // This cannot be given directly as process.env variable because Next will embed it in at compile time
-    defaultBackendUrl: process.env.DEFAULT_BACKEND || "http://localhost:4200",
+    defaultBackendUrl: process.env.DEFAULT_BACKEND,
   },
 };
 
