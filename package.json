@@ -11,7 +11,7 @@
   "scripts": {
     "build": "rm -rf .next && cross-env NODE_OPTIONS='--openssl-legacy-provider  --max-old-space-size=8192' next build",
     "deploy": "rm -rf .next/ && rm -rf build/ && yarn run build && gcloud config set project bobaboard && gcloud app deploy --version live",
-    "dev": "cross-env DEBUG=bobafrontend:*-log next",
+    "dev": "cross-env DEBUG=bobafrontend:*-log  NODE_OPTIONS='--openssl-legacy-provider' next",
     "dev:bonjour": "concurrently --kill-others \"node bonjour_proxies.js\" \"yarn run dev\"",
     "dev:debug": "cross-env NODE_OPTIONS='--inspect' DEBUG=bobafrontend:* next dev",
     "start": "next start -p 8080 ",
@@ -27,7 +27,7 @@
     "@types/react": "17.0.2"
   },
   "dependencies": {
-    "@bobaboard/ui-components": "^0.6.0",
+    "@bobaboard/ui-components": "^0.7.0",
     "@fortawesome/fontawesome-common-types": "6.1.1",
     "@fortawesome/fontawesome-svg-core": "6.1.1",
     "@fortawesome/free-regular-svg-icons": "6.1.1",
