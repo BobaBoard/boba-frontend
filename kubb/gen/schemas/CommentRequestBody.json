@@ -1,0 +1,1 @@
+{"type":"object","properties":{"contents":{"type":"array","items":{"type":"string","format":"quill-delta"}}},"required":["contents"],"x-readme-ref-name":"CommentRequestBody"}

@@ -1,0 +1,1 @@
+{"type":"object","properties":{"name":{"type":"string"},"type":{"type":"string","enum":["BOOLEAN"]},"value":{"type":"boolean"}},"required":["name","type","value"],"x-readme-ref-name":"BooleanSetting"}

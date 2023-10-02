@@ -1,0 +1,1 @@
+{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"index":{"type":"number"},"title":{"type":"string"}},"required":["id","index","title"],"x-readme-ref-name":"BaseDescription"}

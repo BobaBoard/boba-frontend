@@ -2,6 +2,7 @@ import { FeedType } from "types/Types";
 import axios from "axios";
 import debug from "debug";
 import { makeClientThreadSummary } from "lib/api/client-data";
+import { getBoardsFeedByExternalId } from "kubb/gen";
 
 const log = debug("bobafrontend:queries:feeds-log");
 
@@ -19,15 +20,17 @@ export const getBoardActivityData = async (
     // TODO: don't request activity when there's no slug.
     throw new Error("Attempted to fetch board activity with no id");
   }
-  const response = await axios.get(`feeds/boards/${boardId}`, {
-    params: { cursor, categoryFilter, realmId },
-  });
+  const response = await getBoardsFeedByExternalId(boardId, { cursor });
+
+  // `feeds/boards/${boardId}`,
+  // {
+  //   params: { cursor, categoryFilter, realmId },
+  // }
   log(
     `Got response for board activity with id ${boardId}. Status: ${response.status}`
   );
-
   if (response.status == 204) {
-    // No data, let's return empty array
+    // No data, let's return emptyy
     return { cursor: { next: null }, activity: [] };
   }
   // Transform post to client-side type.

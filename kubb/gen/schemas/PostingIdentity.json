@@ -1,0 +1,1 @@
+{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"name":{"type":"string"},"avatar_url":{"type":"string","format":"uri-reference"},"color":{"oneOf":[{"type":"string","format":"color"},{"type":"null"}]},"accessory":{"oneOf":[{"type":"string","format":"uri"},{"type":"null"}]}},"required":["id","name","avatar"],"x-readme-ref-name":"PostingIdentity"}
