@@ -13,11 +13,16 @@ export default defineConfig(async () => {
     },
     output: {
       path: "./kubb/gen",
+      clean: true,
     },
     plugins: [
       createSwagger({}),
       createSwaggerTS({}),
-      createSwaggerClient({}),
+      createSwaggerClient({
+        // copy paste of @kubb/swagger-client/client
+        client: "src/lib/api/client.ts",
+        // dataReturnType: "full",
+      }),
       // createSwaggerTanstackQuery({}),
     ],
   };
