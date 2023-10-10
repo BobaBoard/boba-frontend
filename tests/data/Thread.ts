@@ -17,7 +17,6 @@ export const REMEMBER_TO_BE_EXCELLENT_GORE_THREAD: ThreadType = {
     created: "2020-09-25T05:42:00.00Z",
     content:
       '[{"insert":"Remember to be excellent to each other and only be mean to fictional characters!"}]',
-    options: {},
     tags: {
       whisperTags: ["An announcement from your headmaster!"],
       indexTags: [],
@@ -43,7 +42,6 @@ export const REMEMBER_TO_BE_EXCELLENT_GORE_THREAD: ThreadType = {
       created: "2020-09-25T05:42:00.00Z",
       content:
         '[{"insert":"Remember to be excellent to each other and only be mean to fictional characters!"}]',
-      options: {},
       tags: {
         whisperTags: ["An announcement from your headmaster!"],
         indexTags: [],
@@ -126,7 +124,6 @@ export const FAVORITE_CHARACTER_GORE_EMPTY_THREAD: ThreadType = {
     userIdentity: { name: "oncest5evah", avatar: "/greedler.jpg" },
     created: "2020-04-30T03:23:00.00Z",
     content: '[{"insert":"Favorite character to maim?"}]',
-    options: {},
     tags: {
       whisperTags: [],
       indexTags: ["evil", "bobapost"],
@@ -151,7 +148,6 @@ export const FAVORITE_CHARACTER_GORE_EMPTY_THREAD: ThreadType = {
       userIdentity: { name: "oncest5evah", avatar: "/greedler.jpg" },
       created: "2020-04-30T03:23:00.00Z",
       content: '[{"insert":"Favorite character to maim?"}]',
-      options: {},
       tags: {
         whisperTags: [],
         indexTags: ["evil", "bobapost"],

@@ -1,8 +1,8 @@
 export interface SecretIdentityType {
   name: string;
   avatar: string;
-  accessory?: string;
-  color?: string;
+  accessory?: string | null;
+  color?: string | null;
 }
 
 export interface UserIdentityType {
@@ -35,12 +35,9 @@ export interface PostType {
   threadId: string;
   parentPostId: string | null;
   secretIdentity: SecretIdentityType;
-  userIdentity?: UserIdentityType;
+  userIdentity: UserIdentityType | null;
   created: string;
   content: string;
-  options: {
-    wide?: boolean;
-  };
   tags: TagsType;
   isNew: boolean;
   isOwn: boolean;

@@ -14,9 +14,9 @@ import {
   ThreadType,
   UserNotifications,
 } from "types/Types";
+import { Contribution, ThreadSummary } from "kubb/gen";
 import { DEFAULT_USER_AVATAR, DEFAULT_USER_NAME } from "components/Auth";
 
-import { ThreadSummary } from "kubb/gen";
 import { max } from "date-fns";
 
 export const makeClientComment = (
@@ -43,7 +43,7 @@ export const makeClientComment = (
   isOwn: serverComment.own,
 });
 
-export const makeClientPost = (serverPost: any): PostType => ({
+export const makeClientPost = (serverPost: Contribution): PostType => ({
   postId: serverPost.id,
   threadId: serverPost.parent_thread_id,
   parentPostId: serverPost.parent_post_id,
@@ -59,9 +59,6 @@ export const makeClientPost = (serverPost: any): PostType => ({
   },
   created: serverPost.created_at,
   content: serverPost.content,
-  options: {
-    wide: serverPost.options?.wide,
-  },
   tags: {
     whisperTags: serverPost.tags.whisper_tags,
     indexTags: serverPost.tags.index_tags,

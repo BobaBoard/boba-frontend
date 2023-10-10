@@ -17,9 +17,9 @@ export const makePost = ({
       name: "",
       avatar: "",
     },
+    userIdentity: null,
     created: "",
     content: "",
-    options: {},
     tags: {
       whisperTags: [],
       indexTags: [],
