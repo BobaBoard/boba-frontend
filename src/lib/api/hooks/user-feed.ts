@@ -23,13 +23,11 @@ export const useUserFeed = ({
   return useInfiniteQuery(
     [USER_FEED_KEY, feedOptions],
     ({ pageParam = undefined }) =>
-      getUserActivityData(
-        {
-          ...feedOptions,
-          realmId,
-        },
-        pageParam
-      ),
+      getUserActivityData({
+        ...feedOptions,
+        cursor: pageParam,
+        realmId,
+      }),
     {
       getNextPageParam: (lastGroup) => {
         return lastGroup?.cursor.next;

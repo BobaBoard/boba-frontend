@@ -76,7 +76,6 @@ export * from "./RealmActivity";
 export * from "./RealmPermissions";
 export * from "./RealmSettings";
 export * from "./RulesBlock";
-export * from "./SearchParams";
 export * from "./SecretIdentity";
 export * from "./Setting";
 export * from "./StarThreadByExternalId";
