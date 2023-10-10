@@ -5,10 +5,11 @@ export type RealmActivity = {
      * @description The Realm id.
      * @type string | undefined uuid
     */
-    id?: string | undefined;
+    id?: string;
     /**
      * @description The activity summary for each board in the realm. |
     Keys are the uuid of each board.
+    
      * @type object | undefined
     */
     boards?: {
@@ -16,7 +17,7 @@ export type RealmActivity = {
             /**
              * @type string | undefined uuid
             */
-            id?: string | undefined;
+            id?: string;
         } & BoardActivitySummary);
-    } | undefined;
+    };
 };

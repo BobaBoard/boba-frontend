@@ -28,5 +28,5 @@ export type EditContributionMutationRequest = Tags;
  * @description The contribution was successfully edited.
 */
 export type EditContributionMutationResponse = {
-    contribution?: Contribution | undefined;
+    contribution?: Contribution;
 };

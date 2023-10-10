@@ -2,9 +2,9 @@ import type { Cursor } from "./Cursor";
 import type { ThreadSummary } from "./ThreadSummary";
 
 export type FeedActivity = {
-    cursor?: Cursor | undefined;
+    cursor: Cursor;
     /**
-     * @type array | undefined
+     * @type array
     */
-    activity?: ThreadSummary[] | undefined;
+    activity: ThreadSummary[];
 };

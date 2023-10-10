@@ -6,6 +6,7 @@ import { useRealmContext } from "contexts/RealmContext";
 export interface FeedOptions {
   showRead: boolean;
   ownOnly: boolean;
+  realmId?: string;
 }
 
 export const USER_FEED_KEY = "userActivityData";

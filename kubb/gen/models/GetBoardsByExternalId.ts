@@ -8,7 +8,7 @@ export type GetBoardsByExternalId401 = {
     /**
      * @type string | undefined
     */
-    message?: string | undefined;
+    message?: string;
 };
 
 /**
@@ -18,7 +18,7 @@ export type GetBoardsByExternalId403 = {
     /**
      * @type string | undefined
     */
-    message?: string | undefined;
+    message?: string;
 };
 
 export type GetBoardsByExternalId404 = any | null;

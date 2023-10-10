@@ -1,3 +1,11 @@
+import {
+  GetBoardsFeedByExternalIdPathParams,
+  GetBoardsFeedByExternalIdQueryParams,
+  GetBoardsFeedByExternalIdQueryResponse,
+  GetUserFeedQueryParams,
+  GetUserFeedQueryResponse,
+} from "kubb/gen";
+
 import { FeedType } from "types/Types";
 import axios from "axios";
 import debug from "debug";
@@ -6,12 +14,29 @@ import { getBoardsFeedByExternalId } from "kubb/gen";
 
 const log = debug("bobafrontend:queries:feeds-log");
 
+export type CamelizeString<ObjectProperty extends string> =
+  ObjectProperty extends `${infer F}_${infer R}`
+    ? `${F}${Capitalize<CamelizeString<R>>}`
+    : ObjectProperty;
+
+export type Camelize<GenericObject> = {
+  [ObjectProperty in keyof GenericObject as CamelizeString<
+    ObjectProperty & string
+  >]: GenericObject[ObjectProperty] extends Array<infer ArrayItem>
+    ? ArrayItem extends Record<string, unknown>
+      ? Array<Camelize<ArrayItem>>
+      : GenericObject[ObjectProperty]
+    : GenericObject[ObjectProperty] extends Record<string, unknown>
+    ? Camelize<GenericObject[ObjectProperty]>
+    : GenericObject[ObjectProperty];
+};
+
 export const getBoardActivityData = async (
   {
     boardId,
     categoryFilter,
-    realmId,
-  }: { boardId: string | null; categoryFilter: string | null; realmId: string },
+  }: Camelize<GetBoardsFeedByExternalIdPathParams> &
+    Camelize<GetBoardsFeedByExternalIdQueryParams>,
   cursor?: string
 ): Promise<FeedType> => {
   log(`Fetching board activity for board with id ${boardId}.`);
@@ -20,12 +45,13 @@ export const getBoardActivityData = async (
     // TODO: don't request activity when there's no slug.
     throw new Error("Attempted to fetch board activity with no id");
   }
-  const response = await getBoardsFeedByExternalId(boardId, { cursor });
+  const response = await axios.get<GetBoardsFeedByExternalIdQueryResponse>(
+    `feeds/boards/${boardId}`,
+    {
+      params: { categoryFilter, cursor },
+    }
+  );
 
-  // `feeds/boards/${boardId}`,
-  // {
-  //   params: { cursor, categoryFilter, realmId },
-  // }
   log(
     `Got response for board activity with id ${boardId}. Status: ${response.status}`
   );
@@ -41,16 +67,15 @@ export const getBoardActivityData = async (
 };
 
 export const getUserActivityData = async (
-  params: {
-    ownOnly?: boolean;
-    updatedOnly?: boolean;
-    realmId: string;
-  },
-  cursor: string
+  params: GetUserFeedQueryParams["filter"],
+  cursor?: string
 ): Promise<FeedType> => {
-  const response = await axios.get(`feeds/users/@me`, {
-    params: { ...params, cursor },
-  });
+  const response = await axios.get<GetUserFeedQueryResponse>(
+    `feeds/users/@me`,
+    {
+      params: { ...params, cursor },
+    }
+  );
   if (response.status == 204) {
     // No data, let's return empty array
     return { cursor: { next: null }, activity: [] };

@@ -28,7 +28,7 @@ export type PostCommentMutationResponse = {
      * @description Finalized details of the comments just posted.
      * @type array | undefined
     */
-    comments?: Comment[] | undefined;
+    comments?: Comment[];
 };
 
 /**

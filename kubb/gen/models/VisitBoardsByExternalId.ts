@@ -7,7 +7,7 @@ export type VisitBoardsByExternalId401 = {
     /**
      * @type string | undefined
     */
-    message?: string | undefined;
+    message?: string;
 };
 
 export type VisitBoardsByExternalId500 = any | null;

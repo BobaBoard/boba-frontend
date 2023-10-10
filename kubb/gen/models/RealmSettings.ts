@@ -8,7 +8,7 @@ export type RealmSettings = {
         /**
          * @type object | undefined
         */
-        cursor?: object | undefined;
+        cursor?: object;
     };
     /**
      * @type array

@@ -18,7 +18,12 @@ export type GetBoardsFeedByExternalIdQueryParams = {
      * @description The cursor to start feeding the activity of the board from.
      * @type string | undefined
     */
-    cursor?: string | undefined;
+    cursor?: string;
+    /**
+     * @description A category to filter the feed by.
+     * @type string | undefined
+    */
+    categoryFilter?: string;
 };
 
 /**

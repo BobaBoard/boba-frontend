@@ -8,11 +8,11 @@ export type CreateInviteByRealmIdMutationRequest = {
     /**
      * @type string | undefined email
     */
-    email?: string | undefined;
+    email?: string;
     /**
      * @type string | undefined
     */
-    label?: string | undefined;
+    label?: string;
 };
 
 export type CreateInviteByRealmIdPathParams = {

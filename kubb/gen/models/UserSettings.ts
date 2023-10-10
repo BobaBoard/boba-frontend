@@ -4,5 +4,5 @@ export type UserSettings = {
     /**
      * @type array | undefined
     */
-    decorations?: Setting[] | undefined;
+    decorations?: Setting[];
 };

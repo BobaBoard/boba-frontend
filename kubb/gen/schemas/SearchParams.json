@@ -1,0 +1,1 @@
+{"type":"object","properties":{"showRead":{"type":"boolean"},"ownOnly":{"type":"boolean"},"realmId":{"type":"string"},"cursor":{"type":"object","properties":{"next":{"description":"Pagination link pointing to the next page.","anyOf":[{"type":"string"},{"type":"null"}]}},"required":["next"],"x-readme-ref-name":"Cursor"}},"x-readme-ref-name":"SearchParams"}

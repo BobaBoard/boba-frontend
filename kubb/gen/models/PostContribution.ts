@@ -24,7 +24,7 @@ export type PostContributionPathParams = {
  * @description The contribution was successfully created.
 */
 export type PostContributionMutationResponse = {
-    contribution?: Contribution | undefined;
+    contribution?: Contribution;
 };
 
 /**
@@ -34,5 +34,5 @@ export type PostContributionMutationRequest = ({
     /**
      * @type string | undefined quill-delta
     */
-    content?: string | undefined;
+    content?: string;
 } & Tags & IdentityParams);

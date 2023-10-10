@@ -11,7 +11,7 @@ export type PostingIdentity = {
     /**
      * @type string | undefined uri-reference
     */
-    avatar_url?: string | undefined;
-    color?: (string | null) | undefined;
-    accessory?: (string | null) | undefined;
+    avatar_url?: string;
+    color?: (string | null);
+    accessory?: (string | null);
 };

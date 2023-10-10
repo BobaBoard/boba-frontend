@@ -1,9 +1,9 @@
-import { useBoardSummary, useRealmContext } from "contexts/RealmContext";
 import { useInfiniteQuery, useQueryClient } from "react-query";
 
 import React from "react";
 import { getBoardActivityData } from "lib/api/queries/feeds";
 import { useAuth } from "components/Auth";
+import { useBoardSummary } from "contexts/RealmContext";
 
 export const BOARD_ACTIVITY_KEY = "boardActivityData";
 export function useBoardActivity(props: {
@@ -13,14 +13,13 @@ export function useBoardActivity(props: {
 }) {
   const { boardId, categoryFilter } = props;
   const boardSummary = useBoardSummary({ boardId });
-  const { id: realmId } = useRealmContext();
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
 
   return useInfiniteQuery(
     [BOARD_ACTIVITY_KEY, { boardId, categoryFilter }],
     ({ pageParam = undefined }) =>
       getBoardActivityData(
-        { boardId, categoryFilter: categoryFilter?.[0] || null, realmId },
+        { boardId: boardId!, categoryFilter: categoryFilter?.[0] ?? undefined },
         pageParam
       ),
     {

@@ -24,6 +24,7 @@ export type GetCurrentUserPinnedBoardsForRealmPathParams = {
 export type GetCurrentUserPinnedBoardsForRealmQueryResponse = {
     /**
      * @description A map from board id to its LoggedInSummary for each pinned board.
+    
      * @type object
     */
     pinned_boards: {

@@ -3,7 +3,7 @@ import type { Subscription } from "./Subscription";
 import type { Contribution } from "./Contribution";
 
 export type SubscriptionActivity = {
-    cursor?: Cursor | undefined;
+    cursor?: Cursor;
     subscription: Subscription;
     /**
      * @type array

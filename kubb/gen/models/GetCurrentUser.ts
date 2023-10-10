@@ -16,9 +16,9 @@ export type GetCurrentUserQueryResponse = {
     /**
      * @type string | undefined
     */
-    username?: string | undefined;
+    username?: string;
     /**
      * @type string | undefined uri
     */
-    avatar_url?: string | undefined;
+    avatar_url?: string;
 };

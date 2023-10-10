@@ -16,6 +16,7 @@ import {
 } from "types/Types";
 import { DEFAULT_USER_AVATAR, DEFAULT_USER_NAME } from "components/Auth";
 
+import { ThreadSummary } from "kubb/gen";
 import { max } from "date-fns";
 
 export const makeClientComment = (
@@ -72,7 +73,7 @@ export const makeClientPost = (serverPost: any): PostType => ({
 });
 
 export const makeClientThreadSummary = (
-  serverThreadSummary: any
+  serverThreadSummary: ThreadSummary
 ): ThreadSummaryType => {
   return {
     id: serverThreadSummary.id,
@@ -89,7 +90,6 @@ export const makeClientThreadSummary = (
     totalCommentsAmount: serverThreadSummary.total_comments_amount,
     directThreadsAmount: serverThreadSummary.direct_threads_amount,
     lastActivityAt: serverThreadSummary.last_activity_at,
-    personalIdentity: serverThreadSummary.personal_identity,
   };
 };
 

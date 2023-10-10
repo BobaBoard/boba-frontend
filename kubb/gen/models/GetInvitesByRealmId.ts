@@ -25,5 +25,5 @@ export type GetInvitesByRealmIdQueryResponse = {
     /**
      * @type array | undefined
     */
-    invites?: InviteWithDetails[] | undefined;
+    invites?: InviteWithDetails[];
 };

@@ -8,6 +8,6 @@ export type SecretIdentity = {
      * @type string uri-reference
     */
     avatar: string;
-    color?: (string | null) | undefined;
-    accessory?: (string | null) | undefined;
+    color?: (string | null);
+    accessory?: (string | null);
 };

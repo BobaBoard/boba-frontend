@@ -14,12 +14,12 @@ export type UpdateThreadExternalIdMutationRequest = {
      * @description The default view that the thread should use.
      * @type string | undefined
     */
-    defaultView?: UpdateThreadExternalIdMutationRequestDefaultView | undefined;
+    defaultView?: UpdateThreadExternalIdMutationRequestDefaultView;
     /**
      * @description The id of the board that the thread should be moved to.
      * @type string | undefined uuid
     */
-    parentBoardId?: string | undefined;
+    parentBoardId?: string;
 };
 
 export type UpdateThreadExternalIdMutationResponse = any | null;

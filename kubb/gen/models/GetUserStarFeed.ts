@@ -5,7 +5,7 @@ export type GetUserStarFeedQueryParams = {
      * @description The cursor to start feeding the activity of the user star feed from.
      * @type string | undefined
     */
-    cursor?: string | undefined;
+    cursor?: string;
 };
 
 /**

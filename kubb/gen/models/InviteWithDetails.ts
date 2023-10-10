@@ -11,7 +11,7 @@ export type InviteWithDetails = {
     /**
      * @type string | undefined email
     */
-    invitee_email?: string | undefined;
+    invitee_email?: string;
     /**
      * @type boolean
     */
@@ -27,5 +27,5 @@ export type InviteWithDetails = {
     /**
      * @type string | undefined
     */
-    label?: string | undefined;
+    label?: string;
 };
