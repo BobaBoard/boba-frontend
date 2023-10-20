@@ -5,15 +5,15 @@ import {
   TagType,
   TagsFilterSection,
 } from "@bobaboard/ui-components";
-import { ThreadPageDetails, usePageDetails } from 'utils/router-utils';
+import { ThreadPageDetails, usePageDetails } from "lib/router";
 
 import { DisplayManager } from "components/hooks/useDisplayMananger";
 import React from "react";
 import { THREAD_VIEW_MODE } from "contexts/ThreadViewContext";
-import { UNCATEGORIZED_LABEL } from "utils/thread-utils";
+import { UNCATEGORIZED_LABEL } from "lib/thread";
 import classnames from "classnames";
 import { formatDistanceToNow } from "date-fns";
-import { useCachedLinks } from 'components/hooks/useCachedLinks';
+import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useFilterableContext } from "components/core/feeds/FilterableContext";
 import { useForceHideIdentity } from "components/hooks/useForceHideIdentity";
 import { useThreadContext } from "components/thread/ThreadContext";
@@ -30,24 +30,24 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
   const { threadRoot, categories, contentNotices } = useThreadContext();
   const { getLinkToThread } = useCachedLinks();
 
-  const {threadId, slug} = usePageDetails<ThreadPageDetails>();
+  const { threadId, slug } = usePageDetails<ThreadPageDetails>();
 
   const linkToThread = getLinkToThread({
     slug,
     threadId,
-    view: "thread"
+    view: "thread",
   }).href;
   const linkToGallery = getLinkToThread({
     slug,
     threadId,
-    view: "gallery"
+    view: "gallery",
   }).href;
-const linkToTimeline = getLinkToThread({
+  const linkToTimeline = getLinkToThread({
     slug,
     threadId,
-    view: "timeline"
+    view: "timeline",
   }).href;
- 
+
   const {
     activeCategories,
     setActiveCategories,
@@ -80,7 +80,7 @@ const linkToTimeline = getLinkToThread({
                 label: "Thread",
                 link: {
                   onClick: () => props.onViewChange(THREAD_VIEW_MODE.THREAD),
-                  href: `${linkToThread}`
+                  href: `${linkToThread}`,
                 },
               },
               {
@@ -88,7 +88,7 @@ const linkToTimeline = getLinkToThread({
                 label: "Gallery",
                 link: {
                   onClick: () => props.onViewChange(THREAD_VIEW_MODE.MASONRY),
-                  href: `${linkToGallery}`
+                  href: `${linkToGallery}`,
                 },
               },
               {
@@ -96,7 +96,7 @@ const linkToTimeline = getLinkToThread({
                 label: "Timeline",
                 link: {
                   onClick: () => props.onViewChange(THREAD_VIEW_MODE.TIMELINE),
-                  href: `${linkToTimeline}`
+                  href: `${linkToTimeline}`,
                 },
               },
             ]}

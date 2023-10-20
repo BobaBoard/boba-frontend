@@ -18,8 +18,8 @@ const SETTINGS_ROUTER = getUserSettingsRoute({
 
 jest.mock("components/hooks/usePreventPageChange");
 jest.mock("components/core/useIsChangingRoute");
-jest.mock("utils/image-upload", () => ({
-  ...jest.requireActual("utils/image-upload"),
+jest.mock("lib/image-upload", () => ({
+  ...jest.requireActual("lib/image-upload"),
   uploadImage: jest.fn(({ baseUrl, extension }) =>
     Promise.resolve(`${baseUrl}image${extension}`)
   ),

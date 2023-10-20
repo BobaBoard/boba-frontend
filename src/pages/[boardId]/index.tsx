@@ -1,4 +1,4 @@
-import { BoardPageDetails, usePageDetails } from "utils/router-utils";
+import { BoardPageDetails, usePageDetails } from "lib/router";
 import {
   FilterableContextProvider,
   useFilterableContext,
@@ -14,7 +14,7 @@ import {
   getCurrentHost,
   getCurrentRealmSlug,
   isClientContext,
-} from "utils/location-utils";
+} from "lib/location";
 import { prefetchBoardMetadata, useBoardMetadata } from "lib/api/hooks/board";
 
 import BoardBottomBar from "components/boards/BoardBottomBar";

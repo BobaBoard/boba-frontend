@@ -1,7 +1,7 @@
 import { ArrayParam } from "use-query-params";
 import React from "react";
 // import debug from "debug";
-import { isNotNull } from "utils/typescript-utils";
+import { isNotNull } from "lib/typescript";
 import { useQueryParams } from "use-query-params";
 
 //const log = debug("bobafrontend:contexts:RealmContext-log");

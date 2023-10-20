@@ -1,6 +1,6 @@
 import { expect, test } from "@jest/globals";
 
-import { getCurrentRealmSlug } from "utils/location-utils";
+import { getCurrentRealmSlug } from "lib/location";
 
 const updateWindowHostname = (hostname: string) => {
   Object.defineProperty(global.window, "location", {

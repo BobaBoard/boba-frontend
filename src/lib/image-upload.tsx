@@ -8,7 +8,7 @@ import {
 import { NextRouter } from "next/router";
 import React from "react";
 import debug from "debug";
-import { getPageDetails } from "./router-utils";
+import { getPageDetails } from "./router";
 import loadImage from "blueimp-load-image";
 import { v4 as uuidv4 } from "uuid";
 

@@ -1,10 +1,13 @@
-import { Post, PostHandler, TagType, TagsType, HiddenThread } from "@bobaboard/ui-components";
+import {
+  HiddenThread,
+  Post,
+  PostHandler,
+  TagType,
+  TagsType,
+} from "@bobaboard/ui-components";
 import { PostData, ThreadSummaryType } from "types/Types";
 import { PostOptions, usePostOptions } from "components/options/usePostOptions";
-import {
-  addThreadHandlerRef,
-  removeThreadHandlerRef,
-} from "utils/scroll-utils";
+import { addThreadHandlerRef, removeThreadHandlerRef } from "lib/scroll";
 
 import React from "react";
 import { THREAD_VIEW_OPTIONS } from "components/core/editors/utils";
@@ -105,11 +108,14 @@ const ThreadPreview: React.FC<{
 
   // If the thread is hidden, use a special placeholder to represent it.
   if (thread.hidden) {
-    return <HiddenThread 
-             hidden={thread.hidden} 
-             onThreadHidden={(hide: boolean) => 
-               setThreadHidden({threadId, boardId, hide})} 
-            />;
+    return (
+      <HiddenThread
+        hidden={thread.hidden}
+        onThreadHidden={(hide: boolean) =>
+          setThreadHidden({ threadId, boardId, hide })
+        }
+      />
+    );
   }
 
   return (

@@ -22,7 +22,7 @@ import { addCommentInCache } from "lib/api/cache/comment";
 import debug from "debug";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
-import { usePageDetails } from "utils/router-utils";
+import { usePageDetails } from "lib/router";
 import { usePreventPageChange } from "components/hooks/usePreventPageChange";
 import { useQueryClient } from "react-query";
 import { useRefetchBoardActivity } from "lib/api/hooks/board-feed";

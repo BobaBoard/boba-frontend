@@ -6,7 +6,7 @@ import {
   REALM_ADMIN_PATH,
   THREAD_PATH,
   createLinkTo,
-} from "utils/router-utils";
+} from "lib/router";
 
 import { PostData } from "types/Types";
 import { ThreadViewQueryParams } from "types/ThreadQueryParams";

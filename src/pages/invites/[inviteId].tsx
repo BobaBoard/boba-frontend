@@ -8,7 +8,7 @@ import {
 } from "@bobaboard/ui-components";
 import { NextPage, NextPageContext } from "next";
 import React, { useEffect } from "react";
-import { getCurrentRealmSlug, isLocal } from "utils/location-utils";
+import { getCurrentRealmSlug, isLocal } from "lib/location";
 import { getInviteStatusByNonce, getRealmData } from "lib/api/queries/realm";
 import {
   useRealmHomepage,
@@ -24,7 +24,7 @@ import { acceptInvite } from "lib/api/queries/user";
 import axios from "axios";
 import classnames from "classnames";
 import debug from "debug";
-import { getRealmNameFromSlug } from "utils/text-utils";
+import { getRealmNameFromSlug } from "lib/text";
 import { useAuth } from "components/Auth";
 import { useMutation } from "react-query";
 import { useRouter } from "next/router";

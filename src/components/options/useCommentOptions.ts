@@ -1,5 +1,5 @@
 import { CommentType, RealmPermissions } from "types/Types";
-import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
+import { ThreadPageDetails, usePageDetails } from "lib/router";
 import { faArrowRight, faLink } from "@fortawesome/free-solid-svg-icons";
 import {
   useCurrentRealmBoardId,
@@ -8,10 +8,10 @@ import {
 
 import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
 import React from "react";
-import { copyText } from "utils/text-utils";
+import { copyText } from "lib/text";
 import { faComment } from "@fortawesome/free-regular-svg-icons";
 import { getCommentsChain } from "components/thread/CommentsThread";
-import { isNotNull } from "utils/typescript-utils";
+import { isNotNull } from "lib/typescript";
 import { toast } from "@bobaboard/ui-components";
 import { useBoardMetadata } from "lib/api/hooks/board";
 import { useCachedLinks } from "components/hooks/useCachedLinks";

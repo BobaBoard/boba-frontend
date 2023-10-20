@@ -1,7 +1,6 @@
 import React from "react";
-
+import { usePageDetails } from "lib/router";
 import { useRouter } from "next/router";
-import { usePageDetails } from "utils/router-utils";
 
 export const useIsChangingRoute = (props?: { onRouteChange?: () => void }) => {
   const router = useRouter();

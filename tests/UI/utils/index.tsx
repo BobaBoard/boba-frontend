@@ -12,7 +12,7 @@ import { debug } from "debug";
 import { makeRealmData } from "lib/api/client-data";
 import { matchRequestUrl } from "msw";
 import { server } from "../../server-mocks";
-import { usePageDataListener } from "utils/router-utils";
+import { usePageDataListener } from "lib/router";
 
 const useRouter = jest.spyOn(require("next/router"), "useRouter");
 

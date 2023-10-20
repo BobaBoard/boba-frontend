@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "react-query";
 import React from "react";
 import { RealmType } from "types/Types";
 import debug from "debug";
-import { getCurrentRealmSlug } from "utils/location-utils";
+import { getCurrentRealmSlug } from "lib/location";
 import { getRealmData } from "lib/api/queries/realm";
 import { useAuth } from "components/Auth";
 

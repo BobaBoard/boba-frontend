@@ -6,7 +6,7 @@ import InvitesPanel from "components/realm/InvitesPanel";
 import Layout from "components/core/layouts/Layout";
 import React from "react";
 import { RealmPermissions } from "types/Types";
-import { hasAdminPanelAccess } from "utils/permissions-utils";
+import { hasAdminPanelAccess } from "lib/permissions";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useRealmPermissions } from "contexts/RealmContext";

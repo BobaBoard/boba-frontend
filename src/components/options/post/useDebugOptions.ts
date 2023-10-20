@@ -1,6 +1,6 @@
 import { PostType } from "types/Types";
 import React from "react";
-import { copyText } from "utils/text-utils";
+import { copyText } from "lib/text";
 import { faBug } from "@fortawesome/free-solid-svg-icons";
 import { faCopy } from "@fortawesome/free-regular-svg-icons";
 import { toast } from "@bobaboard/ui-components";

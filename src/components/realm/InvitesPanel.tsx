@@ -5,7 +5,7 @@ import { AdminPanelIds } from "pages/realms/admin/[[...panelId]]";
 import CreateInvitePanel from "./CreateInvitePanel";
 import InvitesTable from "./InvitesTable";
 import React from "react";
-import { copyText } from "utils/text-utils";
+import { copyText } from "lib/text";
 import debug from "debug";
 import { toast } from "@bobaboard/ui-components";
 import { useHotkeys } from "react-hotkeys-hook";

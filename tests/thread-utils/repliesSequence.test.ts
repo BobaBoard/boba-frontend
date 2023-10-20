@@ -1,9 +1,6 @@
 import { expect, test } from "@jest/globals";
 // TODO: figure out absolute import paths
-import {
-  extractNewRepliesSequence,
-  extractRepliesSequence,
-} from "utils/thread-utils";
+import { extractNewRepliesSequence, extractRepliesSequence } from "lib/thread";
 import { makeComment, makePost } from "../utils";
 
 // #######################################################

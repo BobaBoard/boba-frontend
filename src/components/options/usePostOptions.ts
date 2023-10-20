@@ -10,7 +10,7 @@ import {
 import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
 import { LinkWithAction } from "@bobaboard/ui-components/dist/types";
 import React from "react";
-import { copyText } from "utils/text-utils";
+import { copyText } from "lib/text";
 import { toast } from "@bobaboard/ui-components";
 import { useBoardMetadata } from "lib/api/hooks/board";
 import { useCachedLinks } from "../hooks/useCachedLinks";

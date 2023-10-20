@@ -5,11 +5,8 @@ import {
   TagsOptions,
   useGetTagOptions,
 } from "components/options/useTagsOptions";
-import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
-import {
-  getTotalContributions,
-  getTotalNewContributions,
-} from "utils/thread-utils";
+import { ThreadPageDetails, usePageDetails } from "lib/router";
+import { getTotalContributions, getTotalNewContributions } from "lib/thread";
 import {
   isCommentEditorState,
   isReplyContribution,
@@ -20,12 +17,12 @@ import {
   useRealmPermissions,
 } from "contexts/RealmContext";
 
-import { GetPropsFromForwardedRef } from "utils/typescript-utils";
+import { GetPropsFromForwardedRef } from "lib/typescript";
 import React from "react";
-import { addPostHandlerRef } from "utils/scroll-utils";
+import { addPostHandlerRef } from "lib/scroll";
 import classNames from "classnames";
 import { formatDistanceToNow } from "date-fns";
-import { getCurrentSearchParams } from "utils/location-utils";
+import { getCurrentSearchParams } from "lib/location";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useEditorsState } from "components/core/editors/EditorsContext";

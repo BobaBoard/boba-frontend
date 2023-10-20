@@ -22,7 +22,7 @@ import {
   isClientContext,
   isLocalhost,
   isStaging,
-} from "utils/location-utils";
+} from "lib/location";
 import {
   prefetchSubscriptionData,
   useSubscription,

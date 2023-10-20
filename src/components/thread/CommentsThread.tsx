@@ -12,12 +12,12 @@ import {
   RealmPermissions,
   ThreadCommentInfoType,
 } from "types/Types";
-import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
+import { ThreadPageDetails, usePageDetails } from "lib/router";
 import {
   addCommentHandlerRef,
   removeCommentHandlerRef,
   scrollToComment,
-} from "utils/scroll-utils";
+} from "lib/scroll";
 import {
   useBoardSummary,
   useCurrentRealmBoardId,
