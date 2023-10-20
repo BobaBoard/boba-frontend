@@ -1,7 +1,7 @@
 import { FeedType } from "types/Types";
 import axios from "axios";
 import debug from "debug";
-import { makeClientThreadSummary } from "../client-data";
+import { makeClientThreadSummary } from "lib/api/client-data";
 
 const log = debug("bobafrontend:queries:feeds-log");
 

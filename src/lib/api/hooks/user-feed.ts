@@ -1,4 +1,4 @@
-import { getUserActivityData } from "utils/queries/feeds";
+import { getUserActivityData } from "lib/api/queries/feeds";
 import { useAuth } from "components/Auth";
 import { useInfiniteQuery } from "react-query";
 import { useRealmContext } from "contexts/RealmContext";

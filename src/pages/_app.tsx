@@ -39,7 +39,7 @@ import { UpdateNotice } from "components/UpdateNotice";
 import axios from "axios";
 import debug from "debug";
 import embedsCache from "utils/embeds-cache";
-import { getRealmData } from "utils/queries/realm";
+import { getRealmData } from "lib/api/queries/realm";
 import smoothscroll from "smoothscroll-polyfill";
 import { useConsoleHelloMessage } from "components/hooks/useConsoleHelloMessage";
 import useFromBackButton from "components/core/useFromBackButton";

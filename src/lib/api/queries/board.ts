@@ -1,5 +1,8 @@
 import { BoardData, BoardDescription, BoardMetadata } from "types/Types";
-import { makeClientBoardData, makeClientBoardMetadata } from "../client-data";
+import {
+  makeClientBoardData,
+  makeClientBoardMetadata,
+} from "lib/api/client-data";
 
 import axios from "axios";
 import debug from "debug";

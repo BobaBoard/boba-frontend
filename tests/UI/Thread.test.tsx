@@ -10,7 +10,7 @@ import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../server-mocks/data/thread";
 import React from "react";
 import { RealmType } from "types/Types";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
-import { makeRealmData } from "utils/client-data";
+import { makeRealmData } from "lib/api/client-data";
 import { useReadThread } from "lib/api/hooks/thread";
 
 // import debug from "debug";

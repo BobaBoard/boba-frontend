@@ -1,13 +1,13 @@
 import { BobaDex, UserDetails } from "@bobaboard/ui-components";
 import React, { useEffect } from "react";
 import { extractImageExtension, uploadImage } from "utils/image-upload";
-import { getBobadex, updateUserData } from "utils/queries/user";
+import { getBobadex, updateUserData } from "lib/api/queries/user";
 import { useMutation, useQuery } from "react-query";
 
 import { BobadexSeasonType } from "types/Types";
 import { SettingPageIds } from "pages/users/settings/[[...settingId]]";
 import debug from "debug";
-import { makeClientData } from "utils/client-data";
+import { makeClientData } from "lib/api/client-data";
 import { useAuth } from "components/Auth";
 import { useRouter } from "next/router";
 

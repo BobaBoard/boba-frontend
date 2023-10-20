@@ -1,4 +1,4 @@
-import { createRealmInvite, getRealmInvites } from "utils/queries/realm";
+import { createRealmInvite, getRealmInvites } from "lib/api/queries/realm";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import { AdminPanelIds } from "pages/realms/admin/[[...panelId]]";

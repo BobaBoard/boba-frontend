@@ -1,16 +1,17 @@
-import React from "react";
 import {
-  SettingsContainer,
   SettingType,
+  SettingsContainer,
   toast,
 } from "@bobaboard/ui-components";
+import { getUserSettings, updateUserSettings } from "lib/api/queries/user";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+
+import React from "react";
+import { SettingPageIds } from "pages/users/settings/[[...settingId]]";
+import { SettingsType } from "types/Types";
 import debug from "debug";
 import { useAuth } from "components/Auth";
-import { getUserSettings, updateUserSettings } from "utils/queries/user";
-import { useMutation, useQuery, useQueryClient } from "react-query";
-import { SettingsType } from "types/Types";
 import { useRealmContext } from "contexts/RealmContext";
-import { SettingPageIds } from "pages/users/settings/[[...settingId]]";
 
 //const log = debug("bobafrontend:settings:Decorations-log");
 const error = debug("bobafrontend:settings:Decorations-error");

@@ -1,7 +1,7 @@
 import { QueryClient, useQuery } from "react-query";
 
 import { SubscriptionFeed } from "types/Types";
-import { getLatestSubscriptionUpdate } from "utils/queries/subscription";
+import { getLatestSubscriptionUpdate } from "lib/api/queries/subscription";
 
 const SUBSCRIPTION_KEY = "subscriptions";
 

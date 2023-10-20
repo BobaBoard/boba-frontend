@@ -3,7 +3,7 @@ import {
   hideThread,
   markThreadAsRead,
   muteThread,
-} from "utils/queries/thread";
+} from "lib/api/queries/thread";
 import {
   getThreadInCache,
   getThreadSummaryInCache,
@@ -17,7 +17,7 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import { ThreadType } from "types/Types";
 import debug from "debug";
 import { toast } from "@bobaboard/ui-components";
-import { updateThreadView } from "utils/queries/thread";
+import { updateThreadView } from "lib/api/queries/thread";
 import { useAuth } from "components/Auth";
 
 const info = debug("bobafrontend:hooks:queries:thread-info");
