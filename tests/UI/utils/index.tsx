@@ -9,7 +9,7 @@ import React from "react";
 import { RealmType } from "types/Types";
 import { V0_DATA } from "../../server-mocks/data/realm";
 import { debug } from "debug";
-import { makeRealmData } from "utils/client-data";
+import { makeRealmData } from "lib/api/client-data";
 import { matchRequestUrl } from "msw";
 import { server } from "../../server-mocks";
 import { usePageDataListener } from "utils/router-utils";

@@ -13,7 +13,7 @@ import { LOGGED_IN_V0_MEMBER_DATA } from "../server-mocks/data/realm";
 import React from "react";
 import { RealmType } from "types/Types";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
-import { makeRealmData } from "utils/client-data";
+import { makeRealmData } from "lib/api/client-data";
 import userEvent from "@testing-library/user-event";
 
 jest.mock("components/hooks/usePreventPageChange");

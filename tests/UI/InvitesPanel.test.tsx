@@ -12,7 +12,7 @@ import React from "react";
 import { RealmType } from "types/Types";
 import debug from "debug";
 import { format } from "date-fns";
-import { makeRealmData } from "utils/client-data";
+import { makeRealmData } from "lib/api/client-data";
 import { matchMedia } from "@shopify/jest-dom-mocks";
 import { rest } from "msw";
 import { server } from "../server-mocks";

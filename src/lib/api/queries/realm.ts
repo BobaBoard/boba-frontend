@@ -4,7 +4,7 @@ import {
   makeClientDetailedRealmInvite,
   makeClientRealmInvite,
   makeRealmData,
-} from "utils/client-data";
+} from "lib/api/client-data";
 
 import axios from "axios";
 import debug from "debug";

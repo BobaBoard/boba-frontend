@@ -14,12 +14,10 @@ import React from "react";
 import { RealmType } from "types/Types";
 import debug from "debug";
 import { getRealmNameFromSlug } from "utils/text-utils";
-import { makeRealmData } from "utils/client-data";
+import { makeRealmData } from "lib/api/client-data";
 import userEvent from "@testing-library/user-event";
 
 const log = debug("bobafrontend:tests:UI:InvitesPage");
-
-// const original = jest.requireActual("../utils/queries/user");
 
 const INVITES_ROUTER = getInvitesPageRoute({
   nonce: V0_CREATED_INVITE_NONCE,

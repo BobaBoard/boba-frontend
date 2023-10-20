@@ -15,7 +15,7 @@ import {
 import BoardPage from "pages/[boardId]/index";
 import React from "react";
 import { RealmType } from "types/Types";
-import { makeRealmData } from "utils/client-data";
+import { makeRealmData } from "lib/api/client-data";
 
 const GORE_ROUTER = getBoardRouter({ boardSlug: "gore" });
 

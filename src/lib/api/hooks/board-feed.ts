@@ -2,7 +2,7 @@ import { useBoardSummary, useRealmContext } from "contexts/RealmContext";
 import { useInfiniteQuery, useQueryClient } from "react-query";
 
 import React from "react";
-import { getBoardActivityData } from "utils/queries/feeds";
+import { getBoardActivityData } from "lib/api/queries/feeds";
 import { useAuth } from "components/Auth";
 
 export const BOARD_ACTIVITY_KEY = "boardActivityData";

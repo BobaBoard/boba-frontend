@@ -5,7 +5,7 @@ import {
   PostType,
   TagsType,
 } from "types/Types";
-import { makeClientComment, makeClientPost } from "../client-data";
+import { makeClientComment, makeClientPost } from "lib/api/client-data";
 
 import axios from "axios";
 import debug from "debug";

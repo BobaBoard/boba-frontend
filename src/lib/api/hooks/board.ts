@@ -11,7 +11,7 @@ import {
   muteBoard,
   pinBoard,
   updateBoardMetadata,
-} from "utils/queries/board";
+} from "lib/api/queries/board";
 import {
   getBoardSummaryInCache,
   setBoardMetadataInCache,

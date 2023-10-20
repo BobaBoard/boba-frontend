@@ -1,4 +1,4 @@
-import { makeClientData, makeClientPost } from "utils/client-data";
+import { makeClientData, makeClientPost } from "lib/api/client-data";
 
 import { SubscriptionFeed } from "types/Types";
 import axios from "axios";

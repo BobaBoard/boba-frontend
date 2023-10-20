@@ -31,7 +31,7 @@ import ThreadView from "components/thread/ThreadView";
 import TimelineThreadView from "components/thread/TimelineThreadView";
 import classnames from "classnames";
 import debug from "debug";
-import { getThreadData } from "utils/queries/thread";
+import { getThreadData } from "lib/api/queries/thread";
 import { isClientContext } from "utils/location-utils";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "components/hooks/useCachedLinks";

@@ -11,7 +11,7 @@ import BoardPage from "pages/[boardId]/index";
 import { LOGGED_IN_V0_MEMBER_DATA } from "../server-mocks/data/realm";
 import React from "react";
 import { RealmType } from "types/Types";
-import { makeRealmData } from "utils/client-data";
+import { makeRealmData } from "lib/api/client-data";
 
 const GORE_ROUTER = getBoardRouter({ boardSlug: "gore" });
 

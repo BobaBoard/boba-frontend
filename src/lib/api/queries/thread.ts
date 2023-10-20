@@ -2,7 +2,7 @@ import { PostData, ThreadType } from "types/Types";
 
 import axios from "axios";
 import debug from "debug";
-import { makeClientThread } from "../client-data";
+import { makeClientThread } from "lib/api/client-data";
 
 const log = debug("bobafrontend:queries:thread-log");
 

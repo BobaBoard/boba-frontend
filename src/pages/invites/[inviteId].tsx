@@ -9,7 +9,7 @@ import {
 import { NextPage, NextPageContext } from "next";
 import React, { useEffect } from "react";
 import { getCurrentRealmSlug, isLocal } from "utils/location-utils";
-import { getInviteStatusByNonce, getRealmData } from "utils/queries/realm";
+import { getInviteStatusByNonce, getRealmData } from "lib/api/queries/realm";
 import {
   useRealmHomepage,
   useRealmIcon,
@@ -20,7 +20,7 @@ import {
 import Layout from "components/core/layouts/Layout";
 import LoginModal from "components/core/layouts/LoginModal";
 import { RulesBlock as RulesBlockType } from "types/Types";
-import { acceptInvite } from "utils/queries/user";
+import { acceptInvite } from "lib/api/queries/user";
 import axios from "axios";
 import classnames from "classnames";
 import debug from "debug";
