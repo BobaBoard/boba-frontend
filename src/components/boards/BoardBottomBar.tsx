@@ -1,6 +1,6 @@
 import { BoardMetadata, RealmPermissions } from "types/Types";
 import { BoardOptions, useBoardOptions } from "../hooks/useBoardOptions";
-import { BoardPageDetails, usePageDetails } from "utils/router-utils";
+import { BoardPageDetails, usePageDetails } from "lib/router";
 import {
   EditorActions,
   useEditorsDispatch,

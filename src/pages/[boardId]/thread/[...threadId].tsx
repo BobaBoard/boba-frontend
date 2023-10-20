@@ -9,7 +9,7 @@ import ThreadContextProvider, {
   useInvalidateThreadData,
   useThreadContext,
 } from "components/thread/ThreadContext";
-import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
+import { ThreadPageDetails, usePageDetails } from "lib/router";
 import {
   useBoardSummary,
   useCurrentRealmBoardId,
@@ -32,7 +32,7 @@ import TimelineThreadView from "components/thread/TimelineThreadView";
 import classnames from "classnames";
 import debug from "debug";
 import { getThreadData } from "lib/api/queries/thread";
-import { isClientContext } from "utils/location-utils";
+import { isClientContext } from "lib/location";
 import { useAuth } from "components/Auth";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";

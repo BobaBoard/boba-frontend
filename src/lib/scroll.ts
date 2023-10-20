@@ -5,7 +5,7 @@ import {
 } from "@bobaboard/ui-components";
 import { CommentType, PostType, ThreadSummaryType } from "types/Types";
 
-import { getThreadElementIdWithType } from "./thread-utils";
+import { getThreadElementIdWithType } from "./thread";
 import { log } from "debug";
 
 const POST_HANDLERS = new Map<string, PostHandler>();

@@ -3,7 +3,7 @@ import {
   findFirstLevelParent,
   findNextSibling,
   findPreviousSibling,
-} from "utils/thread-utils";
+} from "lib/thread";
 
 import { makePost } from "../utils";
 

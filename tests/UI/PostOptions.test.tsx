@@ -11,12 +11,12 @@ import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../server-mocks/data/thread";
 import React from "react";
 import { TagMatcher } from "./utils/matchers";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
-import { copyText } from "utils/text-utils";
+import { copyText } from "lib/text";
 
 jest.mock("components/hooks/usePreventPageChange");
 jest.mock("components/core/useIsChangingRoute");
 jest.mock("components/hooks/useOnPageExit");
-jest.mock("utils/text-utils.ts");
+jest.mock("lib/text.ts");
 
 const displaysOptionInPanel = async ({
   optionText,

@@ -13,7 +13,7 @@ import InvitesPage from "pages/invites/[inviteId]";
 import React from "react";
 import { RealmType } from "types/Types";
 import debug from "debug";
-import { getRealmNameFromSlug } from "utils/text-utils";
+import { getRealmNameFromSlug } from "lib/text";
 import { makeRealmData } from "lib/api/client-data";
 import userEvent from "@testing-library/user-event";
 

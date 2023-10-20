@@ -2,7 +2,7 @@ import { EditorActions } from "components/core/editors/types";
 import { PostType } from "types/Types";
 import React from "react";
 import { faEdit } from "@fortawesome/free-solid-svg-icons";
-import { isPostEditPermission } from "utils/permissions-utils";
+import { isPostEditPermission } from "lib/permissions";
 import { useAuth } from "components/Auth";
 import { useBoardMetadata } from "lib/api/hooks/board";
 import { useEditorsDispatch } from "components/core/editors/EditorsContext";

@@ -1,4 +1,4 @@
-import { AllFalse, MakeRecursiveTypeReadable } from "utils/typescript-utils";
+import { AllFalse, MakeRecursiveTypeReadable } from "lib/typescript";
 
 import { DecodedValueMap } from "use-query-params";
 import { ExistanceParam } from "components/QueryParamNextProvider";

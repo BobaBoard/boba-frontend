@@ -11,12 +11,12 @@ import {
   TIMELINE_VIEW_SUB_MODE,
   useThreadViewContext,
 } from "contexts/ThreadViewContext";
-import { isScrolledPast, tryScrollToElement } from "utils/scroll-utils";
+import { isScrolledPast, tryScrollToElement } from "lib/scroll";
 
 import { DisplayManager } from "./useDisplayMananger";
 import React from "react";
 import debug from "debug";
-import { extractRepliesSequence } from "utils/thread-utils";
+import { extractRepliesSequence } from "lib/thread";
 import { useStateWithCallback } from "components/core/useStateWithCallback";
 import { useThreadContext } from "../thread/ThreadContext";
 

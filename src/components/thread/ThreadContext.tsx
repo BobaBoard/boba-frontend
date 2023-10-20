@@ -14,7 +14,7 @@ import {
   getCommentFromId,
   makeCommentsTree,
   makePostsTree,
-} from "utils/thread-utils";
+} from "lib/thread";
 
 import React from "react";
 import { compareAsc as compareDatesAsc } from "date-fns";

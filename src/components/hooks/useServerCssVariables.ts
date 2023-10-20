@@ -1,7 +1,8 @@
-import { useRealmSettings } from "contexts/RealmContext";
-import React from "react";
+import { PageTypes, usePageDetails } from "lib/router";
+
 import { CssVariableSetting } from "types/Types";
-import { PageTypes, usePageDetails } from "utils/router-utils";
+import React from "react";
+import { useRealmSettings } from "contexts/RealmContext";
 
 export const useServerCssVariables = (ref: React.RefObject<HTMLDivElement>) => {
   const {

@@ -1,6 +1,6 @@
 import { BobaDex, UserDetails } from "@bobaboard/ui-components";
 import React, { useEffect } from "react";
-import { extractImageExtension, uploadImage } from "utils/image-upload";
+import { extractImageExtension, uploadImage } from "lib/image-upload";
 import { getBobadex, updateUserData } from "lib/api/queries/user";
 import { useMutation, useQuery } from "react-query";
 

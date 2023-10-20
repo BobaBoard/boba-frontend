@@ -10,7 +10,7 @@ import {
   DisplayManager,
   READ_MORE_STEP,
 } from "components/hooks/useDisplayMananger";
-import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
+import { ThreadPageDetails, usePageDetails } from "lib/router";
 
 import CommentsThread from "./CommentsThread";
 import Link from "next/link";
@@ -19,8 +19,8 @@ import ThreadPost from "./ThreadPost";
 import classnames from "classnames";
 import css from "styled-jsx/css";
 import debug from "debug";
-import { getCurrentSearchParams } from "utils/location-utils";
-import { scrollToPost } from "utils/scroll-utils";
+import { getCurrentSearchParams } from "lib/location";
+import { scrollToPost } from "lib/scroll";
 import { useBoardSummaryBySlug } from "lib/api/hooks/board";
 import { useStemOptions } from "components/hooks/useStemOptions";
 import { useThreadContext } from "components/thread/ThreadContext";

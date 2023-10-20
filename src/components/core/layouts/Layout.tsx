@@ -3,7 +3,7 @@ import {
   DefaultTheme,
   Layout as LibraryLayout,
 } from "@bobaboard/ui-components";
-import { PageTypes, usePageDetails } from "utils/router-utils";
+import { PageTypes, usePageDetails } from "lib/router";
 import {
   useInvalidateNotifications,
   useNotifications,

@@ -12,13 +12,13 @@ import {
   ThreadViewMode,
   useThreadViewContext,
 } from "contexts/ThreadViewContext";
-import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
+import { ThreadPageDetails, usePageDetails } from "lib/router";
 import {
   UNCATEGORIZED_LABEL,
   findFirstLevelParent,
   findNextSibling,
   findPreviousSibling,
-} from "utils/thread-utils";
+} from "lib/thread";
 import {
   useActiveCategories,
   useFilterableContext,
@@ -27,7 +27,7 @@ import {
 import { CollapseManager } from "components/thread/useCollapseManager";
 import React from "react";
 import debug from "debug";
-import { getElementId } from "utils/thread-utils";
+import { getElementId } from "lib/thread";
 import { useStateWithCallback } from "components/core/useStateWithCallback";
 import { useThreadContext } from "components/thread/ThreadContext";
 

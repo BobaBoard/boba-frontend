@@ -3,7 +3,7 @@ import {
   TIMELINE_VIEW_SUB_MODE,
   useThreadViewContext,
 } from "contexts/ThreadViewContext";
-import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
+import { ThreadPageDetails, usePageDetails } from "lib/router";
 import {
   extractPostId,
   getCommentThreadId,
@@ -16,7 +16,7 @@ import EmptyView from "./EmptyView";
 import React from "react";
 import ThreadPost from "./ThreadPost";
 import classnames from "classnames";
-import { scrollToPost } from "utils/scroll-utils";
+import { scrollToPost } from "lib/scroll";
 import { useAuth } from "components/Auth";
 import { useBoardSummaryBySlug } from "lib/api/hooks/board";
 import { useStemOptions } from "components/hooks/useStemOptions";

@@ -1,5 +1,5 @@
 import { PostOptions, usePostOptions } from "components/options/usePostOptions";
-import { ThreadPageDetails, usePageDetails } from "utils/router-utils";
+import { ThreadPageDetails, usePageDetails } from "lib/router";
 import {
   faAnglesDown,
   faAnglesUp,

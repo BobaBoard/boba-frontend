@@ -16,11 +16,11 @@ import React from "react";
 import { THREAD_QUERY_KEY } from "lib/api/hooks/thread";
 import debug from "debug";
 import { dismissRealmNotifications } from "lib/api/queries/user";
-import { processBoardsUpdates } from "utils/boards-utils";
+import { processBoardsUpdates } from "lib/boards";
 import { useAuth } from "components/Auth";
 import { useBoardSummaryBySlug } from "lib/api/hooks/board";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
-import { usePageDetails } from "utils/router-utils";
+import { usePageDetails } from "lib/router";
 import { useRefetchBoardActivity } from "lib/api/hooks/board-feed";
 
 const log = debug("bobafrontend:SideMenu-log");

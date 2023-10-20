@@ -1,4 +1,4 @@
-import { GetPropsFromForwardedRef, isNotNull } from "utils/typescript-utils";
+import { GetPropsFromForwardedRef, isNotNull } from "lib/typescript";
 import type { Post, TagsType } from "@bobaboard/ui-components";
 
 import React from "react";

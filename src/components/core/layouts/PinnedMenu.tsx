@@ -1,4 +1,4 @@
-import { PageTypes, usePageDetails } from "utils/router-utils";
+import { PageTypes, usePageDetails } from "lib/router";
 import { faInbox, faRss, faThumbtack } from "@fortawesome/free-solid-svg-icons";
 import {
   useInvalidateNotifications,

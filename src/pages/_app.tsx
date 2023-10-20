@@ -25,7 +25,7 @@ import {
   getCurrentRealmSlug,
   getServerBaseUrl,
   isClientContext,
-} from "utils/location-utils";
+} from "lib/location";
 
 import App from "next/app";
 import { CustomErrorPage } from "./_error";
@@ -38,13 +38,13 @@ import { ReactQueryDevtools } from "react-query/devtools";
 import { UpdateNotice } from "components/UpdateNotice";
 import axios from "axios";
 import debug from "debug";
-import embedsCache from "utils/embeds-cache";
+import embedsCache from "lib/embeds-cache";
 import { getRealmData } from "lib/api/queries/realm";
 import smoothscroll from "smoothscroll-polyfill";
 import { useConsoleHelloMessage } from "components/hooks/useConsoleHelloMessage";
 import useFromBackButton from "components/core/useFromBackButton";
-import { useImageUploader } from "utils/image-upload";
-import { usePageDataListener } from "utils/router-utils";
+import { useImageUploader } from "lib/image-upload";
+import { usePageDataListener } from "lib/router";
 import { useScrollRestoration } from "components/hooks/useScrollRestoration";
 
 const log = debug("bobafrontend:app-log");
