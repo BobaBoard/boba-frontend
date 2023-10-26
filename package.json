@@ -14,7 +14,7 @@
     "dev": "cross-env DEBUG=bobafrontend:*-log  NODE_OPTIONS='--openssl-legacy-provider' next",
     "dev:bonjour": "concurrently --kill-others \"node bonjour_proxies.js\" \"yarn run dev\"",
     "dev:debug": "cross-env NODE_OPTIONS='--inspect' DEBUG=bobafrontend:* next dev",
-    "types:generate": "kubb generate --config kubb.config.ts",
+    "open-api:generate": "kubb generate --config kubb.config.ts",
     "start": "next start -p 8080 ",
     "test": "vitest --root tests --exclude 'e2e/**' --exclude 'UI/**'",
     "test:ci": "yarn run test --ci",
