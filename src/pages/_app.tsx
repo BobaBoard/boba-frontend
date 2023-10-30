@@ -233,6 +233,7 @@ BobaBoardApp.getInitialProps = async (
   const realmBody = await getRealmData({
     realmSlug,
   });
+  log(`Got realm data for realm (${realmBody.boards.length}) boards`);
   if (Array.isArray(ctx.query.boardId)) {
     throw new Error("Expected single board id");
   }

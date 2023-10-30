@@ -358,10 +358,10 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@bobaboard/ui-components@^0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@bobaboard/ui-components/-/ui-components-0.7.0.tgz#df0c08c8caef4d6a3b401c0110f5df573df42193"
-  integrity sha512-grvY4604ykC8xQCgZlwJWUIN3V7GnQpVFroFpLRN+HD4rJg6/ab6vQWfs5VO4TphinTSIyQcKVXyiDh6z8h4jA==
+"@bobaboard/ui-components@^0.9.1":
+  version "0.9.1"
+  resolved "https://registry.yarnpkg.com/@bobaboard/ui-components/-/ui-components-0.9.1.tgz#6703d3c0c6d4ec13f8cbb0d9e7e58fa267e44b42"
+  integrity sha512-6sKr0lBcZejDYvSYfn+12XrkjjbODQFvSyQtfhH5TcBVcw1wQQbsNuyAp8+Oz8kudzf5LApwDET7XCYsESIDzg==
   dependencies:
     "@fortawesome/fontawesome-common-types" "6.1.1"
     "@fortawesome/fontawesome-svg-core" "6.1.1"
@@ -381,7 +381,6 @@
     debug "^4.1.1"
     fitty "^2.3.0"
     hammerjs "^2.0.8"
-    intersection-observer "^0.11.0"
     magic-grid "^3.2.4"
     node-polyfill-webpack-plugin "^2.0.1"
     noop-ts "1.0.3"
@@ -5374,11 +5373,6 @@ internal-slot@^1.0.4, internal-slot@^1.0.5:
     get-intrinsic "^1.2.0"
     has "^1.0.3"
     side-channel "^1.0.4"
-
-intersection-observer@^0.11.0:
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/intersection-observer/-/intersection-observer-0.11.0.tgz#f4ea067070326f68393ee161cc0a2ca4c0040c6f"
-  integrity sha512-KZArj2QVnmdud9zTpKf279m2bbGfG+4/kn16UU0NL3pTVl52ZHiJ9IRNSsnn6jaHrL9EGLFM5eWjTx2fz/+zoQ==
 
 is-arguments@^1.0.4, is-arguments@^1.1.1:
   version "1.1.1"

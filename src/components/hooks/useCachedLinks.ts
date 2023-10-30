@@ -39,7 +39,7 @@ const getLinkToBoard = (
     onLoad,
     createLinkTo({
       urlPattern: BOARD_PATH,
-      url: `/!${slug.replace(" ", "_")}`,
+      url: `/!${slug}`,
       onLoad: onLoad ? () => onLoad(slug) : undefined,
     })
   );
