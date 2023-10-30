@@ -1,9 +1,14 @@
 import {
-  BoardsDisplay,
   RulesBlock,
   SubscriptionBlock,
   useBoos,
+  BoardListBlock,
 } from "@bobaboard/ui-components";
+import {
+  BoardOptions,
+  useBoardOptions,
+} from "../components/hooks/useBoardOptions";
+
 import {
   REALM_QUERY_KEY,
   useRealmBoards,
@@ -34,6 +39,14 @@ import { PageContextWithQueryClient } from "additional";
 import debug from "debug";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useNotifications } from "lib/api/hooks/notifications";
+import { BoardListBlockProps } from "@bobaboard/ui-components/dist/blocks/BoardListBlock";
+import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import { useAuth } from "components/Auth";
+import {
+  useBoardMetadata,
+  useMuteBoard,
+  usePinBoard,
+} from "lib/api/hooks/board";
 
 const error = debug("bobafrontend:HomePage-error");
 
@@ -143,6 +156,24 @@ const RulesBlockWithShowAll = (rulesBlock: RulesBlockType) => {
   );
 };
 
+const BoardListItemWithOptions = (props: any) => {
+  const boardOptions = useBoardOptions({
+    options: [
+      BoardOptions.MUTE,
+      BoardOptions.PIN,
+      BoardOptions.DISMISS_NOTIFICATIONS,
+    ],
+    boardId: props.id || null,
+  });
+  return (
+    <BoardListBlock.Item {...props} options={boardOptions} />
+  );
+};
+
+console.log(BoardListBlock.Item.contextTypes);
+console.log(BoardListItemWithOptions);
+BoardListItemWithOptions.type = BoardListBlock.Item;
+
 const UiBlock = (props: UiBlocks) => {
   switch (props.type) {
     case "rules":
@@ -159,12 +190,16 @@ const HomePage: NextPage = () => {
   const realmHomepage = useRealmHomepage();
   const { id: realmId } = useRealmContext();
   const { realmBoardsNotifications } = useNotifications({ realmId });
+  const [selectedBoard, setSelectedBoard] = React.useState<string | null>(null);
+  const setBoardPinned = usePinBoard();
+  const setBoardMuted = useMuteBoard();
 
   const boardsToDisplay = React.useMemo(() => {
     return boards
       .filter((board) => !board.delisted)
       .map((board) => ({
-        slug: board.slug.replace("_", " "),
+        id: board.id,
+        slug: board.slug,
         avatar: board.avatarUrl,
         description: board.tagline,
         color: board.accentColor,
@@ -172,6 +207,7 @@ const HomePage: NextPage = () => {
         outdated: !!realmBoardsNotifications[board.id]?.isOutdated,
         muted: board.muted,
         link: getLinkToBoard(board.slug),
+        pinned: board.pinned,
       }));
   }, [boards, realmBoardsNotifications, getLinkToBoard]);
 
@@ -206,7 +242,50 @@ const HomePage: NextPage = () => {
               ))}
             </div>
             <div className="display">
-              <BoardsDisplay boards={boardsToDisplay} />
+              <BoardListBlock
+                icon={faAngleRight}
+                title={"Testing, attention please"}
+                selectedBoardSlug={selectedBoard}
+                onSelectBoard={(slug) => {
+                  setSelectedBoard(slug === selectedBoard ? null : slug);
+                }}
+                onPinBoard={function (slug: string): void {
+                  const boardToPin = boards.find((board) => board.slug == slug);
+                  if (!boardToPin) {
+                    throw new Error(
+                      `Attempted to pin non-existing board ${slug}`
+                    );
+                  }
+                  setBoardPinned({
+                    boardId: boardToPin.id,
+                    pin: !boardToPin.pinned,
+                  });
+                }}
+                onMuteBoard={function (slug: string): void {
+                  const boardToMute = boards.find(
+                    (board) => board.slug == slug
+                  );
+                  if (!boardToMute) {
+                    throw new Error(
+                      `Attempted to mute non-existing board ${slug}`
+                    );
+                  }
+                  setBoardMuted({
+                    boardId: boardToMute.id,
+                    mute: !boardToMute.muted,
+                  });
+                }}
+              >
+                <BoardListBlock.Empty>
+                  <div>No boards here</div>
+                </BoardListBlock.Empty>
+                {boardsToDisplay.map((board) => (
+                  <BoardListItemWithOptions
+                    {...board}
+                    as={BoardListBlock.Item}
+                  />
+                ))}
+              </BoardListBlock>
             </div>
             {styles}
           </div>
@@ -261,7 +340,7 @@ const HomePage: NextPage = () => {
           --board-display-min-size: 180px;
         }
         .display {
-          max-width: 749px;
+          max-width: 1050px;
           width: 90%;
           margin: 0 auto;
         }

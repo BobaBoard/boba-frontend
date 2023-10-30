@@ -53,7 +53,7 @@ const PinnedMenu = () => {
       .filter((board) => board.realmId === realmId)
       .map((board) => {
         return {
-          slug: board.slug.replace("_", " "),
+          slug: board.slug,
           avatar: `${board.avatarUrl}`,
           description: board.tagline,
           color: board.accentColor,
