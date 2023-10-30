@@ -1,14 +1,13 @@
 import {
+  BoardListBlock,
   RulesBlock,
   SubscriptionBlock,
   useBoos,
-  BoardListBlock,
 } from "@bobaboard/ui-components";
 import {
   BoardOptions,
   useBoardOptions,
 } from "../components/hooks/useBoardOptions";
-
 import {
   REALM_QUERY_KEY,
   useRealmBoards,
@@ -32,21 +31,21 @@ import {
   prefetchSubscriptionData,
   useSubscription,
 } from "lib/api/hooks/subscriptions";
-
-import Layout from "components/core/layouts/Layout";
-import { NextPage } from "next";
-import { PageContextWithQueryClient } from "additional";
-import debug from "debug";
-import { useCachedLinks } from "components/hooks/useCachedLinks";
-import { useNotifications } from "lib/api/hooks/notifications";
-import { BoardListBlockProps } from "@bobaboard/ui-components/dist/blocks/BoardListBlock";
-import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
-import { useAuth } from "components/Auth";
 import {
   useBoardMetadata,
   useMuteBoard,
   usePinBoard,
 } from "lib/api/hooks/board";
+
+import { BoardListBlockProps } from "@bobaboard/ui-components/dist/blocks/BoardListBlock";
+import Layout from "components/core/layouts/Layout";
+import { NextPage } from "next";
+import { PageContextWithQueryClient } from "additional";
+import debug from "debug";
+import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import { useAuth } from "components/Auth";
+import { useCachedLinks } from "components/hooks/useCachedLinks";
+import { useNotifications } from "lib/api/hooks/notifications";
 
 const error = debug("bobafrontend:HomePage-error");
 
@@ -159,6 +158,7 @@ const RulesBlockWithShowAll = (rulesBlock: RulesBlockType) => {
 const BoardListItemWithOptions = (props: any) => {
   const boardOptions = useBoardOptions({
     options: [
+      BoardOptions.COPY_LINK,
       BoardOptions.MUTE,
       BoardOptions.PIN,
       BoardOptions.DISMISS_NOTIFICATIONS,
@@ -166,9 +166,7 @@ const BoardListItemWithOptions = (props: any) => {
     boardId: props.id || null,
   });
   console.log(boardOptions);
-  return (
-    <BoardListBlock.Item {...props} options={boardOptions} />
-  );
+  return <BoardListBlock.Item {...props} options={boardOptions} />;
 };
 
 const UiBlock = (props: UiBlocks) => {
@@ -278,6 +276,7 @@ const HomePage: NextPage = () => {
                 </BoardListBlock.Empty>
                 {boardsToDisplay.map((board) => (
                   <BoardListItemWithOptions
+                    key={board.id}
                     {...board}
                     as={BoardListBlock.Item}
                   />
