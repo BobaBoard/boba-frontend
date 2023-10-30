@@ -31,19 +31,14 @@ import {
   prefetchSubscriptionData,
   useSubscription,
 } from "lib/api/hooks/subscriptions";
-import {
-  useBoardMetadata,
-  useMuteBoard,
-  usePinBoard,
-} from "lib/api/hooks/board";
+import { useMuteBoard, usePinBoard } from "lib/api/hooks/board";
 
-import { BoardListBlockProps } from "@bobaboard/ui-components/dist/blocks/BoardListBlock";
+import { GetProps } from "lib/typescript";
 import Layout from "components/core/layouts/Layout";
 import { NextPage } from "next";
 import { PageContextWithQueryClient } from "additional";
 import debug from "debug";
-import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
-import { useAuth } from "components/Auth";
+import { faTableCellsLarge } from "@fortawesome/free-solid-svg-icons";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useNotifications } from "lib/api/hooks/notifications";
 
@@ -155,7 +150,12 @@ const RulesBlockWithShowAll = (rulesBlock: RulesBlockType) => {
   );
 };
 
-const BoardListItemWithOptions = (props: any) => {
+const BoardListItemWithOptions = (
+  props: Omit<GetProps<typeof BoardListBlock.Item>, "options"> & {
+    id: string;
+    as: React.FC<GetProps<typeof BoardListBlock.Item>>;
+  }
+) => {
   const boardOptions = useBoardOptions({
     options: [
       BoardOptions.COPY_LINK,
@@ -165,7 +165,7 @@ const BoardListItemWithOptions = (props: any) => {
     ],
     boardId: props.id || null,
   });
-  console.log(boardOptions);
+
   return <BoardListBlock.Item {...props} options={boardOptions} />;
 };
 
@@ -238,8 +238,8 @@ const HomePage: NextPage = () => {
             </div>
             <div className="display">
               <BoardListBlock
-                icon={faAngleRight}
-                title={"Testing, attention please"}
+                icon={faTableCellsLarge}
+                title={"Realm Boards"}
                 selectedBoardSlug={selectedBoard}
                 onSelectBoard={(slug) => {
                   setSelectedBoard(slug === selectedBoard ? null : slug);
