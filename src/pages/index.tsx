@@ -165,14 +165,11 @@ const BoardListItemWithOptions = (props: any) => {
     ],
     boardId: props.id || null,
   });
+  console.log(boardOptions);
   return (
     <BoardListBlock.Item {...props} options={boardOptions} />
   );
 };
-
-console.log(BoardListBlock.Item.contextTypes);
-console.log(BoardListItemWithOptions);
-BoardListItemWithOptions.type = BoardListBlock.Item;
 
 const UiBlock = (props: UiBlocks) => {
   switch (props.type) {
