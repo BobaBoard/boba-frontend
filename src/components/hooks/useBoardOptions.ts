@@ -1,6 +1,7 @@
 import {
   faCommentSlash,
   faEdit,
+  faLink,
   faThumbtack,
   faVolumeMute,
   faVolumeUp,
@@ -15,7 +16,10 @@ import {
 import { BoardPermissions } from "types/Types";
 import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
 import React from "react";
+import { copyText } from "lib/text";
+import { toast } from "@bobaboard/ui-components";
 import { useAuth } from "components/Auth";
+import { useCachedLinks } from "../hooks/useCachedLinks";
 import { useInvalidateNotifications } from "lib/api/hooks/notifications";
 
 export enum BoardOptions {
@@ -23,6 +27,7 @@ export enum BoardOptions {
   PIN = "PIN",
   EDIT = "EDIT",
   MUTE = "MUTE",
+  COPY_LINK = "COPY_LINK",
 }
 
 type OptionType = NonNullable<DropdownProps["options"]>[number];
@@ -64,6 +69,18 @@ const getEditOption = (callback: () => void): OptionType => ({
   },
 });
 
+const getCopyLinkOption = (href: string): OptionType => ({
+  icon: faLink,
+  name: "Copy link to board",
+  link: {
+    onClick: () => {
+      copyText(new URL(href, window.location.origin).toString());
+
+      toast.success("Link copied!");
+    },
+  },
+});
+
 const useBoardOptions = ({
   options,
   boardId,
@@ -77,6 +94,7 @@ const useBoardOptions = ({
 }): DropdownProps["options"] | undefined => {
   const { boardMetadata } = useBoardMetadata({ boardId });
   const { isLoggedIn } = useAuth();
+  const { getLinkToBoard } = useCachedLinks();
 
   const setBoardPinned = usePinBoard();
   const dismissNotifications = useDismissBoardNotifications();
@@ -128,6 +146,11 @@ const useBoardOptions = ({
             return null;
           }
           return getEditOption(() => callbacks.editSidebar?.(true));
+        case BoardOptions.COPY_LINK:
+          if (!boardMetadata) {
+            return null;
+          }
+          return getCopyLinkOption(getLinkToBoard(boardMetadata.slug).href);
       }
     };
     return options.map(getOption).filter((option) => option != null);
@@ -141,6 +164,7 @@ const useBoardOptions = ({
     isLoggedIn,
     setBoardMuted,
     setBoardPinned,
+    getLinkToBoard,
   ]);
 
   return dropdownOptions.length
