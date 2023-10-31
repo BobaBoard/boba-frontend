@@ -158,6 +158,7 @@ const BoardListItemWithOptions = (
 ) => {
   const boardOptions = useBoardOptions({
     options: [
+      BoardOptions.GO_TO_BOARD,
       BoardOptions.COPY_LINK,
       BoardOptions.MUTE,
       BoardOptions.PIN,

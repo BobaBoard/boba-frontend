@@ -2,6 +2,7 @@ import {
   faCommentSlash,
   faEdit,
   faLink,
+  faReply,
   faThumbtack,
   faVolumeMute,
   faVolumeUp,
@@ -28,6 +29,7 @@ export enum BoardOptions {
   EDIT = "EDIT",
   MUTE = "MUTE",
   COPY_LINK = "COPY_LINK",
+  GO_TO_BOARD = "GO_TO_BOARD",
 }
 
 type OptionType = NonNullable<DropdownProps["options"]>[number];
@@ -151,6 +153,15 @@ const useBoardOptions = ({
             return null;
           }
           return getCopyLinkOption(getLinkToBoard(boardMetadata.slug).href);
+        case BoardOptions.GO_TO_BOARD:
+          if (!boardMetadata) {
+            return null;
+          }
+          return {
+            icon: faReply,
+            name: "Go to board",
+            link: getLinkToBoard(boardMetadata.slug),
+          };
       }
     };
     return options.map(getOption).filter((option) => option != null);
