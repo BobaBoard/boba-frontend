@@ -4,8 +4,10 @@ import {
   faCogs,
   faComments,
   faCrown,
+  faHeart,
   faLock,
   faLockOpen,
+  faShop,
   faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { useRealmContext, useRealmPermissions } from "contexts/RealmContext";
@@ -59,6 +61,20 @@ export const useLoggedInOptions = (openLogin: () => void) => {
           href:
             realmData.feedbackFormUrl ||
             "https://docs.google.com/forms/d/e/1FAIpQLSfyMENg9eDNmRj-jIvIG5_ElJFwpGZ_VPvzAskarqu5kf0MSA/viewform",
+        },
+      },
+			{
+        icon: faShop,
+        name: "BobaStore (25% Off:BOOB)",
+        link: {
+          href: "https://store.bobaboard.com/",
+        },
+      },
+			{
+        icon: faHeart,
+        name: "Support Development",
+        link: {
+          href: "https://www.essentialrandomness.com/support-me#donate",
         },
       },
       {
