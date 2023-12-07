@@ -6,7 +6,7 @@ import {
   getUserFeed,
 } from "lib/api/generated";
 
-import { Camelize } from "utils/typescript-utils";
+import { Camelize } from "lib/typescript";
 import { FeedType } from "types/Types";
 import debug from "debug";
 import { makeClientThreadSummary } from "lib/api/client-data";
