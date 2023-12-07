@@ -14,7 +14,7 @@ import {
   ThreadType,
   UserNotifications,
 } from "types/Types";
-import { Contribution, ThreadSummary } from "kubb/gen";
+import { Contribution, ThreadSummary } from "lib/api/generated";
 import { DEFAULT_USER_AVATAR, DEFAULT_USER_NAME } from "components/Auth";
 
 import { max } from "date-fns";

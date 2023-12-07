@@ -140,6 +140,7 @@ const useGetPostData = () => {
           : 0,
         op: post.secretIdentity.name == opIdentity?.name,
         newPost: post.isNew,
+        userIdentity: post.userIdentity ?? undefined,
       };
     },
     [

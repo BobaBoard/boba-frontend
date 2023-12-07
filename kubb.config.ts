@@ -15,7 +15,7 @@ export default defineConfig(async () => {
       path: "./open-api.yaml",
     },
     output: {
-      path: "./kubb/gen",
+      path: "./src/lib/api/generated",
       clean: true,
     },
     plugins: [

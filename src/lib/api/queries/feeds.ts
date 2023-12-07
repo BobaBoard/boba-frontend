@@ -4,7 +4,7 @@ import {
   GetUserFeedQueryParams,
   getBoardsFeedByExternalId,
   getUserFeed,
-} from "kubb/gen";
+} from "lib/api/generated";
 
 import { Camelize } from "utils/typescript-utils";
 import { FeedType } from "types/Types";
