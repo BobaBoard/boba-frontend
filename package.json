@@ -19,7 +19,8 @@
     "test:ci": "yarn run test --ci",
     "test:components": "yarn run test:watch tests/UI",
     "test:debug": "jest-preview",
-    "test:e2e": "playwright test --debug'",
+    "test:e2e": "playwright test",
+    "test:e2e:debug": "playwright test --debug",
     "test:e2e:ci": "playwright test",
     "test:watch": "cross-env DEBUG=bobafrontend:*-log jest --watch"
   },
@@ -60,7 +61,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@playwright/test": "^1.31.1",
+    "@playwright/test": "^1.40.1",
     "@shopify/jest-dom-mocks": "^4.0.0",
     "@testing-library/dom": "^8.11.1",
     "@testing-library/jest-dom": "^5.15.0",
