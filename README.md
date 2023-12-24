@@ -58,4 +58,4 @@ We are also always looking for long-term volunteers to help with coding, documen
 
 ## License
 
-![GitHub](https://img.shields.io/github/license/BobaBoard/boba-frontend?style=for-the-badge&color=A41931)
+![MIT License](https://img.shields.io/github/license/BobaBoard/boba-frontend?style=for-the-badge&color=A41931)
