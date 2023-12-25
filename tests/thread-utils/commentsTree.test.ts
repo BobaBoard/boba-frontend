@@ -1,5 +1,3 @@
-import { expect, test } from "@jest/globals";
-
 import { makeComment } from "../utils";
 import { makeCommentsTree } from "lib/thread";
 

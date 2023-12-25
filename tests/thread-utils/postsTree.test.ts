@@ -1,5 +1,3 @@
-import { expect, test } from "@jest/globals";
-
 import { makePost } from "../utils";
 // TODO: figure out absolute import paths
 import { makePostsTree } from "lib/thread";

@@ -28,7 +28,8 @@
       "styled-jsx",
       "node",
       "jest",
-      "@testing-library/jest-dom"
+      "@testing-library/jest-dom",
+      "vitest/globals"
     ],
     "paths": {
       "queries/*": ["src/queries/*"],

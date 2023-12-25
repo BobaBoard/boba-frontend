@@ -200,7 +200,7 @@ export const Client = ({
           }}
         >
           <ImageUploaderContext.Provider
-            value={{ onImageUploadRequest: jest.fn() }}
+            value={{ onImageUploadRequest: vi.fn() }}
           >
             <ToastContainer />
             <RealmContextProvider serverHostname={undefined}>
@@ -261,7 +261,7 @@ export const LoggedOutClient = ({
     writable: true,
   });
 
-  const mockAttemptLogin = jest.fn();
+  const mockAttemptLogin = vi.fn();
 
   return (
     <QueryParamProvider router={router}>
@@ -276,7 +276,7 @@ export const LoggedOutClient = ({
           }}
         >
           <ImageUploaderContext.Provider
-            value={{ onImageUploadRequest: jest.fn() }}
+            value={{ onImageUploadRequest: vi.fn() }}
           >
             <ToastContainer />
             <RealmContextProvider serverHostname={undefined}>

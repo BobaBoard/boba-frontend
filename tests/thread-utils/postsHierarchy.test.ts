@@ -1,4 +1,3 @@
-import { expect, test } from "@jest/globals";
 import {
   findFirstLevelParent,
   findNextSibling,

@@ -14,10 +14,11 @@ import { act, renderHook } from "@testing-library/react-hooks/native";
 import React from "react";
 import { ViewQueryParamsType } from "types/ThreadQueryParams";
 import { useQueryParams } from "use-query-params";
+import { Mock, vi } from "vitest";
 
-jest.mock("components/thread/ThreadContext.tsx");
-jest.mock("use-query-params", () => ({
-  useQueryParams: jest.fn().mockImplementation(() => [{}, jest.fn()]),
+vi.mock("components/thread/ThreadContext.tsx");
+vi.mock("use-query-params", () => ({
+  useQueryParams: vi.fn().mockImplementation(() => [{}, vi.fn()]),
 }));
 
 const mockThreadContext = () => {
@@ -27,9 +28,9 @@ const mockThreadContext = () => {
     defaultView: null,
     chronologicalPostsSequence: [],
   };
-  jest
-    .mocked(useThreadContext)
-    .mockImplementation(() => mockThreadContext as ThreadContextType);
+  vi.mocked(useThreadContext).mockImplementation(
+    () => mockThreadContext as ThreadContextType
+  );
   return mockThreadContext;
 };
 
@@ -74,23 +75,29 @@ const getThreadViewContextWrapper = () => {
 };
 
 const mockQueryParams = (initialState?: Partial<ViewQueryParamsType>) => {
-  const setQueryParams = jest.fn((newState) => mockChangeQueryParams(newState));
-  jest
-    .mocked(useQueryParams)
-    .mockImplementation(() => [initialState || {}, setQueryParams]);
+  const setQueryParams = vi.fn((newState) => mockChangeQueryParams(newState));
+  vi.mocked(useQueryParams).mockImplementation(
+    () =>
+      [initialState || {}, setQueryParams] satisfies ReturnType<
+        typeof useQueryParams
+      >
+  );
 
   return setQueryParams;
 };
 const mockChangeQueryParams = (newState?: Partial<ViewQueryParamsType>) => {
-  const setQueryParams = jest.fn();
-  jest
-    .mocked(useQueryParams)
-    .mockImplementation(() => [newState || {}, setQueryParams]);
+  const setQueryParams = vi.fn();
+  vi.mocked(useQueryParams).mockImplementation(
+    () =>
+      [newState || {}, setQueryParams] satisfies ReturnType<
+        typeof useQueryParams
+      >
+  );
 };
 
 describe("useThreadViewContext", () => {
   let mockedThreadContext: Partial<ThreadContextType>;
-  let setQueryParams: jest.Mock;
+  let setQueryParams: Mock;
   beforeEach(() => {
     mockedThreadContext = mockThreadContext();
     setQueryParams = mockQueryParams();

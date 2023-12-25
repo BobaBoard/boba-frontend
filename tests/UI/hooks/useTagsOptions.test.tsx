@@ -8,9 +8,9 @@ import { TagType } from "@bobaboard/ui-components";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { renderHook } from "@testing-library/react-hooks";
 
-const mockSetActiveCategories = jest.fn();
-jest.mock("components/core/feeds/FilterableContext.tsx", () => ({
-  useFilterableContext: jest.fn(() => ({
+const mockSetActiveCategories = vi.fn();
+vi.mock("components/core/feeds/FilterableContext.tsx", () => ({
+  useFilterableContext: vi.fn(() => ({
     setActiveCategories: mockSetActiveCategories,
   })),
 }));

@@ -3,14 +3,14 @@ const { THREAD_VIEW_MODE } = jest.requireActual("../ThreadViewContext");
 
 module.exports = {
   ...jest.requireActual("../ThreadViewContext"),
-  useThreadViewContext: jest.fn(() => ({
+  useThreadViewContext: vi.fn(() => ({
     currentThreadViewMode: THREAD_VIEW_MODE.THREAD,
-    timelineViewMode: jest.fn(),
-    galleryViewMode: jest.fn(),
-    setThreadViewMode: jest.fn(),
-    setGalleryViewMode: jest.fn(),
-    setTimelineViewMode: jest.fn(),
-    addOnChangeHandler: jest.fn(),
-    removeOnChangeHandler: jest.fn(),
+    timelineViewMode: vi.fn(),
+    galleryViewMode: vi.fn(),
+    setThreadViewMode: vi.fn(),
+    setGalleryViewMode: vi.fn(),
+    setTimelineViewMode: vi.fn(),
+    addOnChangeHandler: vi.fn(),
+    removeOnChangeHandler: vi.fn(),
   })),
 };

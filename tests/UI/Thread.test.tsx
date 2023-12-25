@@ -21,7 +21,7 @@ jest.mock("components/core/useIsChangingRoute");
 jest.mock("components/hooks/useOnPageExit");
 jest.mock("lib/api/hooks/thread", () => ({
   ...jest.requireActual("lib/api/hooks/thread"),
-  useReadThread: jest.fn().mockReturnValue(jest.fn()),
+  useReadThread: vi.fn().mockReturnValue(vi.fn()),
 }));
 
 //jest.mock("contexts/ThreadViewContext.tsx");

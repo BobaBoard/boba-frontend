@@ -6,7 +6,6 @@ import {
 } from "../data/ThreadSummary";
 import { FeedType, ThreadSummaryType, ThreadType } from "types/Types";
 import { InfiniteData, QueryClient } from "react-query";
-import { expect, test } from "@jest/globals";
 import {
   getBoardActivityDataFromCache,
   getBoardQueryKey,

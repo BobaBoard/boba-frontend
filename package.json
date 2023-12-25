@@ -15,14 +15,14 @@
     "dev:bonjour": "concurrently --kill-others \"node bonjour_proxies.js\" \"yarn run dev\"",
     "dev:debug": "cross-env NODE_OPTIONS='--inspect' DEBUG=bobafrontend:* next dev",
     "start": "next start -p 8080 ",
-    "test": "jest --roots tests --runInBand",
+    "test": "vitest --root tests",
     "test:ci": "yarn run test --ci",
     "test:components": "yarn run test:watch tests/UI",
     "test:debug": "jest-preview",
     "test:e2e": "playwright test",
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:ci": "playwright test",
-    "test:watch": "cross-env DEBUG=bobafrontend:*-log jest --watch"
+    "test:watch": "cross-env DEBUG=bobafrontend:*-log vitest --watch"
   },
   "resolutions": {
     "@types/react": "17.0.2"
@@ -58,7 +58,8 @@
     "smoothscroll-polyfill": "^0.4.4",
     "use-query-params": "^1.1.9",
     "utility-types": "^3.10.0",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "vite-tsconfig-paths": "^4.2.2"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.1",
@@ -80,7 +81,6 @@
     "@types/uuid": "^8.0.0",
     "@typescript-eslint/eslint-plugin": "^5.29.0",
     "@typescript-eslint/parser": "^5.29.0",
-    "babel-jest": "^28.1.1",
     "bonjour-service": "^1.0.10",
     "concurrently": "^7.0.0",
     "cross-env": "^7.0.2",
@@ -91,7 +91,6 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-testing-library": "^5.0.1",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^28.1.1",
     "jest-canvas-mock": "^2.4.0",
     "jest-environment-jsdom": "^28.1.1",
     "jest-extended": "^2.0.0",
@@ -101,8 +100,8 @@
     "react-dom": "17.0.2",
     "react-test-render": "^1.1.2",
     "react-test-renderer": "17.0.2",
-    "ts-jest": "^28.0.5",
-    "typescript": "4"
+    "typescript": "4",
+    "vitest": "^1.1.0"
   },
   "peerDependencies": {
     "@bobaboard/ui-components": "*",

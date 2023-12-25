@@ -10,18 +10,18 @@ import { useDisplayManager } from "components/hooks/useDisplayMananger";
 jest.mock("contexts/ThreadViewContext.tsx");
 
 const getMockCollapseManager = () => ({
-  onCollapseLevel: jest.fn(),
-  onUncollapseLevel: jest.fn(),
-  getCollapseReason: jest.fn(),
-  onToggleCollapseLevel: jest.fn(),
-  isCollapsed: jest.fn(),
-  subscribeToCollapseChange: jest.fn(),
-  unsubscribeFromCollapseChange: jest.fn(),
-  reset: jest.fn(),
-  addCollapseGroup: jest.fn(),
-  getCollapseGroupAt: jest.fn(),
-  getCollapseGroupId: jest.fn(),
-  onPartiallyUncollapseGroup: jest.fn(),
+  onCollapseLevel: vi.fn(),
+  onUncollapseLevel: vi.fn(),
+  getCollapseReason: vi.fn(),
+  onToggleCollapseLevel: vi.fn(),
+  isCollapsed: vi.fn(),
+  subscribeToCollapseChange: vi.fn(),
+  unsubscribeFromCollapseChange: vi.fn(),
+  reset: vi.fn(),
+  addCollapseGroup: vi.fn(),
+  getCollapseGroupAt: vi.fn(),
+  getCollapseGroupId: vi.fn(),
+  onPartiallyUncollapseGroup: vi.fn(),
   collapseGroups: [],
 });
 
@@ -117,7 +117,7 @@ describe.skip("useDisplayManager", () => {
     ).toEqual(["11b85dac-e122-40e0-b09a-8829c5e0250e"]);
     expect(result.current.hasMore()).toBe(true);
 
-    const displayMoreCallback = jest.fn();
+    const displayMoreCallback = vi.fn();
     act(() => result.current.displayMore(displayMoreCallback));
     expect(displayMoreCallback).toHaveBeenCalledWith(2, true);
     expect(result.current.maxDisplay).toBe(2);

@@ -28,7 +28,7 @@ jest.mock("components/hooks/usePreventPageChange");
 jest.mock("components/core/useIsChangingRoute");
 jest.mock("lib/image-upload", () => ({
   ...jest.requireActual("lib/image-upload"),
-  uploadImage: jest.fn(({ baseUrl, extension }) =>
+  uploadImage: vi.fn(({ baseUrl, extension }) =>
     Promise.resolve(`${baseUrl}image${extension}`)
   ),
 }));
