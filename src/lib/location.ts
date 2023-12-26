@@ -99,7 +99,7 @@ export const getServerBaseUrl = (context?: NextPageContext) => {
   }
 
   if (process.env.NODE_ENV == "test") {
-    return "http://localhost";
+    return "http://localhost:3000";
   }
 
   // TODO: remove this hardcoding completely and only use the environment variables

@@ -368,6 +368,8 @@ describe("InvitesPanel", () => {
         ).getByDisplayValue(V0_CREATED_INVITE_NO_EMAIL.invite_url)
       ).toBeVisible();
     });
+
+    // TODO: figure out why it doesn't return the new post in the next request
     // await waitFor(() => {
     //   expect(
     //     within(

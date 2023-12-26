@@ -18,13 +18,10 @@ export default [
     log("fetching data for gore board");
     return HttpResponse.json(BOBATAN_GORE_METADATA);
   }),
-  http.post(
-    "http://localhost:4200/boards/c6d3d10e-8e49-4d73-b28a-9d652b41beec/visits",
-    () => {
-      log("marking gore board as visited");
-      return new HttpResponse(null, { status: 204 });
-    }
-  ),
+  http.post("/boards/c6d3d10e-8e49-4d73-b28a-9d652b41beec/visits", () => {
+    log("marking gore board as visited");
+    return new HttpResponse(null, { status: 204 });
+  }),
   http.post("/boards/c6d3d10e-8e49-4d73-b28a-9d652b41beec/mute", () => {
     log("marking gore board as muted");
 
@@ -92,18 +89,14 @@ export default [
 
       // Now return the created post when the board feed is called again.
       server.use(
-        http.get(
-          // TODO: figure out why you need :4200 here
-          "http://localhost:4200/feeds/boards/c6d3d10e-8e49-4d73-b28a-9d652b41beec",
-          () => {
-            log("fetching data for gore feed with new post");
-            const newFeed = {
-              ...GORE_FEED,
-              activity: [newThread, ...GORE_FEED.activity],
-            };
-            return HttpResponse.json(newFeed);
-          }
-        )
+        http.get("/feeds/boards/c6d3d10e-8e49-4d73-b28a-9d652b41beec", () => {
+          log("fetching data for gore feed with new post");
+          const newFeed = {
+            ...GORE_FEED,
+            activity: [newThread, ...GORE_FEED.activity],
+          };
+          return HttpResponse.json(newFeed);
+        })
       );
       return HttpResponse.json(newThread);
     }

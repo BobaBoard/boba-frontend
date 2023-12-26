@@ -12,6 +12,14 @@ vi.mock("components/hooks/usePreventPageChange");
 vi.mock("components/core/useIsChangingRoute");
 vi.mock("components/hooks/useOnPageExit");
 vi.spyOn(textExports, "copyText");
+vi.mock("lib/api/hooks/board-feed", async () => ({
+  ...(await vi.importActual("lib/api/hooks/board-feed")),
+  useReadBoardFeed: vi.fn().mockReturnValue(vi.fn()),
+}));
+vi.mock("lib/api/hooks/thread", async () => ({
+  ...(await vi.importActual("lib/api/hooks/thread")),
+  useReadThread: vi.fn().mockReturnValue(vi.fn()),
+}));
 
 const displaysOptionInPanel = async ({
   optionText,

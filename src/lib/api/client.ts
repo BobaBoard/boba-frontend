@@ -1,6 +1,7 @@
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 
 import axios from "axios";
+import { getServerBaseUrl } from "lib/location";
 
 export type RequestConfig<TVariables = unknown> = {
   method: "get" | "put" | "patch" | "post" | "delete";
@@ -21,7 +22,7 @@ export type RequestConfig<TVariables = unknown> = {
 export type ResponseConfig<TData> = AxiosResponse<TData>;
 
 export const axiosInstance = axios.create({
-  baseURL: "http://localhost:4200",
+  baseURL: getServerBaseUrl(),
   //   headers: '{}' ? JSON.parse('{}') : {},
 });
 

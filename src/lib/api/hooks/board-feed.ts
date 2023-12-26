@@ -62,7 +62,7 @@ export const useReadBoardFeed = (args: { boardSlug: string }) => {
   React.useEffect(() => {
     if (!isPending && isLoggedIn && boardActivityFetched && boardId) {
       log(`Marking board ${boardId} as visited`);
-      axios.post(`http://localhost:4200/boards/${boardId}/visits`);
+      axios.post(`/boards/${boardId}/visits`);
     }
   }, [isPending, isLoggedIn, boardId, boardActivityFetched]);
 };
