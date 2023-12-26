@@ -1,11 +1,12 @@
 import { Client, getThreadRequestPromise, getThreadRouter } from "../utils";
 import { act, renderHook } from "@testing-library/react-hooks";
-// import { animationFrame, requestIdleCallback } from "@shopify/jest-dom-mocks";
+import { animationFrame, requestIdleCallback } from "@shopify/jest-dom-mocks";
 
 import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../../server-mocks/data/thread";
 import React from "react";
 import ThreadContextProvider from "components/thread/ThreadContext";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
+import { FilterableContextProvider } from "components/core/feeds/FilterableContext";
 
 vi.mock("contexts/ThreadViewContext.tsx");
 
@@ -49,14 +50,16 @@ const getThreadContextWrapper = (threadId: string) => {
           threadId,
         })}
       >
-        <ThreadContextProvider
-          boardId="gore"
-          postId={null}
-          commentId={null}
-          threadId={threadId}
-        >
-          {children}
-        </ThreadContextProvider>
+        <FilterableContextProvider>
+          <ThreadContextProvider
+            boardId="gore"
+            postId={null}
+            commentId={null}
+            threadId={threadId}
+          >
+            {children}
+          </ThreadContextProvider>
+        </FilterableContextProvider>
       </Client>
     );
   };
@@ -81,7 +84,17 @@ const getThreadContextWrapper = (threadId: string) => {
 //   jest.useRealTimers();
 // });
 
-describe.skip("useDisplayManager", () => {
+describe("useDisplayManager", () => {
+  beforeEach(() => {
+    requestIdleCallback.mock();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    animationFrame.mock();
+  });
+  afterEach(() => {
+    requestIdleCallback.cancelIdleCallbacks();
+    requestIdleCallback.restore();
+    animationFrame.restore();
+  });
   it("Renders first (and unique) batch of thread elements", async () => {
     const threadFetched = getThreadRequestPromise({
       threadId: FAVORITE_CHARACTER_TO_MAIM_THREAD.id,
@@ -178,8 +191,9 @@ describe.skip("useDisplayManager", () => {
     expect(result.current.hasMore()).toBe(true);
 
     act(() => {
-      // requestIdleCallback.runIdleCallbacks();
-      // animationFrame.runFrame();
+      requestIdleCallback.runIdleCallbacks();
+      animationFrame.runFrame();
+      vi.advanceTimersByTime(1000);
     });
     expect(result.current.maxDisplay).toBe(2);
     expect(
@@ -191,8 +205,9 @@ describe.skip("useDisplayManager", () => {
     expect(result.current.hasMore()).toBe(true);
 
     act(() => {
-      // requestIdleCallback.runIdleCallbacks();
-      // animationFrame.runFrame();
+      requestIdleCallback.runIdleCallbacks();
+      animationFrame.runFrame();
+      vi.advanceTimersByTime(1000);
     });
     expect(result.current.maxDisplay).toBe(3);
     expect(
