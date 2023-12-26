@@ -21,7 +21,7 @@ vi.mock("components/hooks/usePreventPageChange");
 vi.mock("components/core/useIsChangingRoute");
 vi.mock("components/hooks/useOnPageExit");
 
-describe.skip("Comments editor", () => {
+describe("Comments editor", () => {
   it("renders comments after replying to thread (single comment)", async () => {
     render(
       <Client
@@ -40,6 +40,7 @@ describe.skip("Comments editor", () => {
     await waitFor(() => {
       expect(screen.getAllByText("Comment")[0]).toBeInTheDocument();
     });
+
     fireEvent.click(screen.getAllByText("Comment")[0]);
 
     await waitFor(() => {
@@ -51,13 +52,19 @@ describe.skip("Comments editor", () => {
       ".ReactModalPortal .ql-editor"
     );
     expect(editorContainer).toBeInTheDocument();
-    await userEvent.type(editorContainer!, "bar1");
+
+    await waitFor(async () => {
+      await userEvent.type(editorContainer!, "bar1");
+    });
 
     await waitFor(() => {
       expect(within(modal!).getByLabelText("Submit")).not.toBeDisabled();
     });
 
-    fireEvent.click(within(modal!).getByLabelText("Submit"));
+    // TODO: Do not believe eslint lies
+    act(() => {
+      fireEvent.click(within(modal!).getByLabelText("Submit"));
+    });
 
     await waitForElementToBeRemoved(() =>
       document.querySelector<HTMLElement>(".ReactModalPortal .ql-editor")
@@ -87,18 +94,23 @@ describe.skip("Comments editor", () => {
     await waitFor(() => {
       expect(screen.getAllByText("Comment")[0]).toBeInTheDocument();
     });
-    fireEvent.click(screen.getAllByText("Comment")[0]);
+    act(() => {
+      fireEvent.click(screen.getAllByText("Comment")[0]);
+    });
 
     await waitFor(() => {
       expect(screen.getByLabelText("Submit")).toBeVisible();
     });
 
     const modal = document.querySelector<HTMLElement>(".ReactModalPortal");
-    const editorContainer = document.querySelector<HTMLElement>(
+    let editorContainer = document.querySelector<HTMLElement>(
       ".ReactModalPortal .ql-editor"
     );
     expect(editorContainer).toBeInTheDocument();
-    await userEvent.type(editorContainer!, "bar1");
+
+    await waitFor(async () => {
+      await userEvent.type(editorContainer!, "bar1");
+    });
 
     await waitFor(() => {
       expect(within(modal!).getByLabelText("Submit")).not.toBeDisabled();
@@ -106,19 +118,26 @@ describe.skip("Comments editor", () => {
 
     fireEvent.click(modal!.querySelector(".append")!);
 
+    let editorContainers: NodeListOf<HTMLElement> | null;
     await waitFor(() => {
-      const editorContainer = document.querySelectorAll<HTMLElement>(
+      editorContainers = document.querySelectorAll<HTMLElement>(
         ".ReactModalPortal .ql-editor"
       );
-      expect(editorContainer.length).toBe(2);
+      expect(editorContainers.length).toBe(2);
     });
-    await userEvent.type(editorContainer![1], "bar2");
+
+    fireEvent.click(editorContainers![1]);
+    await waitFor(async () => {
+      await userEvent.type(editorContainers![1], "bar2");
+    });
 
     await waitFor(() => {
       expect(within(modal!).getAllByLabelText("Submit")[1]).not.toBeDisabled();
     });
 
-    fireEvent.click(within(modal!).getAllByLabelText("Submit")[1]);
+    act(() => {
+      fireEvent.click(within(modal!).getAllByLabelText("Submit")[1]);
+    });
 
     await waitForElementToBeRemoved(() =>
       document.querySelector<HTMLElement>(".ReactModalPortal .ql-editor")

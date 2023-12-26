@@ -93,7 +93,8 @@ export default [
       // Now return the created post when the board feed is called again.
       server.use(
         http.get(
-          "/feeds/boards/c6d3d10e-8e49-4d73-b28a-9d652b41beec",
+          // TODO: figure out why you need :4200 here
+          "http://localhost:4200/feeds/boards/c6d3d10e-8e49-4d73-b28a-9d652b41beec",
           () => {
             log("fetching data for gore feed with new post");
             const newFeed = {
@@ -101,8 +102,7 @@ export default [
               activity: [newThread, ...GORE_FEED.activity],
             };
             return HttpResponse.json(newFeed);
-          },
-          { once: true }
+          }
         )
       );
       return HttpResponse.json(newThread);

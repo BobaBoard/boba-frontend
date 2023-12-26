@@ -1,5 +1,6 @@
 import { Client, getBoardRouter, getThreadRouter } from "./utils";
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -21,13 +22,21 @@ import userEvent from "@testing-library/user-event";
 vi.mock("components/hooks/usePreventPageChange");
 vi.mock("components/core/useIsChangingRoute");
 vi.mock("components/hooks/useOnPageExit");
+vi.mock("lib/api/hooks/board-feed", async () => ({
+  ...(await vi.importActual("lib/api/hooks/board-feed")),
+  useReadBoardFeed: vi.fn().mockReturnValue(vi.fn()),
+}));
+vi.mock("lib/api/hooks/thread", async () => ({
+  ...(await vi.importActual("lib/api/hooks/thread")),
+  useReadThread: vi.fn().mockReturnValue(vi.fn()),
+}));
 
 const getPostByTextContent = async (textContent: string) => {
   return (await screen.findByText(textContent))?.closest("article");
 };
 
-describe.skip("PostEditor", () => {
-  it.skip("renders post after creating new thread", async () => {
+describe("PostEditor", () => {
+  it("renders post after creating new thread", async () => {
     render(
       <Client
         router={getBoardRouter({ boardSlug: "gore" })}
@@ -49,13 +58,18 @@ describe.skip("PostEditor", () => {
       ".ReactModalPortal .ql-editor"
     );
     expect(editorContainer).toBeInTheDocument();
-    await userEvent.type(editorContainer!, "bar");
+
+    await waitFor(async () => {
+      await userEvent.type(editorContainer!, "bar");
+    });
 
     await waitFor(() => {
       expect(within(modal!).getByLabelText("Submit")).not.toBeDisabled();
     });
 
-    await userEvent.click(within(modal!).getByLabelText("Submit"));
+    act(() => {
+      fireEvent.click(within(modal!).getByLabelText("Submit"));
+    });
 
     const mainContainer = document.querySelector<HTMLElement>(".content main");
     await waitForElementToBeRemoved(
@@ -66,7 +80,7 @@ describe.skip("PostEditor", () => {
     });
   });
 
-  it.skip("renders post after creating new thread (as role)", async () => {
+  it("renders post after creating new thread (as role)", async () => {
     render(
       <Client
         router={getBoardRouter({ boardSlug: "gore" })}

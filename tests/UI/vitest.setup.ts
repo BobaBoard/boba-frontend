@@ -143,6 +143,7 @@ afterAll(() => server.close());
 
 beforeEach(() => {
   server.resetHandlers();
+  server.restoreHandlers();
   cleanup();
   vi.clearAllTimers();
 });
