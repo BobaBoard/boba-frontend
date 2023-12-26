@@ -4,14 +4,14 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../server-mocks/data/thread";
 import { TagMatcher } from "./utils/matchers";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
-import { copyText } from "lib/text";
+import * as textExports from "lib/text";
 import React from "react";
 import userEvent from "@testing-library/user-event";
 
 vi.mock("components/hooks/usePreventPageChange");
 vi.mock("components/core/useIsChangingRoute");
 vi.mock("components/hooks/useOnPageExit");
-vi.mock("lib/text");
+vi.spyOn(textExports, "copyText");
 
 const displaysOptionInPanel = async ({
   optionText,
@@ -25,7 +25,7 @@ const displaysOptionInPanel = async ({
   );
   await waitFor(async () => {
     expect(
-      screen.queryAllByLabelText("Post options")?.[postIndex]
+      screen.getAllByLabelText("Post options")?.[postIndex]
     ).toBeInTheDocument();
   });
   await userEvent.click(
@@ -39,7 +39,7 @@ const displaysOptionInPanel = async ({
 };
 
 describe("Post Options (Thread)", () => {
-  describe.skip("Copy link options", () => {
+  describe("Copy link options", () => {
     it("Correctly copies thread URL from thread starter", async () => {
       render(
         <Client
@@ -60,7 +60,7 @@ describe("Post Options (Thread)", () => {
       await waitFor(() => {
         expect(screen.getByText("Link copied!")).toBeInTheDocument();
       });
-      expect(copyText).toHaveBeenLastCalledWith(
+      expect(textExports.copyText).toHaveBeenLastCalledWith(
         `http://localhost:3000/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}`
       );
     });
@@ -84,7 +84,7 @@ describe("Post Options (Thread)", () => {
       await waitFor(() => {
         expect(screen.getByText("Link copied!")).toBeInTheDocument();
       });
-      expect(copyText).toHaveBeenLastCalledWith(
+      expect(textExports.copyText).toHaveBeenLastCalledWith(
         `http://localhost:3000/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}`
       );
     });
@@ -109,7 +109,7 @@ describe("Post Options (Thread)", () => {
       await waitFor(() => {
         expect(screen.getByText("Link copied!")).toBeInTheDocument();
       });
-      expect(copyText).toHaveBeenLastCalledWith(
+      expect(textExports.copyText).toHaveBeenLastCalledWith(
         `http://localhost:3000/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}/${FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id}`
       );
     });
@@ -142,7 +142,7 @@ describe("Post Options (Thread)", () => {
       optionText: "Mute thread",
       postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
     });
-  });
+  }, 10000);
 
   it("Correctly hides and unhides thread", async () => {
     render(
@@ -171,7 +171,7 @@ describe("Post Options (Thread)", () => {
       optionText: "Hide thread",
       postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
     });
-  });
+  }, 10000);
 
   it("Correctly calls tag editor", async () => {
     render(

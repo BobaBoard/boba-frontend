@@ -122,6 +122,11 @@ Object.defineProperty(document, "createRange", {
   },
 });
 
+Object.defineProperty(document, "execCommand", {
+  writable: true,
+  value: () => vi.fn(),
+});
+
 beforeAll(() => {
   server.events.on("request:unhandled", ({ request }) => {
     console.log("*********************");

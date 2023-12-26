@@ -50,6 +50,7 @@ describe("Threads test", () => {
     vi.clearAllTimers();
     const markAsRead = useReadThread();
     vi.mocked(markAsRead).mockClear();
+    vi.useRealTimers();
   });
 
   it("displays loading indicator while thread is being fetched", async () => {

@@ -296,7 +296,7 @@ describe("InvitesPanel", () => {
         ).getByDisplayValue(V0_CREATED_INVITE.invitee_email)
       ).toBeVisible();
     });
-  });
+  }, 10000);
 
   test("creates new invite without email", async () => {
     server.use(
@@ -380,5 +380,5 @@ describe("InvitesPanel", () => {
     //     ).getByDisplayValue(V0_CREATED_INVITE_NO_EMAIL.invite_url)
     //   ).toBeVisible();
     // });
-  });
+  }, 10000);
 });

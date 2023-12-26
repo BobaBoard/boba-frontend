@@ -39,7 +39,6 @@ const getMockCollapseManager = () => ({
   collapseGroups: [],
 });
 
-// TODO: Need to update this to include filterableContext before these tests can have the skip removed
 const getThreadContextWrapper = (threadId: string) => {
   // TODO: maybe remove board slug and board id
   return function ContextWrapper({ children }: { children: React.ReactNode }) {
@@ -65,25 +64,6 @@ const getThreadContextWrapper = (threadId: string) => {
   };
 };
 
-// beforeAll(() => {
-//   jest.useFakeTimers();
-// });
-
-// beforeEach(() => {
-//   requestIdleCallback.mock();
-//   animationFrame.mock();
-// });
-
-// afterEach(() => {
-//   requestIdleCallback.restore();
-//   animationFrame.restore();
-//   jest.clearAllTimers();
-// });
-
-// afterAll(() => {
-//   jest.useRealTimers();
-// });
-
 describe("useDisplayManager", () => {
   beforeEach(() => {
     requestIdleCallback.mock();
@@ -94,6 +74,7 @@ describe("useDisplayManager", () => {
     requestIdleCallback.cancelIdleCallbacks();
     requestIdleCallback.restore();
     animationFrame.restore();
+    vi.useRealTimers();
   });
   it("Renders first (and unique) batch of thread elements", async () => {
     const threadFetched = getThreadRequestPromise({
