@@ -29,7 +29,7 @@ import ThreadPreview from "components/core/feeds/ThreadPreview";
 import axios from "axios";
 import debug from "debug";
 import { useAuth } from "components/Auth";
-import { useBoardActivity } from "lib/api/hooks/board-feed";
+import { useBoardActivity, useReadBoardFeed } from "lib/api/hooks/board-feed";
 
 const log = debug("bobafrontend:BoardPage-log");
 const info = debug("bobafrontend:BoardPage-info");
@@ -42,6 +42,7 @@ function BoardPage({ slug }: { slug: string }) {
   const closeSidebar = React.useCallback(() => setShowSidebar(false), []);
   const { isPending: isAuthPending, isLoggedIn } = useAuth();
   const realmPermissions = useRealmPermissions();
+  useReadBoardFeed({ boardSlug: slug });
   // TODO: make this easier:
   // We need to use the broad summary from the realm data to check if the board is locked
   // because if it is and we don't have access, the backend will send a 403 status instead of the board data
@@ -59,7 +60,6 @@ function BoardPage({ slug }: { slug: string }) {
   const {
     data: boardActivityData,
     isFetching: isFetchingBoardActivity,
-    isFetched: boardActivityFetched,
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
@@ -67,13 +67,6 @@ function BoardPage({ slug }: { slug: string }) {
     boardId,
     categoryFilter: activeCategories,
   });
-
-  React.useEffect(() => {
-    if (!isAuthPending && isLoggedIn && boardActivityFetched && boardId) {
-      log(`Marking board ${boardId} as visited`);
-      axios.post(`http://localhost:4200/boards/${boardId}/visits`);
-    }
-  }, [isAuthPending, isLoggedIn, boardId, boardActivityFetched]);
 
   const onSetFilter = React.useCallback(
     (filter) => {

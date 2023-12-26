@@ -17,7 +17,8 @@ import { Mock, vi } from "vitest";
 import React from "react";
 
 vi.mock("components/thread/ThreadContext.tsx");
-vi.mock("use-query-params", () => ({
+vi.mock("use-query-params", async () => ({
+  ...(await vi.importActual("use-query-params")),
   useQueryParams: vi.fn().mockImplementation(() => [{}, vi.fn()]),
 }));
 

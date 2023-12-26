@@ -3,7 +3,12 @@ import { useInfiniteQuery, useQueryClient } from "react-query";
 import React from "react";
 import { getBoardActivityData } from "lib/api/queries/feeds";
 import { useAuth } from "components/Auth";
-import { useBoardSummary } from "contexts/RealmContext";
+import { useBoardSummary, useCurrentRealmBoardId } from "contexts/RealmContext";
+import { useFilterableContext } from "components/core/feeds/FilterableContext";
+import axios from "axios";
+
+import debug from "debug";
+const log = debug("bobafrontend:api/hooks/board-feed-log");
 
 export const BOARD_ACTIVITY_KEY = "boardActivityData";
 export function useBoardActivity(props: {
@@ -42,4 +47,22 @@ export const useRefetchBoardActivity = () => {
       queryClient.invalidateQueries([BOARD_ACTIVITY_KEY, { boardId }]),
     [queryClient]
   );
+};
+
+export const useReadBoardFeed = (args: { boardSlug: string }) => {
+  const { isLoggedIn, isPending } = useAuth();
+  const boardId = useCurrentRealmBoardId({ boardSlug: args?.boardSlug });
+  const { activeCategories } = useFilterableContext();
+
+  const { isFetched: boardActivityFetched } = useBoardActivity({
+    boardId,
+    categoryFilter: activeCategories,
+  });
+
+  React.useEffect(() => {
+    if (!isPending && isLoggedIn && boardActivityFetched && boardId) {
+      log(`Marking board ${boardId} as visited`);
+      axios.post(`http://localhost:4200/boards/${boardId}/visits`);
+    }
+  }, [isPending, isLoggedIn, boardId, boardActivityFetched]);
 };
