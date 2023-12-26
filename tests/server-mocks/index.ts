@@ -29,19 +29,19 @@ export const server = setupServer(
 );
 
 server.events.on("request:start", async ({ request: req }) => {
-  console.log(
-    "new request:",
-    req.method,
-    req.url,
-    req.body && (await req.clone().json())
-  );
+  // console.log(
+  //   "new request:",
+  //   req.method,
+  //   req.url,
+  //   req.body && (await req.clone().json())
+  // );
 });
 server.events.on("response:mocked", ({ request, requestId, response }) => {
-  console.log(
-    "%s %s received %s %s",
-    request.method,
-    request.url,
-    response.status,
-    response.statusText
-  );
+  // console.log(
+  //   "%s %s received %s %s",
+  //   request.method,
+  //   request.url,
+  //   response.status,
+  //   response.statusText
+  // );
 });

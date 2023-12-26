@@ -3,7 +3,6 @@ import {
   useGetTagOptions,
 } from "components/options/useTagsOptions";
 
-import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
 import { TagType } from "@bobaboard/ui-components";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { renderHook } from "@testing-library/react-hooks";
@@ -17,18 +16,16 @@ vi.mock("components/core/feeds/FilterableContext.tsx", () => ({
 
 describe("useTagOptions", () => {
   describe("when a tag is of type category", () => {
-    let categoryTagOptions: DropdownProps["options"];
-    beforeEach(() => {
+    it("displays the set filter option", () => {
       const { result } = renderHook(() =>
         useGetTagOptions({ options: [TagsOptions.FILTER_BY_CATEGORY] })
       );
-      categoryTagOptions = result.current?.({
-        name: "a category tag",
-        type: TagType.CATEGORY,
-      });
-    });
-    it("displays the set filter option", () => {
-      expect(categoryTagOptions).toEqual([
+      expect(
+        result.current?.({
+          name: "a category tag",
+          type: TagType.CATEGORY,
+        })
+      ).toEqual([
         {
           icon: faFilter,
           name: "Filter",
@@ -39,7 +36,13 @@ describe("useTagOptions", () => {
       ]);
     });
     it("calls the filtering function on click", () => {
-      const link = categoryTagOptions?.[0]["link"];
+      const { result } = renderHook(() =>
+        useGetTagOptions({ options: [TagsOptions.FILTER_BY_CATEGORY] })
+      );
+      const link = result.current?.({
+        name: "a category tag",
+        type: TagType.CATEGORY,
+      })?.[0]["link"];
       if (!link) {
         throw new Error("Link should be present in category tag options.");
       }
@@ -49,50 +52,44 @@ describe("useTagOptions", () => {
   });
 
   describe("when a tag is of type whispertag", () => {
-    let whisperTagOptions: DropdownProps["options"];
-    beforeEach(() => {
+    it("does not displays the set filter option", () => {
       const { result } = renderHook(() =>
         useGetTagOptions({ options: [TagsOptions.FILTER_BY_CATEGORY] })
       );
-      whisperTagOptions = result.current?.({
-        name: "a whisper tag",
-        type: TagType.WHISPER,
-      });
-    });
-    it("does not displays the set filter option", () => {
-      expect(whisperTagOptions).toEqual([]);
+      expect(
+        result.current?.({
+          name: "a whisper tag",
+          type: TagType.WHISPER,
+        })
+      ).toEqual([]);
     });
   });
 
   describe("when a tag is of type index", () => {
-    let indexTagOptions: DropdownProps["options"];
-    beforeEach(() => {
+    it("does not displays the set filter option", () => {
       const { result } = renderHook(() =>
         useGetTagOptions({ options: [TagsOptions.FILTER_BY_CATEGORY] })
       );
-      indexTagOptions = result.current?.({
-        name: "a index tag",
-        type: TagType.INDEXABLE,
-      });
-    });
-    it("does not displays the set filter option", () => {
-      expect(indexTagOptions).toEqual([]);
+      expect(
+        result.current?.({
+          name: "a index tag",
+          type: TagType.INDEXABLE,
+        })
+      ).toEqual([]);
     });
   });
 
   describe("when a tag is of type content notice", () => {
-    let contentNoticeTagOptions: DropdownProps["options"];
-    beforeEach(() => {
+    it("does not displays the set filter option", () => {
       const { result } = renderHook(() =>
         useGetTagOptions({ options: [TagsOptions.FILTER_BY_CATEGORY] })
       );
-      contentNoticeTagOptions = result.current?.({
-        name: "a content notice tag",
-        type: TagType.CONTENT_WARNING,
-      });
-    });
-    it("does not displays the set filter option", () => {
-      expect(contentNoticeTagOptions).toEqual([]);
+      expect(
+        result.current?.({
+          name: "a content notice tag",
+          type: TagType.CONTENT_WARNING,
+        })
+      ).toEqual([]);
     });
   });
 });

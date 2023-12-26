@@ -3,10 +3,24 @@ import { act, renderHook } from "@testing-library/react-hooks";
 // import { animationFrame, requestIdleCallback } from "@shopify/jest-dom-mocks";
 
 import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../../server-mocks/data/thread";
+import React from "react";
 import ThreadContextProvider from "components/thread/ThreadContext";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
 
 vi.mock("contexts/ThreadViewContext.tsx");
+
+// TODO: figure out where this gets cleared and why we have to add it again
+const MockMatchMedia = vi.fn().mockImplementation((query) => ({
+  matches: false,
+  media: query,
+  onchange: null,
+  addListener: vi.fn(), // Deprecated
+  removeListener: vi.fn(), // Deprecated
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn(),
+  dispatchEvent: vi.fn(),
+}));
+vi.stubGlobal(`matchMedia`, MockMatchMedia);
 
 const getMockCollapseManager = () => ({
   onCollapseLevel: vi.fn(),

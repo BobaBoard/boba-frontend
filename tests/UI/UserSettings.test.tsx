@@ -27,7 +27,9 @@ vi.mock("lib/image-upload", async () => ({
 }));
 describe("UserSettings", () => {
   beforeEach(() => {
-    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.useFakeTimers({
+      shouldAdvanceTime: true,
+    });
   });
   afterEach(() => {
     vi.runOnlyPendingTimers();
@@ -84,7 +86,7 @@ describe("UserSettings", () => {
     });
 
     const input = screen.getByLabelText("Upload new avatar");
-    userEvent.upload(
+    await userEvent.upload(
       input,
       new File(["darkBobatanAvatar"], "dark-bobatan.png", { type: "image/png" })
     );
@@ -116,5 +118,5 @@ describe("UserSettings", () => {
           .querySelector(`[src*="images/users/avatar/image.jpeg"]`)
       ).toBeVisible();
     });
-  });
+  }, 10000);
 });

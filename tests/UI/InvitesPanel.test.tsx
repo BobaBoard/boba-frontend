@@ -32,6 +32,22 @@ vi.mock("lib/image-upload", async () => ({
   ),
 }));
 describe("InvitesPanel", () => {
+  beforeEach(() => {
+    const MockMatchMedia = vi.fn().mockImplementation((query) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(), // Deprecated
+      removeListener: vi.fn(), // Deprecated
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }));
+    vi.stubGlobal(`matchMedia`, MockMatchMedia);
+  });
+  afterEach(() => {
+    vi.mocked(window.matchMedia).mockClear();
+  });
   test("renders create realm invite form", async () => {
     render(
       <Client
@@ -132,7 +148,6 @@ describe("InvitesPanel", () => {
   });
 
   test("renders pending realm invites list as list when screen is narrow", async () => {
-    const oldMatchMedia = vi.mocked(window.matchMedia).getMockImplementation();
     vi.mocked(window.matchMedia).mockImplementation((mediaQuery: string) => {
       return { media: mediaQuery, matches: true } as MediaQueryList;
     });
@@ -193,7 +208,6 @@ describe("InvitesPanel", () => {
           : expect(within(invite).getByText("Another Admin")).toBeVisible();
       });
     });
-    vi.mocked(window.matchMedia).mockImplementation(oldMatchMedia!);
   });
 
   test("doesn't render pending realm invites list if empty", async () => {
@@ -238,7 +252,7 @@ describe("InvitesPanel", () => {
       </Client>
     );
 
-    userEvent.type(
+    await userEvent.type(
       screen.getByLabelText("Email"),
       V0_CREATED_INVITE.invitee_email
     );
@@ -246,10 +260,15 @@ describe("InvitesPanel", () => {
       V0_CREATED_INVITE.invitee_email
     );
 
-    userEvent.type(screen.getByLabelText("Label"), V0_CREATED_INVITE.label);
+    await userEvent.type(
+      screen.getByLabelText("Label"),
+      V0_CREATED_INVITE.label
+    );
     expect(screen.getByLabelText("Label")).toHaveValue(V0_CREATED_INVITE.label);
 
-    userEvent.click(screen.getByRole("button", { name: "Create Invite" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Create Invite" })
+    );
     await waitFor(() => {
       expect(screen.getByText("Loading...")).toBeVisible();
     });
@@ -328,7 +347,7 @@ describe("InvitesPanel", () => {
 
     expect(screen.getByLabelText("Email")).toHaveValue("");
 
-    userEvent.type(
+    await userEvent.type(
       screen.getByLabelText("Label"),
       V0_CREATED_INVITE_NO_EMAIL.label
     );
@@ -336,7 +355,9 @@ describe("InvitesPanel", () => {
       V0_CREATED_INVITE_NO_EMAIL.label
     );
 
-    userEvent.click(screen.getByRole("button", { name: "Create Invite" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Create Invite" })
+    );
     await waitFor(() => {
       expect(screen.getByText("Loading...")).toBeVisible();
     });
@@ -353,11 +374,11 @@ describe("InvitesPanel", () => {
     //       screen.getByRole("table", { name: "Pending Realm Invites" })
     //     ).getByDisplayValue(V0_CREATED_INVITE_NO_EMAIL.label)
     //   ).toBeVisible();
-    // expect(
-    //   within(
-    //     screen.getByRole("table", { name: "Pending Realm Invites" })
-    //   ).getByDisplayValue(V0_CREATED_INVITE_NO_EMAIL.invite_url)
-    // ).toBeVisible();
+    //   expect(
+    //     within(
+    //       screen.getByRole("table", { name: "Pending Realm Invites" })
+    //     ).getByDisplayValue(V0_CREATED_INVITE_NO_EMAIL.invite_url)
+    //   ).toBeVisible();
     // });
   });
 });

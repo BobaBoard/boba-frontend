@@ -37,12 +37,6 @@ const InvitesPanel = () => {
         setEmail("");
         setLabel("");
         setCreatedInvite(inviteUrl);
-        console.log("here");
-        console.log("here");
-        console.log("here");
-        console.log("here");
-        console.log("here");
-        console.log("here");
         queryClient.invalidateQueries(REALM_INVITES_KEY);
         setLoading(false);
       },

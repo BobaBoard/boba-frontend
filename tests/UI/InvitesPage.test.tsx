@@ -15,6 +15,7 @@ import debug from "debug";
 import { getRealmNameFromSlug } from "lib/text";
 import { makeRealmData } from "lib/api/client-data";
 import userEvent from "@testing-library/user-event";
+import React from "react";
 
 const log = debug("bobafrontend:tests:UI:InvitesPage");
 
@@ -259,11 +260,11 @@ describe("InvitesPanel", () => {
     );
 
     expect(screen.getByRole("button", { name: `Login` })).toBeVisible();
-    userEvent.click(screen.getByRole("button", { name: `Login` }));
+    await userEvent.click(screen.getByRole("button", { name: `Login` }));
 
     expect(screen.getByRole("dialog")).toBeVisible();
     expect(screen.getByRole("button", { name: `Cancel` })).toBeVisible();
-    userEvent.click(screen.getByRole("button", { name: `Cancel` }));
+    await userEvent.click(screen.getByRole("button", { name: `Cancel` }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(
@@ -295,7 +296,7 @@ describe("InvitesPanel", () => {
       V0_CREATED_INVITE_NONCE
     );
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
     );
 
@@ -337,7 +338,7 @@ describe("InvitesPanel", () => {
       screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
     ).toBeDisabled();
 
-    userEvent.type(
+    await userEvent.type(
       screen.getByLabelText("Email"),
       V0_CREATED_INVITE.invitee_email
     );
@@ -345,14 +346,14 @@ describe("InvitesPanel", () => {
       V0_CREATED_INVITE.invitee_email
     );
     const NEW_USER_PASSWORD = "ThIsIsReAlLySeCuRe";
-    userEvent.type(screen.getByLabelText("Password"), NEW_USER_PASSWORD);
+    await userEvent.type(screen.getByLabelText("Password"), NEW_USER_PASSWORD);
     expect(screen.getByLabelText("Password")).toHaveValue(NEW_USER_PASSWORD);
 
     expect(
       screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
     ).toBeEnabled();
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
     );
 
@@ -387,7 +388,7 @@ describe("InvitesPanel", () => {
       V0_CREATED_INVITE_NO_EMAIL_NONCE
     );
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
     );
 
@@ -429,17 +430,17 @@ describe("InvitesPanel", () => {
       screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
     ).toBeDisabled();
 
-    userEvent.type(screen.getByLabelText("Email"), "any_email@email.com");
+    await userEvent.type(screen.getByLabelText("Email"), "any_email@email.com");
     expect(screen.getByLabelText("Email")).toHaveValue("any_email@email.com");
     const NEW_USER_PASSWORD = "ThIsIsReAlLySeCuRe";
-    userEvent.type(screen.getByLabelText("Password"), NEW_USER_PASSWORD);
+    await userEvent.type(screen.getByLabelText("Password"), NEW_USER_PASSWORD);
     expect(screen.getByLabelText("Password")).toHaveValue(NEW_USER_PASSWORD);
 
     expect(
       screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
     ).toBeEnabled();
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole("button", { name: `Join ${V0_REALM_NAME}` })
     );
 

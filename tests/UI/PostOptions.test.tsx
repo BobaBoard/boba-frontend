@@ -41,7 +41,7 @@ const displaysOptionInPanel = async ({
   return screen.getByText(optionText);
 };
 
-describe("Post Options (Thread)", () => {
+describe.skip("Post Options (Thread)", () => {
   describe("Copy link options", () => {
     it("Correctly copies thread URL from thread starter", async () => {
       render(

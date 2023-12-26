@@ -242,7 +242,6 @@ export const LoggedOutClient = ({
 
   vi.mocked(useRouter).mockImplementation(() => router);
 
-  console.log(router);
   queryClient.setQueryData(
     [
       REALM_QUERY_KEY,
