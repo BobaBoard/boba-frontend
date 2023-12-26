@@ -98,6 +98,10 @@ export const getServerBaseUrl = (context?: NextPageContext) => {
     return runtimeConfig.publicRuntimeConfig.defaultBackendUrl;
   }
 
+  if (process.env.NODE_ENV == "test") {
+    return "http://localhost";
+  }
+
   // TODO: remove this hardcoding completely and only use the environment variables
   if (process.env.NODE_ENV == "production") {
     return staging

@@ -26,7 +26,8 @@
     "test:watch": "cross-env DEBUG=bobafrontend:*-log vitest --watch"
   },
   "resolutions": {
-    "@types/react": "17.0.2"
+    "@types/react": "17.0.2",
+    "@testing-library/dom": "7.31.2"
   },
   "dependencies": {
     "@bobaboard/ui-components": "^0.9.1",
@@ -70,11 +71,11 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@playwright/test": "^1.31.1",
     "@kubb/swagger-client": "^1.8.5",
+    "@playwright/test": "^1.31.1",
     "@shopify/jest-dom-mocks": "^4.0.0",
     "@testing-library/dom": "^8.11.1",
-    "@testing-library/jest-dom": "^5.15.0",
+    "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "11.2.7",
     "@testing-library/react-hooks": "^7.0.2",
     "@testing-library/user-event": "^13.5.0",

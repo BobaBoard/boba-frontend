@@ -95,7 +95,7 @@ const mockChangeQueryParams = (newState?: Partial<ViewQueryParamsType>) => {
   );
 };
 
-describe.skip("useThreadViewContext", () => {
+describe("useThreadViewContext", () => {
   let mockedThreadContext: Partial<ThreadContextType>;
   let setQueryParams: Mock;
   beforeEach(() => {

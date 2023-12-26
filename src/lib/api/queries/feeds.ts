@@ -10,7 +10,6 @@ import { Camelize } from "lib/typescript";
 import { FeedType } from "types/Types";
 import debug from "debug";
 import { makeClientThreadSummary } from "lib/api/client-data";
-import { getBoardsFeedByExternalId } from "kubb/gen";
 
 const log = debug("bobafrontend:queries:feeds-log");
 

@@ -23,7 +23,7 @@ const GORE_ROUTER = getBoardRouter({ boardSlug: "gore" });
 vi.mock("components/hooks/usePreventPageChange");
 vi.mock("components/core/useIsChangingRoute");
 
-describe.skip("BoardFeed", () => {
+describe("BoardFeed", () => {
   it("renders sidebar description", async () => {
     render(
       <Client router={GORE_ROUTER}>

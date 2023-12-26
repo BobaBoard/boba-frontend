@@ -26,8 +26,8 @@ const getPostByTextContent = async (textContent: string) => {
   return (await screen.findByText(textContent))?.closest("article");
 };
 
-describe.skip("PostEditor", () => {
-  it("renders post after creating new thread", async () => {
+describe("PostEditor", () => {
+  it.skip("renders post after creating new thread", async () => {
     render(
       <Client
         router={getBoardRouter({ boardSlug: "gore" })}
@@ -66,7 +66,7 @@ describe.skip("PostEditor", () => {
     });
   });
 
-  it("renders post after creating new thread (as role)", async () => {
+  it.skip("renders post after creating new thread (as role)", async () => {
     render(
       <Client
         router={getBoardRouter({ boardSlug: "gore" })}

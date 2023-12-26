@@ -36,7 +36,7 @@ export default defineConfig({
   resolve: {
     // dedupe: ["react", "react-dom"],
     // mainFields: ["module", "main"], //this is needed to work
-    // // preserveSymlinks: true,
+    // preserveSymlinks: true,
   },
 });
 

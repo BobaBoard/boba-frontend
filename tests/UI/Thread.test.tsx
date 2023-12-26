@@ -39,7 +39,7 @@ vi.stubGlobal(`matchMedia`, MockMatchMedia);
 
 //vi.mock("contexts/ThreadViewContext.tsx");
 
-describe.skip("Threads test", () => {
+describe("Threads test", () => {
   beforeEach(() => {
     vi.useFakeTimers({
       shouldAdvanceTime: true,
@@ -155,7 +155,7 @@ describe.skip("Threads test", () => {
   });
 });
 
-describe.skip("Thread buttons tests", () => {
+describe("Thread buttons tests", () => {
   it("renders reply buttons when user is a realm member", async () => {
     render(
       <Client

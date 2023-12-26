@@ -1,22 +1,17 @@
 import { Client, getThreadRouter } from "./utils";
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  within,
-} from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 
 import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../server-mocks/data/thread";
 import { TagMatcher } from "./utils/matchers";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
 import { copyText } from "lib/text";
 import React from "react";
+import userEvent from "@testing-library/user-event";
 
 vi.mock("components/hooks/usePreventPageChange");
 vi.mock("components/core/useIsChangingRoute");
 vi.mock("components/hooks/useOnPageExit");
-vi.mock("lib/text.ts");
+vi.mock("lib/text");
 
 const displaysOptionInPanel = async ({
   optionText,
@@ -33,7 +28,9 @@ const displaysOptionInPanel = async ({
       screen.queryAllByLabelText("Post options")?.[postIndex]
     ).toBeInTheDocument();
   });
-  fireEvent.click(screen.queryAllByLabelText("Post options")?.[postIndex]);
+  await userEvent.click(
+    screen.queryAllByLabelText("Post options")?.[postIndex]
+  );
   await waitFor(() => {
     expect(screen.getByText(optionText)).toBeInTheDocument();
   });
@@ -41,8 +38,8 @@ const displaysOptionInPanel = async ({
   return screen.getByText(optionText);
 };
 
-describe.skip("Post Options (Thread)", () => {
-  describe("Copy link options", () => {
+describe("Post Options (Thread)", () => {
+  describe.skip("Copy link options", () => {
     it("Correctly copies thread URL from thread starter", async () => {
       render(
         <Client
@@ -59,8 +56,7 @@ describe.skip("Post Options (Thread)", () => {
         optionText: "Copy thread link",
         postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.starter.id,
       });
-      vi.mocked(copyText);
-      fireEvent.click(option);
+      await userEvent.click(option);
       await waitFor(() => {
         expect(screen.getByText("Link copied!")).toBeInTheDocument();
       });
@@ -84,7 +80,7 @@ describe.skip("Post Options (Thread)", () => {
         optionText: "Copy thread link",
         postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
       });
-      fireEvent.click(option);
+      await userEvent.click(option);
       await waitFor(() => {
         expect(screen.getByText("Link copied!")).toBeInTheDocument();
       });
@@ -109,7 +105,7 @@ describe.skip("Post Options (Thread)", () => {
         optionText: "Copy link",
         postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
       });
-      fireEvent.click(option);
+      await userEvent.click(option);
       await waitFor(() => {
         expect(screen.getByText("Link copied!")).toBeInTheDocument();
       });
@@ -135,13 +131,13 @@ describe.skip("Post Options (Thread)", () => {
       optionText: "Mute thread",
       postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
     });
-    fireEvent.click(muteOption);
+    await userEvent.click(muteOption);
     // TODO: create a visual indicator that the thread is muted and also check that.
     const unmuteOption = await displaysOptionInPanel({
       optionText: "Unmute thread",
       postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
     });
-    fireEvent.click(unmuteOption);
+    await userEvent.click(unmuteOption);
     await displaysOptionInPanel({
       optionText: "Mute thread",
       postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
@@ -164,13 +160,13 @@ describe.skip("Post Options (Thread)", () => {
       optionText: "Hide thread",
       postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
     });
-    fireEvent.click(hideOption);
+    await userEvent.click(hideOption);
     // TODO: create a visual indicator that the thread is hidden and also check that.
     const unhideOption = await displaysOptionInPanel({
       optionText: "Unhide thread",
       postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
     });
-    fireEvent.click(unhideOption);
+    await userEvent.click(unhideOption);
     await displaysOptionInPanel({
       optionText: "Hide thread",
       postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
@@ -193,7 +189,7 @@ describe.skip("Post Options (Thread)", () => {
       optionText: "Edit tags",
       postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
     });
-    fireEvent.click(editTagsOption);
+    await userEvent.click(editTagsOption);
     // TODO: create a visual indicator that the thread is hidden and also check that.
     await waitFor(
       () => {

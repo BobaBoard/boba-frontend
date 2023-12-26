@@ -71,7 +71,7 @@ function BoardPage({ slug }: { slug: string }) {
   React.useEffect(() => {
     if (!isAuthPending && isLoggedIn && boardActivityFetched && boardId) {
       log(`Marking board ${boardId} as visited`);
-      axios.post(`boards/${boardId}/visits`);
+      axios.post(`http://localhost:4200/boards/${boardId}/visits`);
     }
   }, [isAuthPending, isLoggedIn, boardId, boardActivityFetched]);
 

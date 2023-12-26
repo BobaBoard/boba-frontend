@@ -1,4 +1,6 @@
-import matchers from "@testing-library/jest-dom/matchers";
+import * as matchers from "@testing-library/jest-dom/matchers";
+import "@testing-library/jest-dom/vitest";
+
 import { expect } from "vitest";
 import "vitest-canvas-mock";
 import { cleanup } from "@testing-library/react";

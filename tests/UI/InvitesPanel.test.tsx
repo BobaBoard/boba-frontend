@@ -208,7 +208,7 @@ describe("InvitesPanel", () => {
           : expect(within(invite).getByText("Another Admin")).toBeVisible();
       });
     });
-  });
+  }, 10000);
 
   test("doesn't render pending realm invites list if empty", async () => {
     server.use(
