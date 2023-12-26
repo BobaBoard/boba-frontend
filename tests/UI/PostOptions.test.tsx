@@ -8,15 +8,15 @@ import {
 } from "@testing-library/react";
 
 import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../server-mocks/data/thread";
-import React from "react";
 import { TagMatcher } from "./utils/matchers";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
 import { copyText } from "lib/text";
+import React from "react";
 
-jest.mock("components/hooks/usePreventPageChange");
-jest.mock("components/core/useIsChangingRoute");
-jest.mock("components/hooks/useOnPageExit");
-jest.mock("lib/text.ts");
+vi.mock("components/hooks/usePreventPageChange");
+vi.mock("components/core/useIsChangingRoute");
+vi.mock("components/hooks/useOnPageExit");
+vi.mock("lib/text.ts");
 
 const displaysOptionInPanel = async ({
   optionText,
@@ -59,13 +59,13 @@ describe("Post Options (Thread)", () => {
         optionText: "Copy thread link",
         postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.starter.id,
       });
-      jest.mocked(copyText);
+      vi.mocked(copyText);
       fireEvent.click(option);
       await waitFor(() => {
         expect(screen.getByText("Link copied!")).toBeInTheDocument();
       });
       expect(copyText).toHaveBeenLastCalledWith(
-        `http://localhost/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}`
+        `http://localhost:3000/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}`
       );
     });
     it("Correctly copies thread URL from thread reply", async () => {
@@ -89,7 +89,7 @@ describe("Post Options (Thread)", () => {
         expect(screen.getByText("Link copied!")).toBeInTheDocument();
       });
       expect(copyText).toHaveBeenLastCalledWith(
-        `http://localhost/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}`
+        `http://localhost:3000/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}`
       );
     });
 
@@ -114,7 +114,7 @@ describe("Post Options (Thread)", () => {
         expect(screen.getByText("Link copied!")).toBeInTheDocument();
       });
       expect(copyText).toHaveBeenLastCalledWith(
-        `http://localhost/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}/${FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id}`
+        `http://localhost:3000/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}/${FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id}`
       );
     });
   });

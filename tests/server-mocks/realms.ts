@@ -9,128 +9,89 @@ import {
 
 import { BOBATAN_NOTIFICATIONS_DATA } from "./data/user";
 import debug from "debug";
-import { rest } from "msw";
+import { http, HttpResponse } from "msw";
 import { server } from ".";
 
 const log = debug("bobafrontend:tests:server-mocks:realms");
 
 export default [
-  rest.get("/realms/slug/v0", (req, res, ctx) => {
+  http.get("/realms/slug/v0", () => {
     log("fetching data for v0 realm");
-    return res(ctx.status(200), ctx.json(LOGGED_IN_V0_MEMBER_DATA));
+    return HttpResponse.json(LOGGED_IN_V0_MEMBER_DATA);
   }),
-  rest.get(
-    `/realms/${LOGGED_IN_V0_MEMBER_DATA.id}/notifications`,
-    (req, res, ctx) => {
-      log("fetching bobatan's notification data");
-      return res(ctx.status(200), ctx.json(BOBATAN_NOTIFICATIONS_DATA));
-    }
-  ),
-  rest.get(
-    `/realms/${LOGGED_IN_V0_MEMBER_DATA.id}/invites`,
-    (req, res, ctx) => {
-      log("fetching invites for twisted-minds realm");
-      return res(ctx.status(200), ctx.json(V0_INVITES));
-    }
-  ),
-  rest.post<{
-    email?: string;
-    label?: string;
-  }>(`/realms/${LOGGED_IN_V0_MEMBER_DATA.id}/invites`, (req, res, ctx) => {
+  http.get(`/realms/${LOGGED_IN_V0_MEMBER_DATA.id}/notifications`, () => {
+    log("fetching bobatan's notification data");
+    return HttpResponse.json(BOBATAN_NOTIFICATIONS_DATA);
+  }),
+  http.get(`/realms/${LOGGED_IN_V0_MEMBER_DATA.id}/invites`, () => {
+    log("fetching invites for twisted-minds realm");
+    return HttpResponse.json(V0_INVITES);
+  }),
+  http.post(`/realms/${LOGGED_IN_V0_MEMBER_DATA.id}/invites`, () => {
     log("creating invite for twisted-minds realm");
 
     // Now include new invite when get all invites is called again
     server.use(
-      rest.get(
-        `/realms/${LOGGED_IN_V0_MEMBER_DATA.id}/invites`,
-        (_, res, ctx) => {
-          log("fetching invites for twisted-minds realm with new invite");
-          return res(
-            ctx.status(200),
-            ctx.json({
-              invites: [...V0_INVITES.invites, V0_CREATED_INVITE],
-            })
-          );
-        }
-      )
-    );
-    return res(
-      ctx.status(200),
-      ctx.json({
-        realm_id: V0_CREATED_INVITE.realm_id,
-        invite_url: V0_CREATED_INVITE.invite_url,
+      http.get(`/realms/${LOGGED_IN_V0_MEMBER_DATA.id}/invites`, () => {
+        log("fetching invites for twisted-minds realm with new invite");
+        return HttpResponse.json({
+          invites: [...V0_INVITES.invites, V0_CREATED_INVITE],
+        });
       })
     );
+    return HttpResponse.json({
+      realm_id: V0_CREATED_INVITE.realm_id,
+      invite_url: V0_CREATED_INVITE.invite_url,
+    });
   }),
-  rest.get(
+  http.get(
     `/realms/${LOGGED_IN_V0_MEMBER_DATA.id}/invites/${V0_CREATED_INVITE_NONCE}`,
-    (req, res, ctx) => {
+    () => {
       log(
         `fetching invite status for invite with nonce ${V0_CREATED_INVITE_NONCE}`
       );
-      return res(
-        ctx.status(200),
-        ctx.json({
-          realm_id: V0_CREATED_INVITE.realm_id,
-          realm_slug: LOGGED_IN_V0_MEMBER_DATA.slug,
-          invite_status: "pending",
-        })
-      );
+      return HttpResponse.json({
+        realm_id: V0_CREATED_INVITE.realm_id,
+        realm_slug: LOGGED_IN_V0_MEMBER_DATA.slug,
+        invite_status: "pending",
+      });
     }
   ),
-  rest.post<{
-    email?: string;
-    password?: string;
-  }>(
+  http.post(
     `/realms/${LOGGED_IN_V0_MEMBER_DATA.id}/invites/${V0_CREATED_INVITE_NONCE}`,
-    (req, res, ctx) => {
+    () => {
       log(`accepting invite with nonce ${V0_CREATED_INVITE_NONCE}`);
-      return res(
-        ctx.status(200),
-        ctx.json({
-          realm_id: V0_CREATED_INVITE.realm_id,
-          realm_slug: LOGGED_IN_V0_MEMBER_DATA.slug,
-        })
-      );
+      return HttpResponse.json({
+        realm_id: V0_CREATED_INVITE.realm_id,
+        realm_slug: LOGGED_IN_V0_MEMBER_DATA.slug,
+      });
     }
   ),
-  rest.get(
-    `/realms/${LOGGED_IN_V0_MEMBER_DATA.id}/notifications`,
-    (req, res, ctx) => {
-      log("fetching bobatan's notification data");
-      return res(ctx.status(200), ctx.json(BOBATAN_NOTIFICATIONS_DATA));
-    }
-  ),
-  rest.get(
+  http.get(`/realms/${LOGGED_IN_V0_MEMBER_DATA.id}/notifications`, () => {
+    log("fetching bobatan's notification data");
+    return HttpResponse.json(BOBATAN_NOTIFICATIONS_DATA);
+  }),
+  http.get(
     `/realms/${LOGGED_IN_V0_MEMBER_DATA.id}/invites/${V0_CREATED_INVITE_NO_EMAIL_NONCE}`,
-    (req, res, ctx) => {
+    () => {
       log(
         `fetching invite status for invite with nonce ${V0_CREATED_INVITE_NO_EMAIL_NONCE}`
       );
-      return res(
-        ctx.status(200),
-        ctx.json({
-          realm_id: V0_CREATED_INVITE_NO_EMAIL.realm_id,
-          realm_slug: LOGGED_IN_V0_MEMBER_DATA.slug,
-          invite_status: "pending",
-        })
-      );
+      return HttpResponse.json({
+        realm_id: V0_CREATED_INVITE_NO_EMAIL.realm_id,
+        realm_slug: LOGGED_IN_V0_MEMBER_DATA.slug,
+        invite_status: "pending",
+      });
     }
   ),
-  rest.post<{
-    email?: string;
-    password?: string;
-  }>(
+  http.post(
     `/realms/${LOGGED_IN_V0_MEMBER_DATA.id}/invites/${V0_CREATED_INVITE_NO_EMAIL_NONCE}`,
-    (req, res, ctx) => {
+    () => {
       log(`accepting invite with nonce ${V0_CREATED_INVITE_NO_EMAIL_NONCE}`);
-      return res(
-        ctx.status(200),
-        ctx.json({
-          realm_id: V0_CREATED_INVITE_NO_EMAIL.realm_id,
-          realm_slug: LOGGED_IN_V0_MEMBER_DATA.slug,
-        })
-      );
+      return HttpResponse.json({
+        realm_id: V0_CREATED_INVITE_NO_EMAIL.realm_id,
+        realm_slug: LOGGED_IN_V0_MEMBER_DATA.slug,
+      });
     }
   ),
 ];

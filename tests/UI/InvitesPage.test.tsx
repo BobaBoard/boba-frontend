@@ -10,7 +10,6 @@ import {
 import { render, screen, waitFor } from "@testing-library/react";
 
 import InvitesPage from "pages/invites/[inviteId]";
-import React from "react";
 import { RealmType } from "types/Types";
 import debug from "debug";
 import { getRealmNameFromSlug } from "lib/text";
@@ -29,17 +28,17 @@ const INVITES_ROUTER_NO_EMAIL = getInvitesPageRoute({
 
 const V0_REALM_NAME = getRealmNameFromSlug(V0_DATA.slug);
 
-jest.mock("components/hooks/usePreventPageChange");
-jest.mock("components/core/useIsChangingRoute");
+vi.mock("components/hooks/usePreventPageChange");
+vi.mock("components/core/useIsChangingRoute");
 
-const spiedPush = jest
+const spiedPush = vi
   .spyOn(INVITES_ROUTER, "push")
   .mockImplementation(async (args) => {
     log("mocked push", args);
     return true;
   });
 
-const spiedPushNoEmail = jest
+const spiedPushNoEmail = vi
   .spyOn(INVITES_ROUTER_NO_EMAIL, "push")
   .mockImplementation(async (args) => {
     log("mocked push (no email)", args);

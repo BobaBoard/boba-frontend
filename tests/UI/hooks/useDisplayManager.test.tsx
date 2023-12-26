@@ -1,13 +1,12 @@
 import { Client, getThreadRequestPromise, getThreadRouter } from "../utils";
 import { act, renderHook } from "@testing-library/react-hooks";
-import { animationFrame, requestIdleCallback } from "@shopify/jest-dom-mocks";
+// import { animationFrame, requestIdleCallback } from "@shopify/jest-dom-mocks";
 
 import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../../server-mocks/data/thread";
-import React from "react";
 import ThreadContextProvider from "components/thread/ThreadContext";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
 
-jest.mock("contexts/ThreadViewContext.tsx");
+vi.mock("contexts/ThreadViewContext.tsx");
 
 const getMockCollapseManager = () => ({
   onCollapseLevel: vi.fn(),
@@ -49,24 +48,24 @@ const getThreadContextWrapper = (threadId: string) => {
   };
 };
 
-beforeAll(() => {
-  jest.useFakeTimers();
-});
+// beforeAll(() => {
+//   jest.useFakeTimers();
+// });
 
-beforeEach(() => {
-  requestIdleCallback.mock();
-  animationFrame.mock();
-});
+// beforeEach(() => {
+//   requestIdleCallback.mock();
+//   animationFrame.mock();
+// });
 
-afterEach(() => {
-  requestIdleCallback.restore();
-  animationFrame.restore();
-  jest.clearAllTimers();
-});
+// afterEach(() => {
+//   requestIdleCallback.restore();
+//   animationFrame.restore();
+//   jest.clearAllTimers();
+// });
 
-afterAll(() => {
-  jest.useRealTimers();
-});
+// afterAll(() => {
+//   jest.useRealTimers();
+// });
 
 describe.skip("useDisplayManager", () => {
   it("Renders first (and unique) batch of thread elements", async () => {
@@ -165,8 +164,8 @@ describe.skip("useDisplayManager", () => {
     expect(result.current.hasMore()).toBe(true);
 
     act(() => {
-      requestIdleCallback.runIdleCallbacks();
-      animationFrame.runFrame();
+      // requestIdleCallback.runIdleCallbacks();
+      // animationFrame.runFrame();
     });
     expect(result.current.maxDisplay).toBe(2);
     expect(
@@ -178,8 +177,8 @@ describe.skip("useDisplayManager", () => {
     expect(result.current.hasMore()).toBe(true);
 
     act(() => {
-      requestIdleCallback.runIdleCallbacks();
-      animationFrame.runFrame();
+      // requestIdleCallback.runIdleCallbacks();
+      // animationFrame.runFrame();
     });
     expect(result.current.maxDisplay).toBe(3);
     expect(

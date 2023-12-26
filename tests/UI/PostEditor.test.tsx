@@ -11,16 +11,15 @@ import {
 import BoardPage from "pages/[boardId]/index";
 import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../server-mocks/data/thread";
 import { LOGGED_IN_V0_MEMBER_DATA } from "../server-mocks/data/realm";
-import React from "react";
 import { RealmType } from "types/Types";
 import { TagMatcher } from "./utils/matchers";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
 import { makeRealmData } from "lib/api/client-data";
 import userEvent from "@testing-library/user-event";
 
-jest.mock("components/hooks/usePreventPageChange");
-jest.mock("components/core/useIsChangingRoute");
-jest.mock("components/hooks/useOnPageExit");
+vi.mock("components/hooks/usePreventPageChange");
+vi.mock("components/core/useIsChangingRoute");
+vi.mock("components/hooks/useOnPageExit");
 
 const getPostByTextContent = async (textContent: string) => {
   return (await screen.findByText(textContent))?.closest("article");

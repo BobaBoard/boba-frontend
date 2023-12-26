@@ -11,7 +11,6 @@ import {
 } from "components/thread/ThreadContext";
 import { act, renderHook } from "@testing-library/react-hooks/native";
 
-import React from "react";
 import { ViewQueryParamsType } from "types/ThreadQueryParams";
 import { useQueryParams } from "use-query-params";
 import { Mock, vi } from "vitest";

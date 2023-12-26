@@ -16,9 +16,9 @@ import ThreadPage from "pages/[boardId]/thread/[...threadId]";
 import { makeRealmData } from "lib/api/client-data";
 import userEvent from "@testing-library/user-event";
 
-jest.mock("components/hooks/usePreventPageChange");
-jest.mock("components/core/useIsChangingRoute");
-jest.mock("components/hooks/useOnPageExit");
+vi.mock("components/hooks/usePreventPageChange");
+vi.mock("components/core/useIsChangingRoute");
+vi.mock("components/hooks/useOnPageExit");
 
 describe("Comments editor", () => {
   it("renders comments after replying to thread (single comment)", async () => {
@@ -131,23 +131,27 @@ describe("Comments editor", () => {
       expect(within(mainContainer!).getByText("bar1")).toBeInTheDocument();
       expect(within(mainContainer!).getByText("bar2")).toBeInTheDocument();
     });
-  });
+  }, 10000);
 
-  it("renders comments after replying to comment (multiple comments)", async () => {
-    render(
-      <Client
-        router={getThreadRouter({
-          boardSlug: "gore",
-          threadId: FAVORITE_CHARACTER_TO_MAIM_THREAD.id,
-        })}
-        initialData={{
-          realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
-        }}
-      >
-        <ThreadPage />
-      </Client>
-    );
+  it.todo(
+    "renders comments after replying to comment (multiple comments)",
+    async () => {
+      render(
+        <Client
+          router={getThreadRouter({
+            boardSlug: "gore",
+            threadId: FAVORITE_CHARACTER_TO_MAIM_THREAD.id,
+          })}
+          initialData={{
+            realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
+          }}
+        >
+          <ThreadPage />
+        </Client>
+      );
 
-    // TODO: fill this
-  });
+      // TODO: fill this
+    },
+    10000
+  );
 });

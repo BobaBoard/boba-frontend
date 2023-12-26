@@ -28,6 +28,20 @@ export const server = setupServer(
   ...postsHandlers
 );
 
-server.events.on("request:start", (req) => {
-  log("new request:", req.method, req.url.href, req.body);
+server.events.on("request:start", async ({ request: req }) => {
+  console.log(
+    "new request:",
+    req.method,
+    req.url,
+    req.body && (await req.clone().json())
+  );
+});
+server.events.on("response:mocked", ({ request, requestId, response }) => {
+  console.log(
+    "%s %s received %s %s",
+    request.method,
+    request.url,
+    response.status,
+    response.statusText
+  );
 });

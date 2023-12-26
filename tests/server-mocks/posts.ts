@@ -5,20 +5,20 @@ import {
 
 import { NEW_COMMENT_BASE } from "./data/comments";
 import { NEW_POST_BASE } from "./data/posts";
-import { rest } from "msw";
+import { http, HttpResponse } from "msw";
 import { v4 as uuid } from "uuid";
 
 export default [
-  rest.post(
+  http.post(
     `/posts/${FAVORITE_CHARACTER_TO_MAIM_THREAD.starter.id}/contributions`,
-    (req, res, ctx) => {
+    async ({ request }) => {
       const {
         content,
         whisper_tags,
         index_tags,
         content_warnings,
         category_tags,
-      } = req!.body! as any;
+      } = (await request.json()) as any;
 
       const newPost = {
         ...NEW_POST_BASE,
@@ -32,14 +32,14 @@ export default [
           category_tags: category_tags || [],
         },
       };
-      return res(ctx.status(200), ctx.json({ contribution: newPost }));
+      return HttpResponse.json({ contribution: newPost });
     }
   ),
 
-  rest.post(
+  http.post(
     `/posts/${FAVORITE_CHARACTER_TO_MAIM_THREAD.starter.id}/comments`,
-    (req, res, ctx) => {
-      const { contents, reply_to_comment_id } = req!.body! as any;
+    async ({ request }) => {
+      const { contents, reply_to_comment_id } = (await request.json()) as any;
       const chainId = uuid();
 
       const comments = contents.map((content: string, index: number) => ({
@@ -52,15 +52,15 @@ export default [
         content: content,
       }));
 
-      return res(ctx.status(200), ctx.json({ comments: comments }));
+      return HttpResponse.json({ comments: comments });
     }
   ),
 
-  rest.patch(
+  http.patch(
     `/posts/3db477e0-57ed-491d-ba11-b3a0110b59b0/contributions`,
-    (req, res, ctx) => {
-      const { whisper_tags, index_tags, content_warnings, category_tags } = req!
-        .body! as any;
+    async ({ request }) => {
+      const { whisper_tags, index_tags, content_warnings, category_tags } =
+        (await request.json()) as any;
 
       const newPost = {
         ...FAVORITE_MURDER_SCENE_BOBATAN.starter,
@@ -72,7 +72,7 @@ export default [
         },
       };
 
-      return res(ctx.status(200), ctx.json(newPost));
+      return HttpResponse.json(newPost);
     }
   ),
 ];

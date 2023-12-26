@@ -1,20 +1,42 @@
-import path from "path";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
+import react from "@vitejs/plugin-react";
+import { resolve } from "path";
 
 process.env.TZ = "UTC";
 
 export default defineConfig({
-  plugins: [tsconfigPaths()],
+  plugins: [
+    tsconfigPaths(),
+    react({
+      babel: {
+        plugins: ["styled-jsx/babel"],
+      },
+    }),
+  ],
   test: {
     globals: true,
     environment: "jsdom",
-    exclude: ["e2e/**", "UI/**"],
+    setupFiles: [resolve(__dirname, "./tests/UI/vitest.setup.ts")],
+    server: {
+      deps: {
+        inline: ["@bobaboard", "vitest-canvas-mock"],
+      },
+    },
+    poolOptions: {
+      threads: {
+        singleThread: true,
+      },
+    },
+    isolate: true,
+  },
+  optimizeDeps: {
+    exclude: ["/@bobaboard/ui-components"],
   },
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
+    // dedupe: ["react", "react-dom"],
+    // mainFields: ["module", "main"], //this is needed to work
+    // // preserveSymlinks: true,
   },
 });
 

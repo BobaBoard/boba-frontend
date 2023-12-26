@@ -1,9 +1,11 @@
-// @ts-ignore
-const { THREAD_VIEW_MODE } = jest.requireActual("../ThreadViewContext");
+// @ts-expect-error
+const { THREAD_VIEW_MODE } = await vi.importActual("../ThreadViewContext");
 
 module.exports = {
-  ...jest.requireActual("../ThreadViewContext"),
+  // @ts-expect-error
+  ...(await vi.importActual("../ThreadViewContext")),
   useThreadViewContext: vi.fn(() => ({
+    // @ts-expect-error
     currentThreadViewMode: THREAD_VIEW_MODE.THREAD,
     timelineViewMode: vi.fn(),
     galleryViewMode: vi.fn(),

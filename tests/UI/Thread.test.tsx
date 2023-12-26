@@ -7,37 +7,38 @@ import {
 import { act, render, screen, waitFor } from "@testing-library/react";
 
 import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../server-mocks/data/thread";
-import React from "react";
 import { RealmType } from "types/Types";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
 import { makeRealmData } from "lib/api/client-data";
 import { useReadThread } from "lib/api/hooks/thread";
+import React from "react";
 
 // import debug from "debug";
 // const log = debug("bobafrontend:tests:UI:Thread-test-log");
 
-jest.mock("components/hooks/usePreventPageChange");
-jest.mock("components/core/useIsChangingRoute");
-jest.mock("components/hooks/useOnPageExit");
-jest.mock("lib/api/hooks/thread", () => ({
-  ...jest.requireActual("lib/api/hooks/thread"),
+vi.mock("components/hooks/usePreventPageChange");
+vi.mock("components/core/useIsChangingRoute");
+vi.mock("components/hooks/useOnPageExit");
+vi.mock("lib/api/hooks/thread", async () => ({
+  ...(await vi.importActual("lib/api/hooks/thread")),
   useReadThread: vi.fn().mockReturnValue(vi.fn()),
 }));
 
-//jest.mock("contexts/ThreadViewContext.tsx");
+//vi.mock("contexts/ThreadViewContext.tsx");
 
 describe("Threads test", () => {
   beforeAll(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
-    jest.clearAllTimers();
+    vi.clearAllTimers();
+    const markAsRead = useReadThread();
+    vi.mocked(markAsRead).mockClear();
   });
 
   afterAll(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
   it("displays loading indicator while thread is being fetched", async () => {
     const threadFetched = getThreadRequestPromise({
@@ -92,7 +93,7 @@ describe("Threads test", () => {
     const markAsRead = useReadThread();
     await act(() => threadFetched as Promise<void>);
     act(() => {
-      jest.runOnlyPendingTimers();
+      vi.runOnlyPendingTimers();
     });
     expect(markAsRead).toBeCalledTimes(1);
   });
@@ -115,9 +116,13 @@ describe("Threads test", () => {
     const markAsRead = useReadThread();
     await act(() => threadFetched as Promise<void>);
     act(() => {
-      jest.runOnlyPendingTimers();
+      vi.runOnlyPendingTimers();
     });
     expect(markAsRead).toBeCalledTimes(1);
+
+    // We clear the mock called times, and check that after re-rendering it has
+    // not been called again.
+    vi.mocked(markAsRead).mockClear();
 
     rerender(
       <Client
@@ -130,9 +135,8 @@ describe("Threads test", () => {
       </Client>
     );
 
-    jest.mocked(markAsRead).mockClear();
     act(() => {
-      jest.runOnlyPendingTimers();
+      vi.runOnlyPendingTimers();
     });
     expect(markAsRead).toBeCalledTimes(0);
   });
