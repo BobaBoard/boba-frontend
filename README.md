@@ -45,9 +45,8 @@ to function as it queries the backend for user, thread, and post states.
 [Boba-components](https://github.com/BobaBoard/boba-components) provides
 boba-frontend with its UI pieces primarily impacting the design of the UI.
 
-> [!NOTE] The above description is an "aspirational state" for our repos and we
-> are still working on defining what the boundaries between "Boba-frontend" and
-> "boba-components" is so this may be fuxxy in practice.
+> [!NOTE]
+> The above description is an "aspirational state" for our repos and we are still working on defining what the boundaries between "boba-frontend" and "boba-components" is so this may be fuzzy in practice.
 
 ## Local Development
 
@@ -61,12 +60,8 @@ links below:
 
 ## Contributing
 
-> [!Important] Our issue tracker is not up-to-date and we are specifically
-> looking for people to help us wrangle issues into order. If you're very eager
-> to start working, please contact us through our
-> [tech form](https://docs.google.com/forms/d/e/1FAIpQLSdCX2_fZgIYX0PXeCAA-pfQrcLw_lSp2clGHTt3uBTWgnwVSw/viewform)
-> (for coding) or our [non-tech form](https://forms.gle/Z44UreTxnbvFnoqc9) (for
-> issue wrangling).
+> [!Important]
+> Our issue tracker is not up-to-date and we are specifically looking for people to help us wrangle issues into order. If you're very eager to start working, please contact us through our [tech form](https://docs.google.com/forms/d/e/1FAIpQLSdCX2_fZgIYX0PXeCAA-pfQrcLw_lSp2clGHTt3uBTWgnwVSw/viewform)  (for coding) or our [non-tech form](https://forms.gle/Z44UreTxnbvFnoqc9) (for issue wrangling).
 
 BobaBoard welcomes one-time contributions. Our volunteer
 [Code of Conduct](https://docs.bobaboard.com/docs/volunteering/experience/code-of-conduct)
