@@ -29,32 +29,54 @@ You can find out more about BobaBoard in general on our
 ![Built Using](https://img.shields.io/badge/Built%20Using:-222222?style=for-the-badge)
 ![TypeScript Badge](https://img.shields.io/badge/TypeScript-222222?logo=typescript&logoColor=3178C6&style=for-the-badge)
 ![React Badge](https://img.shields.io/badge/React-222222?logo=react&logoColor=61DAFB&style=for-the-badge)
-![Node.js Badge](https://img.shields.io/badge/Node.js-222222?logo=nodedotjs&logoColor=393&style=for-the-badge)
+![React Query Badge](https://img.shields.io/badge/React%20Query-222222?logo=reactquery&logoColor=FF4154&style=for-the-badge)
+![Playwright Badge](https://img.shields.io/badge/Playwright-222222?logo=playwright&logoColor=2EAD33&style=for-the-badge)
+![Next.js Badge](https://img.shields.io/badge/Next.js-222222?logo=nextdotjs&logoColor=fff&style=for-the-badge)
 ![Yarn Badge](https://img.shields.io/badge/Yarn-222222?logo=yarn&logoColor=2C8EBB&style=for-the-badge)
 
-boba-frontend is the repo which controls the main layout, design, and user-facing interactions for BobaBoard.
+boba-frontend handles the interactions of our UI with the server, lays out the
+pages that BobaBoard is made of, and supplies the functionality of those pages.
 
 ### Relationships To Other Repos
 
-Boba-frontend requires [boba-backend](https://github.com/BobaBoard/boba-backend) to function as it queries the backend for user, thread, and post states.
+Boba-frontend requires [boba-backend](https://github.com/BobaBoard/boba-backend)
+to function as it queries the backend for user, thread, and post states.
 
-[Boba-components](https://github.com/BobaBoard/boba-components) provides boba-frontend with its UI pieces. 
+[Boba-components](https://github.com/BobaBoard/boba-components) provides
+boba-frontend with its UI pieces primarily impacting the design of the UI.
 
+> [!NOTE] The above description is an "aspirational state" for our repos and we
+> are still working on defining what the boundaries between "Boba-frontend" and
+> "boba-components" is so this may be fuxxy in practice.
 
 ## Local Development
 
-For detailed instructions on how to develop for BobaBoard, please check out the links below:
+For detailed instructions on how to develop for BobaBoard, please check out the
+links below:
 
 - [Setup Your Development Environment](https://docs.bobaboard.com/docs/development/start-developing/setting-up-dev-env)
-- [How to Install WSL](https://docs.bobaboard.com/docs/development/start-developing/wsl) (Windows Only)
+- [How to Install WSL](https://docs.bobaboard.com/docs/development/start-developing/wsl)
+  (Windows Only)
 - [Install Boba-Frontend](https://docs.bobaboard.com/docs/development/start-developing/boba-frontend)
-
 
 ## Contributing
 
-BobaBoard welcomes one-time contributions. Our volunteer [Code of Conduct](https://docs.bobaboard.com/docs/volunteering/experience/code-of-conduct) applies in all of our social spaces, including Github Discussions or when commenting on issues or pull requests.
+> [!Important] Our issue tracker is not up-to-date and we are specifically
+> looking for people to help us wrangle issues into order. If you're very eager
+> to start working, please contact us through our
+> [tech form](https://docs.google.com/forms/d/e/1FAIpQLSdCX2_fZgIYX0PXeCAA-pfQrcLw_lSp2clGHTt3uBTWgnwVSw/viewform)
+> (for coding) or our [non-tech form](https://forms.gle/Z44UreTxnbvFnoqc9) (for
+> issue wrangling).
 
-We are also always looking for long-term volunteers to help with coding, documentation, and other efforts. If you'd like to become a BobaBoard volunteer, please see the [Volunteering Guide](https://docs.bobaboard.com/docs/volunteering) for details.
+BobaBoard welcomes one-time contributions. Our volunteer
+[Code of Conduct](https://docs.bobaboard.com/docs/volunteering/experience/code-of-conduct)
+applies in all of our social spaces, including Github Discussions or when
+commenting on issues or pull requests.
+
+We are also always looking for long-term volunteers to help with coding,
+documentation, and other efforts. If you'd like to become a BobaBoard volunteer,
+please see the
+[Volunteering Guide](https://docs.bobaboard.com/docs/volunteering) for details.
 
 ## License
 
