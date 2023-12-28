@@ -6,7 +6,6 @@ import {
 } from "../data/ThreadSummary";
 import { FeedType, ThreadSummaryType } from "types/Types";
 import { InfiniteData, QueryClient } from "react-query";
-import { expect, test } from "@jest/globals";
 import {
   getActivitiesInCache,
   setActivitiesInCache,

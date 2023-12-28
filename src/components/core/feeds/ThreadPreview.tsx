@@ -135,8 +135,8 @@ const ThreadPreview: React.FC<{
       createdTimeLink={linkToThread}
       text={rootPost.content}
       tags={rootPost.tags}
-      secretIdentity={rootPost.secretIdentity}
-      userIdentity={rootPost.userIdentity}
+      secretIdentity={rootPost.secretIdentity || undefined}
+      userIdentity={rootPost.userIdentity || undefined}
       onNewContribution={noop}
       onNewComment={noop}
       newPost={isLoggedIn && !thread.muted && thread.new}

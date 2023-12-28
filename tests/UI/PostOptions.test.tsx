@@ -1,22 +1,25 @@
 import { Client, getThreadRouter } from "./utils";
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  within,
-} from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 
 import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../server-mocks/data/thread";
-import React from "react";
 import { TagMatcher } from "./utils/matchers";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
-import { copyText } from "lib/text";
+import * as textExports from "lib/text";
+import React from "react";
+import userEvent from "@testing-library/user-event";
 
-jest.mock("components/hooks/usePreventPageChange");
-jest.mock("components/core/useIsChangingRoute");
-jest.mock("components/hooks/useOnPageExit");
-jest.mock("lib/text.ts");
+vi.mock("components/hooks/usePreventPageChange");
+vi.mock("components/core/useIsChangingRoute");
+vi.mock("components/hooks/useOnPageExit");
+vi.spyOn(textExports, "copyText");
+vi.mock("lib/api/hooks/board-feed", async () => ({
+  ...(await vi.importActual("lib/api/hooks/board-feed")),
+  useReadBoardFeed: vi.fn().mockReturnValue(vi.fn()),
+}));
+vi.mock("lib/api/hooks/thread", async () => ({
+  ...(await vi.importActual("lib/api/hooks/thread")),
+  useReadThread: vi.fn().mockReturnValue(vi.fn()),
+}));
 
 const displaysOptionInPanel = async ({
   optionText,
@@ -30,10 +33,12 @@ const displaysOptionInPanel = async ({
   );
   await waitFor(async () => {
     expect(
-      screen.queryAllByLabelText("Post options")?.[postIndex]
+      screen.getAllByLabelText("Post options")?.[postIndex]
     ).toBeInTheDocument();
   });
-  fireEvent.click(screen.queryAllByLabelText("Post options")?.[postIndex]);
+  await userEvent.click(
+    screen.queryAllByLabelText("Post options")?.[postIndex]
+  );
   await waitFor(() => {
     expect(screen.getByText(optionText)).toBeInTheDocument();
   });
@@ -59,13 +64,12 @@ describe("Post Options (Thread)", () => {
         optionText: "Copy thread link",
         postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.starter.id,
       });
-      jest.mocked(copyText);
-      fireEvent.click(option);
+      await userEvent.click(option);
       await waitFor(() => {
         expect(screen.getByText("Link copied!")).toBeInTheDocument();
       });
-      expect(copyText).toHaveBeenLastCalledWith(
-        `http://localhost/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}`
+      expect(textExports.copyText).toHaveBeenLastCalledWith(
+        `http://localhost:3000/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}`
       );
     });
     it("Correctly copies thread URL from thread reply", async () => {
@@ -84,12 +88,12 @@ describe("Post Options (Thread)", () => {
         optionText: "Copy thread link",
         postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
       });
-      fireEvent.click(option);
+      await userEvent.click(option);
       await waitFor(() => {
         expect(screen.getByText("Link copied!")).toBeInTheDocument();
       });
-      expect(copyText).toHaveBeenLastCalledWith(
-        `http://localhost/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}`
+      expect(textExports.copyText).toHaveBeenLastCalledWith(
+        `http://localhost:3000/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}`
       );
     });
 
@@ -109,12 +113,12 @@ describe("Post Options (Thread)", () => {
         optionText: "Copy link",
         postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
       });
-      fireEvent.click(option);
+      await userEvent.click(option);
       await waitFor(() => {
         expect(screen.getByText("Link copied!")).toBeInTheDocument();
       });
-      expect(copyText).toHaveBeenLastCalledWith(
-        `http://localhost/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}/${FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id}`
+      expect(textExports.copyText).toHaveBeenLastCalledWith(
+        `http://localhost:3000/!gore/thread/${FAVORITE_CHARACTER_TO_MAIM_THREAD.id}/${FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id}`
       );
     });
   });
@@ -135,18 +139,18 @@ describe("Post Options (Thread)", () => {
       optionText: "Mute thread",
       postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
     });
-    fireEvent.click(muteOption);
+    await userEvent.click(muteOption);
     // TODO: create a visual indicator that the thread is muted and also check that.
     const unmuteOption = await displaysOptionInPanel({
       optionText: "Unmute thread",
       postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
     });
-    fireEvent.click(unmuteOption);
+    await userEvent.click(unmuteOption);
     await displaysOptionInPanel({
       optionText: "Mute thread",
       postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
     });
-  });
+  }, 10000);
 
   it("Correctly hides and unhides thread", async () => {
     render(
@@ -164,18 +168,18 @@ describe("Post Options (Thread)", () => {
       optionText: "Hide thread",
       postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
     });
-    fireEvent.click(hideOption);
+    await userEvent.click(hideOption);
     // TODO: create a visual indicator that the thread is hidden and also check that.
     const unhideOption = await displaysOptionInPanel({
       optionText: "Unhide thread",
       postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
     });
-    fireEvent.click(unhideOption);
+    await userEvent.click(unhideOption);
     await displaysOptionInPanel({
       optionText: "Hide thread",
       postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
     });
-  });
+  }, 10000);
 
   it("Correctly calls tag editor", async () => {
     render(
@@ -193,7 +197,7 @@ describe("Post Options (Thread)", () => {
       optionText: "Edit tags",
       postId: FAVORITE_CHARACTER_TO_MAIM_THREAD.posts[1].id,
     });
-    fireEvent.click(editTagsOption);
+    await userEvent.click(editTagsOption);
     // TODO: create a visual indicator that the thread is hidden and also check that.
     await waitFor(
       () => {

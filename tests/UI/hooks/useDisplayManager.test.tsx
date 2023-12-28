@@ -6,26 +6,39 @@ import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../../server-mocks/data/threa
 import React from "react";
 import ThreadContextProvider from "components/thread/ThreadContext";
 import { useDisplayManager } from "components/hooks/useDisplayMananger";
+import { FilterableContextProvider } from "components/core/feeds/FilterableContext";
 
-jest.mock("contexts/ThreadViewContext.tsx");
+vi.mock("contexts/ThreadViewContext.tsx");
+
+// TODO: figure out where this gets cleared and why we have to add it again
+const MockMatchMedia = vi.fn().mockImplementation((query) => ({
+  matches: false,
+  media: query,
+  onchange: null,
+  addListener: vi.fn(), // Deprecated
+  removeListener: vi.fn(), // Deprecated
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn(),
+  dispatchEvent: vi.fn(),
+}));
+vi.stubGlobal(`matchMedia`, MockMatchMedia);
 
 const getMockCollapseManager = () => ({
-  onCollapseLevel: jest.fn(),
-  onUncollapseLevel: jest.fn(),
-  getCollapseReason: jest.fn(),
-  onToggleCollapseLevel: jest.fn(),
-  isCollapsed: jest.fn(),
-  subscribeToCollapseChange: jest.fn(),
-  unsubscribeFromCollapseChange: jest.fn(),
-  reset: jest.fn(),
-  addCollapseGroup: jest.fn(),
-  getCollapseGroupAt: jest.fn(),
-  getCollapseGroupId: jest.fn(),
-  onPartiallyUncollapseGroup: jest.fn(),
+  onCollapseLevel: vi.fn(),
+  onUncollapseLevel: vi.fn(),
+  getCollapseReason: vi.fn(),
+  onToggleCollapseLevel: vi.fn(),
+  isCollapsed: vi.fn(),
+  subscribeToCollapseChange: vi.fn(),
+  unsubscribeFromCollapseChange: vi.fn(),
+  reset: vi.fn(),
+  addCollapseGroup: vi.fn(),
+  getCollapseGroupAt: vi.fn(),
+  getCollapseGroupId: vi.fn(),
+  onPartiallyUncollapseGroup: vi.fn(),
   collapseGroups: [],
 });
 
-// TODO: Need to update this to include filterableContext before these tests can have the skip removed
 const getThreadContextWrapper = (threadId: string) => {
   // TODO: maybe remove board slug and board id
   return function ContextWrapper({ children }: { children: React.ReactNode }) {
@@ -36,39 +49,33 @@ const getThreadContextWrapper = (threadId: string) => {
           threadId,
         })}
       >
-        <ThreadContextProvider
-          boardId="gore"
-          postId={null}
-          commentId={null}
-          threadId={threadId}
-        >
-          {children}
-        </ThreadContextProvider>
+        <FilterableContextProvider>
+          <ThreadContextProvider
+            boardId="gore"
+            postId={null}
+            commentId={null}
+            threadId={threadId}
+          >
+            {children}
+          </ThreadContextProvider>
+        </FilterableContextProvider>
       </Client>
     );
   };
 };
 
-beforeAll(() => {
-  jest.useFakeTimers();
-});
-
-beforeEach(() => {
-  requestIdleCallback.mock();
-  animationFrame.mock();
-});
-
-afterEach(() => {
-  requestIdleCallback.restore();
-  animationFrame.restore();
-  jest.clearAllTimers();
-});
-
-afterAll(() => {
-  jest.useRealTimers();
-});
-
-describe.skip("useDisplayManager", () => {
+describe("useDisplayManager", () => {
+  beforeEach(() => {
+    requestIdleCallback.mock();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    animationFrame.mock();
+  });
+  afterEach(() => {
+    requestIdleCallback.cancelIdleCallbacks();
+    requestIdleCallback.restore();
+    animationFrame.restore();
+    vi.useRealTimers();
+  });
   it("Renders first (and unique) batch of thread elements", async () => {
     const threadFetched = getThreadRequestPromise({
       threadId: FAVORITE_CHARACTER_TO_MAIM_THREAD.id,
@@ -117,7 +124,7 @@ describe.skip("useDisplayManager", () => {
     ).toEqual(["11b85dac-e122-40e0-b09a-8829c5e0250e"]);
     expect(result.current.hasMore()).toBe(true);
 
-    const displayMoreCallback = jest.fn();
+    const displayMoreCallback = vi.fn();
     act(() => result.current.displayMore(displayMoreCallback));
     expect(displayMoreCallback).toHaveBeenCalledWith(2, true);
     expect(result.current.maxDisplay).toBe(2);
@@ -167,6 +174,7 @@ describe.skip("useDisplayManager", () => {
     act(() => {
       requestIdleCallback.runIdleCallbacks();
       animationFrame.runFrame();
+      vi.advanceTimersByTime(1000);
     });
     expect(result.current.maxDisplay).toBe(2);
     expect(
@@ -180,6 +188,7 @@ describe.skip("useDisplayManager", () => {
     act(() => {
       requestIdleCallback.runIdleCallbacks();
       animationFrame.runFrame();
+      vi.advanceTimersByTime(1000);
     });
     expect(result.current.maxDisplay).toBe(3);
     expect(

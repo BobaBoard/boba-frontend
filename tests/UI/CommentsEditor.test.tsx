@@ -1,5 +1,6 @@
 import { Client, getThreadRouter } from "./utils";
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -16,9 +17,9 @@ import ThreadPage from "pages/[boardId]/thread/[...threadId]";
 import { makeRealmData } from "lib/api/client-data";
 import userEvent from "@testing-library/user-event";
 
-jest.mock("components/hooks/usePreventPageChange");
-jest.mock("components/core/useIsChangingRoute");
-jest.mock("components/hooks/useOnPageExit");
+vi.mock("components/hooks/usePreventPageChange");
+vi.mock("components/core/useIsChangingRoute");
+vi.mock("components/hooks/useOnPageExit");
 
 describe("Comments editor", () => {
   it("renders comments after replying to thread (single comment)", async () => {
@@ -39,6 +40,7 @@ describe("Comments editor", () => {
     await waitFor(() => {
       expect(screen.getAllByText("Comment")[0]).toBeInTheDocument();
     });
+
     fireEvent.click(screen.getAllByText("Comment")[0]);
 
     await waitFor(() => {
@@ -50,13 +52,19 @@ describe("Comments editor", () => {
       ".ReactModalPortal .ql-editor"
     );
     expect(editorContainer).toBeInTheDocument();
-    userEvent.type(editorContainer!, "bar1");
+
+    await waitFor(async () => {
+      await userEvent.type(editorContainer!, "bar1");
+    });
 
     await waitFor(() => {
       expect(within(modal!).getByLabelText("Submit")).not.toBeDisabled();
     });
 
-    fireEvent.click(within(modal!).getByLabelText("Submit"));
+    // TODO: Do not believe eslint lies
+    act(() => {
+      fireEvent.click(within(modal!).getByLabelText("Submit"));
+    });
 
     await waitForElementToBeRemoved(() =>
       document.querySelector<HTMLElement>(".ReactModalPortal .ql-editor")
@@ -66,7 +74,7 @@ describe("Comments editor", () => {
     await waitFor(() => {
       expect(within(mainContainer!).getByText("bar1")).toBeInTheDocument();
     });
-  });
+  }, 10000);
 
   it("renders comments after replying to thread (multiple comments)", async () => {
     render(
@@ -86,18 +94,23 @@ describe("Comments editor", () => {
     await waitFor(() => {
       expect(screen.getAllByText("Comment")[0]).toBeInTheDocument();
     });
-    fireEvent.click(screen.getAllByText("Comment")[0]);
+    act(() => {
+      fireEvent.click(screen.getAllByText("Comment")[0]);
+    });
 
     await waitFor(() => {
       expect(screen.getByLabelText("Submit")).toBeVisible();
     });
 
     const modal = document.querySelector<HTMLElement>(".ReactModalPortal");
-    const editorContainer = document.querySelector<HTMLElement>(
+    let editorContainer = document.querySelector<HTMLElement>(
       ".ReactModalPortal .ql-editor"
     );
     expect(editorContainer).toBeInTheDocument();
-    userEvent.type(editorContainer!, "bar1");
+
+    await waitFor(async () => {
+      await userEvent.type(editorContainer!, "bar1");
+    });
 
     await waitFor(() => {
       expect(within(modal!).getByLabelText("Submit")).not.toBeDisabled();
@@ -105,19 +118,26 @@ describe("Comments editor", () => {
 
     fireEvent.click(modal!.querySelector(".append")!);
 
+    let editorContainers: NodeListOf<HTMLElement> | null;
     await waitFor(() => {
-      const editorContainer = document.querySelectorAll<HTMLElement>(
+      editorContainers = document.querySelectorAll<HTMLElement>(
         ".ReactModalPortal .ql-editor"
       );
-      expect(editorContainer.length).toBe(2);
-      userEvent.type(editorContainer![1], "bar2");
+      expect(editorContainers.length).toBe(2);
+    });
+
+    fireEvent.click(editorContainers![1]);
+    await waitFor(async () => {
+      await userEvent.type(editorContainers![1], "bar2");
     });
 
     await waitFor(() => {
       expect(within(modal!).getAllByLabelText("Submit")[1]).not.toBeDisabled();
     });
 
-    fireEvent.click(within(modal!).getAllByLabelText("Submit")[1]);
+    act(() => {
+      fireEvent.click(within(modal!).getAllByLabelText("Submit")[1]);
+    });
 
     await waitForElementToBeRemoved(() =>
       document.querySelector<HTMLElement>(".ReactModalPortal .ql-editor")
@@ -131,23 +151,27 @@ describe("Comments editor", () => {
       expect(within(mainContainer!).getByText("bar1")).toBeInTheDocument();
       expect(within(mainContainer!).getByText("bar2")).toBeInTheDocument();
     });
-  });
+  }, 10000);
 
-  it("renders comments after replying to comment (multiple comments)", async () => {
-    render(
-      <Client
-        router={getThreadRouter({
-          boardSlug: "gore",
-          threadId: FAVORITE_CHARACTER_TO_MAIM_THREAD.id,
-        })}
-        initialData={{
-          realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
-        }}
-      >
-        <ThreadPage />
-      </Client>
-    );
+  it.todo(
+    "renders comments after replying to comment (multiple comments)",
+    async () => {
+      render(
+        <Client
+          router={getThreadRouter({
+            boardSlug: "gore",
+            threadId: FAVORITE_CHARACTER_TO_MAIM_THREAD.id,
+          })}
+          initialData={{
+            realm: makeRealmData(LOGGED_IN_V0_MEMBER_DATA) as RealmType,
+          }}
+        >
+          <ThreadPage />
+        </Client>
+      );
 
-    // TODO: fill this
-  });
+      // TODO: fill this
+    },
+    10000
+  );
 });

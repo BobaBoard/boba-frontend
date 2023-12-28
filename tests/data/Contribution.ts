@@ -14,7 +14,6 @@ export const REVOLVER_OCELOT_CONTRIBUTION: PostType = {
   userIdentity: { name: "bobatan", avatar: "/bobatan.png" },
   created: "2020-05-01T05:42:00.00Z",
   content: '[{"insert":"Revolver Ocelot"}]',
-  options: {},
   tags: {
     whisperTags: ["fight me on this"],
     indexTags: ["evil", "oddly specific", "metal gear", "bobapost"],
@@ -40,7 +39,6 @@ export const KERMIT_THE_FROG_CONTRIBUTION: PostType = {
   userIdentity: { name: "oncest5evah", avatar: "/greedler.jpg" },
   created: "2020-05-02T06:04:00.00Z",
   content: '[{"insert":"Kermit the Frog"}]',
-  options: {},
   tags: {
     whisperTags: [
       "Im too ashamed to admit this ok",
@@ -70,7 +68,6 @@ export const REMEMBER_TO_BE_EXCELLENT_CONTRIBUTION: PostType = {
   created: "2020-09-25T05:42:00.00Z",
   content:
     '[{"insert":"Remember to be excellent to each other and only be mean to fictional characters!"}]',
-  options: {},
   tags: {
     whisperTags: ["An announcement from your headmaster!"],
     indexTags: [],
@@ -96,7 +93,6 @@ export const FAVORITE_CHARACTER_CONTRIBUTION: PostType = {
   userIdentity: { name: "oncest5evah", avatar: "/greedler.jpg" },
   created: "2020-04-30T03:23:00.00Z",
   content: '[{"insert":"Favorite character to maim?"}]',
-  options: {},
   tags: {
     whisperTags: [],
     indexTags: ["evil", "bobapost"],
@@ -121,7 +117,6 @@ export const FAVORITE_MURDER_CONTRIBUTION: PostType = {
   userIdentity: { name: "bobatan", avatar: "/bobatan.png" },
   created: "2020-04-24T05:42:00.00Z",
   content: '[{"insert":"Favorite murder scene in videogames?"}]',
-  options: {},
   tags: {
     whisperTags: ["mwehehehehe"],
     indexTags: [],
@@ -143,9 +138,9 @@ export const STUFF_WILL_BE_INSERTED_CONTRIBUTION: PostType = {
     accessory: undefined,
     color: undefined,
   },
+  userIdentity: null,
   created: "2020-04-24T05:42:00.00Z",
   content: '[{"insert":"Stuff will be inserted here!"}]',
-  options: {},
   tags: {
     whisperTags: ["this is a test post"],
     indexTags: [],

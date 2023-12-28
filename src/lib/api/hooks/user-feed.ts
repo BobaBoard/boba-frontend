@@ -6,6 +6,7 @@ import { useRealmContext } from "contexts/RealmContext";
 export interface FeedOptions {
   showRead: boolean;
   ownOnly: boolean;
+  realmId?: string;
 }
 
 export const USER_FEED_KEY = "userActivityData";
@@ -22,13 +23,11 @@ export const useUserFeed = ({
   return useInfiniteQuery(
     [USER_FEED_KEY, feedOptions],
     ({ pageParam = undefined }) =>
-      getUserActivityData(
-        {
-          ...feedOptions,
-          realmId,
-        },
-        pageParam
-      ),
+      getUserActivityData({
+        ...feedOptions,
+        cursor: pageParam,
+        realmId,
+      }),
     {
       getNextPageParam: (lastGroup) => {
         return lastGroup?.cursor.next;

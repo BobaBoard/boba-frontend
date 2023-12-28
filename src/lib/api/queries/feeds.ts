@@ -1,5 +1,13 @@
+import {
+  GetBoardsFeedByExternalIdPathParams,
+  GetBoardsFeedByExternalIdQueryParams,
+  GetUserFeedQueryParams,
+  getBoardsFeedByExternalId,
+  getUserFeed,
+} from "lib/api/generated";
+
+import { Camelize } from "lib/typescript";
 import { FeedType } from "types/Types";
-import axios from "axios";
 import debug from "debug";
 import { makeClientThreadSummary } from "lib/api/client-data";
 
@@ -9,8 +17,8 @@ export const getBoardActivityData = async (
   {
     boardId,
     categoryFilter,
-    realmId,
-  }: { boardId: string | null; categoryFilter: string | null; realmId: string },
+  }: Camelize<GetBoardsFeedByExternalIdPathParams> &
+    Camelize<GetBoardsFeedByExternalIdQueryParams>,
   cursor?: string
 ): Promise<FeedType> => {
   log(`Fetching board activity for board with id ${boardId}.`);
@@ -19,15 +27,16 @@ export const getBoardActivityData = async (
     // TODO: don't request activity when there's no slug.
     throw new Error("Attempted to fetch board activity with no id");
   }
-  const response = await axios.get(`feeds/boards/${boardId}`, {
-    params: { cursor, categoryFilter, realmId },
+  const response = await getBoardsFeedByExternalId(boardId, {
+    categoryFilter,
+    cursor,
   });
+
   log(
     `Got response for board activity with id ${boardId}. Status: ${response.status}`
   );
-
   if (response.status == 204) {
-    // No data, let's return empty array
+    // No data, let's return emptyy
     return { cursor: { next: null }, activity: [] };
   }
   // Transform post to client-side type.
@@ -38,16 +47,9 @@ export const getBoardActivityData = async (
 };
 
 export const getUserActivityData = async (
-  params: {
-    ownOnly?: boolean;
-    updatedOnly?: boolean;
-    realmId: string;
-  },
-  cursor: string
+  params: GetUserFeedQueryParams
 ): Promise<FeedType> => {
-  const response = await axios.get(`feeds/users/@me`, {
-    params: { ...params, cursor },
-  });
+  const response = await getUserFeed(params);
   if (response.status == 204) {
     // No data, let's return empty array
     return { cursor: { next: null }, activity: [] };

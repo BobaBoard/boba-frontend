@@ -1,5 +1,6 @@
 import { Client, getBoardRouter, getThreadRouter } from "./utils";
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -11,16 +12,24 @@ import {
 import BoardPage from "pages/[boardId]/index";
 import { FAVORITE_CHARACTER_TO_MAIM_THREAD } from "../server-mocks/data/thread";
 import { LOGGED_IN_V0_MEMBER_DATA } from "../server-mocks/data/realm";
-import React from "react";
 import { RealmType } from "types/Types";
 import { TagMatcher } from "./utils/matchers";
 import ThreadPage from "pages/[boardId]/thread/[...threadId]";
 import { makeRealmData } from "lib/api/client-data";
+import React from "react";
 import userEvent from "@testing-library/user-event";
 
-jest.mock("components/hooks/usePreventPageChange");
-jest.mock("components/core/useIsChangingRoute");
-jest.mock("components/hooks/useOnPageExit");
+vi.mock("components/hooks/usePreventPageChange");
+vi.mock("components/core/useIsChangingRoute");
+vi.mock("components/hooks/useOnPageExit");
+vi.mock("lib/api/hooks/board-feed", async () => ({
+  ...(await vi.importActual("lib/api/hooks/board-feed")),
+  useReadBoardFeed: vi.fn().mockReturnValue(vi.fn()),
+}));
+vi.mock("lib/api/hooks/thread", async () => ({
+  ...(await vi.importActual("lib/api/hooks/thread")),
+  useReadThread: vi.fn().mockReturnValue(vi.fn()),
+}));
 
 const getPostByTextContent = async (textContent: string) => {
   return (await screen.findByText(textContent))?.closest("article");
@@ -49,13 +58,18 @@ describe("PostEditor", () => {
       ".ReactModalPortal .ql-editor"
     );
     expect(editorContainer).toBeInTheDocument();
-    userEvent.type(editorContainer!, "bar");
+
+    await waitFor(async () => {
+      await userEvent.type(editorContainer!, "bar");
+    });
 
     await waitFor(() => {
       expect(within(modal!).getByLabelText("Submit")).not.toBeDisabled();
     });
 
-    fireEvent.click(within(modal!).getByLabelText("Submit"));
+    act(() => {
+      fireEvent.click(within(modal!).getByLabelText("Submit"));
+    });
 
     const mainContainer = document.querySelector<HTMLElement>(".content main");
     await waitForElementToBeRemoved(
@@ -100,7 +114,7 @@ describe("PostEditor", () => {
     );
     fireEvent.click(identityInSelector);
 
-    userEvent.type(editorContainer!, "bar");
+    await userEvent.type(editorContainer!, "bar");
 
     await waitFor(() => {
       expect(within(modal!).getByLabelText("Submit")).not.toBeDisabled();
@@ -133,17 +147,17 @@ describe("PostEditor", () => {
     const popover = document.querySelector<HTMLElement>(
       ".react-tiny-popover-container"
     );
-    fireEvent.click(await within(popover!).findByText("Edit tags")!);
+    fireEvent.click(await (await within(popover!).findByText("Edit tags"))!);
 
     const tagsInput = await screen.findByLabelText("The tags input area");
     const modal = document.querySelector<HTMLElement>(".ReactModalPortal");
     expect(within(modal!).getByText("bruises")).toBeVisible();
 
     fireEvent.click(tagsInput!);
-    userEvent.type(tagsInput!, "a new tag{enter}");
-    userEvent.type(tagsInput!, "+a new category{enter}");
-    userEvent.type(tagsInput!, "cn: a new warning{enter}");
-    userEvent.type(tagsInput!, "#a new search tag{enter}");
+    await userEvent.type(tagsInput!, "a new tag{enter}");
+    await userEvent.type(tagsInput!, "+a new category{enter}");
+    await userEvent.type(tagsInput!, "cn: a new warning{enter}");
+    await userEvent.type(tagsInput!, "#a new search tag{enter}");
 
     fireEvent.click(within(modal!).getByLabelText("Submit"));
 
@@ -209,7 +223,7 @@ describe("PostEditor", () => {
       ".ReactModalPortal .ql-editor"
     );
     expect(editorContainer).toBeInTheDocument();
-    userEvent.type(editorContainer!, "bar");
+    await userEvent.type(editorContainer!, "bar");
 
     await waitFor(() => {
       expect(within(modal!).getByLabelText("Submit")).not.toBeDisabled();

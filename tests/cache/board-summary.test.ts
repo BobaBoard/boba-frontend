@@ -10,7 +10,6 @@ import {
   getBoardSummaryInCache,
   setBoardSummaryInCache,
 } from "lib//api/cache/board";
-import { expect, test } from "@jest/globals";
 
 import { QueryClient } from "react-query";
 import { REALM_QUERY_KEY } from "contexts/RealmContext";
@@ -110,7 +109,7 @@ describe("Tests for setBoardSummaryInCache", () => {
     };
     queryClient.setQueryData(getV0QueryKey(), originalData);
 
-    const transform = jest.fn();
+    const transform = vi.fn();
     setBoardSummaryInCache(
       queryClient,
       {

@@ -15,8 +15,8 @@ import { makeRealmData } from "lib/api/client-data";
 
 const GORE_ROUTER = getBoardRouter({ boardSlug: "gore" });
 
-jest.mock("components/hooks/usePreventPageChange");
-jest.mock("components/core/useIsChangingRoute");
+vi.mock("components/hooks/usePreventPageChange");
+vi.mock("components/core/useIsChangingRoute");
 
 const renderSidebar = () => {
   render(

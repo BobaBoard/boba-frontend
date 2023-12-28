@@ -1,5 +1,6 @@
 import { Client, getUserSettingsRoute } from "./utils";
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -8,23 +9,32 @@ import {
 } from "@testing-library/react";
 
 import { BOBATAN_USER_DATA } from "../server-mocks/data/user";
-import React from "react";
 import UserPage from "pages/users/settings/[[...settingId]]";
 import userEvent from "@testing-library/user-event";
+import React from "react";
 
 const SETTINGS_ROUTER = getUserSettingsRoute({
   settingSection: "display-data",
 });
 
-jest.mock("components/hooks/usePreventPageChange");
-jest.mock("components/core/useIsChangingRoute");
-jest.mock("lib/image-upload", () => ({
-  ...jest.requireActual("lib/image-upload"),
-  uploadImage: jest.fn(({ baseUrl, extension }) =>
+vi.mock("components/hooks/usePreventPageChange");
+vi.mock("components/core/useIsChangingRoute");
+vi.mock("lib/image-upload", async () => ({
+  ...(await vi.importActual("lib/image-upload")),
+  uploadImage: vi.fn(({ baseUrl, extension }) =>
     Promise.resolve(`${baseUrl}image${extension}`)
   ),
 }));
 describe("UserSettings", () => {
+  beforeEach(() => {
+    vi.useFakeTimers({
+      shouldAdvanceTime: true,
+    });
+  });
+  afterEach(() => {
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
+  });
   it("renders username and avatar", async () => {
     render(
       <Client router={SETTINGS_ROUTER}>
@@ -76,10 +86,15 @@ describe("UserSettings", () => {
     });
 
     const input = screen.getByLabelText("Upload new avatar");
-    userEvent.upload(
+    await userEvent.upload(
       input,
       new File(["darkBobatanAvatar"], "dark-bobatan.png", { type: "image/png" })
     );
+
+    act(() => {
+      // Make upload work
+      vi.advanceTimersByTime(1000);
+    });
 
     await waitFor(() => {
       expect(
@@ -103,5 +118,5 @@ describe("UserSettings", () => {
           .querySelector(`[src*="images/users/avatar/image.jpeg"]`)
       ).toBeVisible();
     });
-  });
+  }, 10000);
 });

@@ -1,6 +1,5 @@
 import { CommentType, FeedType, SecretIdentityType } from "types/Types";
 import { InfiniteData, QueryClient } from "react-query";
-import { expect, test } from "@jest/globals";
 import { getThreadDataFromCache, getThreadKey } from "./thread.test";
 
 import { FAVORITE_CHARACTER_GORE_EMPTY_THREAD } from "../data/Thread";

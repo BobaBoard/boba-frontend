@@ -1,0 +1,1 @@
+{"type":"object","properties":{"name":{"type":"string"},"avatar":{"type":"string","format":"uri-reference"}},"required":["name","avatar"],"x-readme-ref-name":"Identity"}

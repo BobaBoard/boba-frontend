@@ -12,15 +12,20 @@ import {
   within,
 } from "@testing-library/react";
 
-import BoardPage from "pages/[boardId]/index";
 import React from "react";
+
+import BoardPage from "pages/[boardId]/index";
 import { RealmType } from "types/Types";
 import { makeRealmData } from "lib/api/client-data";
 
 const GORE_ROUTER = getBoardRouter({ boardSlug: "gore" });
 
-jest.mock("components/hooks/usePreventPageChange");
-jest.mock("components/core/useIsChangingRoute");
+vi.mock("components/hooks/usePreventPageChange");
+vi.mock("components/core/useIsChangingRoute");
+vi.mock("lib/api/hooks/board-feed", async () => ({
+  ...(await vi.importActual("lib/api/hooks/board-feed")),
+  useReadBoardFeed: vi.fn().mockReturnValue(vi.fn()),
+}));
 
 describe("BoardFeed", () => {
   it("renders sidebar description", async () => {

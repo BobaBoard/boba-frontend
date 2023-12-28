@@ -5,7 +5,6 @@ import { REALM_QUERY_KEY, RealmContextProvider } from "contexts/RealmContext";
 import { AuthContext } from "components/Auth";
 import { NextRouter } from "next/router";
 import { QueryParamProvider } from "components/QueryParamNextProvider";
-import React from "react";
 import { RealmType } from "types/Types";
 import { V0_DATA } from "../../server-mocks/data/realm";
 import { debug } from "debug";
@@ -13,10 +12,10 @@ import { makeRealmData } from "lib/api/client-data";
 import { matchRequestUrl } from "msw";
 import { server } from "../../server-mocks";
 import { usePageDataListener } from "lib/router";
-
-const useRouter = jest.spyOn(require("next/router"), "useRouter");
-
+import { randomUUID } from "crypto";
+import React from "react";
 const routerInfo = debug("bobatest:router");
+import { useRouter } from "next/router";
 
 export const BASE_ROUTER: NextRouter = {
   asPath: "/",
@@ -168,7 +167,7 @@ export const Client = ({
     },
   });
 
-  useRouter.mockImplementationOnce(() => router);
+  vi.mocked(useRouter).mockImplementation(() => router);
   queryClient.setQueryData(
     [
       REALM_QUERY_KEY,
@@ -200,7 +199,7 @@ export const Client = ({
           }}
         >
           <ImageUploaderContext.Provider
-            value={{ onImageUploadRequest: jest.fn() }}
+            value={{ onImageUploadRequest: vi.fn() }}
           >
             <ToastContainer />
             <RealmContextProvider serverHostname={undefined}>
@@ -241,7 +240,8 @@ export const LoggedOutClient = ({
     },
   });
 
-  useRouter.mockImplementationOnce(() => router);
+  vi.mocked(useRouter).mockImplementation(() => router);
+
   queryClient.setQueryData(
     [
       REALM_QUERY_KEY,
@@ -261,7 +261,7 @@ export const LoggedOutClient = ({
     writable: true,
   });
 
-  const mockAttemptLogin = jest.fn();
+  const mockAttemptLogin = vi.fn();
 
   return (
     <QueryParamProvider router={router}>
@@ -276,7 +276,7 @@ export const LoggedOutClient = ({
           }}
         >
           <ImageUploaderContext.Provider
-            value={{ onImageUploadRequest: jest.fn() }}
+            value={{ onImageUploadRequest: vi.fn() }}
           >
             <ToastContainer />
             <RealmContextProvider serverHostname={undefined}>
@@ -290,24 +290,30 @@ export const LoggedOutClient = ({
 };
 
 export const waitForRequest = (method: string, url: string) => {
-  let requestId = "";
+  const requestId = randomUUID();
   return new Promise((resolve, reject) => {
-    server.events.on("request:start", (req) => {
-      const matchesMethod = req.method.toLowerCase() === method.toLowerCase();
-      const matchesUrl = matchRequestUrl(req.url, url);
+    server.events.on("request:start", ({ request }) => {
+      const matchesMethod =
+        request.method.toLowerCase() === method.toLowerCase();
+      const matchesUrl = matchRequestUrl(new URL(request.url), url);
       if (matchesMethod && matchesUrl) {
-        requestId = req.id;
+        // @ts-ignore
+        request.id = requestId;
       }
     });
-    server.events.on("request:end", (req) => {
-      if (req.id === requestId) {
-        resolve(req);
+    server.events.on("request:end", ({ request }) => {
+      // @ts-ignore
+      if (request.id === requestId) {
+        resolve(request);
       }
     });
-    server.events.on("request:unhandled", (req) => {
-      if (req.id === requestId) {
+    server.events.on("request:unhandled", ({ request }) => {
+      // @ts-ignore
+      if (request.id === requestId) {
         reject(
-          new Error(`The ${req.method} ${req.url.href} request was unhandled.`)
+          new Error(
+            `The ${request.method} ${request.url} request was unhandled.`
+          )
         );
       }
     });

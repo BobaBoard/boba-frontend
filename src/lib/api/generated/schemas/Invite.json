@@ -1,0 +1,1 @@
+{"type":"object","properties":{"realm_id":{"type":"string","format":"uuid"},"invite_url":{"type":"string","format":"uri-reference"}},"required":["realm_id","invite_url"],"x-readme-ref-name":"Invite"}

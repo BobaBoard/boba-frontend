@@ -66,7 +66,7 @@ const ThreadSidebar: React.FC<ThreadSidebarProps> = (props) => {
           })}
           text={threadRoot.content}
           secretIdentity={threadRoot.secretIdentity}
-          userIdentity={threadRoot.userIdentity}
+          userIdentity={threadRoot.userIdentity || undefined}
           forceHideIdentity={forceHideIdentity}
         />
       </div>

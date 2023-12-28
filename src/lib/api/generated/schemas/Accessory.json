@@ -1,0 +1,1 @@
+{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"name":{"type":"string"},"accessory":{"type":"string","format":"uri-reference"}},"required":["id","name","accessory"],"x-readme-ref-name":"Accessory"}

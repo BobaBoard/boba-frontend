@@ -4,7 +4,6 @@ import {
   PINNED_BOARDS_QUERY_KEY,
   PinnedBoardType,
 } from "lib/api/hooks/pinned-boards";
-import { expect, test } from "@jest/globals";
 
 import { BOARD_METADATA_KEY } from "lib/api/hooks/board";
 import { GORE_METADATA_BOBATAN } from "../data/BoardMetadata";

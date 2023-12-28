@@ -6,6 +6,7 @@ import realmHandlers from "./realms";
 import { setupServer } from "msw/node";
 import threadHandlers from "./threads";
 import usersHandlers from "./users";
+import { http, HttpResponse } from "msw";
 
 const log = debug("bobafrontend:tests:server-mocks");
 
@@ -25,9 +26,26 @@ export const server = setupServer(
   ...realmHandlers,
   ...feedHandlers,
   ...threadHandlers,
-  ...postsHandlers
+  ...postsHandlers,
+  http.options("*", () => {
+    return new HttpResponse();
+  })
 );
 
-server.events.on("request:start", (req) => {
-  log("new request:", req.method, req.url.href, req.body);
+server.events.on("request:start", async ({ request: req }) => {
+  // console.log(
+  //   "new request:",
+  //   req.method,
+  //   req.url,
+  //   req.body && (await req.clone().json())
+  // );
+});
+server.events.on("response:mocked", ({ request, requestId, response }) => {
+  // console.log(
+  //   "%s %s received %s %s",
+  //   request.method,
+  //   request.url,
+  //   response.status,
+  //   response.statusText
+  // );
 });

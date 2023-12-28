@@ -1,9 +1,14 @@
-import { useBoardSummary, useRealmContext } from "contexts/RealmContext";
 import { useInfiniteQuery, useQueryClient } from "react-query";
 
 import React from "react";
 import { getBoardActivityData } from "lib/api/queries/feeds";
 import { useAuth } from "components/Auth";
+import { useBoardSummary, useCurrentRealmBoardId } from "contexts/RealmContext";
+import { useFilterableContext } from "components/core/feeds/FilterableContext";
+import axios from "axios";
+
+import debug from "debug";
+const log = debug("bobafrontend:api/hooks/board-feed-log");
 
 export const BOARD_ACTIVITY_KEY = "boardActivityData";
 export function useBoardActivity(props: {
@@ -13,14 +18,13 @@ export function useBoardActivity(props: {
 }) {
   const { boardId, categoryFilter } = props;
   const boardSummary = useBoardSummary({ boardId });
-  const { id: realmId } = useRealmContext();
   const { isLoggedIn, isPending: isAuthPending } = useAuth();
 
   return useInfiniteQuery(
     [BOARD_ACTIVITY_KEY, { boardId, categoryFilter }],
     ({ pageParam = undefined }) =>
       getBoardActivityData(
-        { boardId, categoryFilter: categoryFilter?.[0] || null, realmId },
+        { boardId: boardId!, categoryFilter: categoryFilter?.[0] ?? undefined },
         pageParam
       ),
     {
@@ -43,4 +47,22 @@ export const useRefetchBoardActivity = () => {
       queryClient.invalidateQueries([BOARD_ACTIVITY_KEY, { boardId }]),
     [queryClient]
   );
+};
+
+export const useReadBoardFeed = (args: { boardSlug: string }) => {
+  const { isLoggedIn, isPending } = useAuth();
+  const boardId = useCurrentRealmBoardId({ boardSlug: args?.boardSlug });
+  const { activeCategories } = useFilterableContext();
+
+  const { isFetched: boardActivityFetched } = useBoardActivity({
+    boardId,
+    categoryFilter: activeCategories,
+  });
+
+  React.useEffect(() => {
+    if (!isPending && isLoggedIn && boardActivityFetched && boardId) {
+      log(`Marking board ${boardId} as visited`);
+      axios.post(`/boards/${boardId}/visits`);
+    }
+  }, [isPending, isLoggedIn, boardId, boardActivityFetched]);
 };

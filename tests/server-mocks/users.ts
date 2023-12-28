@@ -5,55 +5,51 @@ import {
 } from "./data/user";
 
 import debug from "debug";
-import { rest } from "msw";
+import { http, HttpResponse } from "msw";
 import { server } from ".";
 import { V0_DATA } from "./data/realm";
 
 const log = debug("bobafrontend:tests:server-mocks:users");
 
 export default [
-  rest.get(`/users/@me`, (req, res, ctx) => {
+  http.get(`/users/@me`, () => {
     log("fetching bobatan's user data");
-    return res(ctx.status(200), ctx.json(BOBATAN_USER_DATA));
+    return HttpResponse.json(BOBATAN_USER_DATA);
   }),
-  rest.get(`/users/@me/pins/realms/${V0_DATA.id}`, (req, res, ctx) => {
+  http.get(`/users/@me/pins/realms/${V0_DATA.id}`, () => {
     log("fetching bobatan's pinned boards");
-    return res(ctx.status(200), ctx.json(BOBATAN_V0_PINNED_BOARDS));
+    return HttpResponse.json(BOBATAN_V0_PINNED_BOARDS);
   }),
-  rest.patch<{
+  http.patch<{
     username: string;
     avatarUrl: string;
-  }>("/users/@me", (req, res, ctx) => {
-    log("updating user data to:", req.body);
-    if (!req.body?.username || !req.body?.avatarUrl) {
+  }>("/users/@me", async ({ request }) => {
+    const body = (await request.json()) as any;
+    log("updating user data to:", body);
+    if (!body?.username || !body?.avatarUrl) {
       log("invalid request body");
       throw new Error("invalid request");
     }
 
     // Now return the updated user data when the user data route is called again.
     server.use(
-      rest.get(`/users/@me`, (_, res, ctx) => {
+      http.get(`/users/@me`, async ({ request }) => {
         log("fetching updated user data");
-        return res(
-          ctx.status(200),
-          ctx.json({
-            ...BOBATAN_USER_DATA,
-            username: req.body.username,
-            avatar_url: req.body.avatarUrl,
-          })
-        );
+        const body = (await request.json()) as any;
+        return HttpResponse.json({
+          ...BOBATAN_USER_DATA,
+          username: body.username,
+          avatar_url: body.avatarUrl,
+        });
       })
     );
-    return res(
-      ctx.status(200),
-      ctx.json({
-        username: req.body.username,
-        avatar_url: req.body.avatarUrl,
-      })
-    );
+    return HttpResponse.json({
+      username: body.username,
+      avatar_url: body.avatarUrl,
+    });
   }),
-  rest.get("/users/@me/bobadex", (req, res, ctx) => {
+  http.get("/users/@me/bobadex", () => {
     log("fetching bobatan's bobadex");
-    return res(ctx.status(200), ctx.json(BOBATAN_BOBADEX));
+    return HttpResponse.json(BOBATAN_BOBADEX);
   }),
 ];

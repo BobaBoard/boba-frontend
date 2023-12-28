@@ -1,0 +1,1 @@
+{"type":"array","items":{"type":"string","enum":["edit_board_details"]},"x-readme-ref-name":"BoardPermissions"}

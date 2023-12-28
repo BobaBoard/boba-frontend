@@ -1,7 +1,7 @@
 import { BASE_ROUTER, Client } from "./utils";
 import { render, screen, waitFor } from "@testing-library/react";
-
 import React from "react";
+
 import SideMenu from "components/core/layouts/SideMenu";
 
 describe("SideMenu", () => {
