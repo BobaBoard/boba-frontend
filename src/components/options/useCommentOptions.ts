@@ -1,10 +1,6 @@
 import { CommentType, RealmPermissions } from "types/Types";
 import { ThreadPageDetails, usePageDetails } from "lib/router";
 import { faArrowRight, faLink } from "@fortawesome/free-solid-svg-icons";
-import {
-  useCurrentRealmBoardId,
-  useRealmPermissions,
-} from "contexts/RealmContext";
 
 import { DropdownProps } from "@bobaboard/ui-components/dist/common/DropdownListMenu";
 import React from "react";
@@ -13,10 +9,10 @@ import { faComment } from "@fortawesome/free-regular-svg-icons";
 import { getCommentsChain } from "components/thread/CommentsThread";
 import { isNotNull } from "lib/typescript";
 import { toast } from "@bobaboard/ui-components";
-import { useBoardMetadata } from "lib/api/hooks/board";
 import { useCachedLinks } from "components/hooks/useCachedLinks";
 import { useDebugOptions } from "./comment/useDebugOptions";
 import { useEditorsState } from "components/core/editors/EditorsContext";
+import { useRealmPermissions } from "contexts/RealmContext";
 import { useThreadContext } from "components/thread/ThreadContext";
 import { useThreadEditors } from "components/core/editors/withEditors";
 
@@ -43,10 +39,6 @@ export const useCommentOptions = ({
   const { commentId, parentPostId } = comment;
   const { getLinkToComment } = useCachedLinks();
   const { slug, threadId } = usePageDetails<ThreadPageDetails>();
-  const boardId = useCurrentRealmBoardId({
-    boardSlug: slug,
-  });
-  const { boardMetadata } = useBoardMetadata({ boardId });
   const realmPermissions = useRealmPermissions();
   const { postCommentsMap } = useThreadContext();
   const { parentChainMap } = postCommentsMap.get(parentPostId)!;
@@ -54,7 +46,7 @@ export const useCommentOptions = ({
   const editorState = useEditorsState();
 
   const linkToComment = getLinkToComment({
-    slug: boardMetadata!.slug,
+    slug: slug,
     commentId: commentId,
     threadId: threadId,
   });
